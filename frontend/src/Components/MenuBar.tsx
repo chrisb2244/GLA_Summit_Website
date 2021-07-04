@@ -1,4 +1,4 @@
-import { Link, BrowserRouter as Router } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import "../GLA-generic.css"
 
 export function MenuBar(props: {}) {
@@ -6,7 +6,6 @@ export function MenuBar(props: {}) {
 
   return (
     <>
-      <Router>
         <ul className="gla-main-menu">
           <li>
             <Link to="/">Home</Link>
@@ -15,7 +14,6 @@ export function MenuBar(props: {}) {
             <Link to="/our-team">Our Team</Link>
           </li>
         </ul>
-      </Router>
     </>
   )
 }

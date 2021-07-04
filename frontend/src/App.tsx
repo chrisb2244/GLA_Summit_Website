@@ -10,12 +10,17 @@ function App() {
   const eventEnd = new Date(eventStart.getTime() + (24*3600000));
   return (
     <div className="App">
-      <Header/>
-      <Countdown event_start={eventStart} event_end={eventEnd}/>
       <Router>
+        <Header/>
+        <Countdown event_start={eventStart} event_end={eventEnd}/>
         <Switch>
           <Route path="/our-team">
             <OurTeam/>
+          </Route>
+          <Route path="/" exact>
+            <div>
+              <p>This is the homepage text...</p>
+            </div>
           </Route>
         </Switch>
       </Router>
