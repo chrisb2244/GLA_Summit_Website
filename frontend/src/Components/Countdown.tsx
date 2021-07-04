@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import '../GLA-generic.css'
 
 export type CountdownProps = {
   event_start: Date
@@ -67,36 +68,19 @@ export function Countdown(props: CountdownProps) {
     };
   }
 
-  let display = <></>
-  switch(status) {
-    case "Upcoming":
-      display = (
-        <div>
-          <span>Event will start in: </span>
-          <span>{timerVals.days} days, </span>
-          <span>{timerVals.hours} hours, </span>
-          <span>{timerVals.minutes} minutes, </span>
-          <span>{timerVals.seconds} seconds.</span>
-        </div>
-      )
-      break;
-    case "Live":
-      display = (
-        <div>
-          <span>Event is live for the next: </span>
-          <span>{timerVals.days} days, </span>
-          <span>{timerVals.hours} hours, </span>
-          <span>{timerVals.minutes} minutes, </span>
-          <span>{timerVals.seconds} seconds.</span>
-        </div>
-      )
-      break;
-    case "Finished":
-      display = (
-        <div>
-          <span>This event has finished.</span>
-        </div>
-      )
-  }
-  return display;
+  const counterElems = status !== "Finished" ? (
+    <div>
+      <div className = "gla-countdown-text">{status === "Upcoming" ? "This event will start in:" : "This event is live for the next:"}</div>
+      <div><span className="days">{timerVals.days}</span><div className="smallText">Days</div></div>
+      <div><span className="hours">{timerVals.hours}</span><div className="smallText">Hours</div></div>
+      <div><span className="minutes">{timerVals.minutes}</span><div className="smallText">Minutes</div></div>
+      <div><span className="seconds">{timerVals.seconds}</span><div className="smallText">Seconds</div></div>
+    </div>
+  ) : <div><span>This event has finished.</span></div>
+
+  return (
+    <div className="gla-countdown-timer">
+      {counterElems}
+    </div>
+  )
 }

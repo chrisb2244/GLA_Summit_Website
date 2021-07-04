@@ -13,3 +13,29 @@ ul.gla-main-menu > li {
     color: #5837b9;
 }
 
+.gla-countdown-timer {
+    background-color: #5837b9;
+    text-align: center;
+    border-radius: 500px;
+    padding: 10px 10px 20px;
+    margin: -10px 0 0;
+    max-width: 30%;
+    color: white;
+    /* float: right; */
+}
+
+.gla-countdown-timer > div > div {
+    display: inline-block;
+    padding: 0px 20px;
+    font-size: larger;
+}
+
+.gla-countdown-timer div.gla-countdown-text {
+    display: block;
+    padding-bottom: 10px;
+}
+
+.gla-countdown-timer .smallText {
+    display: block;
+    font-size: small;
+}
