@@ -7,29 +7,45 @@ interface PresentationFormValues {
   firstName: string
   lastName: string
   email: string
+  presentationTitle: string
+  abstract: string
 }
 
 export function SubmitPresentationForm() {
-  const validate = (values: PresentationFormValues) => {
-    console.log(values)
-    let errors: FormikErrors<PresentationFormValues> = {};
-    console.log(errors)
-    if (values.firstName === '') {
-      errors.firstName = 'Required'
+  const require = (value: string, minLength?: number) => {
+    if(!value) {
+      return 'Required'
     }
-    console.log(errors)
+    if(minLength && value.length < minLength) {
+      return `The minimum required length is ${minLength} characters`
+    }
+    return undefined
+  }
+
+  const validate = (values: PresentationFormValues) => {
+    let errors: FormikErrors<PresentationFormValues> = {};
+    errors.firstName = require(values.firstName);
+    errors.lastName = require(values.lastName);
+    errors.email = require(values.email);
+    errors.presentationTitle = require(values.presentationTitle)
+    errors.abstract = require(values.abstract, 100)
+    // Need to remove the keys for undefined elements to allow submission
+    Object.keys(errors).forEach(key => (errors as any)[key] === undefined && delete (errors as any)[key])
     return errors
   }
   const initialValues: PresentationFormValues = {
     firstName: '',
     lastName: '',
     email: '',
+    presentationTitle: '',
+    abstract: '',
   }
 
   return (
     <Formik
       initialValues={initialValues}
-      onSubmit={(values: PresentationFormValues) => {
+      onSubmit={(values: PresentationFormValues, actions) => {
+        console.log(values, actions)
         alert(JSON.stringify(values, null, 2))
       }}
       validate={validate}
