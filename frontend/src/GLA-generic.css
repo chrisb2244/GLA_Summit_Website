@@ -1,5 +1,5 @@
 ul.gla-main-menu > li {
-    display: inline;
+    display: inline-block;
     padding-inline: 10px;
 }
 
@@ -12,3 +12,4 @@ ul.gla-main-menu > li {
     font: 16pt Roboto;
     color: #5837b9;
 }
+
