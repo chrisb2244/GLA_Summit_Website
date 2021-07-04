@@ -1,5 +1,7 @@
 import { Header } from './Components/Header';
 import { Countdown } from './Components/Countdown';
+import { OurTeam } from './Components/OurTeam';
+import { Switch, Route, BrowserRouter as Router } from 'react-router-dom';
 import './App.css';
 
 function App() {
@@ -10,6 +12,13 @@ function App() {
     <div className="App">
       <Header/>
       <Countdown event_start={eventStart} event_end={eventEnd}/>
+      <Router>
+        <Switch>
+          <Route path="/our-team">
+            <OurTeam/>
+          </Route>
+        </Switch>
+      </Router>
     </div>
   );
 }

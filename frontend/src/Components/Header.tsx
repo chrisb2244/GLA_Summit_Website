@@ -1,21 +1,15 @@
 import logo from '../GLA-logo.svg';
+import { MenuBar } from './MenuBar';
 
 export function Header(props: {}) {
   return (
     <>
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <h1>
+          GLA Summit 2021
+        </h1>
+        <MenuBar/>
       </header>
     </>
   )
