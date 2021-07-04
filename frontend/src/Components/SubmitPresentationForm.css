@@ -5,3 +5,8 @@ form > * {
 form {
     align-items: center;
 }
+
+div.gla-submitpresentationform-grid {
+    max-width: 800px;
+    margin: auto;
+}

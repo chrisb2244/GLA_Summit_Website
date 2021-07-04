@@ -1,4 +1,6 @@
-import { Formik, FormikErrors, Form, Field } from "formik";
+import { Formik, FormikErrors, Form } from "formik";
+import { Button, Grid } from '@material-ui/core'
+import { TextFieldWrapper as TextField } from "./Form/TextFieldWrapper";
 import "./SubmitPresentationForm.css"
 
 interface PresentationFormValues {
@@ -8,11 +10,14 @@ interface PresentationFormValues {
 }
 
 export function SubmitPresentationForm() {
-  const validate = (values: any) => {
+  const validate = (values: PresentationFormValues) => {
+    console.log(values)
     let errors: FormikErrors<PresentationFormValues> = {};
-    if (!values.firstName) {
+    console.log(errors)
+    if (values.firstName === '') {
       errors.firstName = 'Required'
     }
+    console.log(errors)
     return errors
   }
   const initialValues: PresentationFormValues = {
@@ -29,35 +34,32 @@ export function SubmitPresentationForm() {
       }}
       validate={validate}
     >
-
-      {({ errors, touched }) => (
-        <Form>
-          <label htmlFor="firstName">First Name</label>
-          <Field
-            id="firstName"
-            name="firstName"
-            type="text"
-          />
-          {errors.firstName && touched.firstName ? <div>{errors.firstName}</div> : null}
-
-          <label htmlFor="lastName">Last Name</label>
-          <Field
-            id="lastName"
-            name="lastName"
-            type="text"
-          />
-          {errors.lastName && touched.lastName ? <div>{errors.lastName}</div> : null}
-
-          <label htmlFor="email">Email Address</label>
-          <Field
-            id="email"
-            name="email"
-            type="email"
-          />
-          {errors.email && touched.email ? <div>{errors.email}</div> : null}
-
-          <button type="submit">Submit</button>
-        </Form>)}
+      <Form>
+        <Grid container spacing={2} className="gla-submitpresentationform-grid">
+          <Grid item xs={12} md={6}>
+            <TextField
+              name="firstName"
+              label="First Name"
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextField
+              name="lastName"
+              label="Last Name"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              name="email"
+              type="email"
+              label="Email Address"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Button type="submit" color="primary" variant="outlined">Submit</Button>
+          </Grid>
+        </Grid>
+      </Form>
     </Formik>
   )
 }
