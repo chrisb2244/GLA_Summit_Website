@@ -3,6 +3,7 @@ import { Countdown } from './Components/Countdown';
 import { OurTeam } from './Components/OurTeam';
 import { Switch, Route, BrowserRouter as Router } from 'react-router-dom';
 import './App.css';
+import { SubmitPresentationForm } from './Components/SubmitPresentationForm';
 
 function App() {
   const eventStart = new Date(2021, 10, 15);
@@ -16,6 +17,9 @@ function App() {
         <Switch>
           <Route path="/our-team">
             <OurTeam/>
+          </Route>
+          <Route path="/submit-presentation">
+            <SubmitPresentationForm />
           </Route>
           <Route path="/" exact>
             <div>

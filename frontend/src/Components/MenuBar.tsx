@@ -13,6 +13,9 @@ export function MenuBar(props: {}) {
           <li>
             <Link to="/our-team">Our Team</Link>
           </li>
+          <li>
+            <Link to="/submit-presentation">Submit a Presentation</Link>
+          </li>
         </ul>
     </>
   )

@@ -1,0 +1,7 @@
+form > * {
+    display: block;
+    text-align: left;
+}
+form {
+    align-items: center;
+}
