@@ -56,7 +56,21 @@ export function SubmitPresentationForm() {
             />
           </Grid>
           <Grid item xs={12}>
-            <Button type="submit" color="primary" variant="outlined">Submit</Button>
+            <TextField
+              name="presentationTitle"
+              label="Presentation Title"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              name="abstract"
+              label="Presentation Abstract"
+              multiline
+              className="gla-submitpresentation-abstractbox"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Button type="submit" color="primary" variant="contained" fullWidth>Submit</Button>
           </Grid>
         </Grid>
       </Form>

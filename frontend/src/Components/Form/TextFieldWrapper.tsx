@@ -1,11 +1,14 @@
-import { useField, Field } from "formik";
+import { useField } from "formik";
 import { TextField } from '@material-ui/core'
 
-export function TextFieldWrapper(props: {
+type TextFieldWrapperProps = {
   name: string
   label: string
   type?: string
-}) {
+  multiline?: boolean
+}
+
+export function TextFieldWrapper(props: TextFieldWrapperProps & {className?: string}) {
   const [field, meta] = useField(props.name);
 
   const configTextField = {
@@ -19,7 +22,9 @@ export function TextFieldWrapper(props: {
     fullWidth: true,
     onChange: field.onChange,
     onBlur: field.onBlur,
-    value: field.value
+    value: field.value,
+    multiline: props.multiline,
+    className: props.className,
   }
 
   if (meta && meta.touched && meta.error) {
