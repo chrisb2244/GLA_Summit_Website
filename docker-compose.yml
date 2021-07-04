@@ -1,0 +1,20 @@
+services:
+    react:
+        build:
+            dockerfile: Dockerfile
+            context: frontend
+        image: gla-react-frontend
+        container_name: gla-react
+        ports:
+            - "3000:3000"
+        volumes:
+            - ./frontend/src:/usr/app/src
+            - ./frontend/public:/usr/app/public
+        networks:
+            - gla-react-network
+    
+networks:
+    gla-react-network:
+        driver: bridge
+
+# volumes:
