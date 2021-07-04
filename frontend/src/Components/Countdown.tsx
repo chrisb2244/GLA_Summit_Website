@@ -15,7 +15,11 @@ type TimerValues = {
 type EventStatus = "Upcoming" | "Live" | "Finished";
 
 export function Countdown(props: CountdownProps) {
-  const [timerVals, setTimerVals] = useState<TimerValues>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  function zeroTimerVals() {
+    return { days: 0, hours: 0, minutes: 0, seconds: 0 }
+  }
+
+  const [timerVals, setTimerVals] = useState<TimerValues>(zeroTimerVals());
   const [status, setStatus] = useState<EventStatus>();
 
   useEffect(() => {
@@ -35,7 +39,8 @@ export function Countdown(props: CountdownProps) {
           setTimerVals(tVals);
           setStatus("Live");
         } else {
-          // Event has finished    
+          // Event has finished
+          setTimerVals(zeroTimerVals())  
           setStatus("Finished")
         }
       }
