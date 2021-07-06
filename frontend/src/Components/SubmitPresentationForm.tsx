@@ -12,12 +12,15 @@ interface PresentationFormValues {
 }
 
 export function SubmitPresentationForm() {
-  const require = (value: string, minLength?: number) => {
+  const require = (value: string, minLength?: number, maxLength?: number) => {
     if(!value) {
       return 'Required'
     }
     if(minLength && value.length < minLength) {
       return `The minimum required length is ${minLength} characters`
+    }
+    if(maxLength && value.length > maxLength) {
+      return `The maximum length is ${maxLength} characters`
     }
     return undefined
   }
@@ -28,7 +31,7 @@ export function SubmitPresentationForm() {
     errors.lastName = require(values.lastName);
     errors.email = require(values.email);
     errors.presentationTitle = require(values.presentationTitle)
-    errors.abstract = require(values.abstract, 100)
+    errors.abstract = require(values.abstract, 100, 5000)
     // Need to remove the keys for undefined elements to allow submission
     Object.keys(errors).forEach(key => (errors as any)[key] === undefined && delete (errors as any)[key])
     return errors
