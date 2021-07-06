@@ -1,5 +1,5 @@
 import { ReactElement } from "react";
-import { Grid } from "@material-ui/core";
+import { Grid, Typography } from "@material-ui/core";
 import "../GLA-generic.css";
 
 export type OrganizerProps = {
@@ -29,8 +29,8 @@ export function Organizer(props: OrganizerProps) {
       alignItems="center"
     >
       <Grid item xs={12} md={props.image ? 8 : 12}>
-        <h4 className="gla-organizer-name">{props.firstName} {props.lastName}</h4>
-        <p className="gla-organizer-description">{props.description}</p>
+        <Typography variant="h4" className="gla-organizer-name">{props.firstName} {props.lastName}</Typography>
+        <Typography className="gla-organizer-description" component="div" variant="body1">{props.description}</Typography>
       </Grid>
       {imageElem}
     </Grid>

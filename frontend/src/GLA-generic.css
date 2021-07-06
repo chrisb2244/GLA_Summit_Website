@@ -3,16 +3,6 @@ ul.gla-main-menu > li {
     padding-inline: 10px;
 }
 
-.gla-organizer-name {
-    font: 28pt Roboto;
-    color: #5837b9;
-}
-
-.gla-organizer-description {
-    font: 16pt Roboto;
-    color: #5837b9;
-}
-
 .gla-countdown-timer {
     background-color: #5837b9;
     text-align: center;
