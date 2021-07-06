@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Grid } from "@material-ui/core";
 import '../GLA-generic.css'
 
 export type CountdownProps = {
@@ -69,18 +70,18 @@ export function Countdown(props: CountdownProps) {
   }
 
   const counterElems = status !== "Finished" ? (
-    <div>
+    <Grid item>
       <div className = "gla-countdown-text">{status === "Upcoming" ? "This event will start in:" : "This event is live for the next:"}</div>
       <div><span className="days">{timerVals.days}</span><div className="smallText">Days</div></div>
       <div><span className="hours">{timerVals.hours}</span><div className="smallText">Hours</div></div>
       <div><span className="minutes">{timerVals.minutes}</span><div className="smallText">Minutes</div></div>
       <div><span className="seconds">{timerVals.seconds}</span><div className="smallText">Seconds</div></div>
-    </div>
-  ) : <div><span>This event has finished.</span></div>
+    </Grid>
+  ) : <Grid item><span>This event has finished.</span></Grid>
 
   return (
-    <div className="gla-countdown-timer">
+    <Grid container className="gla-countdown-timer" xs={10} sm={8} md={5} lg={4} xl={3} justify="center">
       {counterElems}
-    </div>
+    </Grid>
   )
 }
