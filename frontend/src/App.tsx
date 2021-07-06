@@ -7,31 +7,30 @@ import { ThemeProvider } from '@material-ui/styles';
 import { theme } from './theme'
 import './App.css';
 import './GLA-generic.css'
+import { HomePage } from './Components/HomePage';
 
 function App() {
   const eventStart = new Date(2021, 10, 15);
   eventStart.setUTCHours(12, 0, 0);
-  const eventEnd = new Date(eventStart.getTime() + (24*3600000));
+  const eventEnd = new Date(eventStart.getTime() + (24 * 3600000));
   return (
     <div className="App">
       <ThemeProvider theme={theme}>
-      <Router>
-        <Header/>
-        <Countdown event_start={eventStart} event_end={eventEnd}/>
-        <Switch>
-          <Route path="/our-team">
-            <OurTeam/>
-          </Route>
-          <Route path="/submit-presentation">
-            <SubmitPresentationForm />
-          </Route>
-          <Route path="/" exact>
-            <div>
-              <p>This is the homepage text...</p>
-            </div>
-          </Route>
-        </Switch>
-      </Router>
+        <Router>
+          <Header />
+          <Countdown event_start={eventStart} event_end={eventEnd} />
+          <Switch>
+            <Route path="/our-team">
+              <OurTeam />
+            </Route>
+            <Route path="/submit-presentation">
+              <SubmitPresentationForm />
+            </Route>
+            <Route path="/" exact>
+              <HomePage />
+            </Route>
+          </Switch>
+        </Router>
       </ThemeProvider>
     </div>
   );
