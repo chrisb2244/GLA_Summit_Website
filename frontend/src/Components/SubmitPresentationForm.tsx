@@ -6,7 +6,7 @@ import "./SubmitPresentationForm.css"
 interface PresentationFormValues {
   firstName: string
   lastName: string
-  email: string
+  primaryemail: string
   presentationTitle: string
   abstract: string
 }
@@ -29,7 +29,7 @@ export function SubmitPresentationForm() {
     let errors: FormikErrors<PresentationFormValues> = {};
     errors.firstName = require(values.firstName);
     errors.lastName = require(values.lastName);
-    errors.email = require(values.email);
+    errors.primaryemail = require(values.primaryemail);
     errors.presentationTitle = require(values.presentationTitle)
     errors.abstract = require(values.abstract, 100, 5000)
     // Need to remove the keys for undefined elements to allow submission
@@ -39,7 +39,7 @@ export function SubmitPresentationForm() {
   const initialValues: PresentationFormValues = {
     firstName: '',
     lastName: '',
-    email: '',
+    primaryemail: '',
     presentationTitle: '',
     abstract: '',
   }
@@ -69,7 +69,7 @@ export function SubmitPresentationForm() {
           </Grid>
           <Grid item xs={12}>
             <TextField
-              name="email"
+              name="primaryemail"
               type="email"
               label="Email Address"
             />
