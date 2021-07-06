@@ -1,11 +1,3 @@
-form > * {
-    display: block;
-    text-align: left;
-}
-form {
-    align-items: center;
-}
-
 div.gla-submitpresentationform-grid {
     max-width: 80%;
     width: 800px;
