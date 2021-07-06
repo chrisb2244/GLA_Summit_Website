@@ -26,6 +26,7 @@ export function Organizer(props: OrganizerProps) {
       className="gla-organizer-entry"
       spacing={3}
       direction={direction}
+      alignItems="center"
     >
       <Grid item xs={12} md={props.image ? 8 : 12}>
         <h4 className="gla-organizer-name">{props.firstName} {props.lastName}</h4>
