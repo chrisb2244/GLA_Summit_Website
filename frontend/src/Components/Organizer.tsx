@@ -21,6 +21,7 @@ export function Organizer(props: OrganizerProps) {
   }
 
   return (
+    <div style={{padding:"0 60px"}}>
     <Grid container
       key={props.lastName + '.' + props.firstName}
       className="gla-organizer-entry"
@@ -30,9 +31,10 @@ export function Organizer(props: OrganizerProps) {
     >
       <Grid item xs={12} md={props.image ? 8 : 12}>
         <Typography variant="h4" className="gla-organizer-name">{props.firstName} {props.lastName}</Typography>
-        <Typography className="gla-organizer-description" component="div" variant="body1">{props.description}</Typography>
+        <Typography className="gla-organizer-description" component="div" variant="body1" align="justify">{props.description}</Typography>
       </Grid>
       {imageElem}
     </Grid>
+    </div>
   )
 }
