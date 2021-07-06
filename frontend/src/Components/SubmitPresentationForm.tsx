@@ -50,6 +50,7 @@ export function SubmitPresentationForm() {
       onSubmit={(values: PresentationFormValues, actions) => {
         console.log(values, actions)
         alert(JSON.stringify(values, null, 2))
+        // actions.resetForm();
       }}
       validate={validate}
     >
