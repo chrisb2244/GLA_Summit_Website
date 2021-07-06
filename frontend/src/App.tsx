@@ -4,6 +4,7 @@ import { OurTeam } from './Components/OurTeam';
 import { Switch, Route, BrowserRouter as Router } from 'react-router-dom';
 import { SubmitPresentationForm } from './Components/SubmitPresentationForm';
 import { ThemeProvider } from '@material-ui/styles';
+import { CssBaseline } from '@material-ui/core';
 import { theme } from './theme'
 import './App.css';
 import './GLA-generic.css'
@@ -16,6 +17,7 @@ function App() {
   return (
     <div className="App">
       <ThemeProvider theme={theme}>
+        <CssBaseline />
         <Router>
           <Header />
           <Countdown event_start={eventStart} event_end={eventEnd} />
