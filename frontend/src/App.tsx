@@ -11,9 +11,8 @@ import './GLA-generic.css'
 import { HomePage } from './Components/HomePage';
 
 function App() {
-  const eventStart = new Date(2021, 10, 15);
-  eventStart.setUTCHours(12, 0, 0);
-  const eventEnd = new Date(eventStart.getTime() + (24 * 3600000));
+  const eventStart = new Date(Date.UTC(2021, 10, 15, 12, 0, 0));
+  const eventEnd = new Date(Date.UTC(2021, 10, 16, 12, 0, 0));
   return (
     <div className="App">
       <ThemeProvider theme={theme}>
