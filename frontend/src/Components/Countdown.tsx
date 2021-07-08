@@ -42,7 +42,7 @@ export function Countdown(props: CountdownProps) {
           setStatus("Live");
         } else {
           // Event has finished
-          setTimerVals(zeroTimerVals())  
+          setTimerVals(zeroTimerVals())
           setStatus("Finished")
         }
       }
@@ -71,7 +71,7 @@ export function Countdown(props: CountdownProps) {
 
   const counterElems = status !== "Finished" ? (
     <Grid item>
-      <div className = "gla-countdown-text">{status === "Upcoming" ? "This event will start in:" : "This event is live for the next:"}</div>
+      <div className="gla-countdown-text">{status === "Upcoming" ? "This event will start in:" : "This event is live for the next:"}</div>
       <div><span className="days">{timerVals.days}</span><div className="smallText">Days</div></div>
       <div><span className="hours">{timerVals.hours}</span><div className="smallText">Hours</div></div>
       <div><span className="minutes">{timerVals.minutes}</span><div className="smallText">Minutes</div></div>
@@ -80,8 +80,10 @@ export function Countdown(props: CountdownProps) {
   ) : <Grid item><span>This event has finished.</span></Grid>
 
   return (
-    <Grid container className="gla-countdown-timer" xs={10} sm={8} md={5} lg={4} xl={3} justify="center">
-      {counterElems}
+    <Grid container className="gla-countdown-container" justify="center">
+      <Grid item className="gla-countdown-timer" xs={10} sm={8} md={5} lg={4} xl={3}>
+        {counterElems}
+      </Grid>
     </Grid>
   )
 }

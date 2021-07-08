@@ -8,9 +8,11 @@ ul.gla-main-menu > li {
     text-align: center;
     border-radius: 500px;
     padding: 10px 10px 20px;
-    margin: -10px 0 30px;
     color: white;
-    /* float: right; */
+}
+
+.gla-countdown-container {
+    margin: -10px 0 30px;
 }
 
 .gla-countdown-timer > div > div {
