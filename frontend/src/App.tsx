@@ -11,8 +11,10 @@ import './GLA-generic.css'
 import { HomePage } from './Components/HomePage';
 
 function App() {
+  // The month value is 0-based (so 10 -> November)
   const eventStart = new Date(Date.UTC(2021, 10, 15, 12, 0, 0));
   const eventEnd = new Date(Date.UTC(2021, 10, 16, 12, 0, 0));
+
   return (
     <div className="App">
       <ThemeProvider theme={theme}>
