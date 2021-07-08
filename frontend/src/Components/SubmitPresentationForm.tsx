@@ -1,6 +1,7 @@
-import { Formik, FormikErrors, Form } from "formik";
+import { Formik, FormikErrors, Form, FieldArray } from "formik";
 import { Button, Grid } from '@material-ui/core'
 import { TextFieldWrapper as TextField } from "./Form/TextFieldWrapper";
+import { Person } from "./Form/Person";
 import "./SubmitPresentationForm.css"
 
 interface PresentationFormValues {
@@ -9,17 +10,22 @@ interface PresentationFormValues {
   primaryemail: string
   presentationTitle: string
   abstract: string
+  collaborators: Array<{
+    firstName: string
+    lastName: string
+    email?: string
+  }>
 }
 
 export function SubmitPresentationForm() {
   const require = (value: string, minLength?: number, maxLength?: number) => {
-    if(!value) {
+    if (!value) {
       return 'Required'
     }
-    if(minLength && value.length < minLength) {
+    if (minLength && value.length < minLength) {
       return `The minimum required length is ${minLength} characters`
     }
-    if(maxLength && value.length > maxLength) {
+    if (maxLength && value.length > maxLength) {
       return `The maximum length is ${maxLength} characters`
     }
     return undefined
@@ -42,6 +48,7 @@ export function SubmitPresentationForm() {
     primaryemail: '',
     presentationTitle: '',
     abstract: '',
+    collaborators: []
   }
 
   return (
@@ -54,27 +61,34 @@ export function SubmitPresentationForm() {
       }}
       validate={validate}
     >
+      {({values}) => (
       <Form>
-        <Grid container spacing={2} className="gla-submitpresentationform-grid">
-          <Grid item xs={12} md={6}>
-            <TextField
-              name="firstName"
-              label="First Name"
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              name="lastName"
-              label="Last Name"
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              name="primaryemail"
-              type="email"
-              label="Email Address"
-            />
-          </Grid>
+        <Grid container spacing={1} className="gla-submitpresentationform-grid">
+          <Person />
+          <FieldArray name="collaborators">
+            {({ insert, remove, push }) => {
+              if (!values.collaborators || values.collaborators.length === 0) {
+                return (
+                  <Grid container item justify="flex-end">
+                    <Button onClick={() => push({ firstName: '', lastName: '', email: '' })}>Add collaborator</Button>
+                  </Grid>
+                )
+              }
+              return (
+                <Grid container item direction="column">
+                  <Grid container item spacing={1}>
+                    {values.collaborators.map((elem, index) => {
+                      const prefix = `collaborators.${index}.`
+                      return <Person key={prefix} fieldNamePrefix={prefix} />
+                    })}
+                  </Grid>
+                  <Grid container item justify="flex-end">
+                    <Button onClick={() => push({ firstName: '', lastName: '', email: '' })}>Add collaborator</Button>
+                  </Grid>
+                </Grid>
+              )
+            }}
+          </FieldArray>
           <Grid item xs={12}>
             <TextField
               name="presentationTitle"
@@ -94,6 +108,7 @@ export function SubmitPresentationForm() {
           </Grid>
         </Grid>
       </Form>
+      )}
     </Formik>
   )
 }
