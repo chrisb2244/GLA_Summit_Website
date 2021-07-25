@@ -1,8 +1,11 @@
 import { Link } from 'react-router-dom';
+import { Menu } from '@material-ui/icons';
 import "../GLA-generic.css"
 
-export function MenuBar(props: {}) {
-
+export function MenuBar(props: {narrowWidth?: boolean}) {
+  if (props.narrowWidth) {
+    return <Menu />
+  }
 
   return (
     <>
