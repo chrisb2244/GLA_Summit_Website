@@ -2,8 +2,9 @@ div.gla-submitpresentationform-grid {
     max-width: 80%;
     width: 800px;
     margin: auto;
+    padding-bottom: 200px;
 }
 
-.gla-submitpresentation-abstractbox textarea {
+.gla-submitpresentation-multilinebox textarea {
     min-height: 8rem
 }

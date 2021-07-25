@@ -100,7 +100,15 @@ export function SubmitPresentationForm() {
               name="abstract"
               label="Presentation Abstract"
               multiline
-              className="gla-submitpresentation-abstractbox"
+              className="gla-submitpresentation-multilinebox"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              name="learningPoint"
+              label="In your opinion, what is the most important thing attendees can learn from your presentation?"
+              multiline
+              className="gla-submitpresentation-multilinebox"
             />
           </Grid>
           <Grid item xs={12}>
