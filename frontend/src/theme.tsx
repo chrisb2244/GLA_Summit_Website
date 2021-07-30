@@ -1,4 +1,4 @@
-import { createMuiTheme } from "@material-ui/core";
+import { createMuiTheme } from '@material-ui/core'
 
 /*
 Color values
@@ -26,21 +26,34 @@ Font Sizes
 */
 
 export const theme = createMuiTheme({
-    palette: {
-        primary: {
-            main: "#5837b9"
-        },
-        background: {
-            default: "#a25bcd"
-        },
-        text: {
-            primary: "#fff",
-            secondary: "#3e4342",
-            disabled: "#e7e9e8",
-        }
+  palette: {
+    primary: {
+      main: '#5837b9'
     },
-    typography: {
-        fontFamily: "Roboto",
-        fontSize: 16,
+    background: {
+      default: '#a25bcd'
+    },
+    text: {
+      primary: '#fff',
+      secondary: '#3e4342',
+      disabled: '#e7e9e8'
     }
+  },
+  typography: {
+    fontFamily: 'Roboto',
+    fontSize: 16
+  },
+  overrides: {
+    MuiTextField: {
+      root: {
+        // opacity: "0.5",
+      }
+    },
+    MuiOutlinedInput: {
+      root: {
+        // backgroundColor: "red",
+      }
+    }
+  }
+
 })

@@ -46,5 +46,12 @@
   },
   "devDependencies": {
     "@types/react-router-dom": "^5.1.7"
+  },
+  "ts-standard": {
+    "ignore": [
+      "build",
+      "src/react-app-env.d.ts",
+      "src/reportWebVitals.ts"
+    ]
   }
 }
