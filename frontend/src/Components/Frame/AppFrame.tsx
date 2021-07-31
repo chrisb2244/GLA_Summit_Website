@@ -10,13 +10,13 @@ export const AppFrame: React.FC = (props) => {
   return (
     <Box flexDirection='column'>
       <AppBar position='fixed'>
-        <Toolbar sx={{ display: 'flex', justifyContent: 'center' }}>
-          {/* <Link href='/'> */}
+        <Toolbar>
+          <Link href='/'>
           <Box flexGrow={0}>
             <object data='media/GLA-logo.svg' height='100' aria-label='logo' />
           </Box>
-          {/* </Link> */}
-          <Typography variant='h1' sx={{ display: 'inherit', flexGrow: 1 }}>
+          </Link>
+          <Typography variant='h1' flexGrow={1} textAlign='center'>
             GLA Summit
           </Typography>
         </Toolbar>
