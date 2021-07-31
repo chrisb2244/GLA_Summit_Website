@@ -8,6 +8,7 @@ import { theme } from './theme'
 import './App.css'
 import './GLA-generic.css'
 import { HomePage } from './Components/HomePage'
+import { AppFrame } from './Components/Frame/AppFrame'
 
 function App (): JSX.Element {
   // The month value is 0-based (so 10 -> November)
@@ -18,21 +19,23 @@ function App (): JSX.Element {
     <div className='App'>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Router>
-          <Header />
-          <Countdown event_start={eventStart} event_end={eventEnd} />
-          <Switch>
-            <Route path='/our-team'>
-              <OurTeam />
-            </Route>
-            <Route path='/submit-presentation'>
-              <PresentationSubmissionForm />
-            </Route>
-            <Route path='/' exact>
-              <HomePage />
-            </Route>
-          </Switch>
-        </Router>
+        <AppFrame>
+          <Router>
+            <Header />
+            <Countdown event_start={eventStart} event_end={eventEnd} />
+            <Switch>
+              <Route path='/our-team'>
+                <OurTeam />
+              </Route>
+              <Route path='/submit-presentation'>
+                <PresentationSubmissionForm />
+              </Route>
+              <Route path='/' exact>
+                <HomePage />
+              </Route>
+            </Switch>
+          </Router>
+        </AppFrame>
       </ThemeProvider>
     </div>
   )
