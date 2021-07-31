@@ -17,7 +17,7 @@ interface TimerValues {
 type EventStatus = 'Upcoming' | 'Live' | 'Finished'
 
 export const Countdown: React.FC<CountdownProps> = (props) => {
-  function zeroTimerVals(): TimerValues {
+  function zeroTimerVals (): TimerValues {
     return { days: 0, hours: 0, minutes: 0, seconds: 0 }
   }
 
@@ -52,7 +52,7 @@ export const Countdown: React.FC<CountdownProps> = (props) => {
     }
   }, [props.event_start, props.event_end, setTimerVals])
 
-  function calcTimeValues(distanceInMilliseconds: number): TimerValues {
+  function calcTimeValues (distanceInMilliseconds: number): TimerValues {
     let remaining = distanceInMilliseconds / 1000
     const days = Math.floor(remaining / (3600 * 24))
     remaining -= (days * 3600 * 24)
