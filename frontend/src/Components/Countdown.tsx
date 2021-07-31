@@ -69,7 +69,9 @@ export const Countdown: React.FC<CountdownProps> = (props) => {
     }
   }
 
-  const counterElems = status !== 'Finished' ? (
+  const counterElems = (typeof status === 'undefined')
+    ? null
+    : status !== 'Finished' ? (
       <>
         <CounterText>{status === 'Upcoming' ? 'This event will start in:' : 'This event is live for the next:'}</CounterText>
         <Box flexDirection='row' flexGrow={1}>
