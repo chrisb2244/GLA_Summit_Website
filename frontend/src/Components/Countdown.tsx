@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Grid } from '@material-ui/core'
+import { Box, Container, Grid, Typography } from '@material-ui/core'
 // import '../GLA-generic.css'
 
 export interface CountdownProps {
@@ -17,7 +17,7 @@ interface TimerValues {
 type EventStatus = 'Upcoming' | 'Live' | 'Finished'
 
 export const Countdown: React.FC<CountdownProps> = (props) => {
-  function zeroTimerVals (): TimerValues {
+  function zeroTimerVals(): TimerValues {
     return { days: 0, hours: 0, minutes: 0, seconds: 0 }
   }
 
@@ -52,7 +52,7 @@ export const Countdown: React.FC<CountdownProps> = (props) => {
     }
   }, [props.event_start, props.event_end, setTimerVals])
 
-  function calcTimeValues (distanceInMilliseconds: number): TimerValues {
+  function calcTimeValues(distanceInMilliseconds: number): TimerValues {
     let remaining = distanceInMilliseconds / 1000
     const days = Math.floor(remaining / (3600 * 24))
     remaining -= (days * 3600 * 24)
@@ -70,20 +70,39 @@ export const Countdown: React.FC<CountdownProps> = (props) => {
   }
 
   const counterElems = status !== 'Finished' ? (
-    <Grid item>
-      <div className='gla-countdown-text'>{status === 'Upcoming' ? 'This event will start in:' : 'This event is live for the next:'}</div>
-      <div><span className='days'>{timerVals.days}</span><div className='smallText'>Days</div></div>
+    <>
+      <CounterText className='gla-countdown-text'>{status === 'Upcoming' ? 'This event will start in:' : 'This event is live for the next:'}</CounterText>
+      {/* <div><span className='days'>{timerVals.days}</span><div className='smallText'>Days</div></div>
       <div><span className='hours'>{timerVals.hours}</span><div className='smallText'>Hours</div></div>
       <div><span className='minutes'>{timerVals.minutes}</span><div className='smallText'>Minutes</div></div>
-      <div><span className='seconds'>{timerVals.seconds}</span><div className='smallText'>Seconds</div></div>
-    </Grid>
-  ) : <Grid item><span>This event has finished.</span></Grid>
+      <div><span className='seconds'>{timerVals.seconds}</span><div className='smallText'>Seconds</div></div> */}
+      <Box flexDirection='row' flexGrow={1}>
+        <CounterElem unit='days'>{timerVals.days}</CounterElem>
+        <CounterElem unit='hours'>{timerVals.hours}</CounterElem>
+        <CounterElem unit='minutes'>{timerVals.minutes}</CounterElem>
+        <CounterElem unit='seconds'>{timerVals.seconds}</CounterElem>
+      </Box>
+    </>
+  ) : <CounterText>This event has finished.</CounterText>
 
   return (
-    <Grid container className='gla-countdown-container' justifyContent='center'>
-      <Grid item className='gla-countdown-timer' xs={10} sm={8} md={5} lg={4} xl={3}>
-        {counterElems}
-      </Grid>
-    </Grid>
+    <Box  className='gla-countdown-container' sx={{backgroundColor: 'black', borderRadius: '12.5%/50%'}}>
+    <Container>
+      {counterElems}
+    </Container>
+    </Box>
   )
+}
+
+const CounterElem: React.FC<{ unit: 'days' | 'hours' | 'minutes' | 'seconds' }> = (props) => {
+  return (
+    <Box sx={{ display: 'inline-block', paddingInline: '10px', textAlign: 'center' }}>
+      <Typography variant="body1" component='div' className={props.unit}>{props.children}</Typography>
+      <Typography variant="body2" component='div' className='smallText'>{props.unit.toLocaleUpperCase()}</Typography>
+    </Box>
+  )
+}
+
+const CounterText: React.FC<{ className?: string }> = (props) => {
+  return <Typography variant="body1" component='div' className={props.className} textAlign='center'>{props.children}</Typography>
 }
