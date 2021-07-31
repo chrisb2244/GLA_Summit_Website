@@ -1,5 +1,5 @@
-import { AppBar, Box, Link, Toolbar, Typography } from '@material-ui/core'
-// import MenuIcon from '@material-ui/icons/Menu'
+import { AppBar, Box, Link, Grid, Toolbar, Typography } from '@material-ui/core'
+import MenuIcon from '@material-ui/icons/Menu'
 import { Countdown } from '../Countdown'
 
 export const AppFrame: React.FC = (props) => {
@@ -9,22 +9,30 @@ export const AppFrame: React.FC = (props) => {
 
   return (
     <Box flexDirection='column'>
-      <AppBar position='static' sx={{marginBottom: "20px"}}>
+      <AppBar position='static' sx={{ marginBottom: '20px' }}>
         <Toolbar>
-          <Link href='/'>
-            <Box flexGrow={0}>
-              <object data='media/GLA-logo.svg' height='100' aria-label='logo' />
-            </Box>
-          </Link>
-          <Typography variant='h1' flexGrow={1} textAlign='center'>
-            GLA Summit
-          </Typography>
-          <Box flexDirection="column">
-            <Countdown event_start={eventStart} event_end={eventEnd} />
-            <Box>
-              <Typography variant="h6">Menu goes here...</Typography>
-            </Box>
-          </Box>
+          <Grid container justifyContent='center' alignItems='center'>
+            <Grid item>
+              <Link href='/'>
+                <Box flexGrow={0}>
+                  <object data='media/GLA-logo.svg' height='100' aria-label='logo' />
+                </Box>
+              </Link>
+            </Grid>
+            <Grid item flexGrow={1}>
+              <Typography variant='h1' textAlign='center'>
+                GLA Summit
+              </Typography>
+            </Grid>
+            <Grid item alignItems='center'>
+              <Box flexDirection='column'>
+                <Countdown event_start={eventStart} event_end={eventEnd} />
+                <Box>
+                  <Typography variant='h6' textAlign='center'>Menu goes here...</Typography>
+                </Box>
+              </Box>
+            </Grid>
+          </Grid>
         </Toolbar>
       </AppBar>
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Box, Container, Grid, Typography } from '@material-ui/core'
+import { Box, Container, Typography } from '@material-ui/core'
 // import '../GLA-generic.css'
 
 export interface CountdownProps {
@@ -70,39 +70,35 @@ export const Countdown: React.FC<CountdownProps> = (props) => {
   }
 
   const counterElems = status !== 'Finished' ? (
-    <>
-      <CounterText className='gla-countdown-text'>{status === 'Upcoming' ? 'This event will start in:' : 'This event is live for the next:'}</CounterText>
-      {/* <div><span className='days'>{timerVals.days}</span><div className='smallText'>Days</div></div>
-      <div><span className='hours'>{timerVals.hours}</span><div className='smallText'>Hours</div></div>
-      <div><span className='minutes'>{timerVals.minutes}</span><div className='smallText'>Minutes</div></div>
-      <div><span className='seconds'>{timerVals.seconds}</span><div className='smallText'>Seconds</div></div> */}
-      <Box flexDirection='row' flexGrow={1}>
-        <CounterElem unit='days'>{timerVals.days}</CounterElem>
-        <CounterElem unit='hours'>{timerVals.hours}</CounterElem>
-        <CounterElem unit='minutes'>{timerVals.minutes}</CounterElem>
-        <CounterElem unit='seconds'>{timerVals.seconds}</CounterElem>
-      </Box>
-    </>
-  ) : <CounterText>This event has finished.</CounterText>
+      <>
+        <CounterText>{status === 'Upcoming' ? 'This event will start in:' : 'This event is live for the next:'}</CounterText>
+        <Box flexDirection='row' flexGrow={1}>
+          <CounterElem unit='Days'>{timerVals.days}</CounterElem>
+          <CounterElem unit='Hours'>{timerVals.hours}</CounterElem>
+          <CounterElem unit='Minutes'>{timerVals.minutes}</CounterElem>
+          <CounterElem unit='Seconds'>{timerVals.seconds}</CounterElem>
+        </Box>
+      </>
+    ) : <CounterText>This event has finished.</CounterText>
 
   return (
-    <Box  className='gla-countdown-container' sx={{backgroundColor: 'black', borderRadius: '12.5%/50%'}}>
-    <Container>
-      {counterElems}
-    </Container>
+    <Box className='gla-countdown-container' sx={{ backgroundColor: 'primary.dark', borderRadius: '12.5%/50%' }}>
+      <Container>
+        {counterElems}
+      </Container>
     </Box>
   )
 }
 
-const CounterElem: React.FC<{ unit: 'days' | 'hours' | 'minutes' | 'seconds' }> = (props) => {
+const CounterElem: React.FC<{ unit: 'Days' | 'Hours' | 'Minutes' | 'Seconds' }> = (props) => {
   return (
     <Box sx={{ display: 'inline-block', paddingInline: '10px', textAlign: 'center' }}>
-      <Typography variant="body1" component='div' className={props.unit}>{props.children}</Typography>
-      <Typography variant="body2" component='div' className='smallText'>{props.unit.toLocaleUpperCase()}</Typography>
+      <Typography variant='body2' component='div' fontSize='larger'>{props.children}</Typography>
+      <Typography variant='body2' component='div' fontSize='small'>{props.unit}</Typography>
     </Box>
   )
 }
 
-const CounterText: React.FC<{ className?: string }> = (props) => {
-  return <Typography variant="body1" component='div' className={props.className} textAlign='center'>{props.children}</Typography>
+const CounterText: React.FC = (props) => {
+  return <Typography variant='body1' textAlign='center' marginTop='10px' paddingTop='5px'>{props.children}</Typography>
 }
