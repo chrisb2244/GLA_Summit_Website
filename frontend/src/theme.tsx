@@ -30,7 +30,7 @@ export const theme = createTheme({
       main: '#5837b9'
     },
     background: {
-      default: 'white' // '#5837b9' // '#a25bcd'
+      default: '#a25bcd'
     },
     text: {
       primary: '#fff',
@@ -42,17 +42,4 @@ export const theme = createTheme({
     fontFamily: 'Roboto',
     fontSize: 16
   }
-  // overrides: {
-  //   MuiTextField: {
-  //     root: {
-  //       // opacity: "0.5",
-  //     }
-  //   },
-  //   MuiOutlinedInput: {
-  //     root: {
-  //       // backgroundColor: "red",
-  //     }
-  //   }
-  // }
-
 })

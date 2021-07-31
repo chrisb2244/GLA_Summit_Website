@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Grid } from '@material-ui/core'
-import '../GLA-generic.css'
+// import '../GLA-generic.css'
 
 export interface CountdownProps {
   event_start: Date

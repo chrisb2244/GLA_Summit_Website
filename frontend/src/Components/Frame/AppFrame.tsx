@@ -1,22 +1,33 @@
 import { AppBar, Box, Button, Link, Toolbar, Typography } from '@material-ui/core'
 import MenuIcon from '@material-ui/icons/Menu'
+import { Countdown } from '../Countdown'
 
 export const AppFrame: React.FC = (props) => {
+  // The month value is 0-based (so 10 -> November)
+  const eventStart = new Date(Date.UTC(2021, 10, 15, 12, 0, 0))
+  const eventEnd = new Date(Date.UTC(2021, 10, 16, 12, 0, 0))
+
   return (
-    <div>
+    <Box flexDirection='column'>
       <AppBar position='fixed'>
-        <Toolbar sx={{ display: 'flex' }}>
-          <Link href='/'>
-            <Box flexGrow={0}>
-              <object data='media/GLA-logo.svg' height='100' aria-label='logo' />
-            </Box>
-          </Link>
-          <Typography variant='h1' flexGrow={1}>
+        <Toolbar sx={{ display: 'flex', justifyContent: 'center' }}>
+          {/* <Link href='/'> */}
+          <Box flexGrow={0}>
+            <object data='media/GLA-logo.svg' height='100' aria-label='logo' />
+          </Box>
+          {/* </Link> */}
+          <Typography variant='h1' sx={{ display: 'inherit', flexGrow: 1 }}>
             GLA Summit
           </Typography>
         </Toolbar>
       </AppBar>
-      {props.children}
-    </div>
+      <Box><Toolbar />
+        <Countdown event_start={eventStart} event_end={eventEnd} />
+      </Box>
+      <Box>
+        <Toolbar />
+        {props.children}
+      </Box>
+    </Box>
   )
 }
