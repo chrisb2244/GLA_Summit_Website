@@ -17,7 +17,7 @@ export const AppFrame: React.FC = (props) => {
               <NextLink href='/'>
                 <a>
                   <Box flexGrow={0}>
-                    <object data='media/GLA-logo.svg' height='100' aria-label='logo' style={{ pointerEvents: 'none' }} />
+                    <object data='media/GLA-logo.svg' className='app-logo' height='100' aria-label='logo' style={{ pointerEvents: 'none' }} />
                   </Box>
                 </a>
               </NextLink>
