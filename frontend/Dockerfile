@@ -11,4 +11,4 @@ COPY --chown=node:node tsconfig.json ./
 ENV NODE_ENV=development
 RUN npm install --only=development
 ENV PATH /usr/app/node_modules/.bin:$PATH
-CMD ["npm", "start"]
+CMD ["npm", "run", "dev"]

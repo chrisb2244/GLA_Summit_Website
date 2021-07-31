@@ -1,7 +1,7 @@
-import { Organizer } from './Organizer'
+import { Organizer } from '../Components/Organizer'
 import { Grid } from '@material-ui/core'
 
-export const OurTeam: React.FC = (props) => {
+const OurTeam: React.FC = (props) => {
   return (
     <Grid container>
       <Organizer firstName='Chris' lastName='Stryker' description={descriptionChrisStryker} image='ChrisStryker.png' />
@@ -10,6 +10,8 @@ export const OurTeam: React.FC = (props) => {
     </Grid>
   )
 }
+
+export default OurTeam
 
 const descriptionChrisStryker = (
   <>

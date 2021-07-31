@@ -1,6 +1,6 @@
 import { ReactElement } from 'react'
 import { Grid, Typography } from '@material-ui/core'
-import '../GLA-generic.css'
+// import '../GLA-generic.css'
 
 export interface OrganizerProps {
   firstName: string

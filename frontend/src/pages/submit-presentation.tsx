@@ -1,8 +1,8 @@
 import { Formik, FormikErrors, Form, FieldArray } from 'formik'
 import { Button, Grid } from '@material-ui/core'
-import { TextFieldWrapper as TextField } from './Form/TextFieldWrapper'
-import { Person } from './Form/Person'
-import './SubmitPresentationForm.css'
+import { TextFieldWrapper as TextField } from '../Components/Form/TextFieldWrapper'
+import { Person } from '../Components/Form/Person'
+// import './SubmitPresentationForm.css'
 
 interface PresentationFormValues {
   firstName: string
@@ -17,7 +17,7 @@ interface PresentationFormValues {
   }>
 }
 
-export const PresentationSubmissionForm: React.FC = () => {
+const PresentationSubmissionForm: React.FC = () => {
   const require = (value: string, minLength?: number, maxLength?: number): string | undefined => {
     if (value.trim().length === 0) {
       return 'Required'
@@ -122,3 +122,5 @@ export const PresentationSubmissionForm: React.FC = () => {
     </Formik>
   )
 }
+
+export default PresentationSubmissionForm
