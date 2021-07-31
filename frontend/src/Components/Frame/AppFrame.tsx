@@ -1,5 +1,6 @@
-import { AppBar, Box, Link, Grid, Toolbar, Typography } from '@material-ui/core'
-import MenuIcon from '@material-ui/icons/Menu'
+import { AppBar, Box, Grid, Toolbar, Typography } from '@material-ui/core'
+import NextLink from 'next/link'
+// import MenuIcon from '@material-ui/icons/Menu'
 import { Countdown } from '../Countdown'
 
 export const AppFrame: React.FC = (props) => {
@@ -13,11 +14,13 @@ export const AppFrame: React.FC = (props) => {
         <Toolbar>
           <Grid container justifyContent='center' alignItems='center'>
             <Grid item>
-              <Link href='/'>
-                <Box flexGrow={0}>
-                  <object data='media/GLA-logo.svg' height='100' aria-label='logo' />
-                </Box>
-              </Link>
+              <NextLink href='/'>
+                <a>
+                  <Box flexGrow={0}>
+                    <object data='media/GLA-logo.svg' height='100' aria-label='logo' style={{ pointerEvents: 'none' }} />
+                  </Box>
+                </a>
+              </NextLink>
             </Grid>
             <Grid item flexGrow={1}>
               <Typography variant='h1' textAlign='center'>
