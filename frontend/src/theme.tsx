@@ -1,4 +1,4 @@
-import { createTheme } from '@material-ui/core'
+import { createTheme, responsiveFontSizes } from '@material-ui/core'
 
 /*
 Color values
@@ -24,7 +24,7 @@ Font Sizes
 16pt Black Roboto - Uppercase
 16pt Regular Roboto
 */
-export const theme = createTheme({
+export const theme = responsiveFontSizes(createTheme({
   palette: {
     primary: {
       main: '#5837b9'
@@ -42,4 +42,4 @@ export const theme = createTheme({
     fontFamily: 'Roboto',
     fontSize: 16
   }
-})
+}))
