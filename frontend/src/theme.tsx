@@ -1,4 +1,4 @@
-import { createMuiTheme } from '@material-ui/core'
+import { createTheme } from '@material-ui/core'
 
 /*
 Color values
@@ -24,8 +24,7 @@ Font Sizes
 16pt Black Roboto - Uppercase
 16pt Regular Roboto
 */
-
-export const theme = createMuiTheme({
+export const theme = createTheme({
   palette: {
     primary: {
       main: '#5837b9'
@@ -42,18 +41,18 @@ export const theme = createMuiTheme({
   typography: {
     fontFamily: 'Roboto',
     fontSize: 16
-  },
-  overrides: {
-    MuiTextField: {
-      root: {
-        // opacity: "0.5",
-      }
-    },
-    MuiOutlinedInput: {
-      root: {
-        // backgroundColor: "red",
-      }
-    }
   }
+  // overrides: {
+  //   MuiTextField: {
+  //     root: {
+  //       // opacity: "0.5",
+  //     }
+  //   },
+  //   MuiOutlinedInput: {
+  //     root: {
+  //       // backgroundColor: "red",
+  //     }
+  //   }
+  // }
 
 })

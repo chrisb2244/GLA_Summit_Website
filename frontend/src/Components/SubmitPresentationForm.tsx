@@ -71,7 +71,7 @@ export const PresentationSubmissionForm: React.FC = () => {
               {({ insert, remove, push }) => {
                 if (values.collaborators.length === 0) {
                   return (
-                    <Grid container item justify='flex-end'>
+                    <Grid container item justifyContent='flex-end'>
                       <Button onClick={() => push({ firstName: '', lastName: '', email: '' })}>Add collaborator</Button>
                     </Grid>
                   )
@@ -84,7 +84,7 @@ export const PresentationSubmissionForm: React.FC = () => {
                         return <Person key={prefix} fieldNamePrefix={prefix} />
                       })}
                     </Grid>
-                    <Grid container item justify='flex-end'>
+                    <Grid container item justifyContent='flex-end'>
                       <Button onClick={() => push({ firstName: '', lastName: '', email: '' })}>Add collaborator</Button>
                     </Grid>
                   </Grid>

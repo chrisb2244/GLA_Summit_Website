@@ -80,7 +80,7 @@ export const Countdown: React.FC<CountdownProps> = (props) => {
   ) : <Grid item><span>This event has finished.</span></Grid>
 
   return (
-    <Grid container className='gla-countdown-container' justify='center'>
+    <Grid container className='gla-countdown-container' justifyContent='center'>
       <Grid item className='gla-countdown-timer' xs={10} sm={8} md={5} lg={4} xl={3}>
         {counterElems}
       </Grid>
