@@ -1,7 +1,8 @@
-import { AppBar, Box, Grid, Toolbar, Typography } from '@material-ui/core'
+import { AppBar, Box, Grid, Toolbar, Typography } from '@mui/material'
 import NextLink from 'next/link'
-// import MenuIcon from '@material-ui/icons/Menu'
+// import MenuIcon from '@mui/icons-material/Menu'
 import { Countdown } from '../Countdown'
+import { MenuBar } from '../MenuBar'
 
 export const AppFrame: React.FC = (props) => {
   // The month value is 0-based (so 10 -> November)
@@ -31,7 +32,8 @@ export const AppFrame: React.FC = (props) => {
               <Box flexDirection='column'>
                 <Countdown event_start={eventStart} event_end={eventEnd} />
                 <Box>
-                  <Typography variant='h6' textAlign='center'>Menu goes here...</Typography>
+                  <MenuBar />
+                  {/* <Typography variant='h6' textAlign='center'>Menu goes here...</Typography> */}
                 </Box>
               </Box>
             </Grid>

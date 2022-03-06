@@ -1,6 +1,6 @@
 import logo from '../GLA-logo.svg'
 import { MenuBar } from './MenuBar'
-import { AppBar, Toolbar, Typography } from '@material-ui/core'
+import { AppBar, Toolbar, Typography } from '@mui/material'
 
 // const useStyles = makeStyles((theme: Theme) =>
 //   createStyles({

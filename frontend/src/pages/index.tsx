@@ -1,7 +1,7 @@
 import React from 'react'
 // import '../index.css'
 
-import { Grid, Typography } from '@material-ui/core'
+import { Grid, Typography } from '@mui/material'
 
 export const HomePage: React.FC = (props) => {
   return (

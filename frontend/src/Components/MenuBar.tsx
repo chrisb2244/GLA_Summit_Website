@@ -1,8 +1,7 @@
 // import { Link } from 'react-router-dom'
 import Link from 'next/link'
-import MenuIcon from '@material-ui/icons/Menu'
-import '../GLA-generic.css'
-import { Typography } from '@material-ui/core'
+import MenuIcon from '@mui/icons-material/Menu'
+import { Typography } from '@mui/material'
 
 export const MenuBar: React.FC<{narrowWidth?: boolean}> = (props) => {
   if (props.narrowWidth ?? false) {

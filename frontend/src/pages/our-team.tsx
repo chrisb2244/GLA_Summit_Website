@@ -1,5 +1,5 @@
 import { Organizer } from '../Components/Organizer'
-import { Grid } from '@material-ui/core'
+import { Grid } from '@mui/material'
 
 const OurTeam: React.FC = (props) => {
   return (

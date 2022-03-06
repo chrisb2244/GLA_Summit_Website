@@ -1,4 +1,4 @@
-import { createTheme, responsiveFontSizes } from '@material-ui/core'
+import { createTheme, responsiveFontSizes, adaptV4Theme } from '@mui/material';
 
 /*
 Color values
@@ -24,16 +24,19 @@ Font Sizes
 16pt Black Roboto - Uppercase
 16pt Regular Roboto
 */
-export const theme = responsiveFontSizes(createTheme({
+export const theme = responsiveFontSizes(createTheme(adaptV4Theme({
   palette: {
     primary: {
       main: '#5837b9'
+      // main: '#fff'
     },
     background: {
-      default: '#a25bcd'
+      // default: '#a25bcd'
+      default: '#fff'
     },
     text: {
-      primary: '#fff',
+      // primary: '#fff',
+      primary: '#000',
       secondary: '#3e4342',
       disabled: '#e7e9e8'
     }
@@ -42,4 +45,4 @@ export const theme = responsiveFontSizes(createTheme({
     fontFamily: 'Roboto',
     fontSize: 16
   }
-}))
+})))

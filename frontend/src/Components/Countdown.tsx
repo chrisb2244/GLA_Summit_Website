@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Box, Container, Typography } from '@material-ui/core'
+import { Box, Container, Typography } from '@mui/material'
 // import '../GLA-generic.css'
 
 export interface CountdownProps {
