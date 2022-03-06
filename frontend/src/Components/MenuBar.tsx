@@ -10,7 +10,7 @@ export const MenuBar: React.FC<{narrowWidth?: boolean}> = (props) => {
 
   return (
     <>
-      <ul className='gla-main-menu'>
+      <ul className='gla-main-menu' role='menu'>
         <li>
           <Link href='/'><Typography variant='h5'>Home</Typography></Link>
         </li>
