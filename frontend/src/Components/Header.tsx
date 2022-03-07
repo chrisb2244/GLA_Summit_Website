@@ -34,7 +34,7 @@ export const Header: React.FC = (props) => {
   return (
     <AppBar className='App-header' position='static'>
       <Toolbar sx={classes.toolbar}>
-        <img src={logo} className={`App-logo ${classes.appLogo}`} alt='logo' />
+        <img src={logo} className='App-logo' alt='logo' />
         <Typography variant='h3' sx={classes.title}>
           GLA Summit 2021
         </Typography>

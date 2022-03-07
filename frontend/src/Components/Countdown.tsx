@@ -71,17 +71,19 @@ export const Countdown: React.FC<CountdownProps> = (props) => {
 
   const counterElems = (typeof status === 'undefined')
     ? null
-    : status !== 'Finished' ? (
-      <>
-        <CounterText>{status === 'Upcoming' ? 'This event will start in:' : 'This event is live for the next:'}</CounterText>
-        <Box flexDirection='row' flexGrow={1}>
-          <CounterElem unit='Days'>{timerVals.days}</CounterElem>
-          <CounterElem unit='Hours'>{timerVals.hours}</CounterElem>
-          <CounterElem unit='Minutes'>{timerVals.minutes}</CounterElem>
-          <CounterElem unit='Seconds'>{timerVals.seconds}</CounterElem>
-        </Box>
-      </>
-    ) : <CounterText>This event has finished.</CounterText>
+    : status !== 'Finished'
+      ? (
+        <>
+          <CounterText>{status === 'Upcoming' ? 'This event will start in:' : 'This event is live for the next:'}</CounterText>
+          <Box flexDirection='row' flexGrow={1}>
+            <CounterElem unit='Days'>{timerVals.days}</CounterElem>
+            <CounterElem unit='Hours'>{timerVals.hours}</CounterElem>
+            <CounterElem unit='Minutes'>{timerVals.minutes}</CounterElem>
+            <CounterElem unit='Seconds'>{timerVals.seconds}</CounterElem>
+          </Box>
+        </>
+        )
+      : <CounterText>This event has finished.</CounterText>
 
   return (
     <Box className='gla-countdown-container' sx={{ backgroundColor: 'primary.dark', borderRadius: '12.5%/50%' }}>

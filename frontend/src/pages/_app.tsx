@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import { AppProps } from 'next/app'
-import { ThemeProvider, Theme, StyledEngineProvider } from '@mui/material/styles';
+import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles'
 import CssBaseline from '@mui/material/CssBaseline'
 import { CacheProvider, EmotionCache } from '@emotion/react'
 import { theme } from '../theme'
@@ -10,12 +10,10 @@ import reportWebVitals from '../reportWebVitals'
 import '../spinningLogo.css'
 import '../GLA-generic.css'
 
-
 // declare module '@mui/styles/defaultTheme' {
 //   // eslint-disable-next-line @typescript-eslint/no-empty-interface
 //   interface DefaultTheme extends Theme {}
 // }
-
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache()
@@ -42,7 +40,7 @@ export default function MyApp (props: MyAppProps): JSX.Element {
         </ThemeProvider>
       </StyledEngineProvider>
     </CacheProvider>
-  );
+  )
 }
 
 // If you want to start measuring performance in your app, pass a function
