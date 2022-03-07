@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import { Grid } from "@material-ui/core";
-import '../GLA-generic.css'
+import { Box, Container, Typography } from "@mui/material";
+// import '../GLA-generic.css'
 
-export type CountdownProps = {
-  event_start: Date
-  event_end: Date
+export interface CountdownProps {
+  event_start: Date;
+  event_end: Date;
 }
 
-type TimerValues = {
+interface TimerValues {
   days: number;
   hours: number;
   minutes: number;
@@ -16,9 +16,9 @@ type TimerValues = {
 
 type EventStatus = "Upcoming" | "Live" | "Finished";
 
-export function Countdown(props: CountdownProps) {
-  function zeroTimerVals() {
-    return { days: 0, hours: 0, minutes: 0, seconds: 0 }
+export const Countdown: React.FC<CountdownProps> = (props) => {
+  function zeroTimerVals(): TimerValues {
+    return { days: 0, hours: 0, minutes: 0, seconds: 0 };
   }
 
   const [timerVals, setTimerVals] = useState<TimerValues>(zeroTimerVals());
@@ -27,14 +27,14 @@ export function Countdown(props: CountdownProps) {
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date().getTime();
-      let distance = (props.event_start.getTime() - now);
+      let distance = props.event_start.getTime() - now;
       if (distance > 0) {
         // Event hasn't started yet
         const tVals = calcTimeValues(distance);
         setTimerVals(tVals);
         setStatus("Upcoming");
       } else {
-        distance = (props.event_end.getTime() - now);
+        distance = props.event_end.getTime() - now;
         if (distance > 0) {
           // Event is ongoing
           const tVals = calcTimeValues(distance);
@@ -42,24 +42,24 @@ export function Countdown(props: CountdownProps) {
           setStatus("Live");
         } else {
           // Event has finished
-          setTimerVals(zeroTimerVals())
-          setStatus("Finished")
+          setTimerVals(zeroTimerVals());
+          setStatus("Finished");
         }
       }
     }, 1000);
     return () => {
-      clearInterval(interval)
+      clearInterval(interval);
     };
   }, [props.event_start, props.event_end, setTimerVals]);
 
   function calcTimeValues(distanceInMilliseconds: number): TimerValues {
     let remaining = distanceInMilliseconds / 1000;
     const days = Math.floor(remaining / (3600 * 24));
-    remaining -= (days * 3600 * 24);
+    remaining -= days * 3600 * 24;
     const hours = Math.floor(remaining / 3600);
-    remaining -= (hours * 3600)
+    remaining -= hours * 3600;
     const minutes = Math.floor(remaining / 60);
-    remaining -= (minutes * 60)
+    remaining -= minutes * 60;
     const seconds = Math.floor(remaining);
     return {
       days: days,
@@ -69,21 +69,68 @@ export function Countdown(props: CountdownProps) {
     };
   }
 
-  const counterElems = status !== "Finished" ? (
-    <Grid item>
-      <div className="gla-countdown-text">{status === "Upcoming" ? "This event will start in:" : "This event is live for the next:"}</div>
-      <div><span className="days">{timerVals.days}</span><div className="smallText">Days</div></div>
-      <div><span className="hours">{timerVals.hours}</span><div className="smallText">Hours</div></div>
-      <div><span className="minutes">{timerVals.minutes}</span><div className="smallText">Minutes</div></div>
-      <div><span className="seconds">{timerVals.seconds}</span><div className="smallText">Seconds</div></div>
-    </Grid>
-  ) : <Grid item><span>This event has finished.</span></Grid>
+  const counterElems = (
+    <Container>
+      {/* <CounterText>
+        {status === "Upcoming"
+          ? "This event will start in:"
+          : "This event is live for the next:"}
+      </CounterText> */}
+      <Box title="countdown" sx={{flexGrow: 1, flexDirection: "row", display:'flex'}}>
+        {typeof status === "undefined" ? null : status !== "Finished" ? (
+          <>
+            <CounterElem unit="Days">{timerVals.days}</CounterElem>
+            <CounterElem unit="Hours">{timerVals.hours}</CounterElem>
+            <CounterElem unit="Minutes">{timerVals.minutes}</CounterElem>
+            <CounterElem unit="Seconds">{timerVals.seconds}</CounterElem>
+          </>
+        ) : (
+          <CounterText>This event has finished.</CounterText>
+        )}
+      </Box>
+    </Container>
+  );
 
   return (
-    <Grid container className="gla-countdown-container" justify="center">
-      <Grid item className="gla-countdown-timer" xs={10} sm={8} md={5} lg={4} xl={3}>
-        {counterElems}
-      </Grid>
-    </Grid>
-  )
-}
+    <Box
+      className="gla-countdown-container"
+      sx={{ backgroundColor: "primary.dark", borderRadius: "12.5%/50%", display: 'inline-flex' }}
+    >
+      {counterElems}
+    </Box>
+  );
+};
+
+const CounterElem: React.FC<{
+  unit: "Days" | "Hours" | "Minutes" | "Seconds";
+}> = (props) => {
+  return (
+    <Box
+      sx={{
+        display: "inline-block",
+        paddingInline: "10px",
+        textAlign: "center",
+      }}
+    >
+      <Typography variant="body2" component="div" fontSize="larger">
+        {props.children}
+      </Typography>
+      <Typography variant="body2" component="div" fontSize="small">
+        {props.unit}
+      </Typography>
+    </Box>
+  );
+};
+
+const CounterText: React.FC = (props) => {
+  return (
+    <Typography
+      variant="body1"
+      textAlign="center"
+      marginTop="10px"
+      paddingTop="5px"
+    >
+      {props.children}
+    </Typography>
+  );
+};

@@ -18,9 +18,16 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "preserve",
+    "baseUrl": ".",
+    "paths": {
+      "@/Components/*": ["src/Components/*"]
+    }
   },
   "include": [
     "src"
+, "__tests__"  ],
+  "exclude": [
+    "node_modules"
   ]
 }

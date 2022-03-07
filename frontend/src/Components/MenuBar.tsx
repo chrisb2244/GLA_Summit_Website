@@ -1,22 +1,35 @@
-import { Link } from 'react-router-dom';
-import "../GLA-generic.css"
+import Link from 'next/link'
+import MenuIcon from '@mui/icons-material/Menu'
+import { Typography } from '@mui/material'
 
-export function MenuBar(props: {}) {
-
+export const MenuBar: React.FC<{ narrowWidth?: boolean }> = (props) => {
+  if (props.narrowWidth ?? false) {
+    return <MenuIcon />
+  }
 
   return (
-    <>
-        <ul className="gla-main-menu">
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/our-team">Our Team</Link>
-          </li>
-          <li>
-            <Link to="/submit-presentation">Submit a Presentation</Link>
-          </li>
-        </ul>
-    </>
+    <ul className='gla-main-menu' role='menu'>
+      <li>
+        <Link href='/'>
+          <Typography variant='button' role='menuitem'>
+            Home
+          </Typography>
+        </Link>
+      </li>
+      <li>
+        <Link href='/our-team'>
+          <Typography variant='button' role='menuitem'>
+            Our Team
+          </Typography>
+        </Link>
+      </li>
+      <li>
+        <Link href='/submit-presentation'>
+          <Typography variant='button' role='menuitem'>
+            Submit a Presentation
+          </Typography>
+        </Link>
+      </li>
+    </ul>
   )
 }

@@ -1,15 +1,15 @@
-import { useField } from "formik";
-import { TextField } from '@material-ui/core'
+import { useField } from 'formik'
+import { TextField } from '@mui/material'
 
-type TextFieldWrapperProps = {
+interface TextFieldWrapperProps {
   name: string
   label: string
   type?: string
   multiline?: boolean
 }
 
-export function TextFieldWrapper(props: TextFieldWrapperProps & {className?: string}) {
-  const [field, meta] = useField(props.name);
+export const TextFieldWrapper: React.FC<TextFieldWrapperProps & {className?: string}> = (props) => {
+  const [field, meta] = useField(props.name)
 
   const configTextField = {
     error: false,
@@ -17,22 +17,22 @@ export function TextFieldWrapper(props: TextFieldWrapperProps & {className?: str
     name: props.name,
     id: props.name,
     label: props.label,
-    type: props.type ?? "text",
-    variant: "outlined" as const, // standard, filled, outlined, undefined
+    type: props.type ?? 'text',
+    variant: 'outlined' as const, // standard, filled, outlined, undefined
     fullWidth: true,
     onChange: field.onChange,
     onBlur: field.onBlur,
     value: field.value,
     multiline: props.multiline,
-    className: props.className,
+    className: props.className
   }
 
-  if (meta && meta.touched && meta.error) {
+  if (meta.touched && typeof meta.error !== 'undefined') {
     configTextField.error = true
     configTextField.helperText = meta.error
   }
 
   return (
-      <TextField {...configTextField} />
+    <TextField {...configTextField} />
   )
 }
