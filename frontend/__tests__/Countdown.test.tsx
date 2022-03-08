@@ -14,11 +14,11 @@ describe('Countdown', () => {
 
   const start = new Date(Date.UTC(2022, 10, 15, 12, 0, 0))
   const end = new Date(Date.UTC(2022, 10, 16, 12, 0, 0))
-  
+
   it('contains 4 subblocks', () => {
     const countdown = render(<Countdown event_start={start} event_end={end} />).container
     act(() => {
-      jest.advanceTimersByTime(1200);
+      jest.advanceTimersByTime(1200)
     })
     const children = within(countdown).getByTitle('countdown').children
     expect(children.length).toBe(4)
@@ -28,7 +28,7 @@ describe('Countdown', () => {
     const countdown = render(<Countdown event_start={start} event_end={end} />).container
     const container = countdown.children[0]
     act(() => {
-      jest.advanceTimersByTime(1200);
+      jest.advanceTimersByTime(1200)
     })
     expect(container).toHaveStyle('display: inline-flex')
   })

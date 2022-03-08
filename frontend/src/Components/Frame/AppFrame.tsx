@@ -2,6 +2,7 @@ import { AppBar, Box, Grid, Toolbar, Typography } from '@mui/material'
 import NextLink from 'next/link'
 // import MenuIcon from '@mui/icons-material/Menu'
 import { Countdown } from '../Countdown'
+import { Footer } from '../Footer'
 import { MenuBar } from '../MenuBar'
 
 export const AppFrame: React.FC = (props) => {
@@ -10,7 +11,7 @@ export const AppFrame: React.FC = (props) => {
   const eventEnd = new Date(Date.UTC(2022, 10, 16, 12, 0, 0))
 
   return (
-    <Box flexDirection='column'>
+    <Box flexDirection='column' display='flex' minHeight='100vh'>
       <AppBar position='static' sx={{ marginBottom: '20px' }}>
         <Toolbar>
           <Grid container justifyContent='center' alignItems='center'>
@@ -41,9 +42,11 @@ export const AppFrame: React.FC = (props) => {
         </Toolbar>
       </AppBar>
 
-      <Box>
+      <Box sx={{ flex: '1 0 auto' }}>
         {props.children}
       </Box>
+
+      <Footer />
     </Box>
   )
 }
