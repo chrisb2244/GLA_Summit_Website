@@ -1,4 +1,4 @@
-import { Toolbar, Typography } from '@mui/material'
+import { Box, Toolbar, Typography, Link } from '@mui/material'
 import { SocialMediaIcons } from './SocialMediaIcons'
 
 export const Footer: React.FC = (props) => {
@@ -10,9 +10,17 @@ export const Footer: React.FC = (props) => {
       <Toolbar sx={{justifyContent: 'space-between', color: (t) => t.palette.primary.contrastText, bgcolor: (theme) => theme.palette.primary.main}}>
         {/* <object data='media/GLA-logo.svg' className='app-logo' height='100' aria-label='logo' style={{ pointerEvents: 'none' }} /> */}
         <SocialMediaIcons />
-        <Typography variant='body2'>
-          {`\u00A9 2022 GLA Organizers`}
-        </Typography>
+        <Box display='flex' flexDirection='column'>
+          <Typography variant='body2' fontSize='small'>
+            {'\u00A9 2022 GLA Organizers'}
+          </Typography>
+          <Typography variant='body2' fontSize='small'>
+            Contact Us:&nbsp;
+            <Link href='mailto:contact@glasummit.org' color='#fff'>
+              contact@glasummit.org
+            </Link>
+          </Typography>
+        </Box>
       </Toolbar>
     </footer>
   )
