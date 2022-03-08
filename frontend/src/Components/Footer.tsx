@@ -4,8 +4,8 @@ import { SocialMediaIcons } from './SocialMediaIcons'
 export const Footer: React.FC = (props) => {
   // The 'Toolbar' component appears to make the flow
   // direction a row, rather than a column otherwise...
-  const FileLink = (props: { link: string, title: string }) => {
-    return (
+  const FileLink = (props: { link: string, title: string }): JSX.Element => {
+    const text = (
       <Typography
         variant='body2'
         fontSize='small'
@@ -14,6 +14,16 @@ export const Footer: React.FC = (props) => {
         {props.title}
       </Typography>
     )
+
+    if (props.link !== '') {
+      return (
+        <Link href={props.link} color='#fff'>
+          {text}
+        </Link>
+      )
+    } else {
+      return text
+    }
   }
 
   return (
@@ -28,7 +38,7 @@ export const Footer: React.FC = (props) => {
       >
         <SocialMediaIcons />
         <Box display='flex' flexDirection={{ xs: 'column', md: 'row' }}>
-          <FileLink title='Code of Conduct' link='' />
+          <FileLink title='Code of Conduct' link='media/codeofconduct.pdf' />
           <FileLink title='Privacy Policy' link='' />
         </Box>
         <Box display='flex' flexDirection='column'>
