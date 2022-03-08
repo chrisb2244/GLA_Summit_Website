@@ -42,7 +42,7 @@ export const AppFrame: React.FC = (props) => {
         </Toolbar>
       </AppBar>
 
-      <Box sx={{flex: '1 0 auto'}}>
+      <Box sx={{ flex: '1 0 auto' }}>
         {props.children}
       </Box>
 
