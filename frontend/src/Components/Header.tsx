@@ -1,4 +1,3 @@
-import logo from '../GLA-logo.svg'
 import { MenuBar } from './MenuBar'
 import { AppBar, Toolbar, Typography } from '@mui/material'
 
@@ -34,7 +33,7 @@ export const Header: React.FC = (props) => {
   return (
     <AppBar className='App-header' position='static'>
       <Toolbar sx={classes.toolbar}>
-        <img src={logo} className='App-logo' alt='logo' />
+        <object data='media/GLA-logo.svg' className='app-logo' height='100' aria-label='logo' style={{ pointerEvents: 'none' }} />
         <Typography variant='h3' sx={classes.title}>
           GLA Summit 2021
         </Typography>
