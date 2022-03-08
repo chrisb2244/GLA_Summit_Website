@@ -11,7 +11,7 @@ export const AppFrame: React.FC = (props) => {
   const eventEnd = new Date(Date.UTC(2022, 10, 16, 12, 0, 0))
 
   return (
-    <Box flexDirection='column'>
+    <Box flexDirection='column' display='flex' minHeight='100vh'>
       <AppBar position='static' sx={{ marginBottom: '20px' }}>
         <Toolbar>
           <Grid container justifyContent='center' alignItems='center'>
@@ -42,7 +42,7 @@ export const AppFrame: React.FC = (props) => {
         </Toolbar>
       </AppBar>
 
-      <Box>
+      <Box sx={{flex: '1 0 auto'}}>
         {props.children}
       </Box>
 
