@@ -2,6 +2,7 @@ import { AppBar, Box, Grid, Toolbar, Typography } from '@mui/material'
 import NextLink from 'next/link'
 // import MenuIcon from '@mui/icons-material/Menu'
 import { Countdown } from '../Countdown'
+import { Footer } from '../Footer'
 import { MenuBar } from '../MenuBar'
 
 export const AppFrame: React.FC = (props) => {
@@ -44,6 +45,8 @@ export const AppFrame: React.FC = (props) => {
       <Box>
         {props.children}
       </Box>
+
+      <Footer />
     </Box>
   )
 }
