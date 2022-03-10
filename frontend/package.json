@@ -21,7 +21,9 @@
     "build": "next build",
     "dev": "next dev",
     "test": "jest",
-    "lint": "ts-standard ./src/ ./__tests__/"
+    "test-w": "jest --watch",
+    "lint": "ts-standard ./src/ ./__tests__/",
+    "lint-f": "ts-standard --fix ./src/ ./__tests__/"
   },
   "eslintConfig": {
     "extends": [
