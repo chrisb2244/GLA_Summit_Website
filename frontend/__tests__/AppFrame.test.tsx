@@ -22,5 +22,10 @@ describe('AppFrame', () => {
     expect(percentageW).toBeLessThan(95)
   })
 
-
+  it('contains the title when not scrolled', () => {
+    const basicFrame = <AppFrame><p>Some content</p></AppFrame>
+    const frame = render(basicFrame)
+    const heading = within(frame.container).getByRole('heading', {name: /GLA Summit.*/})
+    expect(heading).toBeDefined()
+  })
 })
