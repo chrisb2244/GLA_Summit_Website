@@ -1,18 +1,31 @@
 import { render, within } from '@testing-library/react'
 import { AppFrame } from '@/Components/Frame/AppFrame'
 
+const longIpsum = <p data-testid='test-paragraph'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas eveniet non alias in reprehenderit fugiat minus, suscipit eligendi provident rerum qui sapiente praesentium blanditiis ullam tempora, perspiciatis voluptatum facere repudiandae!
+Iure reprehenderit esse consequatur ullam tempore porro illo illum accusantium temporibus laboriosam earum numquam, blanditiis dignissimos qui enim at, animi sequi cumque. Cupiditate, vel perspiciatis. Deserunt aliquid maxime iusto? Doloribus?
+Pariatur doloribus porro voluptatibus laboriosam aliquid quo necessitatibus! Repellat inventore id culpa eveniet laboriosam magnam atque, consequuntur quidem obcaecati! Veritatis eius minus animi modi cumque provident dolore unde enim repudiandae!
+Sint, tempore sapiente quisquam nihil cupiditate laboriosam consectetur ea vitae aliquam ducimus ab accusamus quas, voluptatibus et earum minima praesentium placeat fuga? Delectus itaque et facere veniam sunt tempore ipsam.
+In placeat reprehenderit obcaecati eveniet aut reiciendis perspiciatis, eius eos magnam temporibus, veniam quisquam commodi ab, explicabo totam modi. Culpa vel facilis accusamus quos reprehenderit. Vitae est dolore quis placeat?
+Quia, dolores consequuntur delectus consequatur odio reiciendis iure hic officiis illo dolor nam soluta exercitationem velit facere tempore officia facilis. Quibusdam, illum fuga error quia adipisci voluptate ipsam deleniti iusto.
+Beatae obcaecati quae consectetur quam dolorum a expedita asperiores impedit velit! Quibusdam sapiente esse harum magni ad nulla illo dolore eaque recusandae quia eum, eius non quod assumenda ducimus ut.
+Consectetur quo non quasi temporibus hic, nemo voluptate optio perferendis. Facilis expedita aspernatur rem incidunt minima maiores sapiente! Nemo consectetur alias id ex ipsum neque! Corporis suscipit quae fugit debitis?
+Perspiciatis, nemo. Earum officia, tempora perferendis porro cumque rerum dolorum accusantium maxime officiis consequatur. Beatae necessitatibus ea dignissimos, laboriosam culpa quis aliquid sit, minus quibusdam magnam possimus ratione minima architecto?
+Saepe ab sapiente, labore ipsa accusantium laborum quasi sint. Eius esse vitae dignissimos sed facilis minima iusto sunt id nam ipsum eum vero, blanditiis doloribus voluptatum similique suscipit unde debitis.
+Tenetur molestiae praesentium impedit expedita maiores dolorum aliquam neque eaque minima nam? Sed, minima ad! Minus, magnam illum. Atque tempore nemo optio necessitatibus inventore maiores odit ea iure et eos.
+Harum dignissimos voluptas vitae quaerat autem quidem corporis veniam quibusdam et voluptatum dolores sequi alias, ducimus aliquid beatae amet doloribus ex inventore numquam, eum nostrum exercitationem explicabo. Pariatur, impedit eum.
+Totam voluptate cumque quidem commodi porro quam fuga libero corrupti laborum, perspiciatis adipisci iure numquam voluptatibus exercitationem repellendus. Mollitia laboriosam debitis reiciendis ullam labore earum in iure, quisquam fugit qui!
+Corporis esse voluptate doloremque exercitationem assumenda consectetur recusandae. Iure ex repellendus fugit repudiandae veritatis fugiat quod nobis sequi exercitationem asperiores quia nemo quas unde amet esse ad, similique sapiente vel!
+Pariatur cum itaque accusamus quasi odio corporis fugiat repellendus nihil, consectetur veniam harum ipsum, numquam fugit voluptatum repudiandae quam laboriosam! Sapiente laborum deserunt minima doloremque autem consequatur, vero quis architecto.
+Amet a tempora autem ut labore mollitia, repellat non veritatis assumenda enim beatae eum iste, similique debitis quisquam excepturi impedit eos. Nihil consectetur iure, dolorem ab possimus dolores impedit ipsum?
+Autem reprehenderit repellat sint magni consectetur, soluta voluptates rerum ratione iusto. Pariatur fuga officiis veritatis maxime ex. Voluptatibus laudantium libero, accusantium quisquam corrupti voluptates dignissimos doloribus obcaecati, veniam neque alias!
+Tempora inventore excepturi accusantium adipisci, dolorum officia molestias, quas obcaecati esse cumque fugiat doloremque ex in. Velit illo quae rem tenetur asperiores minima quam, repellat dicta, voluptas amet optio et!
+Libero, inventore, ducimus officiis assumenda animi iusto quae praesentium sit velit dicta quaerat minima magnam iste! Vel dolore, sed culpa quia, dignissimos molestiae, consectetur hic quo illo magnam ratione porro?
+Aliquid harum labore dolor rem, voluptas corrupti blanditiis hic, odit mollitia voluptatibus fugit perferendis placeat ab perspiciatis accusantium possimus adipisci facere maiores esse voluptates, omnis nihil asperiores. Ratione, ea aperiam?
+</p>
+
 describe('AppFrame', () => {
   it('restricts child content to centred, not-full-width', () => {
-    const frameIpsum = <AppFrame><p data-testid='test-paragraph'>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Repudiandae ex ea itaque magnam blanditiis atque sit qui aspernatur autem rem, incidunt delectus nihil illum numquam! Soluta maiores esse quae vel.
-    Quos id commodi veniam asperiores sint. Blanditiis accusantium fuga mollitia nam sed, eveniet nesciunt sunt ex at beatae officiis voluptatum veritatis rem reiciendis voluptates deleniti. Tempora harum ab ipsa fugit.
-    Deserunt ut dolorem possimus quos, excepturi atque quisquam consequatur ratione eveniet consectetur corporis autem quod magni aliquid sunt sit a laborum. Eligendi ipsam eius nihil quae rerum amet consequatur impedit!
-    Rerum voluptates veritatis eligendi eius natus impedit aspernatur unde ea nostrum sequi porro, totam maiores. Repellat, tenetur. Omnis, aliquam vitae laboriosam iste provident, accusamus illum dolorem, suscipit debitis quisquam inventore.
-    Veritatis quisquam qui, similique alias neque quibusdam quos at voluptatibus odio asperiores sapiente architecto aliquid officiis incidunt laboriosam commodi? Maiores praesentium dolore alias! Molestiae corrupti officiis sed alias placeat nihil.
-    Recusandae porro expedita numquam voluptatem odit eligendi distinctio corporis ipsa ducimus, vitae id dolorem quas exercitationem sapiente. Sequi tenetur ex facere. Nulla est iste consequatur quis qui! Fugit, dolor odit!
-    Molestias obcaecati quas, rerum adipisci reprehenderit eligendi reiciendis cumque, id maxime voluptas doloremque aliquam autem aut earum! Dignissimos, fugiat? Illum laudantium qui voluptatibus, officiis aliquid repellendus cum officia facere voluptate!
-    Officia dolore voluptas vero eius, error dolorum, earum molestias fugit ipsum et omnis debitis adipisci obcaecati ut nemo, ducimus ab veniam. Nam culpa obcaecati nemo iste cumque labore eligendi quia?
-    Ullam eaque voluptatibus pariatur, rerum, assumenda voluptates suscipit ut architecto cupiditate atque iste reiciendis voluptatem neque reprehenderit sit ipsam inventore impedit necessitatibus odio autem eius! Maxime optio dolorum repellendus nam.
-    Quidem porro ex reiciendis sequi vitae molestias nostrum, libero in maiores sapiente officia odio suscipit accusantium illum, ducimus, perferendis atque sed. Facilis ducimus optio beatae temporibus, sunt neque eum reiciendis!</p></AppFrame>
+    const frameIpsum = <AppFrame>{longIpsum}</AppFrame>
 
     const content = render(frameIpsum)
     const p = within(content.container).getByTestId('test-paragraph')
