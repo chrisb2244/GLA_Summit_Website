@@ -22,9 +22,9 @@ describe('Footer', () => {
     const footer = render(<Footer />)
     const socialmediadiv = within(footer.container).getByLabelText('Social Media Links')
     const elems = Array.from(socialmediadiv.children) as HTMLElement[]
-    expect(elems.reduce((allLinksSoFar, elem) => {
-      return allLinksSoFar && (elem.outerHTML.match(/<a .*href=".*".*>.*<\/a>/) !== null)
-    }, true)).toBeTruthy()
+    const linkMatcher = new RegExp(/<a .*href=".*".*>.*<\/a>/)
+    const isLink = (elem: HTMLElement) => elem.outerHTML.match(linkMatcher) !== null
+    expect(elems.map(elem => isLink(elem)).every(Boolean)).toBeTruthy()
   })
 
   it('contains a contact link', () => {
