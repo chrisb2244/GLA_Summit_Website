@@ -13,6 +13,7 @@ export const MenuBar: React.FC<{ narrowWidth?: boolean }> = (props) => {
         { title: "Home", link: "/" },
         { title: "Our Team", link: "/our-team" },
         { title: "Submit a Presentation", link: "/submit-presentation" },
+        { title: "Lorem", link: "/lorem-ipsum"}
       ].map(({ title, link }) => {
         return (
           <Button sx={{ color: "white" }} key={title}>
