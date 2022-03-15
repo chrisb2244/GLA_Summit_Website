@@ -2,6 +2,7 @@ import { Formik, FormikErrors, Form, FieldArray, Field, useFormik } from 'formik
 import { Button, Grid } from '@mui/material'
 import { TextFieldWrapper as TextField } from './TextFieldWrapper'
 import { PersonValues, Person } from './Person'
+import { PersonArray } from './PersonArray'
 // import './SubmitPresentationForm.css'
 
 interface PresentationFormValues {
@@ -64,8 +65,8 @@ export const SubmitPresentationForm: React.FC = () => {
         <Form>
           <Grid container spacing={1} className='gla-submitpresentationform-grid'>
             <Person form={{...props, values}} field={props.getFieldProps<PersonValues>('firstPresenter')} meta={props.getFieldMeta('firstPresenter')}/>
-            <FieldArray name='collaborators'>
-              {({ insert, remove, push }) => {
+            <PersonArray form={{...props, values}} field={props.getFieldProps<Array<PersonValues>>('collaborators')} meta={props.getFieldMeta('collaborators')} />
+              {/* {({ insert, remove, push }) => {
                 if (values.collaborators.length === 0) {
                   return (
                     <Grid container item justifyContent='flex-end'>
@@ -87,7 +88,7 @@ export const SubmitPresentationForm: React.FC = () => {
                   </Grid>
                 )
               }}
-            </FieldArray>
+            </FieldArray> */}
             <Grid item xs={12}>
               <TextField
                 name='presentationTitle'
