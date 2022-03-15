@@ -1,17 +1,22 @@
-import { act, fireEvent, render } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { initialPersonValues, Person } from '@/Components/Form/Person'
-import { Formik, Field } from 'formik'
+import { fireEvent, render, waitFor } from '@testing-library/react'
+import { PersonValues, Person } from '@/Components/Form/Person'
+import { Formik } from 'formik'
 
 describe('Person', () => {
-  const initialValues: initialPersonValues = {
-    firstName: '',
-    lastName: '',
-    email: '',
+  const initialValues = {
+    person: {
+      firstName: '',
+      lastName: '',
+      email: ''
+    }
   }
   const form = (
     <Formik initialValues={initialValues} onSubmit={() => {}}>
-      <Field component={Person} name='person' />
+      {({ ...props }) => {
+        const field = props.getFieldProps<PersonValues>('person')
+        const meta = props.getFieldMeta('person')
+        return <Person form={{ ...props }} field={field} meta={meta} />
+      }}
     </Formik>
   )
 
@@ -38,16 +43,11 @@ describe('Person', () => {
   //   })
   // })
 
-  it('requires firstName after click', () => {
-    act(() => {
-      const person = render(form)
-      const firstName = person.getByRole('textbox', { name: 'First Name' })
-      // const lastName = person.getByRole('textbox', { name: 'Last Name' })
-      expect(firstName).toBeValid()
-      fireEvent.blur(firstName)
-      // userEvent.click(firstName)
-      // userEvent.click(lastName)
-      expect(firstName).toBeInvalid()
-    })
+  it('requires firstName after click', async () => {
+    const person = render(form)
+    const firstName = person.getByRole('textbox', { name: 'First Name' })
+    expect(firstName).toBeValid()
+    fireEvent.blur(firstName)
+    await waitFor(() => expect(firstName).toBeInvalid())
   })
 })

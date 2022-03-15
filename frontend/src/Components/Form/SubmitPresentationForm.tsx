@@ -1,11 +1,11 @@
-import { Formik, FormikErrors, Form, FieldArray, Field } from 'formik'
+import { Formik, FormikErrors, Form, FieldArray, Field, useFormik } from 'formik'
 import { Button, Grid } from '@mui/material'
 import { TextFieldWrapper as TextField } from './TextFieldWrapper'
-import { initialPersonValues, Person } from './Person'
+import { PersonValues, Person } from './Person'
 // import './SubmitPresentationForm.css'
 
 interface PresentationFormValues {
-  firstPresenter: initialPersonValues
+  firstPresenter: PersonValues
   presentationTitle: string
   abstract: string
   collaborators: Array<{
@@ -15,7 +15,7 @@ interface PresentationFormValues {
   }>
 }
 
-const requireArg = (value: string, minLength?: number, maxLength?: number): string | undefined => {
+export const requireArg = (value: string, minLength?: number, maxLength?: number): string | undefined => {
   if (value.trim().length === 0) {
     return 'Required'
   }
@@ -31,9 +31,6 @@ const requireArg = (value: string, minLength?: number, maxLength?: number): stri
 export const SubmitPresentationForm: React.FC = () => {
   const validate = (values: PresentationFormValues): FormikErrors<PresentationFormValues> => {
     const errors: FormikErrors<PresentationFormValues> = {}
-    errors.firstPresenter = {firstName: requireArg(values.firstPresenter.firstName), lastName: requireArg(values.firstPresenter.lastName), email: requireArg(values.firstPresenter.email)}
-    // errors.firstPresenter = requireArg(values.firstPresenter.lastName)
-    // errors.firstPresenter = requireArg(values.firstPresenter.email)
     errors.presentationTitle = requireArg(values.presentationTitle)
     errors.abstract = requireArg(values.abstract, 100, 5000)
     // Need to remove the keys for undefined elements to allow submission
@@ -63,10 +60,10 @@ export const SubmitPresentationForm: React.FC = () => {
       }}
       validate={validate}
     >
-      {({ values }) => (
+      {({ values, ...props }) => (
         <Form>
           <Grid container spacing={1} className='gla-submitpresentationform-grid'>
-            <Field component={Person} name='firstPresenter' />
+            <Person form={{...props, values}} field={props.getFieldProps<PersonValues>('firstPresenter')} meta={props.getFieldMeta('firstPresenter')}/>
             <FieldArray name='collaborators'>
               {({ insert, remove, push }) => {
                 if (values.collaborators.length === 0) {
