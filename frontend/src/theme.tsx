@@ -24,7 +24,7 @@ Font Sizes
 16pt Black Roboto - Uppercase
 16pt Regular Roboto
 */
-export const theme = responsiveFontSizes(createTheme(adaptV4Theme({
+export const theme = responsiveFontSizes(createTheme({
   palette: {
     primary: {
       main: '#5837b9'
@@ -45,4 +45,4 @@ export const theme = responsiveFontSizes(createTheme(adaptV4Theme({
     fontFamily: 'Roboto',
     fontSize: 16
   }
-})))
+}))
