@@ -22,8 +22,8 @@ describe('Footer', () => {
     const footer = render(<Footer />)
     const socialmediadiv = within(footer.container).getByLabelText('Social Media Links')
     const elems = Array.from(socialmediadiv.children) as HTMLElement[]
-    const linkMatcher = new RegExp(/<a .*href=".*".*>.*<\/a>/)
-    const isLink = (elem: HTMLElement) => elem.outerHTML.match(linkMatcher) !== null
+    const linkMatcher = /<a .*href=".*".*>.*<\/a>/
+    const isLink = (elem: HTMLElement): boolean => elem.outerHTML.match(linkMatcher) !== null
     expect(elems.map(elem => isLink(elem)).every(Boolean)).toBeTruthy()
   })
 
