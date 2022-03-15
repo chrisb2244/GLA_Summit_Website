@@ -1,9 +1,8 @@
 import { Grid } from '@mui/material'
+import { Field, FieldProps } from 'formik'
 import { TextFieldWrapper as TextField } from './TextFieldWrapper'
 
-interface PersonProps {
-  fieldNamePrefix?: string
-}
+type PersonProps = {}
 
 export type initialPersonValues = {
   firstName: string,
@@ -11,30 +10,33 @@ export type initialPersonValues = {
   email: string
 }
 
-export const Person: React.FC<PersonProps> = (props) => {
-  const prefix = props.fieldNamePrefix ?? ''
-  const emailFieldName = typeof props.fieldNamePrefix !== 'undefined' ? 'email' : 'primaryemail'
+export const Person: React.FC<PersonProps & FieldProps> = ({
+  field,
+  ...props
+}) => {
+  const prefix = field.name
+
   return (
-    <>
-      <Grid item xs={12} md={6}>
+    <Field as={'div'} name={prefix} {...props}>
+      {/* <Grid item xs={12} md={6}> */}
         <TextField
-          name={`${prefix}firstName`}
+          name={`${prefix}.firstName`}
           label='First Name'
         />
-      </Grid>
-      <Grid item xs={12} md={6}>
+      {/* </Grid>
+      <Grid item xs={12} md={6}> */}
         <TextField
-          name={`${prefix}lastName`}
+          name={`${prefix}.lastName`}
           label='Last Name'
         />
-      </Grid>
-      <Grid item xs={12}>
+      {/* </Grid>
+      <Grid item xs={12}> */}
         <TextField
-          name={`${prefix}${emailFieldName}`}
+          name={`${prefix}.email`}
           type='email'
           label='Email Address'
         />
-      </Grid>
-    </>
+      {/* </Grid> */}
+    </Field>
   )
 }
