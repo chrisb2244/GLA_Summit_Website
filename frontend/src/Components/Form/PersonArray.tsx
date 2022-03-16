@@ -17,7 +17,7 @@ export const PersonArray: React.FC<PersonArrayProps & FieldProps> = (props) => {
 
   const fieldArr = (
     <FieldArray name={fieldName}>
-      {({ push, form }) => {
+      {({ push, remove, form }) => {
         const addButton = (
           <Button onClick={() => push(defaultVals)}>{addLabel}</Button>
         )
@@ -34,12 +34,16 @@ export const PersonArray: React.FC<PersonArrayProps & FieldProps> = (props) => {
                 const fInner = form.getFieldProps(nameInner)
                 const mInner = form.getFieldMeta(nameInner)
                 return (
-                  <Person
-                    key={nameInner}
-                    form={{ ...props.form }}
-                    field={fInner}
-                    meta={mInner}
-                  />
+                  <div key={nameInner}>
+                    <Person
+                      form={{ ...props.form }}
+                      field={fInner}
+                      meta={mInner}
+                    />
+                    <Button name="delete" onClick={() => remove(index)}>
+                      Delete Person
+                    </Button>
+                  </div>
                 )
               })}
               {addButton}
