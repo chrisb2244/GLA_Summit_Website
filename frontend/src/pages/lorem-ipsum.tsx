@@ -24,4 +24,3 @@ const LoremIpsum: React.FC = (props) => {
 }
 
 export default LoremIpsum
-

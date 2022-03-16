@@ -1,40 +1,43 @@
 import { Grid } from '@mui/material'
+import { Field, FieldProps, FormikErrors } from 'formik'
 import { TextFieldWrapper as TextField } from './TextFieldWrapper'
+import { requireArg } from './SubmitPresentationForm'
+type PersonProps = {}
 
-interface PersonProps {
-  fieldNamePrefix?: string
-}
-
-export type initialPersonValues = {
-  firstName: string,
-  lastName: string,
+export type PersonValues = {
+  firstName: string
+  lastName: string
   email: string
 }
 
-export const Person: React.FC<PersonProps> = (props) => {
-  const prefix = props.fieldNamePrefix ?? ''
-  const emailFieldName = typeof props.fieldNamePrefix !== 'undefined' ? 'email' : 'primaryemail'
+export const Person: React.FC<PersonProps & FieldProps> = ({
+  field,
+  ...props
+}) => {
+  const prefix = field.name
+
   return (
-    <>
-      <Grid item xs={12} md={6}>
-        <TextField
-          name={`${prefix}firstName`}
-          label='First Name'
-        />
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <TextField
-          name={`${prefix}lastName`}
-          label='Last Name'
-        />
-      </Grid>
-      <Grid item xs={12}>
-        <TextField
-          name={`${prefix}${emailFieldName}`}
-          type='email'
-          label='Email Address'
-        />
-      </Grid>
-    </>
+    <Field
+      as={'div'}
+      name={prefix}
+      {...props}
+      validate={(values: PersonValues): FormikErrors<PersonValues> => {
+        return {
+          firstName: requireArg(values.firstName),
+          lastName: requireArg(values.lastName),
+          email: requireArg(values.email)
+        }
+      }}
+    >
+      {/* <Grid item xs={12} md={6}> */}
+      <TextField name={`${prefix}.firstName`} label="First Name" />
+      {/* </Grid>
+      <Grid item xs={12} md={6}> */}
+      <TextField name={`${prefix}.lastName`} label="Last Name" />
+      {/* </Grid>
+      <Grid item xs={12}> */}
+      <TextField name={`${prefix}.email`} type="email" label="Email Address" />
+      {/* </Grid> */}
+    </Field>
   )
 }
