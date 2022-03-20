@@ -11,7 +11,7 @@ jest.mock('next-auth/react', () => {
 })
 
 const longIpsum = (
-  <p data-testid="test-paragraph">
+  <p data-testid='test-paragraph'>
     Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas eveniet non
     alias in reprehenderit fugiat minus, suscipit eligendi provident rerum qui
     sapiente praesentium blanditiis ullam tempora, perspiciatis voluptatum

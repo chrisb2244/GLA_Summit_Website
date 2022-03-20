@@ -6,7 +6,7 @@ import { Formik } from 'formik'
 
 describe('PersonArray', () => {
   const initialValues: {
-    people: Array<PersonValues>
+    people: PersonValues[]
   } = { people: [] }
   const form = (addLabel?: string) => (
     <Formik initialValues={initialValues} onSubmit={() => {}}>

@@ -23,18 +23,18 @@ interface MyAppProps extends AppProps {
   emotionCache?: EmotionCache
 }
 
-export default function MyApp(props: MyAppProps): JSX.Element {
+export default function MyApp (props: MyAppProps): JSX.Element {
   const {
     Component,
     emotionCache = clientSideEmotionCache,
     pageProps: { session, ...pageProps }
   } = props
-  
+
   return (
     <CacheProvider value={emotionCache}>
       <Head>
         <title>GLA Summit 2021</title>
-        <meta name="viewport" content="initial-scale=1, width=device-width" />
+        <meta name='viewport' content='initial-scale=1, width=device-width' />
       </Head>
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={theme}>

@@ -2,7 +2,7 @@ import { Button } from '@mui/material'
 import { FieldArray, FieldProps } from 'formik'
 import { Person, PersonValues } from './Person'
 
-type PersonArrayProps = {
+interface PersonArrayProps {
   addLabel?: string
 }
 
@@ -22,7 +22,7 @@ export const PersonArray: React.FC<PersonArrayProps & FieldProps> = (props) => {
           <Button onClick={() => push(defaultVals)}>{addLabel}</Button>
         )
 
-        const vals: Array<PersonValues> = form.values[fieldName]
+        const vals: PersonValues[] = form.values[fieldName]
 
         if (form.values.length === 0) {
           return addButton

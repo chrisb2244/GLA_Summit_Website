@@ -1,4 +1,4 @@
-import { Formik, FormikErrors, Form, FieldArray, Field, useFormik } from 'formik'
+import { Formik, FormikErrors, Form } from 'formik'
 import { Button, Grid } from '@mui/material'
 import { TextFieldWrapper as TextField } from './TextFieldWrapper'
 import { PersonValues, Person } from './Person'
@@ -42,9 +42,9 @@ export const SubmitPresentationForm: React.FC = () => {
 
   const initialValues: PresentationFormValues = {
     firstPresenter: {
-    firstName: '',
-    lastName: '',
-    email: '',
+      firstName: '',
+      lastName: '',
+      email: ''
     },
     presentationTitle: '',
     abstract: '',
@@ -64,9 +64,9 @@ export const SubmitPresentationForm: React.FC = () => {
       {({ values, ...props }) => (
         <Form>
           <Grid container spacing={1} className='gla-submitpresentationform-grid'>
-            <Person form={{...props, values}} field={props.getFieldProps<PersonValues>('firstPresenter')} meta={props.getFieldMeta('firstPresenter')}/>
-            <PersonArray form={{...props, values}} field={props.getFieldProps<Array<PersonValues>>('collaborators')} meta={props.getFieldMeta('collaborators')} />
-              {/* {({ insert, remove, push }) => {
+            <Person form={{ ...props, values }} field={props.getFieldProps<PersonValues>('firstPresenter')} meta={props.getFieldMeta('firstPresenter')} />
+            <PersonArray form={{ ...props, values }} field={props.getFieldProps<PersonValues[]>('collaborators')} meta={props.getFieldMeta('collaborators')} />
+            {/* {({ insert, remove, push }) => {
                 if (values.collaborators.length === 0) {
                   return (
                     <Grid container item justifyContent='flex-end'>

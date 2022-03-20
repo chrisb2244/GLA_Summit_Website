@@ -16,8 +16,8 @@ type useSessionFn = jest.MockedFunction<typeof useSession>
 
 describe('User', () => {
   it('is included in the menu', () => {
-    (useSession as useSessionFn).mockImplementation(() => {
-      return { data: null, status: "unauthenticated"}
+    ;(useSession as useSessionFn).mockImplementation(() => {
+      return { data: null, status: 'unauthenticated' }
     })
 
     const header = render(<Header />).container
@@ -26,8 +26,8 @@ describe('User', () => {
   })
 
   it('provides a button to sign in if not signed in', () => {
-    (useSession as useSessionFn).mockImplementation(() => {
-      return { data: null, status: "unauthenticated"}
+    ;(useSession as useSessionFn).mockImplementation(() => {
+      return { data: null, status: 'unauthenticated' }
     })
 
     const user = render(<User />)
@@ -35,13 +35,16 @@ describe('User', () => {
   })
 
   it('logs in with auth data', () => {
-    (useSession as useSessionFn).mockImplementation(() => {
-      return { data: {
-        expires: '1',
-        user: {
-          name: 'Test User'
-        }
-      }, status: "authenticated"}
+    ;(useSession as useSessionFn).mockImplementation(() => {
+      return {
+        data: {
+          expires: '1',
+          user: {
+            name: 'Test User'
+          }
+        },
+        status: 'authenticated'
+      }
     })
 
     const user = render(<User />)

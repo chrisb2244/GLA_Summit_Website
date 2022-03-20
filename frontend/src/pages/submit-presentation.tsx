@@ -3,13 +3,13 @@ import { SubmitPresentationForm } from '../Components/Form/SubmitPresentationFor
 
 const PresentationSubmissionForm = () => {
   const Obj = withFormik({
-    mapPropsToValues: () => ({name: ''}),
+    mapPropsToValues: () => ({ name: '' }),
 
     handleSubmit: (values, actions) => {
       console.log(values, actions)
       alert(JSON.stringify(values, null, 2))
       // actions.resetForm();
-    },
+    }
 
   })(SubmitPresentationForm)
 

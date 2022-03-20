@@ -32,23 +32,23 @@ export const Header: React.FC = (props) => {
   // The month value is 0-based (so 10 -> November)
   const eventStart = new Date(Date.UTC(2022, 10, 15, 12, 0, 0))
   const eventEnd = new Date(Date.UTC(2022, 10, 16, 12, 0, 0))
-  
+
   // The 'Toolbar' component appears to make the flow
   // direction a row, rather than a column otherwise...
 
   return (
-    <AppBar position="static" sx={{ marginBottom: '20px' }}>
+    <AppBar position='static' sx={{ marginBottom: '20px' }}>
       <Toolbar>
-        <Grid container justifyContent="center" alignItems="center">
+        <Grid container justifyContent='center' alignItems='center'>
           <Grid item>
-            <NextLink href="/">
+            <NextLink href='/'>
               <a>
                 <Box flexGrow={0}>
                   <object
-                    data="media/GLA-logo.svg"
-                    className="app-logo"
-                    height="100"
-                    aria-label="logo"
+                    data='media/GLA-logo.svg'
+                    className='app-logo'
+                    height='100'
+                    aria-label='logo'
                     style={{ pointerEvents: 'none' }}
                   />
                 </Box>
@@ -56,12 +56,12 @@ export const Header: React.FC = (props) => {
             </NextLink>
           </Grid>
           <Grid item flexGrow={1}>
-            <Typography variant="h1" textAlign="center">
+            <Typography variant='h1' textAlign='center'>
               GLA Summit
             </Typography>
           </Grid>
-          <Grid item alignItems="center">
-            <Box flexDirection="column">
+          <Grid item alignItems='center'>
+            <Box flexDirection='column'>
               <Box>
                 <MenuBar />
               </Box>
