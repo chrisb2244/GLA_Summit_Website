@@ -7,6 +7,7 @@ import { theme } from '../theme'
 import createEmotionCache from '../createEmotionCache'
 import { AppFrame } from '../Components/Frame/AppFrame'
 import reportWebVitals from '../reportWebVitals'
+import { SessionProvider } from 'next-auth/react'
 import '../spinningLogo.css'
 import '../GLA-generic.css'
 
@@ -22,21 +23,28 @@ interface MyAppProps extends AppProps {
   emotionCache?: EmotionCache
 }
 
-export default function MyApp (props: MyAppProps): JSX.Element {
-  const { Component, emotionCache = clientSideEmotionCache, pageProps } = props
+export default function MyApp(props: MyAppProps): JSX.Element {
+  const {
+    Component,
+    emotionCache = clientSideEmotionCache,
+    pageProps: { session, ...pageProps }
+  } = props
+  
   return (
     <CacheProvider value={emotionCache}>
       <Head>
         <title>GLA Summit 2021</title>
-        <meta name='viewport' content='initial-scale=1, width=device-width' />
+        <meta name="viewport" content="initial-scale=1, width=device-width" />
       </Head>
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={theme}>
           {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
           <CssBaseline />
-          <AppFrame>
-            <Component {...pageProps} />
-          </AppFrame>
+          <SessionProvider session={session}>
+            <AppFrame>
+              <Component {...pageProps} />
+            </AppFrame>
+          </SessionProvider>
         </ThemeProvider>
       </StyledEngineProvider>
     </CacheProvider>
