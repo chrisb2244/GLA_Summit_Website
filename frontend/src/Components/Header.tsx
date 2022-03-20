@@ -1,4 +1,5 @@
 import { MenuBar } from './MenuBar'
+import { User } from './User'
 import { AppBar, Toolbar, Typography } from '@mui/material'
 
 // const useStyles = makeStyles((theme: Theme) =>
@@ -38,6 +39,7 @@ export const Header: React.FC = (props) => {
           GLA Summit 2021
         </Typography>
         <MenuBar />
+        <User />
       </Toolbar>
     </AppBar>
   )
