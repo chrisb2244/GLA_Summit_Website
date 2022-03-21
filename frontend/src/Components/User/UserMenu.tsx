@@ -81,7 +81,7 @@ export const UserMenu: React.FC<UserMenuProps> = (props) => {
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
-        <Link href="/lorem-ipsum" passHref>
+        <Link href="/my-profile" passHref>
           <MenuItem>
             <>
               {userAvatar}
