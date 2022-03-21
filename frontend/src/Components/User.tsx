@@ -6,25 +6,24 @@ interface UserProps {}
 
 export const User: React.FC<UserProps> = (props) => {
   const { data: session } = useSession()
-  let message: string
   let button
   if (session != null) {
-    message = `Signed in as ${session.user?.email}`
+    const message = session.user?.name ?? session.user?.email ?? ''
     button = (<Link href="/api/auth/signout" passHref>
     <Button
       type="button"
       color="secondary"
+      variant='outlined'
       href={'/api/auth/signout'}
       onClick={(ev) => {
         ev.preventDefault()
         signOut()
       }}
     >
-      Sign Out
+      {message}
     </Button>
   </Link>)
   } else {
-    message = 'Not signed in!'
     button = (
       <Link href="/api/auth/signin" passHref>
         <Button
@@ -43,7 +42,6 @@ export const User: React.FC<UserProps> = (props) => {
   }
   return (
     <div id="user">
-      <p>{message}</p>
       {button}
     </div>
   )

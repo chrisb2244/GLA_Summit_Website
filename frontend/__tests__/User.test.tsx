@@ -34,7 +34,24 @@ describe('User', () => {
     expect(user.getByRole('link')).toBeVisible()
   })
 
-  it('logs in with auth data', () => {
+  it('shows email if no name available', () => {
+    ;(useSession as useSessionFn).mockImplementation(() => {
+      return {
+        data: {
+          expires: '1',
+          user: {
+            email: 'test@user.com'
+          }
+        },
+        status: 'authenticated'
+      }
+    })
+  
+    const user = render(<User />)
+    expect(user.container).toHaveTextContent('test@user.com')
+  })
+
+  it('shows name rather than email if both are available', () => {
     ;(useSession as useSessionFn).mockImplementation(() => {
       return {
         data: {
@@ -47,8 +64,7 @@ describe('User', () => {
         status: 'authenticated'
       }
     })
-
     const user = render(<User />)
-    expect(user.container).toHaveTextContent('Signed in as test@user.com')
+    expect(user.container).toHaveTextContent('Test User')
   })
 })
