@@ -11,4 +11,6 @@ COPY --chown=node:node tsconfig.json next.config.js ./
 ENV NODE_ENV=development
 RUN npm install
 ENV PATH /usr/app/node_modules/.bin:$PATH
+
+COPY --chown=node:node .env.local ./
 CMD ["npm", "run", "dev"]
