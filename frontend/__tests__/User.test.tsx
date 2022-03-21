@@ -25,13 +25,13 @@ describe('User', () => {
     expect(header).toContainHTML(user)
   })
 
-  it('provides a button to sign in if not signed in', () => {
+  it('provides a link to sign in if not signed in', () => {
     ;(useSession as useSessionFn).mockImplementation(() => {
       return { data: null, status: 'unauthenticated' }
     })
 
     const user = render(<User />)
-    expect(user.container).toHaveTextContent('Not signed in')
+    expect(user.getByRole('link')).toBeVisible()
   })
 
   it('logs in with auth data', () => {
@@ -40,7 +40,8 @@ describe('User', () => {
         data: {
           expires: '1',
           user: {
-            name: 'Test User'
+            name: 'Test User',
+            email: 'test@user.com'
           }
         },
         status: 'authenticated'
@@ -48,6 +49,6 @@ describe('User', () => {
     })
 
     const user = render(<User />)
-    expect(user.container).toHaveTextContent('Signed in as Test User')
+    expect(user.container).toHaveTextContent('Signed in as test@user.com')
   })
 })
