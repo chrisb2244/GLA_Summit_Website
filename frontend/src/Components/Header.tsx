@@ -1,7 +1,7 @@
 import NextLink from 'next/link'
 import { AppBar, Toolbar, Typography, Grid, Box } from '@mui/material'
 import { MenuBar } from './MenuBar'
-import { User } from './User'
+import { User } from './User/User'
 import { Countdown } from './Countdown'
 // import MenuIcon from '@mui/icons-material/Menu'
 
