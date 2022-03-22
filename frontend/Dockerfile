@@ -1,4 +1,4 @@
-FROM node:14
+FROM node:16.13.0
 
 RUN mkdir /usr/app && chown -R node:node /usr/app/
 WORKDIR /usr/app
