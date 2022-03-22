@@ -25,23 +25,28 @@ const sequelize = new Sequelize({
       rejectUnauthorized: false
     }
   },
-  dialectModule: pg
+  dialectModule: pg,
+  pool: {
+    min: 0,
+    max: 5,
+
+  }
 })
 
-const conn = async () => {
-  await sequelize
-    .authenticate()
-    .then(() => {
-      console.log('Authenticated successfully')
-    })
-    .catch((error) => {
-      console.log('Unable to connect: ', error)
-    })
-}
-conn()
+// const conn = async () => {
+//   await sequelize
+//     .authenticate()
+//     .then(() => {
+//       console.log('Authenticated successfully')
+//     })
+//     .catch((error) => {
+//       console.log('Unable to connect: ', error)
+//     })
+// }
+// conn()
 
 // Calling sync() is not recommended in production
-sequelize.sync()
+// sequelize.sync()
 
 export default NextAuth({
   providers: [
