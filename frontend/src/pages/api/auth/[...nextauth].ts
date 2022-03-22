@@ -3,12 +3,27 @@ import EmailProvider from 'next-auth/providers/email'
 import SequelizeAdapter from '@next-auth/sequelize-adapter'
 import { Sequelize } from 'sequelize'
 
+// const sequelize = new Sequelize({
+//   dialect: 'mysql',
+//   host: 'db',
+//   username: 'root',
+//   database: 'gla_summit_test',
+//   password: process.env.MYSQL_ROOT_PASSWORD
+// })
+
 const sequelize = new Sequelize({
-  dialect: 'mysql',
-  host: 'db',
-  username: 'root',
-  database: 'gla_summit_test',
-  password: process.env.MYSQL_ROOT_PASSWORD
+  dialect: 'postgres',
+  database: process.env.POSTGRES_DB,
+  host: process.env.POSTGRES_HOST,
+  username: process.env.POSTGRES_USER,
+  password: process.env.POSTGRES_PW,
+  port: 5432,
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false
+    }
+  }
 })
 
 const conn = async () => {

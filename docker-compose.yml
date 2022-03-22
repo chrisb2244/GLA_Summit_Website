@@ -12,15 +12,15 @@ services:
             - ./frontend/public:/usr/app/public
         networks:
             - gla-react-network
-    db:
-        image: mysql
-        command: --default-authentication-plugin=mysql_native_password
-        environment:
-            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-        networks:
-            - gla-react-network
-        ports:
-            - "3316:3306"
+    # db:
+    #     image: mysql
+    #     command: --default-authentication-plugin=mysql_native_password
+    #     environment:
+    #         MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    #     networks:
+    #         - gla-react-network
+    #     ports:
+    #         - "3316:3306"
     
 networks:
     gla-react-network:
