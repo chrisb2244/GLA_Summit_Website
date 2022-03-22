@@ -63,5 +63,9 @@ export default NextAuth({
     }),
   ],
   adapter: SequelizeAdapter(sequelize),
-  secret: process.env.NEXTAUTH_SECRET
+  secret: process.env.NEXTAUTH_SECRET,
+  session: {
+    strategy: 'jwt' // Explicitly use tokens for session management
+    // This will reduce the number of calls to the db, which will improve responsiveness
+  }
 })
