@@ -25,6 +25,12 @@ describe('PersonArray', () => {
     </Formik>
   )
 
+  const renderForm = (addLabel?: string) => {
+    const personArray = render(form(addLabel))
+    const button = personArray.getByRole('button')
+    return { personArray, button }
+  }
+
   it('initially has zero Persons', () => {
     const arr = render(form())
     const inputs = arr.queryAllByRole('textbox')
@@ -32,25 +38,47 @@ describe('PersonArray', () => {
   })
 
   it('initially has a button to add a Person', () => {
-    const arr = render(form())
-    const button = arr.getByRole('button')
+    const { button } = renderForm()
     expect(button).toHaveTextContent('Add')
   })
 
   it('allows a different label for the add button', () => {
     const label = 'other label for button'
-    const arr = render(form(label))
-    const button = arr.getByRole('button')
+    const { button } = renderForm(label)
     expect(button).toHaveTextContent(label)
   })
 
   it('adds a person when the Add button is clicked', async () => {
-    const arr = render(form())
-    const button = arr.getByRole('button')
+    const { personArray, button } = renderForm()
     userEvent.click(button)
 
-    const inputs = arr.queryAllByRole('textbox')
+    const inputs = personArray.queryAllByRole('textbox')
     await waitFor(() => expect(inputs).toHaveLength(3)) // firstName, lastName, email
+  })
+
+  it('has a Delete button when a Person exists', async () => {
+    const { personArray, button: addButton } = renderForm()
+    userEvent.click(addButton)
+
+    const deleteButtonCandidates = personArray
+      .getAllByRole('button')
+      .filter((elem) => elem.getAttribute('name') === 'delete')
+
+    await waitFor(() => expect(deleteButtonCandidates).toHaveLength(1))
+    await waitFor(() => expect(deleteButtonCandidates[0]).toBeVisible())
+  })
+
+  it('has a functioning Delete button', async () => {
+    const { personArray, button: addButton } = renderForm()
+    userEvent.click(addButton)
+
+    const deleteButton = personArray
+      .getAllByRole('button')
+      .filter((elem) => elem.getAttribute('name') === 'delete')[0]
+    userEvent.click(deleteButton)
+
+    const inputs = personArray.queryAllByRole('textbox')
+    await waitFor(() => expect(inputs).toHaveLength(0))
   })
 
   // const hasFirstName = inputs.some((elem) => elem.id === 'person.firstName')
