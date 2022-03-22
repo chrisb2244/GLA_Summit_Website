@@ -31,4 +31,16 @@ describe('NewUserRegistration', () => {
     await waitFor(() => expect(screen.getByRole('alert')).toBeVisible())
     await waitFor(() => expect(email).toBeInvalid())
   })
+
+  it('remains valid with a pattern-suitable email', async () => {
+    render(form)
+    const email = screen.getByRole('textbox', {name: /Email/i})
+    expect(email).toBeValid()
+
+    userEvent.type(email, 'my.email@provider.com')
+    fireEvent.blur(email)
+    await waitFor(() => expect(screen.queryByRole('alert')).toBeNull())
+    await waitFor(() => expect(email).toBeValid())
+  })
+
 })
