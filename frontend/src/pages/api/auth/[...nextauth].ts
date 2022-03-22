@@ -2,6 +2,7 @@ import NextAuth from 'next-auth'
 import EmailProvider from 'next-auth/providers/email'
 import SequelizeAdapter from '@next-auth/sequelize-adapter'
 import { Sequelize } from 'sequelize'
+import * as pg from 'pg'
 
 // const sequelize = new Sequelize({
 //   dialect: 'mysql',
@@ -23,7 +24,8 @@ const sequelize = new Sequelize({
       require: true,
       rejectUnauthorized: false
     }
-  }
+  },
+  dialectModule: pg
 })
 
 const conn = async () => {
