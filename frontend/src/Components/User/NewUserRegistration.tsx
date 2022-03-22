@@ -31,6 +31,7 @@ const FormField = (props: {
       control={control}
       name={name}
       rules={{...rules}}
+      defaultValue=''
       render={({
         field: { name, ref, ...fProps },
         fieldState: { error, isTouched }

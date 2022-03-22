@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { fireEvent } from '@testing-library/react'
 import { NewUserRegistration } from '@/Components/User/NewUserRegistration'
@@ -21,13 +21,14 @@ describe('NewUserRegistration', () => {
     expect(screen.getByRole('textbox', {name: /Email/i})).toBeVisible()
   })
 
-  it('displays an error for invalid email', () => {
+  it('displays an error for invalid email', async () => {
     render(form)
     const email = screen.getByRole('textbox', {name: /Email/i})
+    expect(email).toBeValid()
+
     userEvent.type(email, 'blahWithNoAtSymbol')
-    const firstName = screen.getByRole('textbox', {name: /First name/i})
-    // fireEvent.blur(email)
-    userEvent.click(firstName)
-    expect(screen.getByRole('alert', {})).toBeVisible()
+    fireEvent.blur(email)
+    await waitFor(() => expect(screen.getByRole('alert')).toBeVisible())
+    await waitFor(() => expect(email).toBeInvalid())
   })
 })
