@@ -55,5 +55,6 @@ export default NextAuth({
       from: process.env.EMAIL_FROM
     }),
   ],
-  adapter: SequelizeAdapter(sequelize)
+  adapter: SequelizeAdapter(sequelize),
+  secret: process.env.NEXTAUTH_SECRET
 })
