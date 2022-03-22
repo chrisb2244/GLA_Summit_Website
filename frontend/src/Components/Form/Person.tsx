@@ -21,12 +21,14 @@ export const Person: React.FC<PersonProps & FieldProps> = ({
       as='div'
       name={prefix}
       {...props}
-      validate={(values: PersonValues): FormikErrors<PersonValues> => {
-        return {
-          firstName: requireArg(values.firstName),
-          lastName: requireArg(values.lastName),
-          email: requireArg(values.email)
-        }
+      validate={(values?: PersonValues): FormikErrors<PersonValues> => {
+        if (values) {
+          return {
+            firstName: requireArg(values.firstName),
+            lastName: requireArg(values.lastName),
+            email: requireArg(values.email)
+          }
+        } else return {}
       }}
     >
       {/* <Grid item xs={12} md={6}> */}

@@ -3,6 +3,7 @@ import { Button, Grid } from '@mui/material'
 import { TextFieldWrapper as TextField } from './TextFieldWrapper'
 import { PersonValues, Person } from './Person'
 import { PersonArray } from './PersonArray'
+import RemoveIcon from '@mui/icons-material/PersonRemove';
 // import './SubmitPresentationForm.css'
 
 interface PresentationFormValues {
@@ -64,9 +65,9 @@ export const SubmitPresentationForm: React.FC = () => {
       {({ values, ...props }) => (
         <Form>
           <Grid container spacing={1} className='gla-submitpresentationform-grid'>
-            <Person form={{ ...props, values }} field={props.getFieldProps<PersonValues>('firstPresenter')} meta={props.getFieldMeta('firstPresenter')} />
-            <PersonArray form={{ ...props, values }} field={props.getFieldProps<PersonValues[]>('collaborators')} meta={props.getFieldMeta('collaborators')} />
-            {/* {({ insert, remove, push }) => {
+            <Person form={{...props, values}} field={props.getFieldProps<PersonValues>('firstPresenter')} meta={props.getFieldMeta('firstPresenter')}/>
+            <PersonArray form={{...props, values}} field={props.getFieldProps<Array<PersonValues>>('collaborators')} meta={props.getFieldMeta('collaborators')} deleteButtonTemplate={<RemoveIcon color='primary'/>}/>
+              {/* {({ insert, remove, push }) => {
                 if (values.collaborators.length === 0) {
                   return (
                     <Grid container item justifyContent='flex-end'>

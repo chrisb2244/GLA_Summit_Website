@@ -14,6 +14,7 @@ const customJestConfig = {
     '^@/pages/(.*)$': '<rootDir>/src/pages/$1',
   },
   testEnvironment: 'jest-environment-jsdom',
+  testPathIgnorePatterns: ['<rootDir>/cypress/', '<rootDir>/node_modules/'],
 }
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
