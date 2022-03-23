@@ -14,7 +14,7 @@ export const User: React.FC<UserProps> = (props) => {
   const { data: session } = useSession()
   let button
   if (session != null) {
-    button = <UserMenu user={session.user}/>
+    button = <UserMenu user={session.user} />
     // (
     //   <Link href="/api/auth/signout" passHref>
     //     <Button
@@ -34,7 +34,7 @@ export const User: React.FC<UserProps> = (props) => {
   } else {
     button = (
       <>
-      {/* <Link href="/api/auth/signin" passHref>
+        {/* <Link href="/api/auth/signin" passHref>
         <Button
           type="button"
           color="secondary"
@@ -47,21 +47,23 @@ export const User: React.FC<UserProps> = (props) => {
           Sign In
         </Button>
       </Link> */}
-      <Button 
-        onClick={(ev)=>setRegistrationOpen(ev.currentTarget)} 
-        color='warning'
-      >
-        Register
-      </Button>
-      <NewUserRegistration open={registrationDialogOpen} setClosed={() => {setRegistrationOpen(null)}}/>
-      <Button 
-        onClick={(ev)=>signIn()} 
-        color='warning'
-      >
-        Sign In
-      </Button>
+        <Button
+          onClick={(ev) => setRegistrationOpen(ev.currentTarget)}
+          color='warning'
+        >
+          Register
+        </Button>
+        <NewUserRegistration
+          open={registrationDialogOpen}
+          setClosed={() => {
+            setRegistrationOpen(null)
+          }}
+        />
+        <Button onClick={(ev) => signIn()} color='warning'>
+          Sign In
+        </Button>
       </>
     )
   }
-  return <div id="user">{button}</div>
+  return <div id='user'>{button}</div>
 }

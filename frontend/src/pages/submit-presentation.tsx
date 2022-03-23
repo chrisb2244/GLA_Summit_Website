@@ -10,7 +10,6 @@ const PresentationSubmissionForm = () => {
       alert(JSON.stringify(values, null, 2))
       // actions.resetForm();
     }
-
   })(SubmitPresentationForm)
 
   return <Obj />

@@ -23,7 +23,7 @@ interface MyAppProps extends AppProps {
   emotionCache?: EmotionCache
 }
 
-export default function MyApp (props: MyAppProps): JSX.Element {
+export default function MyApp(props: MyAppProps): JSX.Element {
   const {
     Component,
     emotionCache = clientSideEmotionCache,

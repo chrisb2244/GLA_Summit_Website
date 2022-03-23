@@ -16,7 +16,9 @@ export const PersonArray: React.FC<PersonArrayProps & FieldProps> = (props) => {
     lastName: '',
     email: ''
   }
-  const deleteButtonTemplate = props.deleteButtonTemplate ?? <Button>Delete Person</Button>
+  const deleteButtonTemplate = props.deleteButtonTemplate ?? (
+    <Button>Delete Person</Button>
+  )
 
   const fieldArr = (
     <FieldArray name={fieldName}>
@@ -36,7 +38,10 @@ export const PersonArray: React.FC<PersonArrayProps & FieldProps> = (props) => {
                 const nameInner = `${fieldName}.${index}`
                 const fInner = form.getFieldProps(nameInner)
                 const mInner = form.getFieldMeta(nameInner)
-                const deleteButton = cloneElement(deleteButtonTemplate, {onClick: () => remove(index), name: 'delete'})
+                const deleteButton = cloneElement(deleteButtonTemplate, {
+                  onClick: () => remove(index),
+                  name: 'delete'
+                })
                 return (
                   <div key={nameInner}>
                     <Person

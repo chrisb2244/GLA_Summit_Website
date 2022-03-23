@@ -31,8 +31,8 @@ describe('User', () => {
     })
 
     const user = render(<User />)
-    expect(user.getByRole('button', {name: 'Sign In'})).toBeVisible()
-    expect(user.getByRole('button', {name: 'Register'})).toBeVisible()
+    expect(user.getByRole('button', { name: 'Sign In' })).toBeVisible()
+    expect(user.getByRole('button', { name: 'Register' })).toBeVisible()
   })
 
   it('shows email if no name available', () => {
@@ -47,7 +47,7 @@ describe('User', () => {
         status: 'authenticated'
       }
     })
-  
+
     const user = render(<User />)
     expect(user.container).toHaveTextContent('test@user.com')
   })
@@ -68,6 +68,4 @@ describe('User', () => {
     const user = render(<User />)
     expect(user.container).toHaveTextContent('Test User')
   })
-
-
 })

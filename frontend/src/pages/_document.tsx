@@ -5,7 +5,7 @@ import { theme } from '../theme'
 import createEmotionCache from '../createEmotionCache'
 
 export default class MyDocument extends Document {
-  render (): JSX.Element {
+  render(): JSX.Element {
     return (
       <Html lang='en'>
         <Head>
@@ -59,7 +59,8 @@ MyDocument.getInitialProps = async (ctx) => {
 
   ctx.renderPage = () =>
     originalRenderPage({
-      enhanceApp: (App: any) => (props) => <App emotionCache={cache} {...props} />
+      enhanceApp: (App: any) => (props) =>
+        <App emotionCache={cache} {...props} />
     })
 
   const initialProps = await Document.getInitialProps(ctx)
@@ -78,6 +79,9 @@ MyDocument.getInitialProps = async (ctx) => {
   return {
     ...initialProps,
     // Styles fragment is rendered after the app and page rendering finish.
-    styles: [...React.Children.toArray(initialProps.styles), ...emotionStyleTags]
+    styles: [
+      ...React.Children.toArray(initialProps.styles),
+      ...emotionStyleTags
+    ]
   }
 }

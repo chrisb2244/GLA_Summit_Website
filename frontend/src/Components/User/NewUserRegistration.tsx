@@ -16,7 +16,7 @@ type UserRegistrationProps = {
 type FormValues = {
   'First name': string
   'Last name': string
-  'Email': string
+  Email: string
 }
 
 const FormField = (props: {
@@ -30,7 +30,7 @@ const FormField = (props: {
     <Controller
       control={control}
       name={name}
-      rules={{...rules}}
+      rules={{ ...rules }}
       defaultValue=''
       render={({
         field: { name, ref, ...fProps },
@@ -38,7 +38,7 @@ const FormField = (props: {
       }) => {
         let hasError = false
         let errorText = ''
-        let helperProps = undefined
+        let helperProps
         if (isTouched) {
           hasError = typeof error !== 'undefined'
           errorText = hasError ? error?.type ?? 'Oops, error but no text' : ''
@@ -50,7 +50,7 @@ const FormField = (props: {
             error={hasError}
             helperText={errorText}
             id={name}
-            type="text"
+            type='text'
             fullWidth
             aria-label={name}
             inputRef={ref}
@@ -64,11 +64,9 @@ const FormField = (props: {
 }
 
 export const NewUserRegistration: React.FC<UserRegistrationProps> = (props) => {
-  const {
-    control,
-    handleSubmit,
-    reset
-  } = useForm<FormValues>({mode: 'onBlur'})
+  const { control, handleSubmit, reset } = useForm<FormValues>({
+    mode: 'onBlur'
+  })
   const onSubmit: SubmitHandler<FormValues> = (data: FormValues, event) => {
     console.log(data)
     reset()
@@ -82,23 +80,23 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = (props) => {
         onSubmit={handleSubmit(onSubmit, onError)}
         style={{ display: 'flex', flexDirection: 'column' }}
       >
-        <Box sx={{ 'm': 2, '> div.MuiFormControl-root': { p: 1 } }}>
+        <Box sx={{ m: 2, '> div.MuiFormControl-root': { p: 1 } }}>
           <FormField
             control={control}
-            name="First name"
+            name='First name'
             rules={{ required: true, maxLength: 80 }}
           />
           <FormField
             control={control}
-            name="Last name"
+            name='Last name'
             rules={{ required: true, maxLength: 100 }}
           />
           <FormField
             control={control}
-            name="Email"
+            name='Email'
             rules={{ required: true, pattern: /^\S+@\S+$/i }}
           />
-          <Button type="submit" variant="outlined" fullWidth>
+          <Button type='submit' variant='outlined' fullWidth>
             Submit
           </Button>
         </Box>

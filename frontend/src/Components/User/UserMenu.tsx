@@ -34,12 +34,12 @@ export const UserMenu: React.FC<UserMenuProps> = (props) => {
 
   return (
     <>
-      <Tooltip title="Account Settings">
+      <Tooltip title='Account Settings'>
         <IconButton
           onClick={handleClick}
-          size="small"
+          size='small'
           sx={{ ml: 2 }}
-          aria-haspopup="true"
+          aria-haspopup='true'
           aria-controls={open ? 'account-menu' : undefined}
           aria-expanded={open ? 'true' : undefined}
         >
@@ -48,16 +48,16 @@ export const UserMenu: React.FC<UserMenuProps> = (props) => {
       </Tooltip>
       <Menu
         anchorEl={anchorEl}
-        id="account-menu"
+        id='account-menu'
         open={open}
         onClick={handleClose}
         onClose={handleClose}
         PaperProps={{
           elevation: 0,
           sx: {
-            'overflow': 'visible',
-            'filter': 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
-            'mt': 1.5,
+            overflow: 'visible',
+            filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+            mt: 1.5,
             '& .MuiAvatar-root': {
               width: 32,
               height: 32,
@@ -81,7 +81,7 @@ export const UserMenu: React.FC<UserMenuProps> = (props) => {
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
-        <Link href="/my-profile" passHref>
+        <Link href='/my-profile' passHref>
           <MenuItem>
             <>
               {userAvatar}
@@ -91,7 +91,7 @@ export const UserMenu: React.FC<UserMenuProps> = (props) => {
         </Link>
         <MenuItem onClick={() => signOut()}>
           <ListItemIcon>
-            <LogoutIcon fontSize="small" />
+            <LogoutIcon fontSize='small' />
           </ListItemIcon>
           Logout
         </MenuItem>

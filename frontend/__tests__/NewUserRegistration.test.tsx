@@ -4,26 +4,26 @@ import { fireEvent } from '@testing-library/react'
 import { NewUserRegistration } from '@/Components/User/NewUserRegistration'
 
 describe('NewUserRegistration', () => {
-  const form = <NewUserRegistration open={true} setClosed={()=>{}}/>
+  const form = <NewUserRegistration open={true} setClosed={() => {}} />
 
   it('contains an input for first name', () => {
     render(form)
-    expect(screen.getByRole('textbox', {name: /First name/i})).toBeVisible()
+    expect(screen.getByRole('textbox', { name: /First name/i })).toBeVisible()
   })
 
   it('contains an input for last name', () => {
     render(form)
-    expect(screen.getByRole('textbox', {name: /Last name/i})).toBeVisible()
+    expect(screen.getByRole('textbox', { name: /Last name/i })).toBeVisible()
   })
 
   it('contains an input for email', () => {
     render(form)
-    expect(screen.getByRole('textbox', {name: /Email/i})).toBeVisible()
+    expect(screen.getByRole('textbox', { name: /Email/i })).toBeVisible()
   })
 
   it('displays an error for invalid email', async () => {
     render(form)
-    const email = screen.getByRole('textbox', {name: /Email/i})
+    const email = screen.getByRole('textbox', { name: /Email/i })
     expect(email).toBeValid()
 
     userEvent.type(email, 'blahWithNoAtSymbol')
@@ -34,7 +34,7 @@ describe('NewUserRegistration', () => {
 
   it('remains valid with a pattern-suitable email', async () => {
     render(form)
-    const email = screen.getByRole('textbox', {name: /Email/i})
+    const email = screen.getByRole('textbox', { name: /Email/i })
     expect(email).toBeValid()
 
     userEvent.type(email, 'my.email@provider.com')
@@ -42,5 +42,4 @@ describe('NewUserRegistration', () => {
     await waitFor(() => expect(screen.queryByRole('alert')).toBeNull())
     await waitFor(() => expect(email).toBeValid())
   })
-
 })
