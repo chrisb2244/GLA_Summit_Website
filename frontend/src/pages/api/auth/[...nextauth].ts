@@ -32,7 +32,7 @@ const sequelize = new Sequelize({
   }
 })
 
-const conn = async () => {
+const conn = async (): Promise<void> => {
   await sequelize
     .authenticate()
     .then(() => {
@@ -42,10 +42,10 @@ const conn = async () => {
       console.log('Unable to connect: ', error)
     })
 }
-conn()
+void conn()
 
 // Calling sync() is not recommended in production
-sequelize.sync()
+void sequelize.sync()
 
 export default NextAuth({
   providers: [

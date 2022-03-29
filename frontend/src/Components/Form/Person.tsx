@@ -2,15 +2,13 @@ import { Field, FieldProps, FormikErrors } from 'formik'
 import { TextFieldWrapper as TextField } from './TextFieldWrapper'
 import { requireArg } from './SubmitPresentationForm'
 
-interface PersonProps {}
-
 export interface PersonValues {
   firstName: string
   lastName: string
   email: string
 }
 
-export const Person: React.FC<PersonProps & FieldProps> = ({
+export const Person: React.FC<FieldProps> = ({
   field,
   ...props
 }) => {
@@ -22,7 +20,7 @@ export const Person: React.FC<PersonProps & FieldProps> = ({
       name={prefix}
       {...props}
       validate={(values?: PersonValues): FormikErrors<PersonValues> => {
-        if (values) {
+        if (typeof values !== 'undefined') {
           return {
             firstName: requireArg(values.firstName),
             lastName: requireArg(values.lastName),

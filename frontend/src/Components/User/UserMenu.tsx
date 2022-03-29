@@ -21,10 +21,10 @@ export const UserMenu: React.FC<UserMenuProps> = (props) => {
   // Tools to handle clicking on and off the Avatar
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   const open = Boolean(anchorEl)
-  const handleClick = (ev: React.MouseEvent<HTMLElement>) => {
+  const handleClick = (ev: React.MouseEvent<HTMLElement>): void => {
     setAnchorEl(ev.currentTarget)
   }
-  const handleClose = () => setAnchorEl(null)
+  const handleClose = (): void => setAnchorEl(null)
 
   const userAvatar = (
     <Avatar sx={{ width: 48, height: 48 }} src={props.user?.image ?? undefined}>
@@ -89,7 +89,11 @@ export const UserMenu: React.FC<UserMenuProps> = (props) => {
             </>
           </MenuItem>
         </Link>
-        <MenuItem onClick={() => signOut()}>
+        <MenuItem
+          onClick={() => {
+            void signOut()
+          }}
+        >
           <ListItemIcon>
             <LogoutIcon fontSize='small' />
           </ListItemIcon>

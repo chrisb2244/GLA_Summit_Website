@@ -84,7 +84,7 @@ export const SubmitPresentationForm: React.FC = () => {
             />
             <PersonArray
               form={{ ...props, values }}
-              field={props.getFieldProps<Array<PersonValues>>('collaborators')}
+              field={props.getFieldProps<PersonValues[]>('collaborators')}
               meta={props.getFieldMeta('collaborators')}
               deleteButtonTemplate={<RemoveIcon color='primary' />}
             />

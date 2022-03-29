@@ -1,6 +1,6 @@
 import { UserProfile } from '@/Components/User/UserProfile'
 
-const MyProfile = () => {
+const MyProfile = (): JSX.Element => {
   return <UserProfile />
 }
 
