@@ -1,4 +1,13 @@
-import { Dialog, Button, TextField, Box } from '@mui/material'
+import {
+  Dialog,
+  Button,
+  TextField,
+  Typography,
+  Box,
+  Container,
+  Link
+} from '@mui/material'
+import type { TypographyProps } from '@mui/material'
 import {
   useForm,
   FieldErrors,
@@ -11,13 +20,29 @@ import {
 type UserRegistrationProps = {
   open: boolean
   setClosed: () => void
-  switchToSignIn: () => void  
+  switchToSignIn: () => void
 }
 
 type FormValues = {
   'First name': string
   'Last name': string
   Email: string
+}
+
+const SmallCenteredText: React.FC<TypographyProps> = ({
+  children,
+  ...typographyProps
+}) => {
+  return (
+    <Typography
+      variant='body2'
+      fontSize='small'
+      align='center'
+      {...typographyProps}
+    >
+      {children}
+    </Typography>
+  )
 }
 
 const FormField = (props: {
@@ -81,26 +106,40 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = (props) => {
         onSubmit={handleSubmit(onSubmit, onError)}
         style={{ display: 'flex', flexDirection: 'column' }}
       >
-        <Box sx={{ m: 2, '> div.MuiFormControl-root': { p: 1 } }}>
-          <FormField
-            control={control}
-            name='First name'
-            rules={{ required: true, maxLength: 80 }}
-          />
-          <FormField
-            control={control}
-            name='Last name'
-            rules={{ required: true, maxLength: 100 }}
-          />
-          <FormField
-            control={control}
-            name='Email'
-            rules={{ required: true, pattern: /^\S+@\S+$/i }}
-          />
-          <Button type='submit' variant='outlined' fullWidth>
-            Submit
-          </Button>
-        </Box>
+        <Container maxWidth='md' sx={{ pb: 2 }}>
+          <Box mb={2}>
+            <FormField
+              control={control}
+              name='First name'
+              rules={{ required: true, maxLength: 80 }}
+            />
+            <FormField
+              control={control}
+              name='Last name'
+              rules={{ required: true, maxLength: 100 }}
+            />
+            <FormField
+              control={control}
+              name='Email'
+              rules={{ required: true, pattern: /^\S+@\S+$/i }}
+            />
+            <Button type='submit' variant='outlined' fullWidth>
+              Register
+            </Button>
+            <SmallCenteredText sx={{ pt: 2 }}>
+              Already registered?{' '}
+              <Link
+                onClick={(ev) => {
+                  ev.preventDefault()
+                  props.switchToSignIn()
+                }}
+                component='button'
+              >
+                Sign In
+              </Link>
+            </SmallCenteredText>
+          </Box>
+        </Container>
       </form>
     </Dialog>
   )

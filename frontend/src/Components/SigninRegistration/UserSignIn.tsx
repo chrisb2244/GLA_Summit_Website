@@ -5,9 +5,9 @@ import {
   Dialog,
   Link,
   TextField,
-  Typography,
-  TypographyProps
+  Typography
 } from '@mui/material'
+import type { TypographyProps } from '@mui/material'
 import { signIn } from 'next-auth/react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 
@@ -28,8 +28,8 @@ const SmallCenteredText: React.FC<TypographyProps> = ({
   return (
     <Typography
       variant='body2'
-      fontSize={'small'}
-      align={'center'}
+      fontSize='small'
+      align='center'
       {...typographyProps}
     >
       {children}
@@ -40,7 +40,7 @@ const SmallCenteredText: React.FC<TypographyProps> = ({
 export const UserSignIn: React.FC<SignInProps> = (props) => {
   const { register, handleSubmit } = useForm<SignInFormValues>()
   const onSubmit: SubmitHandler<SignInFormValues> = ({ email }) => {
-    signIn<'email'>('email', { redirect: false, email: email }).then(
+    void signIn<'email'>('email', { redirect: false, email: email }).then(
       (response) => {
         if (typeof response !== 'undefined') {
           const { error, status, ok, url } = response
@@ -57,7 +57,7 @@ export const UserSignIn: React.FC<SignInProps> = (props) => {
   return (
     <Dialog open={props.open} onClose={props.setClosed}>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Container maxWidth={'md'} sx={{ pb: 2 }}>
+        <Container maxWidth='md' sx={{ pb: 2 }}>
           <SmallCenteredText sx={{ p: 2 }}>
             In order to sign in, enter the email address you used to register
             for this website. Once completed, you will receive an email with a
@@ -76,7 +76,7 @@ export const UserSignIn: React.FC<SignInProps> = (props) => {
                   message: 'Invalid email'
                 }
               })}
-            ></TextField>
+            />
           </Box>
           <Button type='submit' variant='outlined' fullWidth>
             Log In

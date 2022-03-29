@@ -1,15 +1,10 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { fireEvent } from '@testing-library/react'
 import { NewUserRegistration } from '@/Components/SigninRegistration/NewUserRegistration'
 
 describe('NewUserRegistration', () => {
   const form = (
-    <NewUserRegistration
-      open={true}
-      setClosed={() => {}}
-      switchToSignIn={() => {}}
-    />
+    <NewUserRegistration open setClosed={() => {}} switchToSignIn={() => {}} />
   )
 
   it('contains an input for first name', () => {
@@ -47,5 +42,11 @@ describe('NewUserRegistration', () => {
     fireEvent.blur(email)
     await waitFor(() => expect(screen.queryByRole('alert')).toBeNull())
     await waitFor(() => expect(email).toBeValid())
+  })
+
+  it('includes a button to switch to signin', () => {
+    render(form)
+    const signinButton = screen.getByRole('button', { name: /Sign[- ]?in/i })
+    expect(signinButton).toBeVisible()
   })
 })
