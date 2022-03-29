@@ -30,8 +30,8 @@ describe('User', () => {
     })
 
     const user = render(<User />)
-    expect(user.getByRole('button', { name: 'Sign In' })).toBeVisible()
-    expect(user.getByRole('button', { name: 'Register' })).toBeVisible()
+    expect(user.getByRole('button', { name: /Sign In/i })).toBeVisible()
+    expect(user.getByRole('button', { name: /Register/i })).toBeVisible()
   })
 
   it('shows email if no name available', () => {

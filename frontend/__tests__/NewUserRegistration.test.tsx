@@ -4,7 +4,13 @@ import { fireEvent } from '@testing-library/react'
 import { NewUserRegistration } from '@/Components/SigninRegistration/NewUserRegistration'
 
 describe('NewUserRegistration', () => {
-  const form = <NewUserRegistration open={true} setClosed={() => {}} />
+  const form = (
+    <NewUserRegistration
+      open={true}
+      setClosed={() => {}}
+      switchToSignIn={() => {}}
+    />
+  )
 
   it('contains an input for first name', () => {
     render(form)
