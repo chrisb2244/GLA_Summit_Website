@@ -1,6 +1,6 @@
 import { useSession } from 'next-auth/react'
 
-export const UserProfile: React.FC<{}> = (props) => {
+export const UserProfile: React.FC = () => {
   const { data } = useSession()
   if (data == null) {
     return <p>You are not signed in</p>

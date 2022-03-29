@@ -1,7 +1,7 @@
 import { Organizer } from '../Components/Organizer'
 import { Grid } from '@mui/material'
 
-const OurTeam: React.FC = (props) => {
+const OurTeam: React.FC = () => {
   return (
     <Grid container>
       <Organizer

@@ -46,7 +46,7 @@ const SmallCenteredText: React.FC<TypographyProps> = ({
 
 const FormField = (props: {
   name: keyof FormValues
-  control: Control<FormValues, any>
+  control: Control<FormValues>
   rules?: UseControllerProps<FormValues>['rules']
 }): JSX.Element => {
   const { name, control, rules } = props
@@ -92,7 +92,7 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = (props) => {
   const { control, handleSubmit, reset } = useForm<FormValues>({
     mode: 'onBlur'
   })
-  const onSubmit: SubmitHandler<FormValues> = (data, event) => {
+  const onSubmit: SubmitHandler<FormValues> = (data) => {
     console.log(data)
     reset()
     props.setClosed()

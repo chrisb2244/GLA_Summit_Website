@@ -3,7 +3,7 @@ import React from 'react'
 
 import { Grid, Typography } from '@mui/material'
 
-export const HomePage: React.FC = (props) => {
+export const HomePage: React.FC = () => {
   return (
     <Grid container item style={{ margin: '0 auto' }} xs={8} md={6}>
       <Typography>

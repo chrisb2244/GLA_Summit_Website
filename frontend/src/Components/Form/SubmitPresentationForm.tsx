@@ -6,7 +6,7 @@ import { PersonArray } from './PersonArray'
 import RemoveIcon from '@mui/icons-material/PersonRemove'
 // import './SubmitPresentationForm.css'
 
-interface PresentationFormValues {
+type PresentationFormValues = {
   firstPresenter: PersonValues
   presentationTitle: string
   abstract: string

@@ -1,4 +1,4 @@
-const LoremIpsum: React.FC = (props) => {
+const LoremIpsum: React.FC = () => {
   return (
     <p>
       Lorem ipsum, dolor sit amet consectetur adipisicing elit. Optio eum
