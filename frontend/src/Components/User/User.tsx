@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { Button } from '@mui/material'
 import { UserMenu } from '@/Components/User/UserMenu'
@@ -9,10 +8,8 @@ import { UserSignIn } from '@/Components/SigninRegistration/UserSignIn'
 interface UserProps {}
 
 export const User: React.FC<UserProps> = (props) => {
-  const [regDialog, setRegistrationOpen] = useState<HTMLElement | null>(null)
-  const registrationDialogOpen = Boolean(regDialog)
-  const [signInDialog, setSignInOpen] = useState<HTMLElement | null>(null)
-  const signInOpen = Boolean(signInDialog)
+  const [regDialogOpen, setRegistrationOpen] = useState(false)
+  const [signInDialogOpen, setSignInOpen] = useState(false)
 
   const { data: session } = useSession()
   let button
@@ -37,40 +34,32 @@ export const User: React.FC<UserProps> = (props) => {
   } else {
     button = (
       <>
-        {/* <Link href="/api/auth/signin" passHref>
         <Button
-          type="button"
-          color="secondary"
-          href={'/api/auth/signin'}
-          onClick={(ev) => {
-            ev.preventDefault()
-            signIn()
-          }}
-        >
-          Sign In
-        </Button>
-      </Link> */}
-        <Button
-          onClick={(ev) => setSignInOpen(ev.currentTarget)}
+          onClick={() => setSignInOpen(true)}
           color='warning'
         >
           Sign In / Register
         </Button>
         <NewUserRegistration
-          open={registrationDialogOpen}
+          open={regDialogOpen}
           setClosed={() => {
-            setRegistrationOpen(null)
+            setRegistrationOpen(false)
+          }}
+          switchToSignIn={() => {
+            setRegistrationOpen(false)
+            setSignInOpen(true)
           }}
         />
         <UserSignIn
-          open={signInOpen}
+          open={signInDialogOpen}
           setClosed={() => {
-            setSignInOpen(null)
+            setSignInOpen(false)
+          }}
+          switchToRegistration={() => {
+            setSignInOpen(false)
+            setRegistrationOpen(true)
           }}
         />
-        {/* <Button onClick={(ev) => signIn()} color='warning'>
-          Sign In
-        </Button> */}
       </>
     )
   }

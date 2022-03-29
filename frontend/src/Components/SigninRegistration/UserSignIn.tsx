@@ -14,6 +14,7 @@ import { SubmitHandler, useForm } from 'react-hook-form'
 type SignInProps = {
   open: boolean
   setClosed: () => void
+  switchToRegistration: () => void
 }
 
 type SignInFormValues = {
@@ -81,7 +82,16 @@ export const UserSignIn: React.FC<SignInProps> = (props) => {
             Log In
           </Button>
           <SmallCenteredText sx={{ pt: 2 }}>
-            Not registered? <Link>Join Now</Link>
+            Not registered?{' '}
+            <Link
+              onClick={(ev) => {
+                ev.preventDefault()
+                props.switchToRegistration()
+              }}
+              component='button'
+            >
+              Join Now
+            </Link>
           </SmallCenteredText>
         </Container>
       </form>

@@ -11,6 +11,7 @@ import {
 type UserRegistrationProps = {
   open: boolean
   setClosed: () => void
+  switchToSignIn: () => void  
 }
 
 type FormValues = {
