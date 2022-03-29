@@ -2,7 +2,6 @@ import { render } from '@testing-library/react'
 import { User } from '@/Components/User/User'
 import { Header } from '@/Components/Header'
 import { useSession } from 'next-auth/react'
-import { Session } from 'next-auth'
 
 jest.mock('next-auth/react', () => {
   return {

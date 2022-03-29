@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { fireEvent } from '@testing-library/react'
-import { NewUserRegistration } from '@/Components/User/NewUserRegistration'
+import { NewUserRegistration } from '@/Components/SigninRegistration/NewUserRegistration'
 
 describe('NewUserRegistration', () => {
   const form = <NewUserRegistration open={true} setClosed={() => {}} />
