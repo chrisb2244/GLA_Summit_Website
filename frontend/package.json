@@ -31,7 +31,9 @@
     "test-w": "jest --watch",
     "lint": "ts-standard ./src/ ./__tests__/",
     "lint-f": "ts-standard --fix ./src/ ./__tests__/",
-    "lint-n": "next lint"
+    "lint-n": "next lint",
+    "precommit-tests": "LIST=$(git diff-index --name-only --diff-filter=d HEAD | grep -E \"(.js$|.jsx$|.ts$|.tsx$)\" | sed -e 's|frontend/||g'); if [ \"$LIST\" ]; then ts-standard ${LIST}; else echo 'No files to lint'; fi && npx jest",
+    "prepare": "is-ci || cd .. && husky install frontend/.husky"
   },
   "eslintConfig": {
     "plugins": [
@@ -43,12 +45,17 @@
       "eslint-config-standard-typescript-prettier"
     ],
     "rules": {
-      "jsx-quotes": ["error", "prefer-single"]
+      "jsx-quotes": [
+        "error",
+        "prefer-single"
+      ]
     },
     "settings": {
       "next": {
         "dirs": [
-          "src/Components", "src/pages", "__tests__"
+          "src/Components",
+          "src/pages",
+          "__tests__"
         ]
       }
     }
@@ -79,6 +86,8 @@
     "eslint-config-next": "^12.1.0",
     "eslint-config-standard-typescript-prettier": "^5.0.0",
     "eslint-plugin-jest-react": "^0.1.0",
+    "husky": "^7.0.0",
+    "is-ci": "^3.0.1",
     "ts-node": "^10.7.0",
     "ts-standard": "^11.0.0"
   },
