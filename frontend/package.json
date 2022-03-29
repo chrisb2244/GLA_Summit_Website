@@ -29,36 +29,10 @@
     "dev": "next dev",
     "test": "jest",
     "test-w": "jest --watch",
-    "lint": "ts-standard ./src/ ./__tests__/",
-    "lint-f": "ts-standard --fix ./src/ ./__tests__/",
-    "lint-n": "next lint",
-    "precommit-tests": "LIST=$(git diff-index --name-only --diff-filter=d HEAD | grep -E \"(.js$|.jsx$|.ts$|.tsx$)\" | sed -e 's|frontend/||g'); if [ \"$LIST\" ]; then ts-standard ${LIST}; else echo 'No files to lint'; fi && npx jest",
+    "lint": "eslint --format visualstudio ./src/ ./__tests__/",
+    "lint-f": "eslint --format visualstudio --fix ./src/ ./__tests__/",
+    "precommit-tests": "LIST=$(git diff-index --name-only --diff-filter=d HEAD | grep -E \"(.js$|.jsx$|.ts$|.tsx$)\" | sed -e 's|frontend/||g'); if [ \"$LIST\" ]; then eslint ${LIST} ${LIST}; else echo 'No files to lint'; fi && npx jest",
     "prepare": "is-ci || cd .. && husky install frontend/.husky"
-  },
-  "eslintConfig": {
-    "plugins": [
-      "jest-react"
-    ],
-    "extends": [
-      "plugin:jest-react/recommended",
-      "next/core-web-vitals",
-      "eslint-config-standard-typescript-prettier"
-    ],
-    "rules": {
-      "jsx-quotes": [
-        "error",
-        "prefer-single"
-      ]
-    },
-    "settings": {
-      "next": {
-        "dirs": [
-          "src/Components",
-          "src/pages",
-          "__tests__"
-        ]
-      }
-    }
   },
   "browserslist": {
     "production": [
@@ -83,20 +57,15 @@
     "@types/pg": "^8.6.5",
     "@types/react": "^17.0.13",
     "@types/react-dom": "^17.0.8",
+    "@typescript-eslint/eslint-plugin": "^5.17.0",
+    "@typescript-eslint/parser": "^5.17.0",
     "cypress": "^9.5.1",
+    "eslint": "^8.12.0",
     "eslint-config-next": "^12.1.0",
-    "eslint-config-standard-typescript-prettier": "^5.0.0",
+    "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-jest-react": "^0.1.0",
     "husky": "^7.0.0",
     "is-ci": "^3.0.1",
-    "ts-node": "^10.7.0",
-    "ts-standard": "^11.0.0"
-  },
-  "ts-standard": {
-    "ignore": [
-      "build",
-      "src/react-app-env.d.ts",
-      "src/reportWebVitals.ts"
-    ]
+    "ts-node": "^10.7.0"
   }
 }
