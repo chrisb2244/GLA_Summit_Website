@@ -1,6 +1,6 @@
 import { Button } from '@mui/material'
 import { FieldArray, FieldProps } from 'formik'
-import { cloneElement, MouseEventHandler } from 'react'
+import { cloneElement } from 'react'
 import { Person, PersonValues } from './Person'
 
 interface PersonArrayProps {

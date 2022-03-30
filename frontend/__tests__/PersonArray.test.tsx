@@ -1,4 +1,5 @@
 import { render, waitFor } from '@testing-library/react'
+import type { RenderResult } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { PersonArray } from '@/Components/Form/PersonArray'
 import { PersonValues } from '@/Components/Form/Person'
@@ -8,7 +9,7 @@ describe('PersonArray', () => {
   const initialValues: {
     people: PersonValues[]
   } = { people: [] }
-  const form = (addLabel?: string) => (
+  const form = (addLabel?: string): JSX.Element => (
     <Formik initialValues={initialValues} onSubmit={() => {}}>
       {({ ...props }) => {
         const field = props.getFieldProps<PersonValues>('people')
@@ -25,7 +26,9 @@ describe('PersonArray', () => {
     </Formik>
   )
 
-  const renderForm = (addLabel?: string) => {
+  const renderForm = (
+    addLabel?: string
+  ): { personArray: RenderResult, button: HTMLElement } => {
     const personArray = render(form(addLabel))
     const button = personArray.getByRole('button')
     return { personArray, button }

@@ -1,7 +1,7 @@
 import { Box, Toolbar, Typography, Link } from '@mui/material'
 import { SocialMediaIcons } from './SocialMediaIcons'
 
-export const Footer: React.FC = (props) => {
+export const Footer: React.FC = () => {
   // The 'Toolbar' component appears to make the flow
   // direction a row, rather than a column otherwise...
   const FileLink = (props: { link: string, title: string }): JSX.Element => {

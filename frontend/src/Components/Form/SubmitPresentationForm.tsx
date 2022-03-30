@@ -6,7 +6,7 @@ import { PersonArray } from './PersonArray'
 import RemoveIcon from '@mui/icons-material/PersonRemove'
 // import './SubmitPresentationForm.css'
 
-interface PresentationFormValues {
+type PresentationFormValues = {
   firstPresenter: PersonValues
   presentationTitle: string
   abstract: string
@@ -84,7 +84,7 @@ export const SubmitPresentationForm: React.FC = () => {
             />
             <PersonArray
               form={{ ...props, values }}
-              field={props.getFieldProps<Array<PersonValues>>('collaborators')}
+              field={props.getFieldProps<PersonValues[]>('collaborators')}
               meta={props.getFieldMeta('collaborators')}
               deleteButtonTemplate={<RemoveIcon color='primary' />}
             />

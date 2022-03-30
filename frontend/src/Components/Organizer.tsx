@@ -1,5 +1,6 @@
 import { ReactElement } from 'react'
 import { Grid, Typography } from '@mui/material'
+import Image from 'next/image'
 // import '../GLA-generic.css'
 
 export interface OrganizerProps {
@@ -11,15 +12,28 @@ export interface OrganizerProps {
 }
 
 export const Organizer: React.FC<OrganizerProps> = (props) => {
-  const direction = typeof props.imageSide !== 'undefined'
-    ? (props.imageSide === 'right' ? 'row' : 'row-reverse')
-    : 'row'
+  const direction =
+    typeof props.imageSide !== 'undefined'
+      ? props.imageSide === 'right'
+        ? 'row'
+        : 'row-reverse'
+      : 'row'
 
   let imageElem = null
   if (typeof props.image !== 'undefined') {
     const path = `/media/${props.image}`
-    const image = <img src={path} alt={`${props.lastName} ${props.firstName}`} style={{ width: '90%' }} />
-    imageElem = <Grid item xs={12} md={4}>{image}</Grid>
+    const image = (
+      <Image
+        src={path}
+        alt={`${props.lastName} ${props.firstName}`}
+        style={{ width: '90%' }}
+      />
+    )
+    imageElem = (
+      <Grid item xs={12} md={4}>
+        {image}
+      </Grid>
+    )
   }
 
   const hasImage = typeof props.image !== 'undefined'
@@ -34,8 +48,17 @@ export const Organizer: React.FC<OrganizerProps> = (props) => {
         alignItems='center'
       >
         <Grid item xs={12} md={hasImage ? 8 : 12}>
-          <Typography variant='h4' className='gla-organizer-name'>{props.firstName} {props.lastName}</Typography>
-          <Typography className='gla-organizer-description' component='div' variant='body1' align='justify'>{props.description}</Typography>
+          <Typography variant='h4' className='gla-organizer-name'>
+            {props.firstName} {props.lastName}
+          </Typography>
+          <Typography
+            className='gla-organizer-description'
+            component='div'
+            variant='body1'
+            align='justify'
+          >
+            {props.description}
+          </Typography>
         </Grid>
         {imageElem}
       </Grid>

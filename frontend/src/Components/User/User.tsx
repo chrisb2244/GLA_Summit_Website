@@ -5,9 +5,7 @@ import { useState } from 'react'
 import { NewUserRegistration } from '@/Components/SigninRegistration/NewUserRegistration'
 import { UserSignIn } from '@/Components/SigninRegistration/UserSignIn'
 
-interface UserProps {}
-
-export const User: React.FC<UserProps> = (props) => {
+export const User: React.FC = () => {
   const [regDialogOpen, setRegistrationOpen] = useState(false)
   const [signInDialogOpen, setSignInOpen] = useState(false)
 

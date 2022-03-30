@@ -1,4 +1,4 @@
-import { createTheme, responsiveFontSizes, adaptV4Theme } from '@mui/material'
+import { createTheme, responsiveFontSizes } from '@mui/material'
 
 /*
 Color values
