@@ -46,6 +46,9 @@ export const UserSignIn: React.FC<SignInProps> = (props) => {
           const { error, status, ok, url } = response
           console.log(error, status, ok, url)
           props.setClosed()
+          if(error === 'AccessDenied') {
+            alert('Unable to sign in with that email address')
+          }
         } else {
           // No connection to DB might get here
           console.log('Undefined response, some problem with auth...')

@@ -3,6 +3,7 @@ import EmailProvider from 'next-auth/providers/email'
 import SequelizeAdapter from '@next-auth/sequelize-adapter'
 import { Sequelize } from 'sequelize'
 import * as pg from 'pg'
+import { checkUserExists } from '@/lib/database/user'
 
 // const sequelize = new Sequelize({
 //   dialect: 'mysql',
@@ -65,5 +66,20 @@ export default NextAuth({
   session: {
     strategy: 'jwt' // Explicitly use tokens for session management
     // This will reduce the number of calls to the db, which will improve responsiveness
+  },
+  callbacks: {
+    signIn: ({user, email, account}) => {
+      if(email.verificationRequest ?? false) {
+        console.log('verifying user exists in database')
+        console.log(account)
+        const exists = checkUserExists(user.email ?? null)
+        if(exists) {
+          return true
+        } else {
+          return false
+        }
+      }
+      return true
+    }
   }
 })

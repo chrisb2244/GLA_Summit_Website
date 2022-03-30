@@ -43,5 +43,5 @@
       ]
     }
   },
-  "ignorePatterns": ["reportWebVitals.ts", "react-app-env.d.ts"]
+  "ignorePatterns": ["reportWebVitals.ts", "react-app-env.d.ts", "jest.config.ts"]
 }
