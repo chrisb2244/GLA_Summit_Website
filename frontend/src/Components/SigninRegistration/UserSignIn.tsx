@@ -10,6 +10,7 @@ import {
 import type { TypographyProps } from '@mui/material'
 import { signIn } from 'next-auth/react'
 import { SubmitHandler, useForm } from 'react-hook-form'
+import { useState } from 'react'
 
 type SignInProps = {
   open: boolean
@@ -37,7 +38,25 @@ const SmallCenteredText: React.FC<TypographyProps> = ({
   )
 }
 
+const PopupOnSignin: React.FC<{
+  open: boolean
+  setClosed: () => void
+}> = (props) => {
+  return (
+    <Dialog open={props.open} onClose={props.setClosed}>
+      <Container maxWidth='md' sx={{ p: 2 }}>
+        {props.children}
+      </Container>
+    </Dialog>
+  )
+}
+
 export const UserSignIn: React.FC<SignInProps> = (props) => {
+  const [feedbackPopup, setFeedbackPopup] = useState<
+    'valid' | 'invalid' | null
+  >(null)
+  const [attemptedEmail, setAttemptedEmail] = useState<string | null>(null)
+
   const { register, handleSubmit } = useForm<SignInFormValues>()
   const onSubmit: SubmitHandler<SignInFormValues> = ({ email }) => {
     void signIn<'email'>('email', { redirect: false, email: email }).then(
@@ -46,8 +65,11 @@ export const UserSignIn: React.FC<SignInProps> = (props) => {
           const { error, status, ok, url } = response
           console.log(error, status, ok, url)
           props.setClosed()
-          if(error === 'AccessDenied') {
-            alert('Unable to sign in with that email address')
+          setAttemptedEmail(email)
+          if (error === 'AccessDenied') {
+            setFeedbackPopup('invalid')
+          } else {
+            setFeedbackPopup('valid')
           }
         } else {
           // No connection to DB might get here
@@ -57,47 +79,78 @@ export const UserSignIn: React.FC<SignInProps> = (props) => {
     )
   }
 
+  const invalidEmailContent = (
+    <Typography>
+      The email you gave,{' '}
+      <Box component='span' fontWeight={500}>
+        {attemptedEmail}
+      </Box>
+      , was not found.
+    </Typography>
+  )
+
+  const validEmailContent = (
+    <Typography>
+      An email has been sent to{' '}
+      <Box component='span' fontWeight={500}>
+        {attemptedEmail}
+      </Box>
+      . Please use the link in that email to sign in.
+    </Typography>
+  )
+
   return (
-    <Dialog open={props.open} onClose={props.setClosed}>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <Container maxWidth='md' sx={{ p: 2 }}>
-          <SmallCenteredText sx={{ pb: 2 }}>
-            In order to sign in, enter the email address you used to register
-            for this website. Once completed, you will receive an email with a
-            verification link. Open this link to automatically sign into the
-            site.
-          </SmallCenteredText>
-          <Box mb={2}>
-            <TextField
-              fullWidth
-              label='Email'
-              autoComplete='email'
-              {...register('email', {
-                required: true,
-                pattern: {
-                  value: /^\S+@\S+$/i,
-                  message: 'Invalid email'
-                }
-              })}
-            />
-          </Box>
-          <Button type='submit' variant='outlined' fullWidth>
-            Log In
-          </Button>
-          <SmallCenteredText sx={{ pt: 2 }}>
-            Not registered?{' '}
-            <Link
-              onClick={(ev) => {
-                ev.preventDefault()
-                props.switchToRegistration()
-              }}
-              component='button'
-            >
-              Join Now
-            </Link>
-          </SmallCenteredText>
-        </Container>
-      </form>
-    </Dialog>
+    <>
+      <Dialog open={props.open} onClose={props.setClosed}>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Container maxWidth='md' sx={{ p: 2 }}>
+            <SmallCenteredText sx={{ pb: 2 }}>
+              In order to sign in, enter the email address you used to register
+              for this website. Once completed, you will receive an email with a
+              verification link. Open this link to automatically sign into the
+              site.
+            </SmallCenteredText>
+            <Box mb={2}>
+              <TextField
+                fullWidth
+                label='Email'
+                autoComplete='email'
+                {...register('email', {
+                  required: true,
+                  pattern: {
+                    value: /^\S+@\S+$/i,
+                    message: 'Invalid email'
+                  }
+                })}
+              />
+            </Box>
+            <Button type='submit' variant='outlined' fullWidth>
+              Log In
+            </Button>
+            <SmallCenteredText sx={{ pt: 2 }}>
+              Not registered?{' '}
+              <Link
+                onClick={(ev) => {
+                  ev.preventDefault()
+                  props.switchToRegistration()
+                }}
+                component='button'
+              >
+                Join Now
+              </Link>
+            </SmallCenteredText>
+          </Container>
+        </form>
+      </Dialog>
+      <PopupOnSignin
+        open={feedbackPopup !== null}
+        setClosed={() => {
+          setFeedbackPopup(null)
+          setAttemptedEmail(null)
+        }}
+      >
+        {feedbackPopup === 'valid' ? validEmailContent : invalidEmailContent}
+      </PopupOnSignin>
+    </>
   )
 }
