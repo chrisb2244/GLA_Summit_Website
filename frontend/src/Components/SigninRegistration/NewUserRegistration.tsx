@@ -15,6 +15,7 @@ import type {
   SubmitHandler,
   SubmitErrorHandler
 } from 'react-hook-form'
+import { signIn } from 'next-auth/react'
 
 type UserRegistrationProps = {
   open: boolean
@@ -93,9 +94,13 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = (props) => {
     mode: 'onBlur'
   })
   const onSubmit: SubmitHandler<FormValues> = (data) => {
-    console.log(data)
-    reset()
+    void signIn<'email'>(
+      'email',
+      { redirect: false, email: data.Email },
+      { signin_type: 'registration', registration_data: JSON.stringify(data) }
+    )
     props.setClosed()
+    reset()
   }
   const onError: SubmitErrorHandler<FormValues> = (err) => console.log(err)
 

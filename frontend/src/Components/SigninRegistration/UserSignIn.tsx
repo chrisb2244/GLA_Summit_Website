@@ -59,24 +59,26 @@ export const UserSignIn: React.FC<SignInProps> = (props) => {
 
   const { register, handleSubmit } = useForm<SignInFormValues>()
   const onSubmit: SubmitHandler<SignInFormValues> = ({ email }) => {
-    void signIn<'email'>('email', { redirect: false, email: email }).then(
-      (response) => {
-        if (typeof response !== 'undefined') {
-          const { error, status, ok, url } = response
-          console.log(error, status, ok, url)
-          props.setClosed()
-          setAttemptedEmail(email)
-          if (error === 'AccessDenied') {
-            setFeedbackPopup('invalid')
-          } else {
-            setFeedbackPopup('valid')
-          }
+    void signIn<'email'>(
+      'email',
+      { redirect: false, email: email },
+      { signin_type: 'login' }
+    ).then((response) => {
+      if (typeof response !== 'undefined') {
+        const { error, status, ok, url } = response
+        console.log(error, status, ok, url)
+        props.setClosed()
+        setAttemptedEmail(email)
+        if (error === 'AccessDenied') {
+          setFeedbackPopup('invalid')
         } else {
-          // No connection to DB might get here
-          console.log('Undefined response, some problem with auth...')
+          setFeedbackPopup('valid')
         }
+      } else {
+        // No connection to DB might get here
+        console.log('Undefined response, some problem with auth...')
       }
-    )
+    })
   }
 
   const invalidEmailContent = (
