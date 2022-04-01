@@ -81,21 +81,21 @@ export const UserSignIn: React.FC<SignInProps> = (props) => {
     })
   }
 
-  const invalidEmailContent = (
+  const invalidEmailContent = (email: string) => (
     <Typography>
       The email you gave,{' '}
       <Box component='span' fontWeight={500}>
-        {attemptedEmail}
+        {email}
       </Box>
       , was not found.
     </Typography>
   )
 
-  const validEmailContent = (
+  const validEmailContent = (email: string) => (
     <Typography>
       An email has been sent to{' '}
       <Box component='span' fontWeight={500}>
-        {attemptedEmail}
+        {email}
       </Box>
       . Please use the link in that email to sign in.
     </Typography>
@@ -148,10 +148,11 @@ export const UserSignIn: React.FC<SignInProps> = (props) => {
         open={feedbackPopup !== null}
         setClosed={() => {
           setFeedbackPopup(null)
-          setAttemptedEmail(null)
         }}
       >
-        {feedbackPopup === 'valid' ? validEmailContent : invalidEmailContent}
+        {feedbackPopup === 'valid'
+          ? validEmailContent(attemptedEmail!)
+          : invalidEmailContent(attemptedEmail!)}
       </PopupOnSignin>
     </>
   )
