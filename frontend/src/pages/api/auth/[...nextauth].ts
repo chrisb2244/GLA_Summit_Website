@@ -1,37 +1,10 @@
 import NextAuth from 'next-auth'
 import EmailProvider from 'next-auth/providers/email'
-import SequelizeAdapter from '@next-auth/sequelize-adapter'
-import { Sequelize } from 'sequelize'
-import * as pg from 'pg'
+import { PrismaClient } from '@prisma/client'
+import { PrismaAdapter } from '@next-auth/prisma-adapter'
 import type { NextApiRequest, NextApiResponse } from 'next/types'
 
-// const sequelize = new Sequelize({
-//   dialect: 'mysql',
-//   host: 'db',
-//   username: 'root',
-//   database: 'gla_summit_test',
-//   password: process.env.MYSQL_ROOT_PASSWORD
-// })
-
-const sequelize = new Sequelize({
-  dialect: 'postgres',
-  database: process.env.POSTGRES_DB,
-  host: process.env.POSTGRES_HOST,
-  username: process.env.POSTGRES_USER,
-  password: process.env.POSTGRES_PW,
-  port: 5432,
-  dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false
-    }
-  },
-  dialectModule: pg,
-  pool: {
-    min: 0,
-    max: 5
-  }
-})
+const prisma = new PrismaClient()
 
 const isRegistration = (req: NextApiRequest): boolean => {
   if (
@@ -60,7 +33,8 @@ export default (req: NextApiRequest, res: NextApiResponse<any>) => {
         from: process.env.EMAIL_FROM
       })
     ],
-    adapter: SequelizeAdapter(sequelize, { synchronize: false }),
+    // adapter: SequelizeAdapter(sequelize, { synchronize: false }),
+    adapter: PrismaAdapter(prisma),
     session: {
       strategy: 'jwt' // Explicitly use tokens for session management
       // This will reduce the number of calls to the db, which will improve responsiveness
@@ -69,13 +43,15 @@ export default (req: NextApiRequest, res: NextApiResponse<any>) => {
       signIn: ({ user, email }) => {
         if (isRegistration(req)) {
           console.log(req.query.registration_data)
-          sequelize
+          return true
         } else {
           if (email.verificationRequest ?? false) {
             const exists = 'emailVerified' in user
             if (exists) {
+              console.log("Found email, logging in")
               return true
             } else {
+              console.log("Email not found, blocking login")
               return false
             }
           }

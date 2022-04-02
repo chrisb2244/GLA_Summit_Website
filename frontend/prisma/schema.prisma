@@ -3,46 +3,53 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
-model accounts {
-  id                  String  @id @db.Uuid
-  type                String  @db.VarChar(255)
-  provider            String  @db.VarChar(255)
-  provider_account_id String  @db.VarChar(255)
-  refresh_token       String? @db.VarChar(255)
-  access_token        String? @db.VarChar(255)
-  expires_at          Int?
-  token_type          String? @db.VarChar(255)
-  scope               String? @db.VarChar(255)
-  id_token            String? @db.VarChar(255)
-  session_state       String? @db.VarChar(255)
-  user_id             String? @db.Uuid
-  users               users?  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+model Account {
+  id                String  @id @default(uuid()) @db.Uuid
+  userId            String  @db.Uuid
+  type              String  @db.VarChar(255)
+  provider          String  @db.VarChar(255)
+  providerAccountId String  @db.VarChar(255)
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String? @db.VarChar(255)
+  scope             String? @db.VarChar(255)
+  id_token          String? @db.Text
+  session_state     String? @db.VarChar(255)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
 }
 
-model sessions {
-  id            String   @id @db.Uuid
-  expires       DateTime @db.Timestamptz(6)
-  session_token String   @unique @db.VarChar(255)
-  user_id       String?  @db.Uuid
-  users         users?   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+model Session {
+  id           String   @id @default(uuid()) @db.Uuid
+  sessionToken String   @unique @db.VarChar(255)
+  userId       String   @db.Uuid
+  expires      DateTime @db.Timestamptz(6)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model users {
-  id             String     @id @db.Uuid
-  name           String?    @db.VarChar(255)
-  email          String?    @unique @db.VarChar(255)
-  email_verified DateTime?  @db.Timestamptz(6)
-  image          String?    @db.VarChar(255)
-  accounts       accounts[]
-  sessions       sessions[]
+model User {
+  id            String    @id @default(uuid()) @db.Uuid
+  name          String?   @db.VarChar(255)
+  email         String    @unique @db.VarChar(255)
+  emailVerified DateTime? @db.Timestamptz(6)
+  image         String?   @db.VarChar(255)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  accounts      Account[]
+  sessions      Session[]
 }
 
-model verification_tokens {
+model VerificationToken {
   token      String   @id @db.VarChar(255)
   identifier String   @db.VarChar(255)
   expires    DateTime @db.Timestamptz(6)
+
+  @@unique([identifier, token])
 }
