@@ -7,9 +7,13 @@ import { theme } from '../theme'
 import createEmotionCache from '../createEmotionCache'
 import { AppFrame } from '../Components/Frame/AppFrame'
 import reportWebVitals from '../reportWebVitals'
-import { SessionProvider } from 'next-auth/react'
+// import { SessionProvider } from 'next-auth/react'
+import type { Session } from '@supabase/supabase-js'
+
 import '../spinningLogo.css'
 import '../GLA-generic.css'
+import { useEffect, useState } from 'react'
+import { supabase } from '@/lib/supabaseClient'
 
 // declare module '@mui/styles/defaultTheme' {
 //   // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -27,8 +31,14 @@ export default function MyApp(props: MyAppProps): JSX.Element {
   const {
     Component,
     emotionCache = clientSideEmotionCache,
-    pageProps: { session, ...pageProps }
+    pageProps: { ...pageProps }
   } = props
+
+  const [session, setSession] = useState<Session | null>(null)
+  useEffect(() => {
+    setSession(supabase.auth.session())
+    supabase.auth.onAuthStateChange((_ev, session) => setSession(session))
+  }, [])
 
   return (
     <CacheProvider value={emotionCache}>
@@ -40,11 +50,11 @@ export default function MyApp(props: MyAppProps): JSX.Element {
         <ThemeProvider theme={theme}>
           {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
           <CssBaseline />
-          <SessionProvider session={session}>
+          {/* <SessionProvider session={session}> */}
             <AppFrame>
               <Component {...pageProps} />
             </AppFrame>
-          </SessionProvider>
+          {/* </SessionProvider> */}
         </ThemeProvider>
       </StyledEngineProvider>
     </CacheProvider>

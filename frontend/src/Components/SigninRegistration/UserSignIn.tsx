@@ -8,9 +8,10 @@ import {
   Typography
 } from '@mui/material'
 import type { TypographyProps } from '@mui/material'
-import { signIn } from 'next-auth/react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { useState } from 'react'
+
+import { supabase } from '../../lib/supabaseClient'
 
 type SignInProps = {
   open: boolean
@@ -58,18 +59,16 @@ export const UserSignIn: React.FC<SignInProps> = (props) => {
   const [attemptedEmail, setAttemptedEmail] = useState<string | null>(null)
 
   const { register, handleSubmit } = useForm<SignInFormValues>()
-  const onSubmit: SubmitHandler<SignInFormValues> = ({ email }) => {
-    void signIn<'email'>(
-      'email',
-      { redirect: false, email: email },
-      { signin_type: 'login' }
-    ).then((response) => {
+  const onSubmit: SubmitHandler<SignInFormValues> = async ({ email }) => {
+    await supabase.auth.signIn({email}, {shouldCreateUser: false})
+    .then((response) => {
       if (typeof response !== 'undefined') {
-        const { error, status, ok, url } = response
-        console.log(error, status, ok, url)
+        // const { error, status, ok, url } = response
+        // console.log(error, status, ok, url)
         props.setClosed()
         setAttemptedEmail(email)
-        if (error === 'AccessDenied') {
+        // if (error === 'AccessDenied') {
+        if (response.error) {
           setFeedbackPopup('invalid')
         } else {
           setFeedbackPopup('valid')

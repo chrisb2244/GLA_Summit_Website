@@ -1,15 +1,6 @@
 import { render, within } from '@testing-library/react'
 import { AppFrame } from '@/Components/Frame/AppFrame'
 
-jest.mock('next-auth/react', () => {
-  const originalModule = jest.requireActual('next-auth/react')
-  return {
-    __esModule: true,
-    ...originalModule,
-    useSession: jest.fn(() => [false, false])
-  }
-})
-
 const longIpsum = (
   <p data-testid='test-paragraph'>
     Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas eveniet non

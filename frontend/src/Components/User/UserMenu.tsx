@@ -7,14 +7,13 @@ import {
   ListItemIcon
 } from '@mui/material'
 import { Logout as LogoutIcon } from '@mui/icons-material'
-import { useState } from 'react'
-import { signOut } from 'next-auth/react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-
-import type { DefaultSession } from 'next-auth/core/types'
+import { supabase, getProfileInfo, ProfileModel } from '@/lib/supabaseClient'
+import type { Session } from '@supabase/supabase-js'
 
 type UserMenuProps = {
-  user: DefaultSession['user']
+  user: Session['user']
 }
 
 export const UserMenu: React.FC<UserMenuProps> = (props) => {
@@ -25,10 +24,19 @@ export const UserMenu: React.FC<UserMenuProps> = (props) => {
     setAnchorEl(ev.currentTarget)
   }
   const handleClose = (): void => setAnchorEl(null)
+  const [profileData, setProfileData] = useState<ProfileModel | null>(null)
+  useEffect(() => {
+    getProfileInfo().then(data => setProfileData(data))
+  }, [props.user])
 
   const userAvatar = (
-    <Avatar sx={{ width: 48, height: 48 }} src={props.user?.image ?? undefined}>
-      {props.user?.name ?? props.user?.email}
+    <Avatar
+      sx={{ width: 48, height: 48 }}
+      src={profileData?.avatar_url ?? undefined}
+    >
+      {profileData
+        ? profileData.firstname + ' ' + profileData.lastname
+        : props.user?.email}
     </Avatar>
   )
 
@@ -91,7 +99,7 @@ export const UserMenu: React.FC<UserMenuProps> = (props) => {
         </Link>
         <MenuItem
           onClick={() => {
-            void signOut()
+            void supabase.auth.signOut()
           }}
         >
           <ListItemIcon>

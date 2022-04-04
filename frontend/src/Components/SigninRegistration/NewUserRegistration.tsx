@@ -15,7 +15,9 @@ import type {
   SubmitHandler,
   SubmitErrorHandler
 } from 'react-hook-form'
-import { signIn } from 'next-auth/react'
+import { supabase } from '../../lib/supabaseClient'
+import type { ApiError } from '@supabase/supabase-js'
+import { randomBytes } from 'crypto'
 
 type UserRegistrationProps = {
   open: boolean
@@ -27,6 +29,11 @@ type FormValues = {
   'First name': string
   'Last name': string
   Email: string
+}
+
+type NewUserInformation = {
+  firstname: string
+  lastname: string
 }
 
 const SmallCenteredText: React.FC<TypographyProps> = ({
@@ -93,14 +100,29 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = (props) => {
   const { control, handleSubmit, reset } = useForm<FormValues>({
     mode: 'onBlur'
   })
-  const onSubmit: SubmitHandler<FormValues> = (data) => {
-    void signIn<'email'>(
-      'email',
-      { redirect: false, email: data.Email },
-      { signin_type: 'registration', registration_data: JSON.stringify(data) }
-    )
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
+    const newUserData: NewUserInformation = {
+      firstname: data['First name'],
+      lastname: data['Last name']
+    }
+
+    await supabase.auth
+      .signUp(
+        { email: data.Email, password: randomBytes(32).toString('hex') },
+        { data: newUserData }
+      )
+      .then(({ user, session, error }) => {
+        console.log({ user, session, error })
+        if (error) return Promise.reject(error)
+        // If reaching here, no error
+        alert('Check your email for the login link!')
+      })
+      .catch((error: ApiError) => {
+        alert(error.message)
+      })
     props.setClosed()
     reset()
+    return true
   }
   const onError: SubmitErrorHandler<FormValues> = (err) => console.log(err)
 

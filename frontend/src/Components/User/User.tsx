@@ -1,15 +1,15 @@
-import { useSession } from 'next-auth/react'
 import { Button } from '@mui/material'
 import { UserMenu } from '@/Components/User/UserMenu'
 import { useState } from 'react'
 import { NewUserRegistration } from '@/Components/SigninRegistration/NewUserRegistration'
 import { UserSignIn } from '@/Components/SigninRegistration/UserSignIn'
+import type { Session } from '@supabase/supabase-js'
 
-export const User: React.FC = () => {
+export const User: React.FC<{session: Session | null}> = (props) => {
   const [regDialogOpen, setRegistrationOpen] = useState(false)
   const [signInDialogOpen, setSignInOpen] = useState(false)
 
-  const { data: session } = useSession()
+  const session = props.session
   let button
   if (session != null) {
     button = <UserMenu user={session.user} />
