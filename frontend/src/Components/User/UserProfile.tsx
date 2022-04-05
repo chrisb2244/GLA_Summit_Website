@@ -2,20 +2,23 @@ import { getProfileInfo } from '@/lib/supabaseClient'
 import type { ProfileModel } from '@/lib/supabaseClient'
 import type { PostgrestError, Session } from '@supabase/supabase-js'
 import { useEffect, useState } from 'react'
+import { useSession } from '@/lib/sessionContext'
 
-
-
-export const UserProfile: React.FC<{ session: Session | null }> = ({ session }) => {
+export const UserProfile: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const [profileData, setProfileData] = useState<ProfileModel | null>(null)
 
+  const session = useSession()
+
   useEffect(() => {
     setLoading(true)
-    getProfileInfo().then(data => {
-      setProfileData(data)
-    }).catch((error) => {
-      console.log(error as PostgrestError)
-    })
+    getProfileInfo()
+      .then((data) => {
+        setProfileData(data)
+      })
+      .catch((error) => {
+        console.log(error as PostgrestError)
+      })
     setLoading(false)
   }, [session])
 
@@ -23,7 +26,7 @@ export const UserProfile: React.FC<{ session: Session | null }> = ({ session }) 
     return <p>You are not signed in</p>
   } else {
     if (profileData == null) {
-      return <p>Profile not loaded</p>
+      return <p>Loading...</p>
     }
     return (
       <>

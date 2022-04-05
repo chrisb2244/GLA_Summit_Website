@@ -3,32 +3,16 @@ import { UserMenu } from '@/Components/User/UserMenu'
 import { useState } from 'react'
 import { NewUserRegistration } from '@/Components/SigninRegistration/NewUserRegistration'
 import { UserSignIn } from '@/Components/SigninRegistration/UserSignIn'
-import type { Session } from '@supabase/supabase-js'
+import { useSession } from '@/lib/sessionContext'
 
-export const User: React.FC<{session: Session | null}> = (props) => {
+export const User: React.FC = (props) => {
   const [regDialogOpen, setRegistrationOpen] = useState(false)
   const [signInDialogOpen, setSignInOpen] = useState(false)
 
-  const session = props.session
+  const session = useSession()
   let button
   if (session != null) {
     button = <UserMenu user={session.user} />
-    // (
-    //   <Link href="/api/auth/signout" passHref>
-    //     <Button
-    //       type="button"
-    //       color="secondary"
-    //       variant="outlined"
-    //       href={'/api/auth/signout'}
-    //       onClick={(ev) => {
-    //         ev.preventDefault()
-    //         signOut()
-    //       }}
-    //     >
-    //       {message}
-    //     </Button>
-    //   </Link>
-    // )
   } else {
     button = (
       <>

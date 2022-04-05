@@ -21,15 +21,17 @@ jest.mock('@/lib/supabaseClient', () => {
   }
 })
 
+
+
 describe('User', () => {
   it('is included in the menu', () => {
     const header = render(<Header />).container
-    const user = render(<User session={null} />).container.innerHTML
+    const user = render(<User />).container.innerHTML
     expect(header).toContainHTML(user)
   })
 
   it('provides a link to sign in if not signed in', () => {
-    const user = render(<User session={null} />)
+    const user = render(<User />)
     expect(user.getByRole('button', { name: /Sign In/i })).toBeVisible()
     expect(user.getByRole('button', { name: /Register/i })).toBeVisible()
   })
@@ -48,13 +50,12 @@ describe('User', () => {
       token_type: 'bearer'
     }
     waitFor(() => {
-      const user = render(<User session={dummySession} />)
-      expect(user.container).toHaveTextContent('test@user.com')
+      const user = render(<User />)
+      return expect(user.container).toHaveTextContent('test@user.com')
     })
   })
 
   // it('shows name rather than email if both are available', () => {
-
   //   ;(getProfileInfo as jest.MockedFunction<typeof getProfileInfo>).mockImplementation(() => {
   //     const pm: ProfileModel = {
   //       firstname: 'Test',
