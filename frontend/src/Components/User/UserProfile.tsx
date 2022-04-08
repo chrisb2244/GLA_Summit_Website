@@ -1,7 +1,7 @@
 import { getProfileInfo, supabase } from '@/lib/supabaseClient'
 import type { ProfileModel } from '@/lib/supabaseClient'
 import type { PostgrestError } from '@supabase/supabase-js'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useSession } from '@/lib/sessionContext'
 import { Box, Button, Container, Grid, TextField } from '@mui/material'
 
@@ -40,11 +40,21 @@ export const UserProfile: React.FC = () => {
     }
   }
 
+  const isMounted = useRef(false)
+  useEffect(() => {
+    isMounted.current = true
+    return () => {
+      isMounted.current = false
+    }
+  }, [])
+
   useEffect(() => {
     setLoading(true)
     getProfileInfo()
       .then((data) => {
-        setProfileData(data)
+        if (isMounted) {
+          setProfileData(data)
+        }
       })
       .catch((error) => {
         console.log(error as PostgrestError)
@@ -58,7 +68,6 @@ export const UserProfile: React.FC = () => {
     if (profileData == null) {
       return <p>Loading...</p>
     }
-    console.log(profileData)
     return (
       <Container>
         <Box m={2}>
@@ -75,6 +84,8 @@ export const UserProfile: React.FC = () => {
               <TextField
                 fullWidth
                 label='First Name'
+                name='First Name'
+                id='firstname'
                 value={profileData.firstname ?? ''}
                 onChange={(ev) =>
                   updateProfileField('firstname', ev.currentTarget.value)

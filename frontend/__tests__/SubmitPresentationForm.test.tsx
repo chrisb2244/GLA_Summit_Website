@@ -7,7 +7,7 @@ describe('SubmitPresentationForm', () => {
   //   expect(form.container).toContainElement(render(<Person />).container)
   // })
   it('pass only', () => {
-    const form = render(<SubmitPresentationForm />)
-    expect(form).toBeDefined()
+    const view = render(<SubmitPresentationForm />)
+    expect(view).toBeDefined()
   })
 })

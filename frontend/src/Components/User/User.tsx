@@ -5,7 +5,7 @@ import { NewUserRegistration } from '@/Components/SigninRegistration/NewUserRegi
 import { UserSignIn } from '@/Components/SigninRegistration/UserSignIn'
 import { useSession } from '@/lib/sessionContext'
 
-export const User: React.FC = (props) => {
+export const User: React.FC = () => {
   const [regDialogOpen, setRegistrationOpen] = useState(false)
   const [signInDialogOpen, setSignInOpen] = useState(false)
 

@@ -44,6 +44,7 @@ export const SubmitPresentationForm: React.FC = () => {
     // Need to remove the keys for undefined elements to allow submission
     // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
     Object.keys(errors).forEach(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (key) => (errors as any)[key] === undefined && delete (errors as any)[key]
     )
     return errors

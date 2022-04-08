@@ -1,5 +1,4 @@
-import { render, waitFor } from '@testing-library/react'
-import type { RenderResult } from '@testing-library/react'
+import { render, waitFor, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { PersonArray } from '@/Components/Form/PersonArray'
 import { PersonValues } from '@/Components/Form/Person'
@@ -26,17 +25,16 @@ describe('PersonArray', () => {
     </Formik>
   )
 
-  const renderForm = (
-    addLabel?: string
-  ): { personArray: RenderResult, button: HTMLElement } => {
-    const personArray = render(form(addLabel))
-    const button = personArray.getByRole('button')
-    return { personArray, button }
+  const renderForm = (addLabel?: string): { button: HTMLElement } => {
+    const view = render(form(addLabel))
+    // eslint-disable-next-line testing-library/prefer-screen-queries
+    const button = view.getByRole('button')
+    return { button }
   }
 
   it('initially has zero Persons', () => {
-    const arr = render(form())
-    const inputs = arr.queryAllByRole('textbox')
+    render(form())
+    const inputs = screen.queryAllByRole('textbox')
     expect(inputs).toHaveLength(0)
   })
 
@@ -52,18 +50,18 @@ describe('PersonArray', () => {
   })
 
   it('adds a person when the Add button is clicked', async () => {
-    const { personArray, button } = renderForm()
+    const { button } = renderForm()
     userEvent.click(button)
 
-    const inputs = personArray.queryAllByRole('textbox')
+    const inputs = screen.queryAllByRole('textbox')
     await waitFor(() => expect(inputs).toHaveLength(3)) // firstName, lastName, email
   })
 
   it('has a Delete button when a Person exists', async () => {
-    const { personArray, button: addButton } = renderForm()
+    const { button: addButton } = renderForm()
     userEvent.click(addButton)
 
-    const deleteButtonCandidates = personArray
+    const deleteButtonCandidates = screen
       .getAllByRole('button')
       .filter((elem) => elem.getAttribute('name') === 'delete')
 
@@ -72,15 +70,15 @@ describe('PersonArray', () => {
   })
 
   it('has a functioning Delete button', async () => {
-    const { personArray, button: addButton } = renderForm()
+    const { button: addButton } = renderForm()
     userEvent.click(addButton)
 
-    const deleteButton = personArray
+    const deleteButton = screen
       .getAllByRole('button')
       .filter((elem) => elem.getAttribute('name') === 'delete')[0]
     userEvent.click(deleteButton)
 
-    const inputs = personArray.queryAllByRole('textbox')
+    const inputs = screen.queryAllByRole('textbox')
     await waitFor(() => expect(inputs).toHaveLength(0))
   })
 

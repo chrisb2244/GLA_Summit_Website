@@ -1,4 +1,4 @@
-import { render, within } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { AppFrame } from '@/Components/Frame/AppFrame'
 
 const longIpsum = (
@@ -74,8 +74,8 @@ describe('AppFrame', () => {
   it('restricts child content to centred, not-full-width', () => {
     const frameIpsum = <AppFrame>{longIpsum}</AppFrame>
 
-    const content = render(frameIpsum)
-    const p = within(content.container).getByTestId('test-paragraph')
+    render(frameIpsum)
+    const p = screen.getByTestId('test-paragraph')
     expect(p).toHaveStyle({ marginLeft: 'auto', marginRight: 'auto' })
     const maxW = window.getComputedStyle(p).maxWidth
     const percentageW = Number.parseFloat(
@@ -90,8 +90,8 @@ describe('AppFrame', () => {
         <p>Some content</p>
       </AppFrame>
     )
-    const frame = render(basicFrame)
-    const heading = within(frame.container).getByRole('heading', {
+    render(basicFrame)
+    const heading = screen.getByRole('heading', {
       name: /GLA Summit.*/
     })
     expect(heading).toBeDefined()

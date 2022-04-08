@@ -4,11 +4,7 @@
     "es2021": true
   },
   "root": true,
-  "plugins": [
-    "react",
-    "jest-react",
-    "@typescript-eslint"
-  ],
+  "plugins": ["react", "jest-react", "@typescript-eslint", "testing-library"],
   "extends": [
     "plugin:react/recommended",
     "plugin:jest-react/recommended",
@@ -16,17 +12,12 @@
     "prettier"
   ],
   "rules": {
-    "jsx-quotes": [
-      "error",
-      "prefer-single"
-    ]
+    "jsx-quotes": ["error", "prefer-single"]
   },
   "overrides": [
     {
       "files": ["*.ts", "*.tsx"],
-      "extends": [
-        "plugin:@typescript-eslint/recommended"
-      ],
+      "extends": ["plugin:@typescript-eslint/recommended"],
       "parser": "@typescript-eslint/parser",
       "parserOptions": {
         "project": "./tsconfig.json"
@@ -35,18 +26,21 @@
     {
       "files": ["__tests__/**"],
       "rules": {
-          "@typescript-eslint/no-empty-function": "off"
-      }
+        "@typescript-eslint/no-empty-function": "off",
+        "testing-library/no-debugging-utils": "warn",
+        "testing-library/no-dom-import": "off"
+      },
+      "extends": ["plugin:testing-library/react"]
     }
   ],
   "settings": {
     "next": {
-      "dirs": [
-        "src/Components",
-        "src/pages",
-        "__tests__"
-      ]
+      "dirs": ["src/Components", "src/pages", "__tests__"]
     }
   },
-  "ignorePatterns": ["reportWebVitals.ts", "react-app-env.d.ts", "jest.config.ts"]
+  "ignorePatterns": [
+    "reportWebVitals.ts",
+    "react-app-env.d.ts",
+    "jest.config.ts"
+  ]
 }
