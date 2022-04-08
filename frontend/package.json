@@ -28,7 +28,7 @@
     "lint": "eslint --format visualstudio ./src/ ./__tests__/",
     "lint-f": "eslint --format visualstudio --fix ./src/ ./__tests__/",
     "precommit-tests": "LIST=$(git diff-index --name-only --diff-filter=d HEAD | grep -E \"(.js$|.jsx$|.ts$|.tsx$)\" | sed -e 's|frontend/||g'); if [ \"$LIST\" ]; then eslint ${LIST} ${LIST}; else echo 'No files to lint'; fi && npx jest",
-    "prepare": "is-ci || cd .. && husky install frontend/.husky"
+    "prepare": "is-ci || [ -z $VERCEL ] && cd .. && husky install frontend/.husky"
   },
   "browserslist": {
     "production": [
