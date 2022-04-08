@@ -121,7 +121,14 @@ export const UserProfile: React.FC = () => {
               />
             </Grid>
           </Grid>
-          <Button onClick={updateProfile} disabled={!valuesChanged}>
+          <Button
+            onClick={updateProfile}
+            disabled={
+              !valuesChanged ||
+              profileData.firstname === '' ||
+              profileData.lastname === ''
+            }
+          >
             Update Profile
           </Button>
         </Box>

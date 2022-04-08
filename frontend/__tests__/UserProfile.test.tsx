@@ -137,4 +137,32 @@ describe('UserProfile', () => {
       ).toBeDisabled()
     })
   })
+
+  it('has a disabled button if empty first name', async () => {
+    setMockImplementations('signed-in')
+    render(<UserProfile />)
+    const firstNameInput = await screen.findByRole('textbox', {
+      name: /first name/i
+    })
+
+    userEvent.clear(firstNameInput)
+
+    expect(
+      await screen.findByRole('button', { name: /update/i })
+    ).toBeDisabled()
+  })
+
+  it('has a disabled button if empty last name', async () => {
+    setMockImplementations('signed-in')
+    render(<UserProfile />)
+    const lastNameInput = await screen.findByRole('textbox', {
+      name: /last name/i
+    })
+
+    userEvent.clear(lastNameInput)
+
+    expect(
+      await screen.findByRole('button', { name: /update/i })
+    ).toBeDisabled()
+  })
 })
