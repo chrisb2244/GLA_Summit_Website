@@ -7,39 +7,47 @@ import {
   ListItemIcon
 } from '@mui/material'
 import { Logout as LogoutIcon } from '@mui/icons-material'
-import { useState } from 'react'
-import { signOut } from 'next-auth/react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-
-import type { DefaultSession } from 'next-auth/core/types'
+import { supabase, getProfileInfo, ProfileModel } from '@/lib/supabaseClient'
+import type { Session } from '@supabase/supabase-js'
 
 type UserMenuProps = {
-  user: DefaultSession['user']
+  user: Session['user']
 }
 
 export const UserMenu: React.FC<UserMenuProps> = (props) => {
   // Tools to handle clicking on and off the Avatar
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   const open = Boolean(anchorEl)
-  const handleClick = (ev: React.MouseEvent<HTMLElement>) => {
+  const handleClick = (ev: React.MouseEvent<HTMLElement>): void => {
     setAnchorEl(ev.currentTarget)
   }
-  const handleClose = () => setAnchorEl(null)
+  const handleClose = (): void => setAnchorEl(null)
+  const [profileData, setProfileData] = useState<ProfileModel | null>(null)
+  useEffect(() => {
+    getProfileInfo().then(data => setProfileData(data))
+  }, [props.user])
 
   const userAvatar = (
-    <Avatar sx={{ width: 48, height: 48 }} src={props.user?.image ?? undefined}>
-      {props.user?.name ?? props.user?.email}
+    <Avatar
+      sx={{ width: 48, height: 48 }}
+      src={profileData?.avatar_url ?? undefined}
+    >
+      {profileData
+        ? profileData.firstname + ' ' + profileData.lastname
+        : props.user?.email}
     </Avatar>
   )
 
   return (
     <>
-      <Tooltip title="Account Settings">
+      <Tooltip title='Account Settings'>
         <IconButton
           onClick={handleClick}
-          size="small"
+          size='small'
           sx={{ ml: 2 }}
-          aria-haspopup="true"
+          aria-haspopup='true'
           aria-controls={open ? 'account-menu' : undefined}
           aria-expanded={open ? 'true' : undefined}
         >
@@ -48,16 +56,16 @@ export const UserMenu: React.FC<UserMenuProps> = (props) => {
       </Tooltip>
       <Menu
         anchorEl={anchorEl}
-        id="account-menu"
+        id='account-menu'
         open={open}
         onClick={handleClose}
         onClose={handleClose}
         PaperProps={{
           elevation: 0,
           sx: {
-            'overflow': 'visible',
-            'filter': 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
-            'mt': 1.5,
+            overflow: 'visible',
+            filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+            mt: 1.5,
             '& .MuiAvatar-root': {
               width: 32,
               height: 32,
@@ -81,7 +89,7 @@ export const UserMenu: React.FC<UserMenuProps> = (props) => {
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
-        <Link href="/my-profile" passHref>
+        <Link href='/my-profile' passHref>
           <MenuItem>
             <>
               {userAvatar}
@@ -89,9 +97,13 @@ export const UserMenu: React.FC<UserMenuProps> = (props) => {
             </>
           </MenuItem>
         </Link>
-        <MenuItem onClick={() => signOut()}>
+        <MenuItem
+          onClick={() => {
+            void supabase.auth.signOut()
+          }}
+        >
           <ListItemIcon>
-            <LogoutIcon fontSize="small" />
+            <LogoutIcon fontSize='small' />
           </ListItemIcon>
           Logout
         </MenuItem>

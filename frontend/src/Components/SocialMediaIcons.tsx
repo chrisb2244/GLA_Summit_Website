@@ -1,7 +1,7 @@
 import { Box } from '@mui/material'
 import { Twitter, Facebook, YouTube, Instagram } from '@mui/icons-material'
 
-export const SocialMediaIcons: React.FC = (props) => {
+export const SocialMediaIcons: React.FC = () => {
   return (
     <Box
       role='grid'

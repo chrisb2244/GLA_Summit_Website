@@ -12,5 +12,7 @@ ENV NODE_ENV=development
 RUN npm install
 ENV PATH /usr/app/node_modules/.bin:$PATH
 
-COPY --chown=node:node .env.local ./
+COPY --chown=node:node prisma ./
+
+COPY --chown=node:node .env.local .env ./
 CMD ["npm", "run", "dev"]

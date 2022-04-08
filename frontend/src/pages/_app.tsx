@@ -7,9 +7,11 @@ import { theme } from '../theme'
 import createEmotionCache from '../createEmotionCache'
 import { AppFrame } from '../Components/Frame/AppFrame'
 import reportWebVitals from '../reportWebVitals'
-import { SessionProvider } from 'next-auth/react'
+import { AuthProvider } from '@/lib/sessionContext'
+
 import '../spinningLogo.css'
 import '../GLA-generic.css'
+
 
 // declare module '@mui/styles/defaultTheme' {
 //   // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -23,11 +25,11 @@ interface MyAppProps extends AppProps {
   emotionCache?: EmotionCache
 }
 
-export default function MyApp (props: MyAppProps): JSX.Element {
+export default function MyApp(props: MyAppProps): JSX.Element {
   const {
     Component,
     emotionCache = clientSideEmotionCache,
-    pageProps: { session, ...pageProps }
+    pageProps: { ...pageProps }
   } = props
 
   return (
@@ -40,11 +42,11 @@ export default function MyApp (props: MyAppProps): JSX.Element {
         <ThemeProvider theme={theme}>
           {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
           <CssBaseline />
-          <SessionProvider session={session}>
-            <AppFrame>
+          <AuthProvider>
+            <AppFrame >
               <Component {...pageProps} />
             </AppFrame>
-          </SessionProvider>
+          </AuthProvider>
         </ThemeProvider>
       </StyledEngineProvider>
     </CacheProvider>

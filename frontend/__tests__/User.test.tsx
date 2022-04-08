@@ -1,73 +1,93 @@
-import { render } from '@testing-library/react'
+import { render, waitFor, screen } from '@testing-library/react'
 import { User } from '@/Components/User/User'
 import { Header } from '@/Components/Header'
-import { useSession } from 'next-auth/react'
-import { Session } from 'next-auth'
+import type { Session } from '@supabase/supabase-js'
+import { getProfileInfo, ProfileModel } from '@/lib/supabaseClient'
+import { useSession } from '@/lib/sessionContext'
 
-jest.mock('next-auth/react', () => {
+jest.mock('@/lib/supabaseClient', () => {
   return {
     __esModule: true,
-    ...jest.requireActual('next-auth/react'),
-    useSession: jest.fn()
+    ...jest.requireActual('@/lib/supabaseClient'),
+    getProfileInfo: jest.fn(() => {
+      const pm: ProfileModel = {
+        firstname: '',
+        lastname: '',
+        id: '',
+        avatar_url: null,
+        website: null
+      }
+      return Promise.resolve(pm)
+    })
   }
 })
-
-type useSessionFn = jest.MockedFunction<typeof useSession>
+jest.mock('@/lib/sessionContext')
 
 describe('User', () => {
   it('is included in the menu', () => {
-    ;(useSession as useSessionFn).mockImplementation(() => {
-      return { data: null, status: 'unauthenticated' }
-    })
-
     const header = render(<Header />).container
     const user = render(<User />).container.innerHTML
     expect(header).toContainHTML(user)
   })
 
   it('provides a link to sign in if not signed in', () => {
-    ;(useSession as useSessionFn).mockImplementation(() => {
-      return { data: null, status: 'unauthenticated' }
-    })
-
-    const user = render(<User />)
-    expect(user.getByRole('button', {name: 'Sign In'})).toBeVisible()
-    expect(user.getByRole('button', {name: 'Register'})).toBeVisible()
+    render(<User />)
+    expect(screen.getByRole('button', { name: /Sign In/i })).toBeVisible()
+    expect(screen.getByRole('button', { name: /Register/i })).toBeVisible()
   })
 
-  it('shows email if no name available', () => {
-    ;(useSession as useSessionFn).mockImplementation(() => {
-      return {
-        data: {
-          expires: '1',
-          user: {
-            email: 'test@user.com'
-          }
-        },
-        status: 'authenticated'
-      }
+  it('shows email if no name available', async () => {
+    const dummySession: Session = {
+      user: {
+        email: 'test@user.com',
+        id: 'test@user.com',
+        aud: 'authenticated',
+        app_metadata: {},
+        user_metadata: {},
+        created_at: ''
+      },
+      access_token: '',
+      token_type: 'bearer'
+    }
+    ;(useSession as jest.MockedFunction<typeof useSession>).mockReturnValue(
+      dummySession
+    )
+    render(<User />)
+    await waitFor(() => {
+      expect(screen.getByText('test@user.com')).toBeVisible()
     })
-  
-    const user = render(<User />)
-    expect(user.container).toHaveTextContent('test@user.com')
   })
 
-  it('shows name rather than email if both are available', () => {
-    ;(useSession as useSessionFn).mockImplementation(() => {
-      return {
-        data: {
-          expires: '1',
-          user: {
-            name: 'Test User',
-            email: 'test@user.com'
-          }
-        },
-        status: 'authenticated'
-      }
+  it('shows name rather than email if both are available', async () => {
+    const pm: ProfileModel = {
+      firstname: 'Test',
+      lastname: 'User',
+      id: '',
+      avatar_url: null,
+      website: null
+    }
+    ;(
+      getProfileInfo as jest.MockedFunction<typeof getProfileInfo>
+    ).mockResolvedValue(pm)
+    const dummySession: Session = {
+      user: {
+        email: 'test@user.com',
+        id: 'test@user.com',
+        aud: 'authenticated',
+        app_metadata: {},
+        user_metadata: {},
+        created_at: ''
+      },
+      access_token: '',
+      token_type: 'bearer'
+    }
+    ;(useSession as jest.MockedFunction<typeof useSession>).mockReturnValue(
+      dummySession
+    )
+
+    render(<User />)
+    await waitFor(() => {
+      expect(screen.getByText('Test User')).toBeVisible()
     })
-    const user = render(<User />)
-    expect(user.container).toHaveTextContent('Test User')
   })
-
-
 })

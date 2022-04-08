@@ -1,7 +1,7 @@
 import { withFormik } from 'formik'
 import { SubmitPresentationForm } from '../Components/Form/SubmitPresentationForm'
 
-const PresentationSubmissionForm = () => {
+const PresentationSubmissionForm = (): JSX.Element => {
   const Obj = withFormik({
     mapPropsToValues: () => ({ name: '' }),
 
@@ -10,7 +10,6 @@ const PresentationSubmissionForm = () => {
       alert(JSON.stringify(values, null, 2))
       // actions.resetForm();
     }
-
   })(SubmitPresentationForm)
 
   return <Obj />

@@ -17,7 +17,7 @@ export const MenuBar: React.FC<{ narrowWidth?: boolean }> = (props) => {
       ].map(({ title, link }) => {
         return (
           <Button sx={{ color: 'white' }} key={title}>
-            <Link href={link}>
+            <Link href={link} passHref>
               <Typography variant='button' role='menuitem'>
                 {title}
               </Typography>

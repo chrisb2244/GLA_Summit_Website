@@ -21,14 +21,24 @@
     "jsx": "preserve",
     "baseUrl": ".",
     "paths": {
-      "@/Components/*": ["src/Components/*"],
-      "@/pages/*": ["src/pages/*"]
-    }
+      "@/Components/*": [
+        "src/Components/*"
+      ],
+      "@/pages/*": [
+        "src/pages/*"
+      ],
+      "@/lib/*": [
+        "src/lib/*"
+      ]
+    },
+    "incremental": true
   },
   "include": [
-    "src"
-, "__tests__"  ],
+    "src",
+    "__tests__"
+  ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "src/tsconfig.json"
   ]
 }

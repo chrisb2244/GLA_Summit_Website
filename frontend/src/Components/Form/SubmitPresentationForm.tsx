@@ -3,10 +3,10 @@ import { Button, Grid } from '@mui/material'
 import { TextFieldWrapper as TextField } from './TextFieldWrapper'
 import { PersonValues, Person } from './Person'
 import { PersonArray } from './PersonArray'
-import RemoveIcon from '@mui/icons-material/PersonRemove';
+import RemoveIcon from '@mui/icons-material/PersonRemove'
 // import './SubmitPresentationForm.css'
 
-interface PresentationFormValues {
+type PresentationFormValues = {
   firstPresenter: PersonValues
   presentationTitle: string
   abstract: string
@@ -17,7 +17,11 @@ interface PresentationFormValues {
   }>
 }
 
-export const requireArg = (value: string, minLength?: number, maxLength?: number): string | undefined => {
+export const requireArg = (
+  value: string,
+  minLength?: number,
+  maxLength?: number
+): string | undefined => {
   if (value.trim().length === 0) {
     return 'Required'
   }
@@ -31,13 +35,18 @@ export const requireArg = (value: string, minLength?: number, maxLength?: number
 }
 
 export const SubmitPresentationForm: React.FC = () => {
-  const validate = (values: PresentationFormValues): FormikErrors<PresentationFormValues> => {
+  const validate = (
+    values: PresentationFormValues
+  ): FormikErrors<PresentationFormValues> => {
     const errors: FormikErrors<PresentationFormValues> = {}
     errors.presentationTitle = requireArg(values.presentationTitle)
     errors.abstract = requireArg(values.abstract, 100, 5000)
     // Need to remove the keys for undefined elements to allow submission
     // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-    Object.keys(errors).forEach(key => (errors as any)[key] === undefined && delete (errors as any)[key])
+    Object.keys(errors).forEach(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (key) => (errors as any)[key] === undefined && delete (errors as any)[key]
+    )
     return errors
   }
 
@@ -64,10 +73,23 @@ export const SubmitPresentationForm: React.FC = () => {
     >
       {({ values, ...props }) => (
         <Form>
-          <Grid container spacing={1} className='gla-submitpresentationform-grid'>
-            <Person form={{...props, values}} field={props.getFieldProps<PersonValues>('firstPresenter')} meta={props.getFieldMeta('firstPresenter')}/>
-            <PersonArray form={{...props, values}} field={props.getFieldProps<Array<PersonValues>>('collaborators')} meta={props.getFieldMeta('collaborators')} deleteButtonTemplate={<RemoveIcon color='primary'/>}/>
-              {/* {({ insert, remove, push }) => {
+          <Grid
+            container
+            spacing={1}
+            className='gla-submitpresentationform-grid'
+          >
+            <Person
+              form={{ ...props, values }}
+              field={props.getFieldProps<PersonValues>('firstPresenter')}
+              meta={props.getFieldMeta('firstPresenter')}
+            />
+            <PersonArray
+              form={{ ...props, values }}
+              field={props.getFieldProps<PersonValues[]>('collaborators')}
+              meta={props.getFieldMeta('collaborators')}
+              deleteButtonTemplate={<RemoveIcon color='primary' />}
+            />
+            {/* {({ insert, remove, push }) => {
                 if (values.collaborators.length === 0) {
                   return (
                     <Grid container item justifyContent='flex-end'>
@@ -91,10 +113,7 @@ export const SubmitPresentationForm: React.FC = () => {
               }}
             </FieldArray> */}
             <Grid item xs={12}>
-              <TextField
-                name='presentationTitle'
-                label='Presentation Title'
-              />
+              <TextField name='presentationTitle' label='Presentation Title' />
             </Grid>
             <Grid item xs={12}>
               <TextField
@@ -113,7 +132,14 @@ export const SubmitPresentationForm: React.FC = () => {
               />
             </Grid>
             <Grid item xs={12}>
-              <Button type='submit' color='primary' variant='contained' fullWidth>Submit</Button>
+              <Button
+                type='submit'
+                color='primary'
+                variant='contained'
+                fullWidth
+              >
+                Submit
+              </Button>
             </Grid>
           </Grid>
         </Form>
