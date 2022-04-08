@@ -8,12 +8,28 @@ import { Box, Button, Container, Grid, TextField } from '@mui/material'
 export const UserProfile: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const [profileData, setProfileData] = useState<ProfileModel | null>(null)
+  const [storedProfileData, setStoredProfileData] =
+    useState<ProfileModel | null>(null)
   const session = useSession()
+  const [valuesChanged, setValuesChanged] = useState(false)
+  const areEqual = (a: ProfileModel | null, b: ProfileModel | null) => {
+    if (a === null || b === null) return false
+    const aKeys = Object.keys(a) as Array<keyof ProfileModel>
+    const bKeys = Object.keys(b) as Array<keyof ProfileModel>
+    return (
+      bKeys.every(function (i) {
+        return aKeys.indexOf(i) !== -1
+      }) &&
+      aKeys.every(function (i) {
+        return a[i] === b[i]
+      })
+    )
+  }
 
   const updateProfileField = (key: keyof ProfileModel, value: string) => {
     if (profileData == null) return
     const newProfileData = { ...profileData, [key]: value }
-    console.log(newProfileData)
+    setValuesChanged(!areEqual(newProfileData, storedProfileData))
     setProfileData(newProfileData)
   }
 
@@ -36,6 +52,7 @@ export const UserProfile: React.FC = () => {
     } catch (error) {
       alert((error as PostgrestError).message)
     } finally {
+      setStoredProfileData(profileData)
       setLoading(false)
     }
   }
@@ -54,6 +71,7 @@ export const UserProfile: React.FC = () => {
       .then((data) => {
         if (isMounted) {
           setProfileData(data)
+          setStoredProfileData(data)
         }
       })
       .catch((error) => {
@@ -103,7 +121,9 @@ export const UserProfile: React.FC = () => {
               />
             </Grid>
           </Grid>
-          <Button onClick={updateProfile}>Update Profile</Button>
+          <Button onClick={updateProfile} disabled={!valuesChanged}>
+            Update Profile
+          </Button>
         </Box>
       </Container>
     )

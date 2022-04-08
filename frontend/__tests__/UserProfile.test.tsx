@@ -3,6 +3,7 @@ import { UserProfile } from '@/Components/User/UserProfile'
 import { getProfileInfo, ProfileModel } from '@/lib/supabaseClient'
 import { useSession } from '@/lib/sessionContext'
 import type { Session } from '@supabase/supabase-js'
+import userEvent from '@testing-library/user-event'
 
 jest.mock('@/lib/supabaseClient', () => {
   return {
@@ -87,7 +88,53 @@ describe('UserProfile', () => {
 
     render(<UserProfile />)
     await waitFor(async () => {
-       expect(await screen.findByRole('textbox', { name: /first name/i })).toHaveValue('Test')
+      expect(
+        await screen.findByRole('textbox', { name: /first name/i })
+      ).toHaveValue('Test')
+    })
+  })
+
+  it('has a button to update the profile', async () => {
+    setMockImplementations('signed-in')
+    render(<UserProfile />)
+    expect(await screen.findByRole('button', { name: /update/i })).toBeVisible()
+  })
+
+  it('has a disabled button when no values changed', async () => {
+    setMockImplementations('signed-in')
+    render(<UserProfile />)
+    expect(
+      await screen.findByRole('button', { name: /update/i })
+    ).toBeDisabled()
+  })
+
+  it('has an enabled button when values have been changed', async () => {
+    setMockImplementations('signed-in')
+    render(<UserProfile />)
+    const firstNameInput = await screen.findByRole('textbox', {
+      name: /first name/i
+    })
+    userEvent.clear(firstNameInput)
+    userEvent.type(firstNameInput, 'different first name')
+    expect(await screen.findByRole('button', { name: /update/i })).toBeEnabled()
+  })
+
+  it('has a disabled button if reverted to saved values', async () => {
+    setMockImplementations('signed-in')
+    render(<UserProfile />)
+    const firstNameInput = await screen.findByRole('textbox', {
+      name: /first name/i
+    })
+
+    userEvent.clear(firstNameInput)
+    userEvent.type(firstNameInput, 'different first name')
+    userEvent.clear(firstNameInput)
+    userEvent.type(firstNameInput, 'Test')
+
+    await waitFor(async () => {
+      expect(
+        await screen.findByRole('button', { name: /update/i })
+      ).toBeDisabled()
     })
   })
 })
