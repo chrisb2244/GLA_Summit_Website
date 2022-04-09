@@ -1,5 +1,5 @@
 import { Organizer } from '../Components/Organizer'
-import { Grid } from '@mui/material'
+import { Stack } from '@mui/material'
 import { descriptions } from '../organizer-descriptions'
 import Image_OW from '@/media/OliWachno.jpg'
 import Image_TM from '@/media/TomMcQuillan.png'
@@ -11,7 +11,7 @@ import Image_MR from '@/media/MichalRadziwon.jpg'
 
 const OurTeam: React.FC = () => {
   return (
-    <Grid container>
+    <Stack spacing={2} marginBottom={2} maxWidth='lg'>
       <Organizer
         firstName='Oliver'
         lastName='Wachno'
@@ -59,7 +59,7 @@ const OurTeam: React.FC = () => {
         image={Image_MR}
         imageSide='left'
       />
-    </Grid>
+    </Stack>
   )
 }
 
