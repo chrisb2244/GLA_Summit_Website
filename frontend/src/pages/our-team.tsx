@@ -1,5 +1,7 @@
 import { Organizer } from '../Components/Organizer'
 import { Grid } from '@mui/material'
+import Image_TM from '@/media/TomMcQuillan.png'
+import Image_CS from '@/media/ChrisStryker.png'
 
 const OurTeam: React.FC = () => {
   return (
@@ -8,7 +10,7 @@ const OurTeam: React.FC = () => {
         firstName='Chris'
         lastName='Stryker'
         description={descriptionChrisStryker}
-        image='ChrisStryker.png'
+        image={Image_CS}
       />
       <Organizer
         firstName='Christian'
@@ -19,7 +21,7 @@ const OurTeam: React.FC = () => {
         firstName='Tom'
         lastName='McQuillan'
         description={descriptionTomMcQuillan}
-        image='TomMcQuillan.png'
+        image={Image_TM}
         imageSide='left'
       />
     </Grid>

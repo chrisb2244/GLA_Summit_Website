@@ -1,13 +1,12 @@
 import { ReactElement } from 'react'
 import { Grid, Typography } from '@mui/material'
-import Image from 'next/image'
-// import '../GLA-generic.css'
+import Image, { StaticImageData } from 'next/image'
 
 export interface OrganizerProps {
   firstName: string
   lastName: string
   description: string | ReactElement
-  image?: string
+  image?: StaticImageData
   imageSide?: 'left' | 'right'
 }
 
@@ -21,12 +20,10 @@ export const Organizer: React.FC<OrganizerProps> = (props) => {
 
   let imageElem = null
   if (typeof props.image !== 'undefined') {
-    const path = `/media/${props.image}`
     const image = (
       <Image
-        src={path}
-        alt={`${props.lastName} ${props.firstName}`}
-        style={{ width: '90%' }}
+        src={props.image}
+        alt={`Image of ${props.firstName} ${props.lastName}`}
       />
     )
     imageElem = (
