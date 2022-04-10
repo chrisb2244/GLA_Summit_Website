@@ -43,7 +43,8 @@ const dummyProfile: ProfileModel = {
   lastname: 'User',
   id: 'mytestid',
   avatar_url: null,
-  website: null
+  website: null,
+  bio: null
 }
 
 const setMockImplementations = (
@@ -91,6 +92,17 @@ describe('UserProfile', () => {
       expect(
         await screen.findByRole('textbox', { name: /first name/i })
       ).toHaveValue('Test')
+    })
+  })
+
+  it('contains a prefilled lastname input', async () => {
+    setMockImplementations('signed-in')
+
+    render(<UserProfile />)
+    await waitFor(async () => {
+      expect(
+        await screen.findByRole('textbox', { name: /last name/i })
+      ).toHaveValue('User')
     })
   })
 

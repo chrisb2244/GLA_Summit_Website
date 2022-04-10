@@ -9,6 +9,7 @@ export type ProfileModel = {
   id: string
   firstname: string
   lastname: string
+  bio: string | null
   website: string | null
   avatar_url: string | null
 }
@@ -21,7 +22,7 @@ export const getProfileInfo = async () => {
 
   const { data, error } = await supabase
     .from<ProfileModel>('profiles')
-    .select('firstname, lastname, website, avatar_url')
+    .select('firstname, lastname, bio, website, avatar_url')
     .eq('id', user.id)
     .single()
 
