@@ -43,7 +43,8 @@ const dummyProfile: ProfileModel = {
   lastname: 'User',
   id: 'mytestid',
   avatar_url: null,
-  website: null
+  website: null,
+  bio: null
 }
 
 const setMockImplementations = (

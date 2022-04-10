@@ -129,12 +129,21 @@ export const UserProfile: React.FC = () => {
               disabled
             />
           </Box>
-          <Grid container p={2}>
+          <Grid container p={2} spacing={2}>
             <Grid item xs={6}>
               <TextField label='First Name' {...inputProps('firstname')} />
             </Grid>
             <Grid item xs={6}>
               <TextField label='Last Name' {...inputProps('lastname')} />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                multiline
+                minRows={5}
+                label='Biography'
+                {...inputProps('bio')}
+                placeholder={`${profileData.firstname} ${profileData.lastname} is an awesome LabVIEW developer who hasn't yet filled out a bio...`}
+              />
             </Grid>
           </Grid>
           <Button
