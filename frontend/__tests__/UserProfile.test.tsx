@@ -94,6 +94,17 @@ describe('UserProfile', () => {
     })
   })
 
+  it('contains a prefilled lastname input', async () => {
+    setMockImplementations('signed-in')
+
+    render(<UserProfile />)
+    await waitFor(async () => {
+      expect(
+        await screen.findByRole('textbox', { name: /last name/i })
+      ).toHaveValue('User')
+    })
+  })
+
   it('has a button to update the profile', async () => {
     setMockImplementations('signed-in')
     render(<UserProfile />)
