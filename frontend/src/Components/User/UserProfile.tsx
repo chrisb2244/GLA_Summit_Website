@@ -2,6 +2,7 @@ import { getProfileInfo, supabase } from '@/lib/supabaseClient'
 import type { ProfileModel } from '@/lib/supabaseClient'
 import type { PostgrestError } from '@supabase/supabase-js'
 import { useEffect, useReducer, useRef, useState } from 'react'
+import type { ChangeEvent } from 'react'
 import { useSession } from '@/lib/sessionContext'
 import { Box, Button, Container, Grid, TextField } from '@mui/material'
 
@@ -99,6 +100,18 @@ export const UserProfile: React.FC = () => {
     setLoading(false)
   }, [session])
 
+  const onChangeFn =
+    (key: ProfileKey) => (ev: ChangeEvent<HTMLInputElement>) => {
+      setProfileField({ key, value: ev.currentTarget.value })
+    }
+  const inputProps = (key: ProfileKey) => {
+    return {
+      value: profileData?.[key] ?? '',
+      onChange: onChangeFn(key),
+      fullWidth: true
+    }
+  }
+
   if (session == null || session.user == null) {
     return <p>You are not signed in</p>
   } else {
@@ -118,26 +131,10 @@ export const UserProfile: React.FC = () => {
           </Box>
           <Grid container p={2}>
             <Grid item xs={6}>
-              <TextField
-                fullWidth
-                label='First Name'
-                name='First Name'
-                id='firstname'
-                value={profileData.firstname ?? ''}
-                onChange={(ev) =>
-                  setProfileField({key: 'firstname', value: ev.currentTarget.value})
-                }
-              />
+              <TextField label='First Name' {...inputProps('firstname')} />
             </Grid>
             <Grid item xs={6}>
-              <TextField
-                fullWidth
-                label='Last Name'
-                value={profileData.lastname ?? ''}
-                onChange={(ev) =>
-                  setProfileField({key: 'lastname', value: ev.currentTarget.value})
-                }
-              />
+              <TextField label='Last Name' {...inputProps('lastname')} />
             </Grid>
           </Grid>
           <Button
