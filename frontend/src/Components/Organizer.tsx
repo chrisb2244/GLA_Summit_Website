@@ -1,13 +1,12 @@
 import { ReactElement } from 'react'
-import { Grid, Typography } from '@mui/material'
-import Image from 'next/image'
-// import '../GLA-generic.css'
+import { Typography, Paper, Box, Stack } from '@mui/material'
+import Image, { StaticImageData } from 'next/image'
 
 export interface OrganizerProps {
   firstName: string
   lastName: string
   description: string | ReactElement
-  image?: string
+  image?: StaticImageData
   imageSide?: 'left' | 'right'
 }
 
@@ -19,35 +18,18 @@ export const Organizer: React.FC<OrganizerProps> = (props) => {
         : 'row-reverse'
       : 'row'
 
-  let imageElem = null
-  if (typeof props.image !== 'undefined') {
-    const path = `/media/${props.image}`
-    const image = (
+  const imageElem =
+    typeof props.image !== 'undefined' ? (
       <Image
-        src={path}
-        alt={`${props.lastName} ${props.firstName}`}
-        style={{ width: '90%' }}
+        src={props.image}
+        alt={`Image of ${props.firstName} ${props.lastName}`}
       />
-    )
-    imageElem = (
-      <Grid item xs={12} md={4}>
-        {image}
-      </Grid>
-    )
-  }
+    ) : null
 
-  const hasImage = typeof props.image !== 'undefined'
   return (
-    <div style={{ padding: '0 60px' }}>
-      <Grid
-        container
-        key={props.lastName + '.' + props.firstName}
-        className='gla-organizer-entry'
-        spacing={3}
-        direction={direction}
-        alignItems='center'
-      >
-        <Grid item xs={12} md={hasImage ? 8 : 12}>
+    <Paper>
+      <Stack direction={direction} justifyContent='space-around'>
+        <Box width='60%' padding={2} alignItems='center'>
           <Typography variant='h4' className='gla-organizer-name'>
             {props.firstName} {props.lastName}
           </Typography>
@@ -59,9 +41,11 @@ export const Organizer: React.FC<OrganizerProps> = (props) => {
           >
             {props.description}
           </Typography>
-        </Grid>
-        {imageElem}
-      </Grid>
-    </div>
+        </Box>
+        <Box width='30%' padding={2}>
+          {imageElem}
+        </Box>
+      </Stack>
+    </Paper>
   )
 }
