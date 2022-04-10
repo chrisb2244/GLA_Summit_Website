@@ -3,7 +3,7 @@ import { Stack } from '@mui/material'
 import { descriptions } from '../organizer-descriptions'
 import Image_OW from '@/media/OliWachno.jpg'
 import Image_TM from '@/media/TomMcQuillan.png'
-// import Image_CB from '@/media/ChristianButcher.png'
+import Image_CB from '@/media/ChristianButcher.jpg'
 import Image_SS from '@/media/SreejithSreenivasan.jpg'
 import Image_ST from '@/media/SamTaggart.jpg'
 import Image_WR from '@/media/WilliamRichards.jpg'
@@ -23,8 +23,7 @@ const OurTeam: React.FC = () => {
         firstName='Christian'
         lastName='Butcher'
         description={descriptions.ChristianButcher}
-        // image={Image_CB}
-        image={Image_TM}
+        image={Image_CB}
       />
       <Organizer
         firstName='Tom'
