@@ -31,8 +31,8 @@ export const getProfileInfo = async () => {
   }
 
   if (data) {
-    console.log('Found data')
     return Promise.resolve(data)
   }
   return null
 }
+

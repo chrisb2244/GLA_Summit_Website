@@ -10,8 +10,7 @@ import {
 import type { TypographyProps } from '@mui/material'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { useState } from 'react'
-
-import { supabase } from '../../lib/supabaseClient'
+import { useSession } from '@/lib/sessionContext'
 
 type SignInProps = {
   open: boolean
@@ -39,64 +38,48 @@ const SmallCenteredText: React.FC<TypographyProps> = ({
   )
 }
 
-const PopupOnSignin: React.FC<{
-  open: boolean
-  setClosed: () => void
-}> = (props) => {
-  return (
-    <Dialog open={props.open} onClose={props.setClosed}>
-      <Container maxWidth='md' sx={{ p: 2 }}>
-        {props.children}
-      </Container>
-    </Dialog>
-  )
-}
-
 export const UserSignIn: React.FC<SignInProps> = (props) => {
   const [feedbackPopup, setFeedbackPopup] = useState<
     'valid' | 'invalid' | null
   >(null)
   const [attemptedEmail, setAttemptedEmail] = useState<string | null>(null)
 
+  const { signIn } = useSession()
+
   const { register, handleSubmit } = useForm<SignInFormValues>()
   const onSubmit: SubmitHandler<SignInFormValues> = async ({ email }) => {
-    await supabase.auth.signIn({email}, {shouldCreateUser: false})
-    .then((response) => {
-      if (typeof response !== 'undefined') {
-        // const { error, status, ok, url } = response
-        // console.log(error, status, ok, url)
+    signIn(email, { redirectTo: 'http://localhost:3000' }).then(
+      ({ session, user, error }) => {
         props.setClosed()
         setAttemptedEmail(email)
-        // if (error === 'AccessDenied') {
-        if (response.error) {
+        if (error) {
+          console.log(error)
           setFeedbackPopup('invalid')
         } else {
+          console.log({ session, user })
           setFeedbackPopup('valid')
         }
-      } else {
-        // No connection to DB might get here
-        console.log('Undefined response, some problem with auth...')
       }
-    })
+    )
   }
 
-  const invalidEmailContent = (email: string) => (
-    <Typography>
-      The email you gave,{' '}
+  const BoldEmail = (props: { email: string | null }) => {
+    return (
       <Box component='span' fontWeight={500}>
-        {email}
+        {props.email}
       </Box>
-      , was not found.
+    )
+  }
+  const invalidEmailContent = (
+    <Typography>
+      The email you gave, <BoldEmail email={attemptedEmail} />, was not found.
     </Typography>
   )
 
-  const validEmailContent = (email: string) => (
+  const validEmailContent = (
     <Typography>
-      An email has been sent to{' '}
-      <Box component='span' fontWeight={500}>
-        {email}
-      </Box>
-      . Please use the link in that email to sign in.
+      An email has been sent to <BoldEmail email={attemptedEmail} />. Please use
+      the link in that email to sign in.
     </Typography>
   )
 
@@ -143,16 +126,21 @@ export const UserSignIn: React.FC<SignInProps> = (props) => {
           </Container>
         </form>
       </Dialog>
-      <PopupOnSignin
+
+      {feedbackPopup !== null && <Dialog
         open={feedbackPopup !== null}
-        setClosed={() => {
+        onClose={() => {
           setFeedbackPopup(null)
         }}
       >
-        {feedbackPopup === 'valid'
-          ? validEmailContent(attemptedEmail!)
-          : invalidEmailContent(attemptedEmail!)}
-      </PopupOnSignin>
+        <Container maxWidth='md' sx={{ p: 2 }}>
+          {feedbackPopup === 'valid'
+            ? validEmailContent
+            : feedbackPopup === 'invalid'
+            ? invalidEmailContent
+            : null}
+        </Container>
+      </Dialog>}
     </>
   )
 }

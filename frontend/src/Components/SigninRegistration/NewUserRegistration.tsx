@@ -109,7 +109,7 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = (props) => {
     await supabase.auth
       .signUp(
         { email: data.Email, password: randomBytes(32).toString('hex') },
-        { data: newUserData }
+        { data: newUserData, redirectTo: 'http://localhost:3000' }
       )
       .then(({ user, session, error }) => {
         console.log({ user, session, error })

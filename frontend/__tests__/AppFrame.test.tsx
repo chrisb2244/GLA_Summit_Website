@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { AppFrame } from '@/Components/Frame/AppFrame'
+import { useSession } from '@/lib/sessionContext'
 
 const longIpsum = (
   <p data-testid='test-paragraph'>
@@ -69,6 +70,17 @@ const longIpsum = (
     omnis nihil asperiores. Ratione, ea aperiam?
   </p>
 )
+
+jest.mock('@/lib/sessionContext')
+const mockedSession = useSession as jest.MockedFunction<typeof useSession>
+mockedSession.mockReturnValue({
+  isOrganizer: false,
+  signIn: jest.fn(),
+  signUp: jest.fn(),
+  signOut: jest.fn(),
+  profile: null,
+  session: null
+})
 
 describe('AppFrame', () => {
   it('restricts child content to centred, not-full-width', () => {
