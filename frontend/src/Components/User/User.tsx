@@ -9,7 +9,7 @@ export const User: React.FC = () => {
   const [regDialogOpen, setRegistrationOpen] = useState(false)
   const [signInDialogOpen, setSignInOpen] = useState(false)
 
-  const session = useSession()
+  const { session } = useSession()
   let button
   if (session != null) {
     button = <UserMenu user={session.user} />

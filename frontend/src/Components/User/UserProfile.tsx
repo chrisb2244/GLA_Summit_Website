@@ -1,4 +1,4 @@
-import { getProfileInfo, supabase } from '@/lib/supabaseClient'
+import { supabase } from '@/lib/supabaseClient'
 import type { ProfileModel } from '@/lib/supabaseClient'
 import type { PostgrestError } from '@supabase/supabase-js'
 import { useEffect, useReducer, useRef, useState } from 'react'
@@ -24,12 +24,11 @@ const areEqual = (a: ProfileData, b: ProfileData) => {
 }
 
 export const UserProfile: React.FC = () => {
-  const [loading, setLoading] = useState(false)
   const [storedProfileData, setStoredProfileData] =
     useState<ProfileModel | null>(null)
   const [valuesChanged, setValuesChanged] = useState(false)
 
-  const session = useSession()
+  const { session } = useSession()
 
   const updateProfileField = (
     profile: ProfileData,
@@ -57,13 +56,10 @@ export const UserProfile: React.FC = () => {
     if (session == null) return
     try {
       if (profileData == null) return
-      setLoading(true)
 
       const { error } = await supabase.from<ProfileModel>('profiles').upsert(
         { ...profileData, id: session.user?.id },
-        {
-          returning: 'minimal' // Don't return the value after inserting
-        }
+        { returning: 'minimal' } // Don't return the value after inserting
       )
 
       if (error) {
@@ -73,7 +69,6 @@ export const UserProfile: React.FC = () => {
       alert((error as PostgrestError).message)
     } finally {
       setStoredProfileData(profileData)
-      setLoading(false)
     }
   }
 
@@ -85,20 +80,12 @@ export const UserProfile: React.FC = () => {
     }
   }, [])
 
+  const { profile } = useSession()
+
   useEffect(() => {
-    setLoading(true)
-    getProfileInfo()
-      .then((data) => {
-        if (isMounted) {
-          setProfileField({ type: 'init', value: data })
-          setStoredProfileData(data)
-        }
-      })
-      .catch((error) => {
-        console.log(error as PostgrestError)
-      })
-    setLoading(false)
-  }, [session])
+    setProfileField({ type: 'init', value: profile })
+    setStoredProfileData(profile)
+  }, [profile])
 
   const onChangeFn =
     (key: ProfileKey) => (ev: ChangeEvent<HTMLInputElement>) => {

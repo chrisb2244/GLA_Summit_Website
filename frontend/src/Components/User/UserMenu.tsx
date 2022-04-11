@@ -7,10 +7,10 @@ import {
   ListItemIcon
 } from '@mui/material'
 import { Logout as LogoutIcon } from '@mui/icons-material'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
-import { supabase, getProfileInfo, ProfileModel } from '@/lib/supabaseClient'
 import type { Session } from '@supabase/supabase-js'
+import { useSession } from '@/lib/sessionContext'
 
 type UserMenuProps = {
   user: Session['user']
@@ -24,10 +24,15 @@ export const UserMenu: React.FC<UserMenuProps> = (props) => {
     setAnchorEl(ev.currentTarget)
   }
   const handleClose = (): void => setAnchorEl(null)
-  const [profileData, setProfileData] = useState<ProfileModel | null>(null)
-  useEffect(() => {
-    getProfileInfo().then(data => setProfileData(data))
-  }, [props.user])
+
+  const { isOrganizer, signOut, session, profile: profileData } = useSession()
+
+  // Don't think this is necessary anymore...
+  // useEffect(() => {
+  //   // setProfileData(profile)
+  // }, [session])
+
+  // console.log(`organizer: ${isOrganizer}`)
 
   const userAvatar = (
     <Avatar
@@ -97,9 +102,14 @@ export const UserMenu: React.FC<UserMenuProps> = (props) => {
             </>
           </MenuItem>
         </Link>
+        {isOrganizer && (
+          <Link href='' passHref>
+            <MenuItem>Yay, I&apos;m an organizer...</MenuItem>
+          </Link>
+        )}
         <MenuItem
           onClick={() => {
-            void supabase.auth.signOut()
+            void signOut()
           }}
         >
           <ListItemIcon>

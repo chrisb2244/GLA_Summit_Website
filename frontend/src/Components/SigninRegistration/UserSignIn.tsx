@@ -10,8 +10,7 @@ import {
 import type { TypographyProps } from '@mui/material'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { useState } from 'react'
-
-import { supabase } from '../../lib/supabaseClient'
+import { useSession } from '@/lib/sessionContext'
 
 type SignInProps = {
   open: boolean
@@ -58,24 +57,19 @@ export const UserSignIn: React.FC<SignInProps> = (props) => {
   >(null)
   const [attemptedEmail, setAttemptedEmail] = useState<string | null>(null)
 
+  const { signIn } = useSession()
+
   const { register, handleSubmit } = useForm<SignInFormValues>()
   const onSubmit: SubmitHandler<SignInFormValues> = async ({ email }) => {
-    await supabase.auth.signIn({email}, {shouldCreateUser: false})
-    .then((response) => {
-      if (typeof response !== 'undefined') {
-        // const { error, status, ok, url } = response
-        // console.log(error, status, ok, url)
-        props.setClosed()
-        setAttemptedEmail(email)
-        // if (error === 'AccessDenied') {
-        if (response.error) {
-          setFeedbackPopup('invalid')
-        } else {
-          setFeedbackPopup('valid')
-        }
+    signIn(email, {redirectTo: 'http://localhost:3000'}).then(({session, user, error}) => {
+      props.setClosed()
+      setAttemptedEmail(email)
+      if (error) {
+        console.log(error)
+        setFeedbackPopup('invalid')
       } else {
-        // No connection to DB might get here
-        console.log('Undefined response, some problem with auth...')
+        console.log({session, user})
+        setFeedbackPopup('valid')
       }
     })
   }
