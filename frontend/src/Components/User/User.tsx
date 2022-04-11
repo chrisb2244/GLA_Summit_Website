@@ -6,8 +6,7 @@ import { UserSignIn } from '@/Components/SigninRegistration/UserSignIn'
 import { useSession } from '@/lib/sessionContext'
 
 export const User: React.FC = () => {
-  const [regDialogOpen, setRegistrationOpen] = useState(false)
-  const [signInDialogOpen, setSignInOpen] = useState(false)
+  const [dialogOpen, setOpenDialog] = useState<'none' | 'registration' | 'signin'>('none')
 
   const { session } = useSession()
   let button
@@ -17,29 +16,27 @@ export const User: React.FC = () => {
     button = (
       <>
         <Button
-          onClick={() => setSignInOpen(true)}
+          onClick={() => setOpenDialog('signin')}
           color='warning'
         >
           Sign In / Register
         </Button>
         <NewUserRegistration
-          open={regDialogOpen}
+          open={dialogOpen === 'registration'}
           setClosed={() => {
-            setRegistrationOpen(false)
+            setOpenDialog('none')
           }}
           switchToSignIn={() => {
-            setRegistrationOpen(false)
-            setSignInOpen(true)
+            setOpenDialog('signin')
           }}
         />
         <UserSignIn
-          open={signInDialogOpen}
+          open={dialogOpen === 'signin'}
           setClosed={() => {
-            setSignInOpen(false)
+            setOpenDialog('none')
           }}
           switchToRegistration={() => {
-            setSignInOpen(false)
-            setRegistrationOpen(true)
+            setOpenDialog('registration')
           }}
         />
       </>
