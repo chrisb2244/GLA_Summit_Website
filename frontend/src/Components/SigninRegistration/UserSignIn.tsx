@@ -48,15 +48,14 @@ export const UserSignIn: React.FC<SignInProps> = (props) => {
 
   const { register, handleSubmit } = useForm<SignInFormValues>()
   const onSubmit: SubmitHandler<SignInFormValues> = async ({ email }) => {
-    signIn(email, { redirectTo: 'http://localhost:3000' }).then(
-      ({ session, user, error }) => {
+    signIn(email).then(
+      ({ error }) => {
         props.setClosed()
         setAttemptedEmail(email)
         if (error) {
           console.log(error)
           setFeedbackPopup('invalid')
         } else {
-          console.log({ session, user })
           setFeedbackPopup('valid')
         }
       }

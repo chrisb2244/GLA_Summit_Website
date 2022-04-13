@@ -102,12 +102,14 @@ export const AuthProvider: React.FC = (props) => {
       }
       console.log(error)
     }
-
   }
 
   const signIn = async (email: string, options?: SignInOptions) => {
+    const url = new URL(window.location.href)
+    const redirectTo = url.origin + '/'
+
     return await supabase.auth
-      .signIn({ email }, { shouldCreateUser: false, ...options })
+      .signIn({ email }, { shouldCreateUser: false, redirectTo, ...options })
       .then(({ session, error, user }) => {
         // if (error === 'AccessDenied') {
         if (error) {
