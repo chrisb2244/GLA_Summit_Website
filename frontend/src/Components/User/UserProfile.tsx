@@ -29,7 +29,7 @@ export const UserProfile: React.FC = () => {
     useState<ProfileModel | null>(null)
   const [valuesChanged, setValuesChanged] = useState(false)
 
-  const { session } = useSession()
+  const { session, profile } = useSession()
 
   const updateProfileField = (
     profile: ProfileData,
@@ -79,8 +79,6 @@ export const UserProfile: React.FC = () => {
       isMounted.current = false
     }
   }, [])
-
-  const { profile } = useSession()
 
   useEffect(() => {
     setProfileField({ type: 'init', value: profile })
@@ -154,7 +152,10 @@ export const UserProfile: React.FC = () => {
               if (box) setImageSize(box.clientWidth)
             }}
           >
-            <UserProfileImage avatarUrl={profileData.avatar_url} />
+            <UserProfileImage
+              userId={session.user.id}
+              size={imageSize}
+            />
           </Box>
         </Stack>
       </Container>

@@ -71,7 +71,7 @@ export const AuthProvider: React.FC = (props) => {
 
     const { data, error } = await supabase
       .from<ProfileModel>('profiles')
-      .select('firstname, lastname, bio, website, avatar_url')
+      .select('id, firstname, lastname, bio, website, avatar_url')
       .eq('id', user.id)
       .single()
 

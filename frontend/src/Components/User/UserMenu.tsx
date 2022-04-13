@@ -11,6 +11,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import type { Session } from '@supabase/supabase-js'
 import { useSession } from '@/lib/sessionContext'
+import { useProfileImage } from '@/lib/profileImage'
 
 type UserMenuProps = {
   user: Session['user']
@@ -25,22 +26,17 @@ export const UserMenu: React.FC<UserMenuProps> = (props) => {
   }
   const handleClose = (): void => setAnchorEl(null)
 
-  const { isOrganizer, signOut, session, profile: profileData } = useSession()
-
-  // Don't think this is necessary anymore...
-  // useEffect(() => {
-  //   // setProfileData(profile)
-  // }, [session])
-
-  // console.log(`organizer: ${isOrganizer}`)
+  const { isOrganizer, signOut, profile } = useSession()
+  const userId = profile ? profile.id : null
+  const avatarSrc = useProfileImage(userId)?.src
 
   const userAvatar = (
     <Avatar
       sx={{ width: 48, height: 48 }}
-      src={profileData?.avatar_url ?? undefined}
+      src={avatarSrc}
     >
-      {profileData
-        ? profileData.firstname + ' ' + profileData.lastname
+      {profile
+        ? profile.firstname + ' ' + profile.lastname
         : props.user?.email}
     </Avatar>
   )
