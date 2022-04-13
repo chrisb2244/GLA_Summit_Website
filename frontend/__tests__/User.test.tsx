@@ -5,6 +5,8 @@ import type { Session } from '@supabase/supabase-js'
 import type { ProfileModel } from '@/lib/sessionContext'
 import { useSession } from '@/lib/sessionContext'
 
+jest.mock('@/lib/profileImage')
+
 const dummySession: Session = {
   user: {
     email: 'test@user.com',
