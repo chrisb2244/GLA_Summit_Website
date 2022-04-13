@@ -99,6 +99,8 @@ export const UserProfile: React.FC = () => {
     }
   }
 
+  const [imageSize, setImageSize] = useState(150)
+
   if (session == null || session.user == null) {
     return <p>You are not signed in</p>
   } else {
@@ -145,7 +147,13 @@ export const UserProfile: React.FC = () => {
               Update Profile
             </Button>
           </Box>
-          <Box width='20%' alignSelf='center'>
+          <Box
+            width='20%'
+            alignSelf='center'
+            ref={(box: HTMLDivElement | null) => {
+              if (box) setImageSize(box.clientWidth)
+            }}
+          >
             <UserProfileImage avatarUrl={profileData.avatar_url} />
           </Box>
         </Stack>
