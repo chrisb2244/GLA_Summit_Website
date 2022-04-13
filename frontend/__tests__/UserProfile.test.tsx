@@ -1,22 +1,10 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import { UserProfile } from '@/Components/User/UserProfile'
-import { ProfileModel } from '@/lib/supabaseClient'
 import { useSession } from '@/lib/sessionContext'
+import type { ProfileModel } from '@/lib/sessionContext'
 import userEvent from '@testing-library/user-event'
 
-jest.mock('@/lib/supabaseClient', () => {
-  return {
-    __esModule: true,
-    ...jest.requireActual('@/lib/supabaseClient'),
-    getProfileInfo: jest.fn(),
-    supabase: {
-      auth: {
-        session: jest.fn()
-      }
-    }
-  }
-})
-
+jest.mock('@/lib/profileImage')
 jest.mock('@/lib/sessionContext')
 
 // type GetProfileFnType = jest.MockedFunction<typeof getProfileInfo>

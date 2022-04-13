@@ -1,10 +1,11 @@
 import { supabase } from '@/lib/supabaseClient'
-import type { ProfileModel } from '@/lib/supabaseClient'
+import type { ProfileModel } from '@/lib/sessionContext'
 import type { PostgrestError } from '@supabase/supabase-js'
 import { useEffect, useReducer, useRef, useState } from 'react'
 import type { ChangeEvent } from 'react'
 import { useSession } from '@/lib/sessionContext'
-import { Box, Button, Container, Grid, TextField } from '@mui/material'
+import { Box, Button, Container, Grid, Stack, TextField } from '@mui/material'
+import { UserProfileImage } from './UserProfileImage'
 
 type ProfileData = ProfileModel | null
 type ProfileKey = keyof ProfileModel
@@ -28,7 +29,7 @@ export const UserProfile: React.FC = () => {
     useState<ProfileModel | null>(null)
   const [valuesChanged, setValuesChanged] = useState(false)
 
-  const { session } = useSession()
+  const { session, profile } = useSession()
 
   const updateProfileField = (
     profile: ProfileData,
@@ -65,10 +66,9 @@ export const UserProfile: React.FC = () => {
       if (error) {
         throw error
       }
+      setStoredProfileData(profileData)
     } catch (error) {
       alert((error as PostgrestError).message)
-    } finally {
-      setStoredProfileData(profileData)
     }
   }
 
@@ -79,8 +79,6 @@ export const UserProfile: React.FC = () => {
       isMounted.current = false
     }
   }, [])
-
-  const { profile } = useSession()
 
   useEffect(() => {
     setProfileField({ type: 'init', value: profile })
@@ -99,6 +97,8 @@ export const UserProfile: React.FC = () => {
     }
   }
 
+  const [imageSize, setImageSize] = useState(150)
+
   if (session == null || session.user == null) {
     return <p>You are not signed in</p>
   } else {
@@ -107,43 +107,57 @@ export const UserProfile: React.FC = () => {
     }
     return (
       <Container>
-        <Box m={2}>
-          <Box p={2}>
-            <TextField
-              fullWidth
-              label='Email'
-              value={session.user.email ?? ''}
-              disabled
+        <Stack direction='row'>
+          <Box m={2} width='80%'>
+            <Box p={2}>
+              <TextField
+                fullWidth
+                label='Email'
+                value={session.user.email ?? ''}
+                disabled
+              />
+            </Box>
+            <Grid container p={2} spacing={2}>
+              <Grid item xs={6}>
+                <TextField label='First Name' {...inputProps('firstname')} />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField label='Last Name' {...inputProps('lastname')} />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  multiline
+                  minRows={5}
+                  label='Biography'
+                  {...inputProps('bio')}
+                  placeholder={`${profileData.firstname} ${profileData.lastname} is an awesome LabVIEW developer who hasn't yet filled out a bio...`}
+                />
+              </Grid>
+            </Grid>
+            <Button
+              onClick={updateProfile}
+              disabled={
+                !valuesChanged ||
+                profileData.firstname === '' ||
+                profileData.lastname === ''
+              }
+            >
+              Update Profile
+            </Button>
+          </Box>
+          <Box
+            width='20%'
+            alignSelf='center'
+            ref={(box: HTMLDivElement | null) => {
+              if (box) setImageSize(box.clientWidth)
+            }}
+          >
+            <UserProfileImage
+              userId={session.user.id}
+              size={imageSize}
             />
           </Box>
-          <Grid container p={2} spacing={2}>
-            <Grid item xs={6}>
-              <TextField label='First Name' {...inputProps('firstname')} />
-            </Grid>
-            <Grid item xs={6}>
-              <TextField label='Last Name' {...inputProps('lastname')} />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                multiline
-                minRows={5}
-                label='Biography'
-                {...inputProps('bio')}
-                placeholder={`${profileData.firstname} ${profileData.lastname} is an awesome LabVIEW developer who hasn't yet filled out a bio...`}
-              />
-            </Grid>
-          </Grid>
-          <Button
-            onClick={updateProfile}
-            disabled={
-              !valuesChanged ||
-              profileData.firstname === '' ||
-              profileData.lastname === ''
-            }
-          >
-            Update Profile
-          </Button>
-        </Box>
+        </Stack>
       </Container>
     )
   }
