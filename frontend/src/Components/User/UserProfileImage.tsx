@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { uploadProfileImage, useProfileImage } from '@/lib/profileImage'
 import { useSWRConfig } from 'swr'
 import { useSession } from '@/lib/sessionContext'
+import { useState } from 'react'
 
 type UserProfileImageProps = {
   userId: string
@@ -30,7 +31,7 @@ export const UserProfileImage: React.FC<UserProfileImageProps> = (props) => {
   )
 
   const { mutate } = useSWRConfig()
-  const uploading = false
+  const [uploading, setUploading] = useState(false)
 
   return (
     <Stack>
@@ -45,13 +46,14 @@ export const UserProfileImage: React.FC<UserProfileImageProps> = (props) => {
           onChange={(ev) => {
             const fileList = ev.target.files
             if (fileList != null && fileList[0] != null) {
+              setUploading(true)
               uploadProfileImage(
                 `${props.userId}_${Math.random()}.png`,
                 fileList[0],
                 props.userId,
                 mutate,
                 profile?.avatar_url ?? null
-              )
+              ).finally(() => setUploading(false))
             }
           }}
           disabled={uploading}
