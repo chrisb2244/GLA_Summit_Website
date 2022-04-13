@@ -2,7 +2,7 @@ import { render, waitFor, screen } from '@testing-library/react'
 import { User } from '@/Components/User/User'
 import { Header } from '@/Components/Header'
 import type { Session } from '@supabase/supabase-js'
-import type { ProfileModel } from '@/lib/supabaseClient'
+import type { ProfileModel } from '@/lib/sessionContext'
 import { useSession } from '@/lib/sessionContext'
 
 const dummySession: Session = {

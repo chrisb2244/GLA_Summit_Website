@@ -1,5 +1,5 @@
 import React, { useContext, useState, createContext, useEffect } from 'react'
-import { ProfileModel, supabase } from './supabaseClient'
+import { supabase } from './supabaseClient'
 import type {
   Session,
   ApiError,
@@ -7,6 +7,15 @@ import type {
   User,
   PostgrestError
 } from '@supabase/supabase-js'
+
+export type ProfileModel = {
+  id: string
+  firstname: string
+  lastname: string
+  bio: string | null
+  website: string | null
+  avatar_url: string | null
+}
 
 // Even for ValidSignIn, session and user are null using magic link via email.
 type ValidSignIn = { session: Session | null; user: User | null; error: null }
@@ -163,5 +172,6 @@ export const AuthProvider: React.FC = (props) => {
 // export the useSession hook
 export const useSession = () => {
   const context = useContext(AuthContext)
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   return context!
 }
