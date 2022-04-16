@@ -107,8 +107,8 @@ export const UserProfile: React.FC = () => {
     }
     return (
       <Container>
-        <Stack direction='row'>
-          <Box m={2} width='80%'>
+        <Stack direction={{ xs: 'column', md: 'row' }}>
+          <Box m={2} width='80%' alignSelf={{xs: 'center', md: 'flex-start'}}>
             <Box p={2}>
               <TextField
                 fullWidth
@@ -118,10 +118,10 @@ export const UserProfile: React.FC = () => {
               />
             </Box>
             <Grid container p={2} spacing={2}>
-              <Grid item xs={6}>
+              <Grid item xs={12} sm={6}>
                 <TextField label='First Name' {...inputProps('firstname')} />
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={12} sm={6}>
                 <TextField label='Last Name' {...inputProps('lastname')} />
               </Grid>
               <Grid item xs={12}>
@@ -134,30 +134,27 @@ export const UserProfile: React.FC = () => {
                 />
               </Grid>
             </Grid>
-            <Button
-              onClick={updateProfile}
-              disabled={
-                !valuesChanged ||
-                profileData.firstname === '' ||
-                profileData.lastname === ''
-              }
-            >
-              Update Profile
-            </Button>
           </Box>
           <Box
-            width='20%'
+            width={{xs: '80%', md: '20%'}}
             alignSelf='center'
             ref={(box: HTMLDivElement | null) => {
               if (box) setImageSize(box.clientWidth)
             }}
           >
-            <UserProfileImage
-              userId={session.user.id}
-              size={imageSize}
-            />
+            <UserProfileImage userId={session.user.id} size={imageSize} />
           </Box>
         </Stack>
+        <Button
+          onClick={updateProfile}
+          disabled={
+            !valuesChanged ||
+            profileData.firstname === '' ||
+            profileData.lastname === ''
+          }
+        >
+          Update Profile
+        </Button>
       </Container>
     )
   }
