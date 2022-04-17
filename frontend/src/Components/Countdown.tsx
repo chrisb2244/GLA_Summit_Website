@@ -7,21 +7,23 @@ export interface CountdownProps {
   event_end: Date
 }
 
-interface TimerValues {
+type TimerValues = {
   days: number
   hours: number
   minutes: number
   seconds: number
 }
+const zeroTimerVals: TimerValues = {
+  days: 0,
+  hours: 0,
+  minutes: 0,
+  seconds: 0
+}
 
 type EventStatus = 'Upcoming' | 'Live' | 'Finished'
 
 export const Countdown: React.FC<CountdownProps> = (props) => {
-  function zeroTimerVals (): TimerValues {
-    return { days: 0, hours: 0, minutes: 0, seconds: 0 }
-  }
-
-  const [timerVals, setTimerVals] = useState<TimerValues>(zeroTimerVals())
+  const [timerVals, setTimerVals] = useState<TimerValues>(zeroTimerVals)
   const [status, setStatus] = useState<EventStatus>()
 
   useEffect(() => {
@@ -42,7 +44,7 @@ export const Countdown: React.FC<CountdownProps> = (props) => {
           setStatus('Live')
         } else {
           // Event has finished
-          setTimerVals(zeroTimerVals())
+          setTimerVals(zeroTimerVals)
           setStatus('Finished')
         }
       }
@@ -52,21 +54,10 @@ export const Countdown: React.FC<CountdownProps> = (props) => {
     }
   }, [props.event_start, props.event_end, setTimerVals])
 
-  function calcTimeValues (distanceInMilliseconds: number): TimerValues {
-    let remaining = distanceInMilliseconds / 1000
-    const days = Math.floor(remaining / (3600 * 24))
-    remaining -= days * 3600 * 24
-    const hours = Math.floor(remaining / 3600)
-    remaining -= hours * 3600
-    const minutes = Math.floor(remaining / 60)
-    remaining -= minutes * 60
-    const seconds = Math.floor(remaining)
-    return {
-      days: days,
-      hours: hours,
-      minutes: minutes,
-      seconds: seconds
-    }
+  const displayProps = {
+    width: 300,
+    height: 60,
+    alignItems: 'center'
   }
 
   const counterElems = (
@@ -76,21 +67,20 @@ export const Countdown: React.FC<CountdownProps> = (props) => {
           ? "This event will start in:"
           : "This event is live for the next:"}
       </CounterText> */}
-      <Box title='countdown' sx={{ flexGrow: 1, flexDirection: 'row', display: 'flex' }}>
-        {typeof status === 'undefined'
-          ? null
-          : status !== 'Finished'
-            ? (
-              <>
-                <CounterElem unit='Days'>{timerVals.days}</CounterElem>
-                <CounterElem unit='Hours'>{timerVals.hours}</CounterElem>
-                <CounterElem unit='Minutes'>{timerVals.minutes}</CounterElem>
-                <CounterElem unit='Seconds'>{timerVals.seconds}</CounterElem>
-              </>
-              )
-            : (
-              <CounterText>This event has finished.</CounterText>
-              )}
+      <Box
+        title='countdown'
+        sx={{ flexGrow: 1, flexDirection: 'row', display: 'flex' }}
+      >
+        {typeof status === 'undefined' ? <div style={{...displayProps}} /> : status !== 'Finished' ? (
+          <>
+            <CounterElem unit='Days'>{timerVals.days}</CounterElem>
+            <CounterElem unit='Hours'>{timerVals.hours}</CounterElem>
+            <CounterElem unit='Minutes'>{timerVals.minutes}</CounterElem>
+            <CounterElem unit='Seconds'>{timerVals.seconds}</CounterElem>
+          </>
+        ) : (
+          <CounterText>This event has finished.</CounterText>
+        )}
       </Box>
     </Container>
   )
@@ -98,7 +88,13 @@ export const Countdown: React.FC<CountdownProps> = (props) => {
   return (
     <Box
       className='gla-countdown-container'
-      sx={{ backgroundColor: 'primary.dark', borderRadius: '12.5%/50%', display: 'inline-flex' }}
+      alignSelf='center'
+      sx={{
+        backgroundColor: 'primary.light',
+        borderRadius: '12.5%/50%',
+        display: 'inline-flex',
+        ...displayProps
+      }}
     >
       {counterElems}
     </Box>
@@ -137,4 +133,21 @@ const CounterText: React.FC = (props) => {
       {props.children}
     </Typography>
   )
+}
+
+function calcTimeValues(distanceInMilliseconds: number): TimerValues {
+  let remaining = distanceInMilliseconds / 1000
+  const days = Math.floor(remaining / (3600 * 24))
+  remaining -= days * 3600 * 24
+  const hours = Math.floor(remaining / 3600)
+  remaining -= hours * 3600
+  const minutes = Math.floor(remaining / 60)
+  remaining -= minutes * 60
+  const seconds = Math.floor(remaining)
+  return {
+    days: days,
+    hours: hours,
+    minutes: minutes,
+    seconds: seconds
+  }
 }
