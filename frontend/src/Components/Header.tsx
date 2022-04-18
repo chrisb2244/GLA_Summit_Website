@@ -1,75 +1,42 @@
 import NextLink from 'next/link'
-import { AppBar, Toolbar, Typography, Grid, Box } from '@mui/material'
+import NextImage from 'next/image'
+import { AppBar, Toolbar, Typography, Box } from '@mui/material'
 import { MenuBar } from './MenuBar'
 import { User } from './User/User'
-import { Countdown } from './Countdown'
+import GLA_Logo from '@/media/GLA-logo.svg'
 // import MenuIcon from '@mui/icons-material/Menu'
 
-// const useStyles = makeStyles((theme: Theme) =>
-//   createStyles({
-
-// const classes = {
-//   root: {
-//     flexGrow: 1
-//   },
-//   title: {
-//     flexGrow: 1
-//   },
-//   menuContainer: {
-//     // marginLeft: theme.spacing(2),
-//     flexGrow: 0
-//   },
-//   appLogo: {
-//     flexGrow: 0
-//     // marginRight: theme.spacing(5)
-//   },
-//   toolbar: {
-//     width: '70%'
-//   }
-// }
-
 export const Header: React.FC = () => {
-  // The month value is 0-based (so 10 -> November)
-  const eventStart = new Date(Date.UTC(2022, 10, 15, 12, 0, 0))
-  const eventEnd = new Date(Date.UTC(2022, 10, 16, 12, 0, 0))
+  const logo = (
+    <NextLink href='/'>
+      <a>
+        <Box flexGrow={0}>
+          <NextImage
+            src={GLA_Logo}
+            // className='app-logo'
+            height='80'
+            // width='100'
+            aria-label='logo'
+            style={{ pointerEvents: 'none' }}
+          />
+        </Box>
+      </a>
+    </NextLink>
+  )
 
   // The 'Toolbar' component appears to make the flow
   // direction a row, rather than a column otherwise...
-
   return (
     <AppBar position='static' sx={{ marginBottom: '20px' }}>
-      <Toolbar>
-        <Grid container justifyContent='center' alignItems='center'>
-          <Grid item>
-            <NextLink href='/'>
-              <a>
-                <Box flexGrow={0}>
-                  <object
-                    data='media/GLA-logo.svg'
-                    className='app-logo'
-                    height='100'
-                    aria-label='logo'
-                    style={{ pointerEvents: 'none' }}
-                  />
-                </Box>
-              </a>
-            </NextLink>
-          </Grid>
-          <Grid item flexGrow={1}>
-            <Typography variant='h1' textAlign='center'>
-              GLA Summit
-            </Typography>
-          </Grid>
-          <Grid item alignItems='center'>
-            <Box flexDirection='column'>
-              <Box>
-                <MenuBar />
-              </Box>
-              <Countdown event_start={eventStart} event_end={eventEnd} />
-            </Box>
-          </Grid>
-          <User />
-        </Grid>
+      <Toolbar id='logo bar'>
+        {logo}
+        <Typography variant='h1' textAlign='center'>
+          GLA Summit
+        </Typography>
+      </Toolbar>
+      <Toolbar disableGutters id='menu bar'>
+        <MenuBar flexGrow='1' />
+        <User flexGrow='0' pr={1} />
       </Toolbar>
     </AppBar>
   )

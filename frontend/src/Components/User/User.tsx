@@ -1,11 +1,12 @@
-import { Button } from '@mui/material'
+import { Button, Box } from '@mui/material'
+import type { BoxProps } from '@mui/system'
 import { UserMenu } from '@/Components/User/UserMenu'
 import { useState } from 'react'
 import { NewUserRegistration } from '@/Components/SigninRegistration/NewUserRegistration'
 import { UserSignIn } from '@/Components/SigninRegistration/UserSignIn'
 import { useSession } from '@/lib/sessionContext'
 
-export const User: React.FC = () => {
+export const User: React.FC<BoxProps> = ({...extraBoxProps}) => {
   const [dialogOpen, setOpenDialog] = useState<'none' | 'registration' | 'signin'>('none')
 
   const { session } = useSession()
@@ -42,5 +43,5 @@ export const User: React.FC = () => {
       </>
     )
   }
-  return <div id='user'>{button}</div>
+  return <Box id='user' {...extraBoxProps}>{button}</Box>
 }
