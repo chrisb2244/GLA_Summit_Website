@@ -34,9 +34,9 @@ jest.mock('@/lib/sessionContext')
 describe('User', () => {
   it('is included in the menu', () => {
     mockedSession.mockReturnValue({...dummyReturn, profile: null, session: null})
-    const header = render(<Header />).container
-    const user = render(<User />).container.innerHTML
-    expect(header).toContainHTML(user)
+    render(<Header />).container
+    expect(screen.getByRole('button', { name: /Sign In/i })).toBeVisible()
+    expect(screen.getByRole('button', { name: /Register/i })).toBeVisible()
   })
 
   it('provides a link to sign in if not signed in', () => {

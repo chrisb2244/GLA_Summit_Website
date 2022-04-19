@@ -6,6 +6,9 @@ export const SocialMediaIcons: React.FC = () => {
     <Box
       role='grid'
       aria-label='Social Media Links'
+      display='flex'
+      justifyContent='space-around'
+      alignSelf={{md: 'center'}}
       sx={{ '& a': { px: 0.4 }, '.MuiSvgIcon-root': { color: (t) => t.palette.primary.contrastText, fontSize: '18px' } }}
     >
       <a aria-label='Twitter link' href='https://twitter.com/glasummit'>

@@ -1,27 +1,28 @@
 import { useEffect, useState } from 'react'
 import { Box, Container, Typography } from '@mui/material'
-// import '../GLA-generic.css'
 
 export interface CountdownProps {
   event_start: Date
   event_end: Date
 }
 
-interface TimerValues {
+type TimerValues = {
   days: number
   hours: number
   minutes: number
   seconds: number
 }
+const zeroTimerVals: TimerValues = {
+  days: 0,
+  hours: 0,
+  minutes: 0,
+  seconds: 0
+}
 
 type EventStatus = 'Upcoming' | 'Live' | 'Finished'
 
 export const Countdown: React.FC<CountdownProps> = (props) => {
-  function zeroTimerVals (): TimerValues {
-    return { days: 0, hours: 0, minutes: 0, seconds: 0 }
-  }
-
-  const [timerVals, setTimerVals] = useState<TimerValues>(zeroTimerVals())
+  const [timerVals, setTimerVals] = useState<TimerValues>(zeroTimerVals)
   const [status, setStatus] = useState<EventStatus>()
 
   useEffect(() => {
@@ -42,7 +43,7 @@ export const Countdown: React.FC<CountdownProps> = (props) => {
           setStatus('Live')
         } else {
           // Event has finished
-          setTimerVals(zeroTimerVals())
+          setTimerVals(zeroTimerVals)
           setStatus('Finished')
         }
       }
@@ -52,56 +53,46 @@ export const Countdown: React.FC<CountdownProps> = (props) => {
     }
   }, [props.event_start, props.event_end, setTimerVals])
 
-  function calcTimeValues (distanceInMilliseconds: number): TimerValues {
-    let remaining = distanceInMilliseconds / 1000
-    const days = Math.floor(remaining / (3600 * 24))
-    remaining -= days * 3600 * 24
-    const hours = Math.floor(remaining / 3600)
-    remaining -= hours * 3600
-    const minutes = Math.floor(remaining / 60)
-    remaining -= minutes * 60
-    const seconds = Math.floor(remaining)
-    return {
-      days: days,
-      hours: hours,
-      minutes: minutes,
-      seconds: seconds
-    }
+  const displayProps = {
+    width: 300,
+    height: 74
   }
 
-  const counterElems = (
-    <Container>
-      {/* <CounterText>
-        {status === "Upcoming"
-          ? "This event will start in:"
-          : "This event is live for the next:"}
-      </CounterText> */}
-      <Box title='countdown' sx={{ flexGrow: 1, flexDirection: 'row', display: 'flex' }}>
-        {typeof status === 'undefined'
-          ? null
-          : status !== 'Finished'
-            ? (
-              <>
-                <CounterElem unit='Days'>{timerVals.days}</CounterElem>
-                <CounterElem unit='Hours'>{timerVals.hours}</CounterElem>
-                <CounterElem unit='Minutes'>{timerVals.minutes}</CounterElem>
-                <CounterElem unit='Seconds'>{timerVals.seconds}</CounterElem>
-              </>
-              )
-            : (
-              <CounterText>This event has finished.</CounterText>
-              )}
+  return (
+    <Container
+      sx={{
+        mb: 2,
+        py: 1,
+        alignItems: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        backgroundColor: 'primary.light',
+        borderRadius: '12.5%/50%',
+        width: displayProps.width
+      }}
+    >
+      <Typography variant='body1'>
+        {status === 'Upcoming'
+          ? 'This event will start in:'
+          : status === 'Live'
+          ? 'This event is live for the next:'
+          : null}
+      </Typography>
+      <Box title='countdown' sx={{ display: 'flex', flexDirection: 'row' }}>
+        {typeof status === 'undefined' ? (
+          <div style={{ ...displayProps }} />
+        ) : status !== 'Finished' ? (
+          <>
+            <CounterElem unit='Days'>{timerVals.days}</CounterElem>
+            <CounterElem unit='Hours'>{timerVals.hours}</CounterElem>
+            <CounterElem unit='Minutes'>{timerVals.minutes}</CounterElem>
+            <CounterElem unit='Seconds'>{timerVals.seconds}</CounterElem>
+          </>
+        ) : (
+          <Typography variant='body1'>This event has finished.</Typography>
+        )}
       </Box>
     </Container>
-  )
-
-  return (
-    <Box
-      className='gla-countdown-container'
-      sx={{ backgroundColor: 'primary.dark', borderRadius: '12.5%/50%', display: 'inline-flex' }}
-    >
-      {counterElems}
-    </Box>
   )
 }
 
@@ -126,15 +117,19 @@ const CounterElem: React.FC<{
   )
 }
 
-const CounterText: React.FC = (props) => {
-  return (
-    <Typography
-      variant='body1'
-      textAlign='center'
-      marginTop='10px'
-      paddingTop='5px'
-    >
-      {props.children}
-    </Typography>
-  )
+function calcTimeValues(distanceInMilliseconds: number): TimerValues {
+  let remaining = distanceInMilliseconds / 1000
+  const days = Math.floor(remaining / (3600 * 24))
+  remaining -= days * 3600 * 24
+  const hours = Math.floor(remaining / 3600)
+  remaining -= hours * 3600
+  const minutes = Math.floor(remaining / 60)
+  remaining -= minutes * 60
+  const seconds = Math.floor(remaining)
+  return {
+    days: days,
+    hours: hours,
+    minutes: minutes,
+    seconds: seconds
+  }
 }

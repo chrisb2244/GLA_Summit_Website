@@ -1,95 +1,69 @@
 import NextLink from 'next/link'
-import { AppBar, Toolbar, Typography, Grid, Box } from '@mui/material'
+import NextImage from 'next/image'
+import { AppBar, Toolbar, Typography, Box } from '@mui/material'
 import { MenuBar } from './MenuBar'
 import { User } from './User/User'
-import { Countdown } from './Countdown'
-// import MenuIcon from '@mui/icons-material/Menu'
-
-// const useStyles = makeStyles((theme: Theme) =>
-//   createStyles({
-
-// const classes = {
-//   root: {
-//     flexGrow: 1
-//   },
-//   title: {
-//     flexGrow: 1
-//   },
-//   menuContainer: {
-//     // marginLeft: theme.spacing(2),
-//     flexGrow: 0
-//   },
-//   appLogo: {
-//     flexGrow: 0
-//     // marginRight: theme.spacing(5)
-//   },
-//   toolbar: {
-//     width: '70%'
-//   }
-// }
+import GLA_Logo from '@/media/GLA-logo.svg'
+import GLA_Logo_Mobile from '@/media/GLA-logo-mobile.svg'
 
 export const Header: React.FC = () => {
-  // The month value is 0-based (so 10 -> November)
-  const eventStart = new Date(Date.UTC(2022, 10, 15, 12, 0, 0))
-  const eventEnd = new Date(Date.UTC(2022, 10, 16, 12, 0, 0))
+  const imageProps = {
+    'aria-label': 'logo'
+  }
+  const logo = (
+    <NextLink href='/'>
+      <a>
+        <Box flexGrow={0} display={{ xs: 'none', md: 'flex' }}>
+          <NextImage
+            src={GLA_Logo}
+            {...imageProps}
+            height={80}
+            style={{ pointerEvents: 'none' }}
+          />
+        </Box>
+        <Box
+          display={{ xs: 'flex', md: 'none' }}
+          sx={{ backgroundColor: 'lightgrey' }}
+        >
+          <NextImage
+            src={GLA_Logo_Mobile}
+            {...imageProps}
+            style={{ pointerEvents: 'none' }}
+          />
+        </Box>
+      </a>
+    </NextLink>
+  )
 
   // The 'Toolbar' component appears to make the flow
   // direction a row, rather than a column otherwise...
-
   return (
-    <AppBar position='static' sx={{ marginBottom: '20px' }}>
-      <Toolbar>
-        <Grid container justifyContent='center' alignItems='center'>
-          <Grid item>
-            <NextLink href='/'>
-              <a>
-                <Box flexGrow={0}>
-                  <object
-                    data='media/GLA-logo.svg'
-                    className='app-logo'
-                    height='100'
-                    aria-label='logo'
-                    style={{ pointerEvents: 'none' }}
-                  />
-                </Box>
-              </a>
-            </NextLink>
-          </Grid>
-          <Grid item flexGrow={1}>
-            <Typography variant='h1' textAlign='center'>
-              GLA Summit
-            </Typography>
-          </Grid>
-          <Grid item alignItems='center'>
-            <Box flexDirection='column'>
-              <Box>
-                <MenuBar />
-              </Box>
-              <Countdown event_start={eventStart} event_end={eventEnd} />
-            </Box>
-          </Grid>
-          <User />
-        </Grid>
-      </Toolbar>
-    </AppBar>
+    <>
+      <AppBar position='static'>
+        <Toolbar id='logo bar' disableGutters>
+          {logo}
+          <Typography
+            variant='h1'
+            textAlign='center'
+            display={{ xs: 'none', md: 'inherit' }}
+          >
+            GLA Summit
+          </Typography>
+        </Toolbar>
+      </AppBar>
+      <Box
+        position='sticky'
+        top='0'
+        left='0'
+        sx={{ backgroundColor: 'primary.main', color: 'white' }}
+        zIndex={100}
+        mb={2}
+      >
+        <Toolbar disableGutters id='menu bar' sx={{ width: '100%' }}>
+          <MenuBar flexGrow='1' />
+          <User flexGrow='0' pr={1} />
+        </Toolbar>
+      </Box>
+    </>
   )
-
-  // return (
-  //   <AppBar className="App-header" position="static">
-  //     <Toolbar sx={classes.toolbar}>
-  //       <object
-  //         data="media/GLA-logo.svg"
-  //         className="app-logo"
-  //         height="100"
-  //         aria-label="logo"
-  //         style={{ pointerEvents: 'none' }}
-  //       />
-  //       <Typography variant="h3" sx={classes.title}>
-  //         GLA Summit 2021
-  //       </Typography>
-  //       <MenuBar />
-  //       <User />
-  //     </Toolbar>
-  //   </AppBar>
-  // )
 }
