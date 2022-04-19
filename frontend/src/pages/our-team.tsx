@@ -8,6 +8,8 @@ import Image_SS from '@/media/SreejithSreenivasan.jpg'
 import Image_ST from '@/media/SamTaggart.jpg'
 import Image_WR from '@/media/WilliamRichards.jpg'
 import Image_MR from '@/media/MichalRadziwon.jpg'
+import Image_AB from '@/media/AmandaBacala.webp'
+import Image_ML from '@/media/MartinLentz.jpg'
 
 const OurTeam: React.FC = () => {
   return (
@@ -56,6 +58,19 @@ const OurTeam: React.FC = () => {
         lastName='Radziwon'
         description={descriptions.MichalRadziwon}
         image={Image_MR}
+        imageSide='left'
+      />
+      <Organizer
+        firstName='Amanda'
+        lastName='Bacala'
+        description={descriptions.AmandaBacala}
+        image={Image_AB}
+      />
+      <Organizer
+        firstName='Martin'
+        lastName='Lentz'
+        description={descriptions.MartinLentz}
+        image={Image_ML}
         imageSide='left'
       />
     </Stack>

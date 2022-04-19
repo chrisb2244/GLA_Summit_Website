@@ -132,8 +132,8 @@ const MichalRadziwon = (
       versioning.
     </p>
     <p>
-      Mike&apos;s adventure with LabVIEW started in 2009 in academia, where he was
-      developing controllers for excimer lasers and incubators of organic
+      Mike&apos;s adventure with LabVIEW started in 2009 in academia, where he
+      was developing controllers for excimer lasers and incubators of organic
       crystals. Before settling in the wind industry he worked in plenty of
       green-energy projects together with CCM-EE consultancy.
     </p>
@@ -145,6 +145,48 @@ const MichalRadziwon = (
   </>
 )
 
+const AmandaBacala = (
+  <>
+    <p>
+      Amanda began pursuing a career in LabVIEW in 2017. At that time, she was
+      developing control systems and test and measurement automations in the
+      Solar Tracker industry. She now runs Mavilogic Solutions, an NI alliance
+      partner, through which she supports clients in various industries with
+      their test automation needs. She is focused on simplifying complex
+      problems through well-organized, intuitive code. She is passionate about
+      supporting technologies that address climate change.
+    </p>
+    <p>
+      Amanda is a CLA based in the Albuquerque, New Mexico area. She does some
+      of her best LabVIEW problem solving while hiking the local mountain
+      trails.
+    </p>
+  </>
+)
+
+const MartinLentz = (
+  <>
+    <p>
+      Martin is working as Sr. Project Engineer, doing his best to enforce
+      modern coding practices among his colleagues in the production test group
+      at Kongsberg Defence and Aerospace just outside Oslo, Norway. His work
+      history includes training in the exotic language of HP (later Agilent) VEE
+      at Nokia Mobile Phones in Copenhagen, Denmark before spending ten years as
+      a consultant at NI alliance members in Australia and Norway.
+    </p>
+    <p>
+      He is a CLA and (expired) CTD and used to be a regular participant at
+      LabVIEW summits before the world locked down.
+    </p>
+    <p>
+      When not at his desk, he is usually actively exploring the great outdoors
+      with his family of four; backcountry skiing in winter, hiking, biking, or
+      running in summer. Always with an eye out for a great place to pitch a
+      tent.
+    </p>
+  </>
+)
+
 export const descriptions = {
   TomMcQuillan: TomMcQuillan,
   OliverWachno: OliverWachno,
@@ -152,5 +194,7 @@ export const descriptions = {
   SreejithSreenivasan: SreejithSreenivasan,
   SamTaggart: SamTaggart,
   WilliamRichards: WilliamRichards,
-  MichalRadziwon: MichalRadziwon
+  MichalRadziwon: MichalRadziwon,
+  AmandaBacala: AmandaBacala,
+  MartinLentz: MartinLentz
 }
