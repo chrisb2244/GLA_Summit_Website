@@ -3,8 +3,8 @@ import { Countdown } from './Countdown'
 
 export const HomePage: React.FC = () => {
   // The month value is 0-based (so 10 -> November)
-  const eventStart = new Date(Date.UTC(2022, 10, 15, 12, 0, 0))
-  const eventEnd = new Date(Date.UTC(2022, 10, 16, 12, 0, 0))
+  const eventStart = new Date(Date.UTC(2022, 10, 14, 12, 0, 0))
+  const eventEnd = new Date(Date.UTC(2022, 10, 15, 12, 0, 0))
 
   return (
     <>
