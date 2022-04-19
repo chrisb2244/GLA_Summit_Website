@@ -4,19 +4,31 @@ import { AppBar, Toolbar, Typography, Box } from '@mui/material'
 import { MenuBar } from './MenuBar'
 import { User } from './User/User'
 import GLA_Logo from '@/media/GLA-logo.svg'
+import GLA_Logo_Mobile from '@/media/GLA-logo-mobile.svg'
 // import MenuIcon from '@mui/icons-material/Menu'
 
 export const Header: React.FC = () => {
+  const imageProps = {
+    'aria-label': 'logo'
+  }
   const logo = (
     <NextLink href='/'>
       <a>
-        <Box flexGrow={0}>
+        <Box flexGrow={0} display={{ xs: 'none', md: 'flex' }}>
           <NextImage
             src={GLA_Logo}
-            // className='app-logo'
-            height='80'
-            // width='100'
-            aria-label='logo'
+            {...imageProps}
+            height={80}
+            style={{ pointerEvents: 'none' }}
+          />
+        </Box>
+        <Box
+          display={{ xs: 'flex', md: 'none' }}
+          sx={{ backgroundColor: 'lightgrey' }}
+        >
+          <NextImage
+            src={GLA_Logo_Mobile}
+            {...imageProps}
             style={{ pointerEvents: 'none' }}
           />
         </Box>
@@ -28,9 +40,13 @@ export const Header: React.FC = () => {
   // direction a row, rather than a column otherwise...
   return (
     <AppBar position='static' sx={{ marginBottom: '20px' }}>
-      <Toolbar id='logo bar'>
+      <Toolbar id='logo bar' disableGutters>
         {logo}
-        <Typography variant='h1' textAlign='center'>
+        <Typography
+          variant='h1'
+          textAlign='center'
+          display={{ xs: 'none', md: 'inherit' }}
+        >
           GLA Summit
         </Typography>
       </Toolbar>
