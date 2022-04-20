@@ -4,15 +4,34 @@ import { Box, Paper, Stack, Typography } from '@mui/material'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 
-const MyProfile = (): JSX.Element => {
+const getPublicProfileUserIds = async (): Promise<string[]> => {
+  const { data, error } = await supabase
+    .from<{ id: string }>('public_profiles')
+    .select()
+  if (error) throw error
+
+  return data.map((elem) => elem.id)
+}
+
+const getProfilesById = async (userIds: string[]): Promise<ProfileModel[]> => {
+  const { data, error } = await supabase
+    .from<ProfileModel>('profiles')
+    .select()
+    .in('id', userIds)
+    .order('lastname', { ascending: true })
+  if (error) throw error
+  return data
+}
+
+const AllProfiles = (): JSX.Element => {
   const [allProfiles, setAllProfiles] = useState<Array<ProfileModel>>([])
   const getProfiles = async () => {
-    const { data, error } = await supabase
-      .from<ProfileModel>('profiles')
-      .select('*')
-      .order('lastname', { ascending: true })
-    if (error) throw error
-    if (data) setAllProfiles(data)
+    getPublicProfileUserIds()
+      .then((ids) => getProfilesById(ids))
+      .then((profiles) => setAllProfiles(profiles))
+      .catch((error) => {
+        throw error
+      })
   }
 
   useEffect(() => {
@@ -45,12 +64,6 @@ const MyProfile = (): JSX.Element => {
         console.log(error)
       }
     }
-
-    // let processedDescription = props.description
-    // if (props.description?.match(/\\r\\n/)) {
-    //   processedDescription = props.description.replaceAll(/\\r\\n/g, '\r\n')
-    //   console.log(`${props.firstName} ${props.lastName}`)
-    // }
 
     return (
       <Paper>
@@ -96,4 +109,4 @@ const MyProfile = (): JSX.Element => {
   )
 }
 
-export default MyProfile
+export default AllProfiles
