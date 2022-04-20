@@ -1,15 +1,15 @@
-import { Button } from '@mui/material'
+import { Button, Box } from '@mui/material'
+import type { BoxProps } from '@mui/system'
 import { UserMenu } from '@/Components/User/UserMenu'
 import { useState } from 'react'
 import { NewUserRegistration } from '@/Components/SigninRegistration/NewUserRegistration'
 import { UserSignIn } from '@/Components/SigninRegistration/UserSignIn'
 import { useSession } from '@/lib/sessionContext'
 
-export const User: React.FC = () => {
-  const [regDialogOpen, setRegistrationOpen] = useState(false)
-  const [signInDialogOpen, setSignInOpen] = useState(false)
+export const User: React.FC<BoxProps> = ({...extraBoxProps}) => {
+  const [dialogOpen, setOpenDialog] = useState<'none' | 'registration' | 'signin'>('none')
 
-  const session = useSession()
+  const { session } = useSession()
   let button
   if (session != null) {
     button = <UserMenu user={session.user} />
@@ -17,33 +17,31 @@ export const User: React.FC = () => {
     button = (
       <>
         <Button
-          onClick={() => setSignInOpen(true)}
+          onClick={() => setOpenDialog('signin')}
           color='warning'
         >
           Sign In / Register
         </Button>
         <NewUserRegistration
-          open={regDialogOpen}
+          open={dialogOpen === 'registration'}
           setClosed={() => {
-            setRegistrationOpen(false)
+            setOpenDialog('none')
           }}
           switchToSignIn={() => {
-            setRegistrationOpen(false)
-            setSignInOpen(true)
+            setOpenDialog('signin')
           }}
         />
         <UserSignIn
-          open={signInDialogOpen}
+          open={dialogOpen === 'signin'}
           setClosed={() => {
-            setSignInOpen(false)
+            setOpenDialog('none')
           }}
           switchToRegistration={() => {
-            setSignInOpen(false)
-            setRegistrationOpen(true)
+            setOpenDialog('registration')
           }}
         />
       </>
     )
   }
-  return <div id='user'>{button}</div>
+  return <Box id='user' {...extraBoxProps}>{button}</Box>
 }

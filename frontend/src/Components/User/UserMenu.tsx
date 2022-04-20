@@ -7,10 +7,11 @@ import {
   ListItemIcon
 } from '@mui/material'
 import { Logout as LogoutIcon } from '@mui/icons-material'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
-import { supabase, getProfileInfo, ProfileModel } from '@/lib/supabaseClient'
 import type { Session } from '@supabase/supabase-js'
+import { useSession } from '@/lib/sessionContext'
+import { useProfileImage } from '@/lib/profileImage'
 
 type UserMenuProps = {
   user: Session['user']
@@ -24,18 +25,18 @@ export const UserMenu: React.FC<UserMenuProps> = (props) => {
     setAnchorEl(ev.currentTarget)
   }
   const handleClose = (): void => setAnchorEl(null)
-  const [profileData, setProfileData] = useState<ProfileModel | null>(null)
-  useEffect(() => {
-    getProfileInfo().then(data => setProfileData(data))
-  }, [props.user])
+
+  const { isOrganizer, signOut, profile } = useSession()
+  const userId = profile ? profile.id : null
+  const avatarSrc = useProfileImage(userId)?.src
 
   const userAvatar = (
     <Avatar
       sx={{ width: 48, height: 48 }}
-      src={profileData?.avatar_url ?? undefined}
+      src={avatarSrc}
     >
-      {profileData
-        ? profileData.firstname + ' ' + profileData.lastname
+      {profile
+        ? profile.firstname + ' ' + profile.lastname
         : props.user?.email}
     </Avatar>
   )
@@ -97,9 +98,14 @@ export const UserMenu: React.FC<UserMenuProps> = (props) => {
             </>
           </MenuItem>
         </Link>
+        {isOrganizer && (
+          <Link href='' passHref>
+            <MenuItem>Yay, I&apos;m an organizer...</MenuItem>
+          </Link>
+        )}
         <MenuItem
           onClick={() => {
-            void supabase.auth.signOut()
+            void signOut()
           }}
         >
           <ListItemIcon>

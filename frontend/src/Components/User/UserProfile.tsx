@@ -1,59 +1,74 @@
-import { getProfileInfo, supabase } from '@/lib/supabaseClient'
-import type { ProfileModel } from '@/lib/supabaseClient'
+import { supabase } from '@/lib/supabaseClient'
+import type { ProfileModel } from '@/lib/sessionContext'
 import type { PostgrestError } from '@supabase/supabase-js'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useReducer, useRef, useState } from 'react'
+import type { ChangeEvent } from 'react'
 import { useSession } from '@/lib/sessionContext'
-import { Box, Button, Container, Grid, TextField } from '@mui/material'
+import { Box, Button, Container, Grid, Stack, TextField } from '@mui/material'
+import { UserProfileImage } from './UserProfileImage'
+
+type ProfileData = ProfileModel | null
+type ProfileKey = keyof ProfileModel
+
+const areEqual = (a: ProfileData, b: ProfileData) => {
+  if (a === null || b === null) return false
+  const aKeys = Object.keys(a) as Array<ProfileKey>
+  const bKeys = Object.keys(b) as Array<ProfileKey>
+  return (
+    bKeys.every(function (i) {
+      return aKeys.indexOf(i) !== -1
+    }) &&
+    aKeys.every(function (i) {
+      return a[i] === b[i]
+    })
+  )
+}
 
 export const UserProfile: React.FC = () => {
-  const [loading, setLoading] = useState(false)
-  const [profileData, setProfileData] = useState<ProfileModel | null>(null)
   const [storedProfileData, setStoredProfileData] =
     useState<ProfileModel | null>(null)
-  const session = useSession()
   const [valuesChanged, setValuesChanged] = useState(false)
-  const areEqual = (a: ProfileModel | null, b: ProfileModel | null) => {
-    if (a === null || b === null) return false
-    const aKeys = Object.keys(a) as Array<keyof ProfileModel>
-    const bKeys = Object.keys(b) as Array<keyof ProfileModel>
-    return (
-      bKeys.every(function (i) {
-        return aKeys.indexOf(i) !== -1
-      }) &&
-      aKeys.every(function (i) {
-        return a[i] === b[i]
-      })
-    )
+
+  const { session, profile } = useSession()
+
+  const updateProfileField = (
+    profile: ProfileData,
+    action:
+      | {
+          type?: 'update'
+          key: ProfileKey
+          value: string
+        }
+      | {
+          type: 'init'
+          value: ProfileData
+        }
+  ): ProfileData => {
+    if (action.type === 'init') return action.value
+    if (profile == null) return null
+    const newProfileData = { ...profile, [action.key]: action.value }
+    setValuesChanged(!areEqual(newProfileData, storedProfileData))
+    return newProfileData
   }
 
-  const updateProfileField = (key: keyof ProfileModel, value: string) => {
-    if (profileData == null) return
-    const newProfileData = { ...profileData, [key]: value }
-    setValuesChanged(!areEqual(newProfileData, storedProfileData))
-    setProfileData(newProfileData)
-  }
+  const [profileData, setProfileField] = useReducer(updateProfileField, null)
 
   async function updateProfile() {
     if (session == null) return
     try {
       if (profileData == null) return
-      setLoading(true)
 
       const { error } = await supabase.from<ProfileModel>('profiles').upsert(
         { ...profileData, id: session.user?.id },
-        {
-          returning: 'minimal' // Don't return the value after inserting
-        }
+        { returning: 'minimal' } // Don't return the value after inserting
       )
 
       if (error) {
         throw error
       }
+      setStoredProfileData(profileData)
     } catch (error) {
       alert((error as PostgrestError).message)
-    } finally {
-      setStoredProfileData(profileData)
-      setLoading(false)
     }
   }
 
@@ -66,19 +81,23 @@ export const UserProfile: React.FC = () => {
   }, [])
 
   useEffect(() => {
-    setLoading(true)
-    getProfileInfo()
-      .then((data) => {
-        if (isMounted) {
-          setProfileData(data)
-          setStoredProfileData(data)
-        }
-      })
-      .catch((error) => {
-        console.log(error as PostgrestError)
-      })
-    setLoading(false)
-  }, [session])
+    setProfileField({ type: 'init', value: profile })
+    setStoredProfileData(profile)
+  }, [profile])
+
+  const onChangeFn =
+    (key: ProfileKey) => (ev: ChangeEvent<HTMLInputElement>) => {
+      setProfileField({ key, value: ev.currentTarget.value })
+    }
+  const inputProps = (key: ProfileKey) => {
+    return {
+      value: profileData?.[key] ?? '',
+      onChange: onChangeFn(key),
+      fullWidth: true
+    }
+  }
+
+  const [imageSize, setImageSize] = useState(150)
 
   if (session == null || session.user == null) {
     return <p>You are not signed in</p>
@@ -88,50 +107,54 @@ export const UserProfile: React.FC = () => {
     }
     return (
       <Container>
-        <Box m={2}>
-          <Box p={2}>
-            <TextField
-              fullWidth
-              label='Email'
-              value={session.user.email ?? ''}
-              disabled
-            />
+        <Stack direction={{ xs: 'column', md: 'row' }}>
+          <Box m={2} width='80%' alignSelf={{xs: 'center', md: 'flex-start'}}>
+            <Box p={2}>
+              <TextField
+                fullWidth
+                label='Email'
+                value={session.user.email ?? ''}
+                disabled
+              />
+            </Box>
+            <Grid container p={2} spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField label='First Name' {...inputProps('firstname')} />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField label='Last Name' {...inputProps('lastname')} />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  multiline
+                  minRows={5}
+                  label='Biography'
+                  {...inputProps('bio')}
+                  placeholder={`${profileData.firstname} ${profileData.lastname} is an awesome LabVIEW developer who hasn't yet filled out a bio...`}
+                />
+              </Grid>
+            </Grid>
           </Box>
-          <Grid container p={2}>
-            <Grid item xs={6}>
-              <TextField
-                fullWidth
-                label='First Name'
-                name='First Name'
-                id='firstname'
-                value={profileData.firstname ?? ''}
-                onChange={(ev) =>
-                  updateProfileField('firstname', ev.currentTarget.value)
-                }
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <TextField
-                fullWidth
-                label='Last Name'
-                value={profileData.lastname ?? ''}
-                onChange={(ev) =>
-                  updateProfileField('lastname', ev.currentTarget.value)
-                }
-              />
-            </Grid>
-          </Grid>
-          <Button
-            onClick={updateProfile}
-            disabled={
-              !valuesChanged ||
-              profileData.firstname === '' ||
-              profileData.lastname === ''
-            }
+          <Box
+            width={{xs: '80%', md: '20%'}}
+            alignSelf='center'
+            ref={(box: HTMLDivElement | null) => {
+              if (box) setImageSize(box.clientWidth)
+            }}
           >
-            Update Profile
-          </Button>
-        </Box>
+            <UserProfileImage userId={session.user.id} size={imageSize} />
+          </Box>
+        </Stack>
+        <Button
+          onClick={updateProfile}
+          disabled={
+            !valuesChanged ||
+            profileData.firstname === '' ||
+            profileData.lastname === ''
+          }
+        >
+          Update Profile
+        </Button>
       </Container>
     )
   }

@@ -3,9 +3,12 @@ import { MenuBar } from '@/Components/MenuBar'
 
 describe('MenuBar', () => {
   render(<MenuBar />)
-  const menu = screen.getByRole('menu')
+  const menu = screen.getAllByRole('menu').filter(el => {
+    return el.id == 'desktop-menu'
+  })[0]
+  // Have to use getAll now because the mobile/desktop display:none doesn't trigger in these tests.
   it('has the menu role', () => {
-    expect(menu).toBeDefined()
+    expect(menu).toBeInTheDocument()
   })
 
   it('has menuitems', () => {

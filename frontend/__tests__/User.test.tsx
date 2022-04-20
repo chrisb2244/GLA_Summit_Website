@@ -2,56 +2,56 @@ import { render, waitFor, screen } from '@testing-library/react'
 import { User } from '@/Components/User/User'
 import { Header } from '@/Components/Header'
 import type { Session } from '@supabase/supabase-js'
-import { getProfileInfo, ProfileModel } from '@/lib/supabaseClient'
+import type { ProfileModel } from '@/lib/sessionContext'
 import { useSession } from '@/lib/sessionContext'
 
-jest.mock('@/lib/supabaseClient', () => {
-  return {
-    __esModule: true,
-    ...jest.requireActual('@/lib/supabaseClient'),
-    getProfileInfo: jest.fn(() => {
-      const pm: ProfileModel = {
-        firstname: '',
-        lastname: '',
-        id: '',
-        avatar_url: null,
-        website: null
-      }
-      return Promise.resolve(pm)
-    })
-  }
-})
+jest.mock('@/lib/profileImage')
+
+const dummySession: Session = {
+  user: {
+    email: 'test@user.com',
+    id: 'test@user.com',
+    aud: 'authenticated',
+    app_metadata: {},
+    user_metadata: {},
+    created_at: ''
+  },
+  access_token: '',
+  token_type: 'bearer'
+}
+
+const mockedSession = useSession as jest.MockedFunction<typeof useSession>
+const dummyReturn = {
+  isOrganizer: false,
+  isLoading: false,
+  signIn: jest.fn(),
+  signUp: jest.fn(),
+  signOut: jest.fn()
+}
+
 jest.mock('@/lib/sessionContext')
 
 describe('User', () => {
   it('is included in the menu', () => {
-    const header = render(<Header />).container
-    const user = render(<User />).container.innerHTML
-    expect(header).toContainHTML(user)
+    mockedSession.mockReturnValue({...dummyReturn, profile: null, session: null})
+    render(<Header />).container
+    expect(screen.getByRole('button', { name: /Sign In/i })).toBeVisible()
+    expect(screen.getByRole('button', { name: /Register/i })).toBeVisible()
   })
 
   it('provides a link to sign in if not signed in', () => {
+    mockedSession.mockReturnValue({...dummyReturn, profile: null, session: null})
     render(<User />)
     expect(screen.getByRole('button', { name: /Sign In/i })).toBeVisible()
     expect(screen.getByRole('button', { name: /Register/i })).toBeVisible()
   })
 
   it('shows email if no name available', async () => {
-    const dummySession: Session = {
-      user: {
-        email: 'test@user.com',
-        id: 'test@user.com',
-        aud: 'authenticated',
-        app_metadata: {},
-        user_metadata: {},
-        created_at: ''
-      },
-      access_token: '',
-      token_type: 'bearer'
-    }
-    ;(useSession as jest.MockedFunction<typeof useSession>).mockReturnValue(
-      dummySession
-    )
+    mockedSession.mockReturnValue({
+      ...dummyReturn,
+      session: dummySession,
+      profile: null
+    })
     render(<User />)
     await waitFor(() => {
       expect(screen.getByText('test@user.com')).toBeVisible()
@@ -59,31 +59,20 @@ describe('User', () => {
   })
 
   it('shows name rather than email if both are available', async () => {
-    const pm: ProfileModel = {
+    const localpm: ProfileModel = {
       firstname: 'Test',
       lastname: 'User',
       id: '',
       avatar_url: null,
-      website: null
+      website: null,
+      bio: null
     }
-    ;(
-      getProfileInfo as jest.MockedFunction<typeof getProfileInfo>
-    ).mockResolvedValue(pm)
-    const dummySession: Session = {
-      user: {
-        email: 'test@user.com',
-        id: 'test@user.com',
-        aud: 'authenticated',
-        app_metadata: {},
-        user_metadata: {},
-        created_at: ''
-      },
-      access_token: '',
-      token_type: 'bearer'
-    }
-    ;(useSession as jest.MockedFunction<typeof useSession>).mockReturnValue(
-      dummySession
-    )
+    
+    mockedSession.mockReturnValue({
+      ...dummyReturn,
+      session: dummySession,
+      profile: localpm
+    })
 
     render(<User />)
     await waitFor(() => {

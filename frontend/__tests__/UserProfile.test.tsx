@@ -1,41 +1,39 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import { UserProfile } from '@/Components/User/UserProfile'
-import { getProfileInfo, ProfileModel } from '@/lib/supabaseClient'
 import { useSession } from '@/lib/sessionContext'
-import type { Session } from '@supabase/supabase-js'
+import type { ProfileModel } from '@/lib/sessionContext'
 import userEvent from '@testing-library/user-event'
 
-jest.mock('@/lib/supabaseClient', () => {
-  return {
-    __esModule: true,
-    ...jest.requireActual('@/lib/supabaseClient'),
-    getProfileInfo: jest.fn(),
-    supabase: {
-      auth: {
-        session: jest.fn()
-      }
-    }
-  }
-})
-
+jest.mock('@/lib/profileImage')
 jest.mock('@/lib/sessionContext')
 
-type GetProfileFnType = jest.MockedFunction<typeof getProfileInfo>
+// type GetProfileFnType = jest.MockedFunction<typeof getProfileInfo>
 type UseSessionFnType = jest.MockedFunction<typeof useSession>
 
-const mockProfile = getProfileInfo as GetProfileFnType
+// const mockProfile = getProfileInfo as GetProfileFnType
 const mockSession = useSession as UseSessionFnType
 
-const dummySession: Session = {
-  access_token: '',
-  token_type: 'bearer',
-  user: {
-    app_metadata: {},
-    aud: '',
-    created_at: '',
-    id: 'mytestid',
-    user_metadata: {}
-  }
+const defaultSessionElems = {
+  isOrganizer: false,
+  isLoading: false,
+  signIn: jest.fn(),
+  signUp: jest.fn(),
+  signOut: jest.fn()
+}
+
+const dummySession = {
+  session: {
+    access_token: '',
+    token_type: 'bearer',
+    user: {
+      app_metadata: {},
+      aud: '',
+      created_at: '',
+      id: 'mytestid',
+      user_metadata: {}
+    }
+  },
+  ...defaultSessionElems
 }
 
 const dummyProfile: ProfileModel = {
@@ -43,26 +41,27 @@ const dummyProfile: ProfileModel = {
   lastname: 'User',
   id: 'mytestid',
   avatar_url: null,
-  website: null
+  website: null,
+  bio: null
 }
 
 const setMockImplementations = (
   type: 'signed-in' | 'loading' | 'signed-out'
 ) => {
   if (type === 'signed-out') {
-    mockProfile.mockResolvedValue(null)
-    mockSession.mockReturnValue(null)
+    // mockProfile.mockResolvedValue(null)
+    mockSession.mockReturnValue({session: null, profile: null, ...defaultSessionElems})
   } else if (type === 'loading') {
-    mockProfile.mockResolvedValue(null)
-    mockSession.mockReturnValue(dummySession)
+    // mockProfile.mockResolvedValue(null)
+    mockSession.mockReturnValue({...dummySession, profile: null})
   } else if (type === 'signed-in') {
-    mockProfile.mockResolvedValue(dummyProfile)
-    mockSession.mockReturnValue(dummySession)
+    // mockProfile.mockResolvedValue(dummyProfile)
+    mockSession.mockReturnValue({...dummySession, profile: dummyProfile})
   }
 }
 
 const resetMockImplementations = () => {
-  mockProfile.mockReset()
+  // mockProfile.mockReset()
   mockSession.mockReset()
 }
 
@@ -91,6 +90,17 @@ describe('UserProfile', () => {
       expect(
         await screen.findByRole('textbox', { name: /first name/i })
       ).toHaveValue('Test')
+    })
+  })
+
+  it('contains a prefilled lastname input', async () => {
+    setMockImplementations('signed-in')
+
+    render(<UserProfile />)
+    await waitFor(async () => {
+      expect(
+        await screen.findByRole('textbox', { name: /last name/i })
+      ).toHaveValue('User')
     })
   })
 
