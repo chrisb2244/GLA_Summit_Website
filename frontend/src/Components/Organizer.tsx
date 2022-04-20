@@ -8,6 +8,7 @@ export interface OrganizerProps {
   description: string | ReactElement
   image?: StaticImageData
   imageSide?: 'left' | 'right'
+  imagePosition?: string
 }
 
 export const Organizer: React.FC<OrganizerProps> = (props) => {
@@ -17,19 +18,27 @@ export const Organizer: React.FC<OrganizerProps> = (props) => {
         ? 'row'
         : 'row-reverse'
       : 'row'
+  const position = props.imagePosition
+    ? { objectPosition: props.imagePosition }
+    : {}
 
   const imageElem =
     typeof props.image !== 'undefined' ? (
       <Image
         src={props.image}
         alt={`Image of ${props.firstName} ${props.lastName}`}
+        objectFit='cover'
+        {...position}
       />
     ) : null
 
   return (
     <Paper>
-      <Stack direction={direction} justifyContent='space-around'>
-        <Box width='60%' padding={2} alignItems='center'>
+      <Stack
+        direction={{ xs: 'column', md: direction }}
+        justifyContent='space-around'
+      >
+        <Box width={{ xs: '100%', md: '60%' }} padding={2} alignItems='center'>
           <Typography variant='h4' className='gla-organizer-name'>
             {props.firstName} {props.lastName}
           </Typography>
@@ -42,7 +51,13 @@ export const Organizer: React.FC<OrganizerProps> = (props) => {
             {props.description}
           </Typography>
         </Box>
-        <Box width='30%' padding={2}>
+        <Box
+          width={{ xs: '100%', md: '30%' }}
+          padding={2}
+          display='flex'
+          flexDirection='row'
+          justifyContent='center'
+        >
           {imageElem}
         </Box>
       </Stack>
