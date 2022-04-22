@@ -10,6 +10,7 @@ import Image_WR from '@/media/WilliamRichards.jpg'
 import Image_MR from '@/media/MichalRadziwon.jpg'
 import Image_AB from '@/media/AmandaBacala.webp'
 import Image_ML from '@/media/MartinLentz.jpg'
+import Image_QA from '@/media/QuentinAlldredge.png'
 
 const OurTeam: React.FC = () => {
   return (
@@ -72,6 +73,13 @@ const OurTeam: React.FC = () => {
         description={descriptions.MartinLentz}
         image={Image_ML}
         imageSide='left'
+        imagePosition='70% 50%'
+      />
+      <Organizer
+        firstName='Quentin'
+        lastName='Alldredge'
+        description={descriptions.QuentinAlldredge}
+        image={Image_QA}
       />
     </Stack>
   )
