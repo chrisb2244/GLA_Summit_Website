@@ -27,7 +27,7 @@ export const Organizer: React.FC<OrganizerProps> = (props) => {
       <Image
         src={props.image}
         alt={`Image of ${props.firstName} ${props.lastName}`}
-        objectFit='cover'
+        objectFit='contain'
         {...position}
       />
     ) : null
@@ -37,6 +37,7 @@ export const Organizer: React.FC<OrganizerProps> = (props) => {
       <Stack
         direction={{ xs: 'column', md: direction }}
         justifyContent='space-around'
+        alignContent='center'
       >
         <Box width={{ xs: '100%', md: '60%' }} padding={2} alignItems='center'>
           <Typography variant='h4' className='gla-organizer-name'>

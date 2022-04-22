@@ -187,6 +187,52 @@ const MartinLentz = (
   </>
 )
 
+const QuentinAlldredge = (
+  <>
+    <p>
+      Quentin graduated from Utah State University with a B.S. and M.S. in
+      Mechanical Engineering in 2006. After graduation, Quentin worked first at
+      Alliance Tech Systems (ATK) in the Mechanical Test Lab in Promontory Utah.
+      ATK&apos;s Promontory site was responsible for casting the Space Shuttle solid
+      rocket boosters among other projects for NASA, the US Air Force, and the
+      US Navy. It was in the Mechanical Test Lab that Quentin was sent to take
+      all of the LabVIEW training so he could create and maintain their data
+      acquisition systems. During this time Quentin became a Certified LabVIEW
+      Associate Developer (CLAD) and then a CLD.
+    </p>
+    <p>
+      After Quentin left ATK, he began working as a contractor at Hill Air Force
+      Base on the Expeditionary Fighting Vehicle (EFV) for the US Marine Corps
+      (about 2011). It was also during this time he started doing side
+      consulting in LabVIEW development under the business name, &quot;Q Software
+      Innovations&quot;.
+    </p>
+    <p>
+      After about two years on the project, Quentin transitioned to become a
+      Civil Servant working directly for the US Air Force on the A-10 aircraft.
+      It was during this time (about 2013) his team got involved with the
+      LabVIEW Center of Excellence pilot program becoming one of the first ones
+      and still the only one in the DoD. This is when Quentin became a Certified
+      LabVIEW Architect and became the Technical Lead of the Hill Air Force Base
+      LabVIEW Center of Excellence.
+    </p>
+    <p>
+      In 2018, Quentin was accepted as a LabVIEW Champion and at NIWeek 2019 he
+      received the Community Contribution Award for his creation of the QControl
+      Toolkit.
+    </p>
+    <p>
+      In August 2021, Quentin left working for the Air Force and joined
+      Testeract, a startup founded by Sam Roundy and Garry Garrett, as their
+      Chief LabVIEW Architect. Quentin also serves on the board of GCentral and
+      is very involved in the LabVIEW Community.
+    </p>
+    <p>
+      Quentin goes by &quot;Q&quot; for both the Star Trek and James Bond connotations.
+    </p>
+  </>
+)
+
 export const descriptions = {
   TomMcQuillan: TomMcQuillan,
   OliverWachno: OliverWachno,
@@ -196,5 +242,6 @@ export const descriptions = {
   WilliamRichards: WilliamRichards,
   MichalRadziwon: MichalRadziwon,
   AmandaBacala: AmandaBacala,
-  MartinLentz: MartinLentz
+  MartinLentz: MartinLentz,
+  QuentinAlldredge: QuentinAlldredge
 }
