@@ -2,7 +2,7 @@ import { render, waitFor, screen } from '@testing-library/react'
 import { User } from '@/Components/User/User'
 import { Header } from '@/Components/Header'
 import type { Session } from '@supabase/supabase-js'
-import type { ProfileModel } from '@/lib/sessionContext'
+import type { ProfileModel } from '@/lib/databaseModels'
 import { useSession } from '@/lib/sessionContext'
 
 jest.mock('@/lib/profileImage')

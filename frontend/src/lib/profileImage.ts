@@ -1,6 +1,6 @@
 import useSWRImmutable from 'swr/immutable'
 import type { ScopedMutator } from 'swr/dist/types'
-import type { ProfileModel } from './sessionContext'
+import type { ProfileModel } from './databaseModels'
 import { supabase } from './supabaseClient'
 
 const deleteFromStorage = async (remotePath: string) => {

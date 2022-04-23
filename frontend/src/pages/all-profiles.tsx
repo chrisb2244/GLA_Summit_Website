@@ -1,4 +1,4 @@
-import { ProfileModel } from '@/lib/sessionContext'
+import { ProfileModel } from '@/lib/databaseModels'
 import { supabase } from '@/lib/supabaseClient'
 import { Box, Paper, Stack, Typography } from '@mui/material'
 import Image from 'next/image'

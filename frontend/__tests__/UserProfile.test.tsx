@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import { UserProfile } from '@/Components/User/UserProfile'
 import { useSession } from '@/lib/sessionContext'
-import type { ProfileModel } from '@/lib/sessionContext'
+import type { ProfileModel } from '@/lib/databaseModels'
 import userEvent from '@testing-library/user-event'
 
 jest.mock('@/lib/profileImage')

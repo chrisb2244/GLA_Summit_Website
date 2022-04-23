@@ -1,0 +1,25 @@
+export type ProfileModel = {
+  id: string
+  firstname: string
+  lastname: string
+  bio: string | null
+  website: string | null
+  avatar_url: string | null
+}
+
+export type PresentationPresentersModel = {
+  presentation_id: string
+  presenter_id: string
+}
+
+export type PresentationType = "7x7" | "full length" | "panel"
+
+export type PresentationSubmissionsModel = {
+  id: string
+  submitter_id: string
+  updated_at: string
+  title: string
+  abstract: string
+  is_submitted: boolean
+  presentation_type: PresentationType
+}

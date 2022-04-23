@@ -7,15 +7,7 @@ import type {
   User,
   PostgrestError
 } from '@supabase/supabase-js'
-
-export type ProfileModel = {
-  id: string
-  firstname: string
-  lastname: string
-  bio: string | null
-  website: string | null
-  avatar_url: string | null
-}
+import type { ProfileModel } from './databaseModels'
 
 // Even for ValidSignIn, session and user are null using magic link via email.
 type ValidSignIn = { session: Session | null; user: User | null; error: null }
@@ -89,7 +81,10 @@ export const AuthProvider: React.FC = (props) => {
       return setIsOrganizer(false)
     }
     try {
-      const { data, error } = await supabase.from('organizers').select('*').single()
+      const { data, error } = await supabase
+        .from('organizers')
+        .select()
+        .single()
       if (error) throw error
       if (data) {
         console.log('Setting true org!')
@@ -97,7 +92,8 @@ export const AuthProvider: React.FC = (props) => {
       }
     } catch (error) {
       const err = error as PostgrestError
-      if (err.message === 'JSON object requested, multiple (or no) rows returned') {
+      const expected = 'JSON object requested, multiple (or no) rows returned'
+      if (err.message === expected) {
         return
       }
       console.log(error)
