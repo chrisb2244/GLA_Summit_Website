@@ -1,5 +1,4 @@
 import { Organizer } from '../Components/Organizer'
-import { Stack } from '@mui/material'
 import { descriptions } from '../organizer-descriptions'
 import Image_OW from '@/media/OliWachno.jpg'
 import Image_TM from '@/media/TomMcQuillan.png'
@@ -11,10 +10,11 @@ import Image_MR from '@/media/MichalRadziwon.jpg'
 import Image_AB from '@/media/AmandaBacala.webp'
 import Image_ML from '@/media/MartinLentz.jpg'
 import Image_QA from '@/media/QuentinAlldredge.png'
+import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
 
 const OurTeam: React.FC = () => {
   return (
-    <Stack spacing={2} marginBottom={2} maxWidth='lg'>
+    <StackedBoxes>
       <Organizer
         firstName='Oliver'
         lastName='Wachno'
@@ -81,7 +81,7 @@ const OurTeam: React.FC = () => {
         description={descriptions.QuentinAlldredge}
         image={Image_QA}
       />
-    </Stack>
+    </StackedBoxes>
   )
 }
 

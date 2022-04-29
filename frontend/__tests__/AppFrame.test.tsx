@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import { AppFrame } from '@/Components/Frame/AppFrame'
+import { AppFrame } from '@/Components/Layout/AppFrame'
 import { useSession } from '@/lib/sessionContext'
 
 const longIpsum = (

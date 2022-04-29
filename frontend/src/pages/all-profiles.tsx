@@ -1,3 +1,4 @@
+import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
 import { ProfileModel } from '@/lib/databaseModels'
 import { supabase } from '@/lib/supabaseClient'
 import { Box, Paper, Stack, Typography } from '@mui/material'
@@ -89,11 +90,7 @@ const MyProfile = (): JSX.Element => {
     )
   })
 
-  return (
-    <Stack spacing={2} marginBottom={2} maxWidth='lg'>
-      {renderedProfiles}
-    </Stack>
-  )
+  return <StackedBoxes>{renderedProfiles}</StackedBoxes>
 }
 
 export default MyProfile
