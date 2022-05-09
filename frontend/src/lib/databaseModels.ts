@@ -31,5 +31,6 @@ export type AllPresentationsModel = {
   abstract: string,
   presentation_type: PresentationType,
   primary_presenter: string,
-  all_presenters: string[]
+  all_presenters: string[],
+  all_presenters_names: string[]
 }

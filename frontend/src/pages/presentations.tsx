@@ -21,7 +21,15 @@ const getPresentations = async () => {
 export const getStaticProps: GetStaticProps<
   AllPresentationsProps
 > = async () => {
-  const presentations = await getPresentations()
+  const dbPresentations = await getPresentations()
+  const presentations = dbPresentations.map(p => {
+    const presentation: Presentation = {
+      title: p.title,
+      abstract: p.abstract,
+      speakers: p.all_presenters_names
+    }
+    return presentation
+  })
 
   const props = {
     presentations

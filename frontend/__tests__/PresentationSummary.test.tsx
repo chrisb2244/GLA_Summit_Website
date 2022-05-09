@@ -2,10 +2,12 @@ import { PresentationSummary } from '@/Components/PresentationSummary'
 import type { Presentation } from '@/Components/PresentationSummary'
 import { render, screen } from '@testing-library/react'
 
+const speaker = 'First Last'
 const dummyPresentation: Presentation = {
   title: 'Dummy Title, with commas',
-  abstract: 'This is the abstract.'
-}
+  abstract: 'This is the abstract.',
+  speakers: speaker
+} as const
 
 describe('PresentationSummary', () => {
   it('contains the title as a heading', () => {
@@ -28,5 +30,20 @@ describe('PresentationSummary', () => {
       />
     )
     expect(screen.getByText(dummyPresentation.abstract)).toBeVisible()
+  })
+
+  it('contains the presenters name if one presenter', () => {
+    render(<PresentationSummary presentation={dummyPresentation}/>)
+    expect(screen.getByText(speaker)).toBeVisible()
+  })
+
+  it('contains the presenters name if one presenter as array', () => {
+    render(<PresentationSummary presentation={{...dummyPresentation, speakers: [speaker]}}/>)
+    expect(screen.getByText(speaker)).toBeVisible()
+  })
+  
+  it('contains the presenters names multiple presenters', () => {
+    render(<PresentationSummary presentation={{...dummyPresentation, speakers: [speaker, 'Other Speaker']}}/>)
+    expect(screen.getByText(`${speaker}, Other Speaker`)).toBeVisible()
   })
 })
