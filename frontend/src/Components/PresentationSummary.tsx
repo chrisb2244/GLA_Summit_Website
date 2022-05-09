@@ -23,9 +23,18 @@ export const PresentationSummary: React.FC<PresentationProps> = ({
         <Typography variant='subtitle1' fontStyle='italic'>
           {speakerLine}
         </Typography>
-        {pres.abstract.split('\r\n').map((p, idx) => {
-          return <Typography key={`p${idx}`}>{p}</Typography>
-        })}
+        <Box
+          sx={{
+            display: '-webkit-box',
+            WebkitLineClamp: 7,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden'
+          }}
+        >
+          {pres.abstract.split('\r\n').map((p, idx) => {
+            return <Typography key={`p${idx}`}>{p}</Typography>
+          })}
+        </Box>
       </Box>
     </Paper>
   )

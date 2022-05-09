@@ -12,9 +12,7 @@ const dummyPresentation: Presentation = {
 describe('PresentationSummary', () => {
   it('contains the title as a heading', () => {
     render(<PresentationSummary presentation={dummyPresentation} />)
-    expect(
-      screen.getByRole('heading', { name: dummyPresentation.title })
-    ).toBeVisible()
+    expect(screen.getByRole('heading', { name: dummyPresentation.title })).toBeVisible()
   })
 
   it('contains the abstract', () => {
@@ -24,11 +22,7 @@ describe('PresentationSummary', () => {
 
   it('has multiple lines if the abstract contains \\r\\n', () => {
     const multilineAbstract = 'This is the abstract.\r\nIt has multiple lines!'
-    render(
-      <PresentationSummary
-        presentation={{ ...dummyPresentation, abstract: multilineAbstract }}
-      />
-    )
+    render(<PresentationSummary presentation={{ ...dummyPresentation, abstract: multilineAbstract }}/>)
     expect(screen.getByText(dummyPresentation.abstract)).toBeVisible()
   })
 
@@ -46,4 +40,14 @@ describe('PresentationSummary', () => {
     render(<PresentationSummary presentation={{...dummyPresentation, speakers: [speaker, 'Other Speaker']}}/>)
     expect(screen.getByText(`${speaker}, Other Speaker`)).toBeVisible()
   })
+
+  /*
+  // This test might not be possible due to not having full layout engine in these tests
+  // Consider testing with Cypress or similar.
+  it('truncates extremely long abstracts with ellipses', () => {
+    const longAbstract = 'blah blah blah blah'.repeat(500)
+    render(<PresentationSummary presentation={{ ...dummyPresentation, abstract: longAbstract }}/>)
+    expect(screen.getByText("\u2026")).toBeVisible()
+  })
+  */
 })
