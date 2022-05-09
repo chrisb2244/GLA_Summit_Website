@@ -1,8 +1,7 @@
 import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
+import { Person } from '@/Components/Person'
 import { ProfileModel } from '@/lib/databaseModels'
 import { supabase } from '@/lib/supabaseClient'
-import { Box, Paper, Stack, Typography } from '@mui/material'
-import Image from 'next/image'
 import { useEffect, useState } from 'react'
 
 const MyProfile = (): JSX.Element => {
@@ -20,72 +19,27 @@ const MyProfile = (): JSX.Element => {
     getProfiles()
   }, [])
 
-  const RenderedProfile: React.FC<{
-    firstName: string
-    lastName: string
-    description: string | null
-    imagePath: string | null
-  }> = (props) => {
-    let image
-    if (props.imagePath) {
-      const { error, publicURL } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(props.imagePath)
-      if (error == null) {
-        if (publicURL) {
-          image = (
-            <Image
-              layout='fill'
-              src={publicURL}
-              objectFit='contain'
-              alt={`profile picture for ${props.firstName} ${props.lastName}`}
-            />
-          )
-        }
-      } else {
-        console.log(error)
-      }
-    }
-
-    // let processedDescription = props.description
-    // if (props.description?.match(/\\r\\n/)) {
-    //   processedDescription = props.description.replaceAll(/\\r\\n/g, '\r\n')
-    //   console.log(`${props.firstName} ${props.lastName}`)
-    // }
-
-    return (
-      <Paper>
-        <Stack direction='row' justifyContent='space-around'>
-          <Box width='60%' padding={2} alignItems='center'>
-            <Typography variant='h4' className='gla-organizer-name'>
-              {props.firstName} {props.lastName}
-            </Typography>
-            <Typography
-              className='gla-organizer-description'
-              component='div'
-              variant='body1'
-              align='justify'
-              style={{ whiteSpace: 'pre-wrap' }}
-            >
-              {props.description}
-            </Typography>
-          </Box>
-          <Box width='30%' position='relative' margin={2}>
-            {image}
-          </Box>
-        </Stack>
-      </Paper>
-    )
+  const getAvatarPublicUrl = (userAvatarUrl: string) => {
+    const { error, publicURL } = supabase.storage
+      .from('avatars')
+      .getPublicUrl(userAvatarUrl)
+    if (error) throw error
+    return publicURL
   }
 
   const renderedProfiles = allProfiles.map((user) => {
+    const avatarUrl = user.avatar_url
+      ? getAvatarPublicUrl(user.avatar_url)
+      : null
+
     return (
-      <RenderedProfile
+      <Person
         key={user.id}
         firstName={user.firstname}
         lastName={user.lastname}
-        description={user.bio}
-        imagePath={user.avatar_url}
+        description={user.bio ?? ''}
+        image={avatarUrl}
+        useDefaultIconImage
       />
     )
   })
