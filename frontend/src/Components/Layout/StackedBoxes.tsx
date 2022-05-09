@@ -6,7 +6,7 @@ export const StackedBoxes: React.FC = ({ children }) => {
   return (
     <Stack marginBottom={2} maxWidth='lg'>
       {childArray.map((child, idx) => (
-        <Box marginX={3} key={idx} marginBottom={2}>
+        <Box marginX={3} key={idx} marginBottom={3}>
           {child}
         </Box>
       ))}
