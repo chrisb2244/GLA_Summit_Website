@@ -23,3 +23,13 @@ export type PresentationSubmissionsModel = {
   is_submitted: boolean
   presentation_type: PresentationType
 }
+
+export type AllPresentationsModel = {
+  presentation_id: string
+  scheduled_for: string,
+  title: string,
+  abstract: string,
+  presentation_type: PresentationType,
+  primary_presenter: string,
+  all_presenters: string[]
+}
