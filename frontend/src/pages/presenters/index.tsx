@@ -2,23 +2,44 @@ import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
 import { PersonDisplay } from '@/Components/PersonDisplay'
 import { ProfileModel } from '@/lib/databaseModels'
 import { supabase } from '@/lib/supabaseClient'
-import { useEffect, useState } from 'react'
+import type { GetStaticProps } from 'next'
 
-const MyProfile = (): JSX.Element => {
-  const [allProfiles, setAllProfiles] = useState<Array<ProfileModel>>([])
+const getPublicProfileUserIds = async (): Promise<string[]> => {
+  const { data, error } = await supabase
+    .from<{ id: string }>('public_profiles')
+    .select()
+  if (error) throw error
+
+  return data.map((elem) => elem.id)
+}
+
+const getProfilesById = async (userIds: string[]): Promise<ProfileModel[]> => {
+  const { data, error } = await supabase
+    .from<ProfileModel>('profiles')
+    .select()
+    .in('id', userIds)
+    .order('lastname', { ascending: true })
+  if (error) throw error
+  return data
+}
+
+export const getStaticProps: GetStaticProps = async () => {
   const getProfiles = async () => {
-    const { data, error } = await supabase
-      .from<ProfileModel>('profiles')
-      .select('*')
-      .order('lastname', { ascending: true })
-    if (error) throw error
-    if (data) setAllProfiles(data)
+    return getPublicProfileUserIds()
+      .then((ids) => getProfilesById(ids))
+      .catch((error) => {
+        throw error
+      })
   }
 
-  useEffect(() => {
-    getProfiles()
-  }, [])
+  return {
+    props: {
+      profiles: await getProfiles()
+    }
+  }
+}
 
+const AllProfiles: React.FC<{ profiles: ProfileModel[] }> = (props) => {
   const getAvatarPublicUrl = (userAvatarUrl: string) => {
     const { error, publicURL } = supabase.storage
       .from('avatars')
@@ -27,7 +48,7 @@ const MyProfile = (): JSX.Element => {
     return publicURL
   }
 
-  const renderedProfiles = allProfiles.map((user) => {
+  const renderedProfiles = props.profiles.map((user) => {
     const avatarUrl = user.avatar_url
       ? getAvatarPublicUrl(user.avatar_url)
       : null
@@ -48,4 +69,4 @@ const MyProfile = (): JSX.Element => {
   return <StackedBoxes>{renderedProfiles}</StackedBoxes>
 }
 
-export default MyProfile
+export default AllProfiles
