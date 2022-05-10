@@ -26,7 +26,8 @@ export const getStaticProps: GetStaticProps<
     const presentation: Presentation = {
       title: p.title,
       abstract: p.abstract,
-      speakers: p.all_presenters_names
+      speakers: p.all_presenters_names,
+      presentationId: p.presentation_id
     }
     return presentation
   })
@@ -39,7 +40,7 @@ export const getStaticProps: GetStaticProps<
 
 const AllPresentations: React.FC<AllPresentationsProps> = (props) => {
   const renderedPresentations = props.presentations.map((p) => (
-    <PresentationSummary presentation={p} key={p.title} />
+    <PresentationSummary presentation={p} key={p.title} pageLink={`/presentations/${p.presentationId}`}/>
   ))
 
   // The Box here prevents going to the very edge on smaller screens

@@ -66,7 +66,8 @@ export const getStaticProps: GetStaticProps<PresentationProps> = async ({
         firstName: presenterInfo.firstname,
         lastName: presenterInfo.lastname,
         description: presenterInfo.bio ?? '',
-        image: avatarUrl
+        image: avatarUrl,
+        createPageLink: `/presenters/${presenterInfo.id}`
       }
     })
   )

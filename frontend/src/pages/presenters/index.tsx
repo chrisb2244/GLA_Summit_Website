@@ -40,6 +40,7 @@ const MyProfile = (): JSX.Element => {
         description={user.bio ?? ''}
         image={avatarUrl}
         useDefaultIconImage
+        pageLink={`/presenters/${user.id}`}
       />
     )
   })

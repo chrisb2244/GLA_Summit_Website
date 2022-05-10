@@ -2,6 +2,8 @@ import { Fragment, ReactElement } from 'react'
 import { Typography, Paper, Box, Stack } from '@mui/material'
 import Image, { StaticImageData } from 'next/image'
 import { Person as PersonIcon } from '@mui/icons-material'
+import { Link } from '@/lib/link'
+import type { LinkProps } from '@/lib/link'
 
 export interface PersonProps {
   firstName: string
@@ -12,9 +14,10 @@ export interface PersonProps {
   imagePosition?: string
   useDefaultIconImage?: boolean
   stripContainer?: boolean
+  pageLink?: string
 }
 
-export const PersonDisplay: React.FC<PersonProps> = (props) => {
+export const PersonDisplay: React.FC<PersonProps> = ({pageLink, ...props}) => {
   const direction =
     typeof props.imageSide !== 'undefined'
       ? props.imageSide === 'right'
@@ -75,6 +78,14 @@ export const PersonDisplay: React.FC<PersonProps> = (props) => {
 
   const OuterElem = props.stripContainer ? Fragment : Paper
 
+  const TitleComponent: React.FC<LinkProps> = ({children, ...props}) => {
+    if (typeof pageLink !== 'undefined') {
+      return <Link href={pageLink} {...props}>{children}</Link>
+    } else {
+      return <Typography {...props}>{children}</Typography>
+    }
+  }
+
   return (
     <OuterElem>
       <Stack
@@ -82,10 +93,12 @@ export const PersonDisplay: React.FC<PersonProps> = (props) => {
         justifyContent='space-around'
         alignContent='center'
       >
-        <Box width={{ xs: '100%', md: '60%' }} padding={props.stripContainer ? 0 : 2} alignItems='center'>
-          <Typography variant='h4'>
-            {props.firstName} {props.lastName}
-          </Typography>
+        <Box
+          width={{ xs: '100%', md: '60%' }}
+          padding={props.stripContainer ? 0 : 2}
+          alignItems='center'
+        >
+          <TitleComponent variant='h4'>{props.firstName} {props.lastName}</TitleComponent>
           <Typography
             component='div'
             variant='body1'
