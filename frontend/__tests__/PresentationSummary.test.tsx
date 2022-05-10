@@ -6,7 +6,8 @@ const speaker = 'First Last'
 const dummyPresentation: Presentation = {
   title: 'Dummy Title, with commas',
   abstract: 'This is the abstract.',
-  speakers: speaker
+  speakers: speaker,
+  presentationId: 'not-a-presentation-id'
 } as const
 
 describe('PresentationSummary', () => {
