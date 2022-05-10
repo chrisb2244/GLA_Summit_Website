@@ -4,12 +4,15 @@ import type { AllPresentationsModel, ProfileModel } from '@/lib/databaseModels'
 import { Box, Paper, Typography } from '@mui/material'
 import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
 import { PersonDisplay, PersonProps } from '@/Components/PersonDisplay'
+import { useSession } from '@/lib/sessionContext'
 
 type Presentation = {
   title: string
   abstract: string
   speakerNames: string[]
   speakers: PersonProps[]
+  sessionStart: string
+  sessionEnd: string
 }
 
 type PresentationProps = {
@@ -68,13 +71,24 @@ export const getStaticProps: GetStaticProps<PresentationProps> = async ({
     })
   )
 
+  const type = data.presentation_type
+  // Panels, 7x7 for 1h, 'full length' for 45m?
+  const sessionDuration = type === 'full length' ? 45 * 60 : 60 * 60 // duration in seconds
+  const startDate = new Date(data.scheduled_for)
+  const sessionStart = startDate.toUTCString()
+  const sessionEnd = new Date(
+    startDate.getTime() + sessionDuration * 1000
+  ).toUTCString()
+
   return {
     props: {
       presentation: {
         title: data.title,
         abstract: data.abstract,
         speakers: presenters,
-        speakerNames: data.all_presenters_names
+        speakerNames: data.all_presenters_names,
+        sessionStart,
+        sessionEnd
       }
     }
   }
@@ -96,14 +110,35 @@ export const getStaticPaths: GetStaticPaths = async () => {
 }
 
 const PresentationPage = ({ presentation }: PresentationProps) => {
+  const {
+    timezoneInfo: { timeZone, timeZoneName, use24HourClock }
+  } = useSession()
+  const dateToString = (utcDateString: string) => {
+    const date = new Date(utcDateString)
+    const formatter = new Intl.DateTimeFormat(undefined, {
+      timeZone,
+      hour: 'numeric',
+      minute: '2-digit',
+      second: undefined,
+      dateStyle: undefined,
+      hour12: use24HourClock === false
+    })
+    return formatter.format(date)
+  }
+
+  const startTime = dateToString(presentation.sessionStart)
+  const endTime = dateToString(presentation.sessionEnd)
+
   return (
     <Paper>
       <StackedBoxes>
         <Box width={{ xs: '100%', md: '95%' }} marginX='auto'>
-          <Typography variant='h3' gutterBottom>{presentation.title}</Typography>
-          {/* <Typography variant='subtitle1' fontStyle='italic'>
-            {presentation.speakerNames.join(', ')}
-          </Typography> */}
+          <Typography variant='h3' gutterBottom>
+            {presentation.title}
+          </Typography>
+          <Typography variant='subtitle1' fontStyle='italic'>
+            {`${startTime} - ${endTime} (${timeZoneName})`}
+          </Typography>
           <Box>
             {presentation.abstract.split('\r\n').map((p, idx) => {
               return <Typography key={`p${idx}`}>{p}</Typography>
