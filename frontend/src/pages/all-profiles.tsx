@@ -1,5 +1,5 @@
 import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
-import { Person } from '@/Components/Person'
+import { PersonDisplay } from '@/Components/PersonDisplay'
 import { ProfileModel } from '@/lib/databaseModels'
 import { supabase } from '@/lib/supabaseClient'
 import { useEffect, useState } from 'react'
@@ -33,7 +33,7 @@ const MyProfile = (): JSX.Element => {
       : null
 
     return (
-      <Person
+      <PersonDisplay
         key={user.id}
         firstName={user.firstname}
         lastName={user.lastname}
