@@ -39,13 +39,17 @@ export const Header: React.FC = () => {
   // direction a row, rather than a column otherwise...
   return (
     <>
-      <AppBar position='static'>
+      <AppBar
+        position='static'
+        sx={{ backgroundColor: { xs: 'lightgrey', md: 'primary.main' } }}
+      >
         <Toolbar id='logo bar' disableGutters>
           {logo}
           <Typography
             variant='h1'
             textAlign='center'
-            display={{ xs: 'none', md: 'inherit' }}
+            display={{ xs: 'none', md: 'flex' }}
+            mx='auto'
           >
             GLA Summit
           </Typography>

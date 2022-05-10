@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabaseClient'
-import type { ProfileModel } from '@/lib/sessionContext'
+import type { ProfileModel } from '@/lib/databaseModels'
 import type { PostgrestError } from '@supabase/supabase-js'
 import { useEffect, useReducer, useRef, useState } from 'react'
 import type { ChangeEvent } from 'react'

@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react'
-import { AppFrame } from '@/Components/Frame/AppFrame'
+import { AppFrame } from '@/Components/Layout/AppFrame'
 import { useSession } from '@/lib/sessionContext'
 
 const longIpsum = (
@@ -79,7 +79,13 @@ mockedSession.mockReturnValue({
   signUp: jest.fn(),
   signOut: jest.fn(),
   profile: null,
-  session: null
+  session: null,
+  timezoneInfo: {
+    timeZone: 'Asia/Tokyo',
+    timeZoneName: 'Japan Standard Time',
+    use24HourClock: false
+  },
+  isLoading: false
 })
 
 describe('AppFrame', () => {

@@ -5,7 +5,7 @@ import CssBaseline from '@mui/material/CssBaseline'
 import { CacheProvider, EmotionCache } from '@emotion/react'
 import { theme } from '../theme'
 import createEmotionCache from '../createEmotionCache'
-import { AppFrame } from '../Components/Frame/AppFrame'
+import { AppFrame } from '../Components/Layout/AppFrame'
 import reportWebVitals from '../reportWebVitals'
 import { AuthProvider } from '@/lib/sessionContext'
 

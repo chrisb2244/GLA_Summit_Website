@@ -2,7 +2,7 @@ import { render, waitFor, screen } from '@testing-library/react'
 import { User } from '@/Components/User/User'
 import { Header } from '@/Components/Header'
 import type { Session } from '@supabase/supabase-js'
-import type { ProfileModel } from '@/lib/sessionContext'
+import type { ProfileModel } from '@/lib/databaseModels'
 import { useSession } from '@/lib/sessionContext'
 
 jest.mock('@/lib/profileImage')
@@ -26,7 +26,12 @@ const dummyReturn = {
   isLoading: false,
   signIn: jest.fn(),
   signUp: jest.fn(),
-  signOut: jest.fn()
+  signOut: jest.fn(),
+  timezoneInfo: {
+    timeZone: '',
+    timeZoneName: '',
+    use24HourClock: false
+  }
 }
 
 jest.mock('@/lib/sessionContext')
