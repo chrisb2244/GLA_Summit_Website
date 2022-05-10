@@ -26,7 +26,12 @@ const dummyReturn = {
   isLoading: false,
   signIn: jest.fn(),
   signUp: jest.fn(),
-  signOut: jest.fn()
+  signOut: jest.fn(),
+  timezoneInfo: {
+    timeZone: '',
+    timeZoneName: '',
+    use24HourClock: false
+  }
 }
 
 jest.mock('@/lib/sessionContext')

@@ -1,4 +1,4 @@
-import { Organizer } from '../Components/Organizer'
+import { PersonDisplay } from '../Components/PersonDisplay'
 import { descriptions } from '../organizer-descriptions'
 import Image_OW from '@/media/OliWachno.jpg'
 import Image_TM from '@/media/TomMcQuillan.png'
@@ -15,59 +15,59 @@ import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
 const OurTeam: React.FC = () => {
   return (
     <StackedBoxes>
-      <Organizer
+      <PersonDisplay
         firstName='Oliver'
         lastName='Wachno'
         description={descriptions.OliverWachno}
         image={Image_OW}
         imageSide='left'
       />
-      <Organizer
+      <PersonDisplay
         firstName='Christian'
         lastName='Butcher'
         description={descriptions.ChristianButcher}
         image={Image_CB}
       />
-      <Organizer
+      <PersonDisplay
         firstName='Tom'
         lastName='McQuillan'
         description={descriptions.TomMcQuillan}
         image={Image_TM}
         imageSide='left'
       />
-      <Organizer
+      <PersonDisplay
         firstName='Sreejith'
         lastName='Sreenivasan'
         description={descriptions.SreejithSreenivasan}
         image={Image_SS}
       />
-      <Organizer
+      <PersonDisplay
         firstName='Sam'
         lastName='Taggart'
         description={descriptions.SamTaggart}
         image={Image_ST}
         imageSide='left'
       />
-      <Organizer
+      <PersonDisplay
         firstName='William'
         lastName='Richards'
         description={descriptions.WilliamRichards}
         image={Image_WR}
       />
-      <Organizer
+      <PersonDisplay
         firstName='Michał'
         lastName='Radziwon'
         description={descriptions.MichalRadziwon}
         image={Image_MR}
         imageSide='left'
       />
-      <Organizer
+      <PersonDisplay
         firstName='Amanda'
         lastName='Bacala'
         description={descriptions.AmandaBacala}
         image={Image_AB}
       />
-      <Organizer
+      <PersonDisplay
         firstName='Martin'
         lastName='Lentz'
         description={descriptions.MartinLentz}
@@ -75,7 +75,7 @@ const OurTeam: React.FC = () => {
         imageSide='left'
         imagePosition='70% 50%'
       />
-      <Organizer
+      <PersonDisplay
         firstName='Quentin'
         lastName='Alldredge'
         description={descriptions.QuentinAlldredge}
