@@ -8,10 +8,11 @@ import createEmotionCache from '../createEmotionCache'
 import { AppFrame } from '../Components/Layout/AppFrame'
 import reportWebVitals from '../reportWebVitals'
 import { AuthProvider } from '@/lib/sessionContext'
+import { Fragment } from 'react'
 
 import '../spinningLogo.css'
 import '../GLA-generic.css'
-
+import { MaintenanceModeProvider } from '@/lib/maintenanceModeContext'
 
 // declare module '@mui/styles/defaultTheme' {
 //   // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -20,6 +21,7 @@ import '../GLA-generic.css'
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache()
+const isMaintenancePage = process.env.NEXT_PUBLIC_MAINTENANCE_MODE === 'true'
 
 interface MyAppProps extends AppProps {
   emotionCache?: EmotionCache
@@ -32,21 +34,25 @@ export default function MyApp(props: MyAppProps): JSX.Element {
     pageProps: { ...pageProps }
   } = props
 
+  const AppFrameElem = isMaintenancePage ? Fragment : AppFrame
+
   return (
     <CacheProvider value={emotionCache}>
       <Head>
-        <title>GLA Summit 2021</title>
+        <title>GLA Summit 2022</title>
         <meta name='viewport' content='initial-scale=1, width=device-width' />
       </Head>
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={theme}>
           {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
           <CssBaseline />
-          <AuthProvider>
-            <AppFrame >
-              <Component {...pageProps} />
-            </AppFrame>
-          </AuthProvider>
+          <MaintenanceModeProvider maintenanceMode={isMaintenancePage}>
+            <AuthProvider>
+              <AppFrameElem>
+                <Component {...pageProps} />
+              </AppFrameElem>
+            </AuthProvider>
+          </MaintenanceModeProvider>
         </ThemeProvider>
       </StyledEngineProvider>
     </CacheProvider>

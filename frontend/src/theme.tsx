@@ -37,8 +37,9 @@ export const theme = responsiveFontSizes(createTheme({
     text: {
       // primary: '#fff',
       primary: '#000',
-      secondary: '#3e4342',
-      disabled: '#e7e9e8'
+      // secondary: '#3e4342',
+      secondary: '#fff',
+      disabled: '#e7e9e8',
     }
   },
   typography: {
