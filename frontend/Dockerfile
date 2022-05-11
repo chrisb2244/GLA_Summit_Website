@@ -6,7 +6,7 @@ WORKDIR /usr/app
 USER node
 COPY --chown=node:node package.json package-lock.json ./
 # RUN npm ci && npm cache clean --force
-COPY --chown=node:node tsconfig.json next.config.js next-env.d.ts ./
+COPY --chown=node:node tsconfig.json ./
 
 ENV NODE_ENV=development
 RUN npm install
@@ -14,5 +14,5 @@ ENV PATH /usr/app/node_modules/.bin:$PATH
 
 COPY --chown=node:node prisma ./
 
-COPY --chown=node:node .env.local .env ./
+COPY --chown=node:node next.config.js next-env.d.ts .env.local .env ./
 CMD ["npm", "run", "dev"]
