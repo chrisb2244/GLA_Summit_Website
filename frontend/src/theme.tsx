@@ -30,6 +30,9 @@ export const theme = responsiveFontSizes(createTheme({
       main: '#5837b9'
       // main: '#fff'
     },
+    secondary: {
+      main: '#a25bcd'
+    },
     background: {
       // default: '#a25bcd'
       default: '#fff'
