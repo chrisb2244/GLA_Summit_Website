@@ -35,7 +35,7 @@ export default function MyApp(props: MyAppProps): JSX.Element {
   return (
     <CacheProvider value={emotionCache}>
       <Head>
-        <title>GLA Summit 2021</title>
+        <title>GLA Summit 2022</title>
         <meta name='viewport' content='initial-scale=1, width=device-width' />
       </Head>
       <StyledEngineProvider injectFirst>
