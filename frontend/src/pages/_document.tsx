@@ -1,11 +1,14 @@
-import * as React from 'react'
-import Document, { Html, Head, Main, NextScript } from 'next/document'
+import Document, { provideComponents } from '@next-safe/middleware/dist/document'
+import { Html, Main } from 'next/document'
 import createEmotionServer from '@emotion/server/create-instance'
-import { theme } from '../theme'
 import createEmotionCache from '../createEmotionCache'
+import { theme } from '../theme'
+import * as React from 'react'
 
 export default class MyDocument extends Document {
   render(): JSX.Element {
+    const { Head, NextScript } = provideComponents(this.props)
+
     return (
       <Html lang='en'>
         <Head>
