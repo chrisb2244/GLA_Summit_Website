@@ -1,23 +1,11 @@
-import {
-  Dialog,
-  Button,
-  TextField,
-  Typography,
-  Box,
-  Container,
-  Link
-} from '@mui/material'
+import { Dialog, Button, Typography, Box, Container, Link } from '@mui/material'
 import type { TypographyProps } from '@mui/material'
-import { useForm, Controller } from 'react-hook-form'
-import type {
-  Control,
-  UseControllerProps,
-  SubmitHandler,
-  SubmitErrorHandler
-} from 'react-hook-form'
-import { supabase } from '../../lib/supabaseClient'
+import { useForm } from 'react-hook-form'
+import type { SubmitHandler, SubmitErrorHandler } from 'react-hook-form'
 import type { ApiError } from '@supabase/supabase-js'
 import { randomBytes } from 'crypto'
+import { supabase } from '@/lib/supabaseClient'
+import { FormField } from '@/Components/Form/FormField'
 
 type UserRegistrationProps = {
   open: boolean
@@ -49,50 +37,6 @@ const SmallCenteredText: React.FC<TypographyProps> = ({
     >
       {children}
     </Typography>
-  )
-}
-
-const FormField = (props: {
-  name: keyof FormValues
-  control: Control<FormValues>
-  rules?: UseControllerProps<FormValues>['rules']
-}): JSX.Element => {
-  const { name, control, rules } = props
-
-  return (
-    <Controller
-      control={control}
-      name={name}
-      rules={{ ...rules }}
-      defaultValue=''
-      render={({
-        field: { name, ref, ...fProps },
-        fieldState: { error, isTouched }
-      }) => {
-        let hasError = false
-        let errorText = ''
-        let helperProps
-        if (isTouched) {
-          hasError = typeof error !== 'undefined'
-          errorText = hasError ? error?.type ?? 'Oops, error but no text' : ''
-          helperProps = hasError ? { role: 'alert' } : undefined
-        }
-        return (
-          <TextField
-            label={name}
-            error={hasError}
-            helperText={errorText}
-            id={name}
-            type='text'
-            fullWidth
-            aria-label={name}
-            inputRef={ref}
-            FormHelperTextProps={helperProps}
-            {...fProps}
-          />
-        )
-      }}
-    />
   )
 }
 
