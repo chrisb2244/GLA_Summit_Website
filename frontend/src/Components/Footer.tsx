@@ -58,7 +58,7 @@ const FileLink = (props: { link: string; title: string }): JSX.Element => {
 
   if (props.link !== '') {
     return (
-      <Link href={props.link} color='#fff'>
+      <Link href={props.link} color='#fff' alignSelf='center'>
         {text}
       </Link>
     )
