@@ -1,9 +1,10 @@
-import { Button, TextField, Typography, Box, Paper } from '@mui/material'
+import { Button, Typography, Box, Paper } from '@mui/material'
 import { useForm, of, useFieldArray } from 'react-hook-form'
 import { Person } from '@/Components/Form/Person'
 import type { PersonProps } from '@/Components/Form/Person'
 import { StackedBoxes } from '../Layout/StackedBoxes'
 import { PersonArrayFormComponent } from './PersonArray'
+import { FormField } from './FormField'
 
 type FormProps = {
   submitter: PersonProps
@@ -26,7 +27,7 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
     control,
     handleSubmit,
     formState: { errors }
-  } = useForm<FormDataType>()
+  } = useForm<FormDataType>({ mode: 'onTouched' })
 
   const {
     fields: otherPresenterFields,
@@ -37,17 +38,23 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
     control
   })
 
-  const {
-    fields: timeWindowFields,
-    append: addTimeWindow,
-    remove: removeTimeWindow
-  } = useFieldArray<FormDataType, 'timeWindows'>({
-    name: 'timeWindows',
-    control
-  })
+  // const {
+  //   fields: timeWindowFields,
+  //   append: addTimeWindow,
+  //   remove: removeTimeWindow
+  // } = useFieldArray<FormDataType, 'timeWindows'>({
+  //   name: 'timeWindows',
+  //   control
+  // })
+
+  // const abstract = useWatch({
+  //   control,
+  //   name: 'abstract',
+  // })
+  // const minLengthMessageAbstract = `This field has a minimum length of 100 characters (${abstract?.length ?? 0}/100)`
 
   return (
-    <Box onSubmit={handleSubmit((data) => console.log(data))}>
+    <form onSubmit={handleSubmit((data) => console.log(data))}>
       <StackedBoxes stackSpacing={1.5}>
         <Typography variant='body1'>
           Please enter the information below and submit your presentation!
@@ -83,41 +90,56 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
         </Button>
         <Paper>
           <StackedBoxes>
-            <TextField
-              {...register('title', {
-                required: true
+            <FormField
+              registerReturn={register('title', {
+                required: 'Required'
               })}
               placeholder='Presentation Title'
               fullWidth
               sx={{ pt: 2 }}
+              fieldError={errors.title}
             />
-            <TextField
-              {...register('abstract', {
-                required: true,
-                minLength: 100,
-                maxLength: 5000
+            <FormField
+              registerReturn={register('abstract', {
+                required: 'Required',
+                minLength: {
+                  value: 100,
+                  message: 'This field has a minimum length of 100 characters'
+                },
+                maxLength: {
+                  value: 5000,
+                  message: 'This field has a maximum length of 5000 characters'
+                }
+                // onChange: (ev) => {
+                //   setAbstractLength(ev.target.value.length)
+                // }
               })}
+              fieldError={errors.abstract}
               placeholder='Presentation Abstract'
               fullWidth
               multiline
               rows={5}
             />
-            <TextField
-              {...register('learningPoints', {
-                required: true,
-                minLength: 50
+            <FormField
+              registerReturn={register('learningPoints', {
+                required: 'Required',
+                minLength: {
+                  value: 50,
+                  message: 'This field has a minimum length of 50 characters'
+                }
               })}
+              fieldError={errors.learningPoints}
               placeholder='What is the most important thing attendees would learn from your presentation?'
               fullWidth
               multiline
               rows={2}
             />
           </StackedBoxes>
-          {timeWindowFields?.map((timeWindow, idx) => {
+          {/* {timeWindowFields?.map((timeWindow, idx) => {
             return (
               <Box key={`timeWindow-${idx}`}>
                 <p>Time window goes here</p>
-                {/* <TimeWindowPicker<FormDataType> register={register} path={of('')} /> */}
+                <TimeWindowPicker<FormDataType> register={register} path={of('')} />
                 <Button
                   variant='outlined'
                   onClick={() => {
@@ -128,20 +150,20 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
                 </Button>
               </Box>
             )
-          })}
-          <Button
+          })} */}
+          {/* <Button
             variant='outlined'
             onClick={() => {
               addTimeWindow({})
             }}
           >
             Add Time Window{' '}
-          </Button>
+          </Button> */}
         </Paper>
         <Button variant='contained' type='submit' fullWidth>
           Submit Presentation
         </Button>
       </StackedBoxes>
-    </Box>
+    </form>
   )
 }
