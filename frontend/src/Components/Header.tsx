@@ -21,10 +21,7 @@ export const Header: React.FC = () => {
             style={{ pointerEvents: 'none' }}
           />
         </Box>
-        <Box
-          display={{ xs: 'flex', md: 'none' }}
-          sx={{ backgroundColor: 'lightgrey' }}
-        >
+        <Box display={{ xs: 'flex', md: 'none' }} >
           <NextImage
             src={GLA_Logo_Mobile}
             {...imageProps}
@@ -39,11 +36,8 @@ export const Header: React.FC = () => {
   // direction a row, rather than a column otherwise...
   return (
     <>
-      <AppBar
-        position='static'
-        sx={{ backgroundColor: { xs: 'lightgrey', md: 'primary.main' } }}
-      >
-        <Toolbar id='logo bar' disableGutters>
+      <AppBar position='static' sx={{ backgroundColor: 'primary.main' }}>
+        <Toolbar id='logo bar' disableGutters sx={{justifyContent: {xs: 'center', md: undefined}}}>
           {logo}
           <Typography
             variant='h1'
