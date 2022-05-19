@@ -89,19 +89,6 @@ mockedSession.mockReturnValue({
 })
 
 describe('AppFrame', () => {
-  it('restricts child content to centred, not-full-width', () => {
-    const frameIpsum = <AppFrame>{longIpsum}</AppFrame>
-
-    render(frameIpsum)
-    const p = screen.getByTestId('test-paragraph')
-    expect(p).toHaveStyle({ marginLeft: 'auto', marginRight: 'auto' })
-    const maxW = window.getComputedStyle(p).maxWidth
-    const percentageW = Number.parseFloat(
-      maxW.match(/([0-9.]*)%/)?.[1] ?? '100'
-    )
-    expect(percentageW).toBeLessThan(95)
-  })
-
   it('contains the title when not scrolled', () => {
     const basicFrame = (
       <AppFrame>

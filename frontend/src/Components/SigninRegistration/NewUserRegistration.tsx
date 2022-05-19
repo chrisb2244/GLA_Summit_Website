@@ -1,22 +1,16 @@
-import { Dialog, Button, Typography, Box, Container, Link } from '@mui/material'
+import { Dialog, Button, Typography, Container, Link } from '@mui/material'
 import type { TypographyProps } from '@mui/material'
-import { useForm } from 'react-hook-form'
+import { TypedFieldPath, useForm } from 'react-hook-form'
 import type { SubmitHandler, SubmitErrorHandler } from 'react-hook-form'
 import type { ApiError } from '@supabase/supabase-js'
 import { randomBytes } from 'crypto'
 import { supabase } from '@/lib/supabaseClient'
-import { FormField } from '@/Components/Form/FormField'
+import { Person, PersonProps } from '../Form/Person'
 
 type UserRegistrationProps = {
   open: boolean
   setClosed: () => void
   switchToSignIn: () => void
-}
-
-type FormValues = {
-  'First name': string
-  'Last name': string
-  Email: string
 }
 
 type NewUserInformation = {
@@ -40,19 +34,23 @@ const SmallCenteredText: React.FC<TypographyProps> = ({
   )
 }
 
+function EMPTY<T>() {
+  return '' as TypedFieldPath<T, T>
+}
+
 export const NewUserRegistration: React.FC<UserRegistrationProps> = (props) => {
-  const { control, handleSubmit, reset } = useForm<FormValues>({
-    mode: 'onBlur'
+  const { handleSubmit, reset, register, formState: {errors} } = useForm<PersonProps>({
+    mode: 'onTouched'
   })
-  const onSubmit: SubmitHandler<FormValues> = async (data) => {
+  const onSubmit: SubmitHandler<PersonProps> = async (data) => {
     const newUserData: NewUserInformation = {
-      firstname: data['First name'],
-      lastname: data['Last name']
+      firstname: data['firstName'],
+      lastname: data['lastName']
     }
 
     await supabase.auth
       .signUp(
-        { email: data.Email, password: randomBytes(32).toString('hex') },
+        { email: data.email, password: randomBytes(32).toString('hex') },
         { data: newUserData, redirectTo: 'http://localhost:3000' }
       )
       .then(({ user, session, error }) => {
@@ -68,7 +66,7 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = (props) => {
     reset()
     return true
   }
-  const onError: SubmitErrorHandler<FormValues> = (err) => console.log(err)
+  const onError: SubmitErrorHandler<PersonProps> = (err) => console.log(err)
 
   return (
     <Dialog open={props.open} onClose={props.setClosed}>
@@ -79,27 +77,13 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = (props) => {
             with a verification link - click the link to automatically sign into
             the site.
           </SmallCenteredText>
-          <Box mb={2}>
-            <FormField
-              control={control}
-              name='First name'
-              rules={{ required: true, maxLength: 80 }}
-            />
-          </Box>
-          <Box mb={2}>
-            <FormField
-              control={control}
-              name='Last name'
-              rules={{ required: true, maxLength: 100 }}
-            />
-          </Box>
-          <Box mb={2}>
-            <FormField
-              control={control}
-              name='Email'
-              rules={{ required: true, pattern: /^\S+@\S+$/i }}
-            />
-          </Box>
+          <Person<PersonProps>
+            register={register}
+            path={EMPTY()}
+            errors={errors}
+            splitSize={null}
+            sx={{ pb: 2 }}
+          />
           <Button type='submit' variant='outlined' fullWidth>
             Register
           </Button>
