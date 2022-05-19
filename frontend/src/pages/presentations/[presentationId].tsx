@@ -133,7 +133,7 @@ const PresentationPage = ({ presentation }: PresentationProps) => {
   return (
     <Paper>
       <StackedBoxes>
-        <Box width={{ xs: '100%', md: '95%' }} marginX='auto'>
+        <Box width={{ xs: '100%', md: '95%' }} marginX='auto' mt={1}>
           <Typography variant='h3' gutterBottom>
             {presentation.title}
           </Typography>

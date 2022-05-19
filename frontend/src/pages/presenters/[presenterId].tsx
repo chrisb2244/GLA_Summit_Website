@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabaseClient'
-import type { GetStaticPaths, GetStaticProps } from 'next'
+import type { GetStaticPaths, GetStaticProps, NextPage } from 'next'
 import type { AllPresentationsModel, ProfileModel } from '@/lib/databaseModels'
 import { Box, Paper } from '@mui/material'
 import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
@@ -84,7 +84,7 @@ export const getStaticProps: GetStaticProps<ProfileProps> = async ({
 }
 
 // Render (and hydrate if required) the page
-const PresentationPage = ({ presenter, presentations }: ProfileProps) => {
+const PresenterPage: NextPage<ProfileProps> = ({ presenter, presentations }) => {
   return (
     <Paper>
       <Box marginTop={2} paddingTop={2}>
@@ -113,4 +113,4 @@ const PresentationPage = ({ presenter, presentations }: ProfileProps) => {
   )
 }
 
-export default PresentationPage
+export default PresenterPage
