@@ -1,5 +1,5 @@
 import { PersonProps } from '@/Components/Form/Person'
-import type { FormDataType } from '@/Components/Form/PresentationSubmissionForm'
+import type { FormData } from '@/Components/Form/PresentationSubmissionForm'
 import {
   Box,
   CssBaseline,

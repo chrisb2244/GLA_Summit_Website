@@ -10,7 +10,7 @@ type FormProps = {
   submitter: PersonProps
 }
 
-type FormDataType = {
+export type FormData = {
   submitter: PersonProps
   otherPresenters: PersonProps[]
   title: string
@@ -27,13 +27,13 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
     control,
     handleSubmit,
     formState: { errors }
-  } = useForm<FormDataType>({ mode: 'onTouched' })
+  } = useForm<FormData>({ mode: 'onTouched' })
 
   const {
     fields: otherPresenterFields,
     append: addPresenter,
     remove: removePresenter
-  } = useFieldArray<FormDataType, 'otherPresenters'>({
+  } = useFieldArray<FormData, 'otherPresenters'>({
     name: 'otherPresenters',
     control
   })
@@ -54,14 +54,22 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
   // const minLengthMessageAbstract = `This field has a minimum length of 100 characters (${abstract?.length ?? 0}/100)`
 
   return (
-    <form onSubmit={handleSubmit((data) => console.log(data))}>
+    <form onSubmit={handleSubmit((data) => {
+      fetch('/api/handlePresentationSubmission', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ formdata: data })
+      })
+    })}>
       <StackedBoxes stackSpacing={1.5}>
         <Typography variant='body1'>
           Please enter the information below and submit your presentation!
         </Typography>
         <Paper>
           <Box px={1} py={2}>
-            <Person<FormDataType>
+            <Person<FormData>
               heading='Submitter'
               defaultValue={submitter}
               errors={errors.submitter}
@@ -72,7 +80,7 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
             />
           </Box>
         </Paper>
-        <PersonArrayFormComponent<FormDataType>
+        <PersonArrayFormComponent<FormData>
           personArray={otherPresenterFields}
           arrayPath={of('otherPresenters')}
           errors={errors.otherPresenters}
