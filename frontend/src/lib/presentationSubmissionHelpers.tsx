@@ -61,7 +61,7 @@ const OtherPresenterRows: React.FC<{ presenters: PersonProps[] }> = ({
 const HorizontalDivider: React.FC = () => {
   return (
     <TableRow
-      sx={{ borderWidth: 2, borderColor: 'black', borderStyle: 'solid' }}
+      sx={{ borderWidth: 2, borderColor: 'secondary.main', borderStyle: 'solid' }}
     />
   )
 }
