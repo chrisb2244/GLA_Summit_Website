@@ -5,6 +5,8 @@ import type { PersonProps } from '@/Components/Form/Person'
 import { StackedBoxes } from '../Layout/StackedBoxes'
 import { PersonArrayFormComponent } from './PersonArray'
 import { FormField } from './FormField'
+import { useState } from 'react'
+import { useRouter } from 'next/router'
 
 type FormProps = {
   submitter: PersonProps
@@ -47,6 +49,8 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
   //   control
   // })
 
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const router = useRouter()
   // const abstract = useWatch({
   //   control,
   //   name: 'abstract',
@@ -55,12 +59,16 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
 
   return (
     <form onSubmit={handleSubmit((data) => {
+      setIsSubmitting(true)
       fetch('/api/handlePresentationSubmission', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ formdata: data })
+      }).then(() => {
+        router.push('/')
+        setIsSubmitting(false)
       })
     })}>
       <StackedBoxes stackSpacing={1.5}>
@@ -168,8 +176,8 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
             Add Time Window{' '}
           </Button> */}
         </Paper>
-        <Button variant='contained' type='submit' fullWidth>
-          Submit Presentation
+        <Button variant='contained' type='submit' fullWidth disabled={isSubmitting}>
+          {isSubmitting ? 'Submitting now!' : 'Submit Presentation' }
         </Button>
       </StackedBoxes>
     </form>

@@ -15,16 +15,13 @@ const handlePresentationSubmission = async (
   const { body, bodyPlain } = generateBody(formData)
 
   sendMail({ to, subject, body, bodyPlain })
-    .then((messageInfo) => {
-      const _seemsOk = messageInfo.response.startsWith('250 OK')
-      // Go to the homepage
-      res.redirect('/')
+    .then((info) => {
+      res.status(201).json(info)
     })
     .catch((error) => {
-      console.error(error)
-      const target = req.headers.referer
-      res.redirect(target ?? '/')
+      res.status(400).json(error)
     })
+
 }
 
 export default handlePresentationSubmission
