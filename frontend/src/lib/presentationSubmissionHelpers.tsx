@@ -17,7 +17,6 @@ import { CacheProvider } from '@emotion/react'
 import createEmotionCache from 'src/createEmotionCache'
 import createEmotionServer from '@emotion/server/create-instance'
 import { theme } from 'src/theme'
-import NextImage from 'next/image'
 
 const FormRow: React.FC<{ label: string; value: string }> = ({
   label,
@@ -83,7 +82,7 @@ export const FormSubmissionEmail: React.FC<{ data: FormData }> = ({ data }) => {
               <P>The data you submitted is shown below.</P>
             </TableCell>
             <TableCell sx={{p:0}}>
-              <NextImage
+              <img
                 src='https://iuqlmccpbxtgcluccazt.supabase.co/storage/v1/object/public/public-images/GLA-logo.png?t=2022-05-20T09:06:14.131Z'
                 height={80}
                 width={80}
