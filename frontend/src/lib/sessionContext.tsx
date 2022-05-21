@@ -66,74 +66,11 @@ const defaultTimezoneInfo = () => {
 export const AuthProvider: React.FC = (props) => {
   const [isLoading, setLoading] = useState(true)
   const [user, setUser] = useState<User | null>(null)
+  const [session, setSession] = useState<Session | null>(null)
   const [profile, setProfile] = useState<ProfileModel | null>(null)
   const [isOrganizer, setIsOrganizer] = useState(false)
   const [timezoneInfo, setTimezoneInfo] =
     useState<TimezoneInfo>(defaultTimezoneInfo)
-
-  const updateProfileInfo = async () => {
-    if (user == null) {
-      setProfile(null)
-      return
-    }
-
-    const { data, error } = await supabase
-      .from<ProfileModel>('profiles')
-      .select('id, firstname, lastname, bio, website, avatar_url')
-      .eq('id', user.id)
-      .single()
-
-    if (error) {
-      setProfile(null)
-    }
-    if (data) {
-      setProfile(data)
-    }
-  }
-
-  const queryTimezonePreferences = async () => {
-    if (user == null) {
-      return
-    }
-
-    const { data, error } = await supabase
-      .from<TimezonePreferencesModel>('timezone_preferences')
-      .select()
-      .single()
-    if (error) {
-      return
-    }
-    const { timezone_db, timezone_name, use_24h_clock } = data
-    setTimezoneInfo({
-      timeZone: timezone_db,
-      timeZoneName: timezone_name,
-      use24HourClock: use_24h_clock
-    })
-  }
-
-  const checkIsOrganizer = async () => {
-    if (user == null) {
-      return setIsOrganizer(false)
-    }
-    try {
-      const { data, error } = await supabase
-        .from('organizers')
-        .select()
-        .single()
-      if (error) throw error
-      if (data) {
-        console.log('Setting true org!')
-        return setIsOrganizer(true)
-      }
-    } catch (error) {
-      const err = error as PostgrestError
-      const expected = 'JSON object requested, multiple (or no) rows returned'
-      if (err.message === expected) {
-        return
-      }
-      console.log(error)
-    }
-  }
 
   const signIn = async (email: string, options?: SignInOptions) => {
     const url = new URL(window.location.href)
@@ -162,20 +99,39 @@ export const AuthProvider: React.FC = (props) => {
       return { user: validUser, session, error }
     })
 
+  const runUpdates = async (user: User | null) => {
+    setUser(user)
+    getProfileInfo(user)
+      .then(setProfile)
+      .catch((error) => {
+        console.log(error)
+      })
+    checkIfOrganizer(user)
+      .then(setIsOrganizer)
+      .catch((error) => {
+        console.log(error)
+      })
+    queryTimezonePreferences(user)
+      .then(setTimezoneInfo)
+      .catch((error) => {
+        console.log(error)
+      })
+  }
+
   useEffect(() => {
-    updateProfileInfo()
-    checkIsOrganizer()
-    queryTimezonePreferences()
+    const session = supabase.auth.session()
+    setSession(session)
+    runUpdates(session?.user ?? null)
     setLoading(false)
 
     const { data: listener } = supabase.auth.onAuthStateChange(
       (ev, session) => {
         console.log(ev)
-        setUser(session?.user ?? null)
         setLoading(true)
-        updateProfileInfo()
-        checkIsOrganizer()
+        setSession(session)
+        runUpdates(session?.user ?? null)
         setLoading(false)
+        // updateSupabaseCookie(ev, session)
       }
     )
 
@@ -208,4 +164,63 @@ export const useSession = () => {
   const context = useContext(AuthContext)
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   return context!
+}
+
+// ---------------------- Helper functions --------------------------------- //
+const getProfileInfo = async (user: User | null) => {
+  if (user == null) {
+    throw new Error('User was null')
+  }
+
+  return supabase
+    .from<ProfileModel>('profiles')
+    .select('id, firstname, lastname, bio, website, avatar_url')
+    .eq('id', user.id)
+    .single()
+    .then(({ data, error }) => {
+      if (error) {
+        throw new Error(error.message)
+      } else {
+        return data
+      }
+    })
+}
+
+const checkIfOrganizer = async (user: User | null) => {
+  if (user == null) {
+    throw new Error('User was null')
+  }
+  try {
+    const { data, error } = await supabase.from('organizers').select().single()
+    if (error) throw error
+    if (data) return true
+    return false
+  } catch (error) {
+    const err = error as PostgrestError
+    const expected = 'JSON object requested, multiple (or no) rows returned'
+    if (err.message === expected) {
+      return false
+    }
+    throw error
+  }
+}
+
+const queryTimezonePreferences = async (user: User | null) => {
+  if (user == null) {
+    throw new Error('User was null')
+  }
+
+  const { data, error } = await supabase
+    .from<TimezonePreferencesModel>('timezone_preferences')
+    .select()
+    .single()
+  if (error) {
+    throw new Error(error.message)
+  }
+  const { timezone_db, timezone_name, use_24h_clock } = data
+  return {
+    timeZone: timezone_db,
+    timeZoneName: timezone_name,
+    use24HourClock: use_24h_clock
+  }
 }
