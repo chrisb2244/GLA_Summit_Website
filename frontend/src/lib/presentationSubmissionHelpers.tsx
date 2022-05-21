@@ -61,7 +61,11 @@ const OtherPresenterRows: React.FC<{ presenters: EmailProps[] }> = ({
 const HorizontalDivider: React.FC = () => {
   return (
     <TableRow
-      sx={{ borderWidth: 2, borderColor: 'secondary.main', borderStyle: 'solid' }}
+      sx={{
+        borderWidth: 2,
+        borderColor: 'secondary.main',
+        borderStyle: 'solid'
+      }}
     />
   )
 }
@@ -77,11 +81,13 @@ export const FormSubmissionEmail: React.FC<{ data: FormData }> = ({ data }) => {
       <Table>
         <TableBody>
           <TableRow>
-            <TableCell sx={{p:0}}>
-              <P>Thank you for submitting a presentation for GLA Summit 2022!</P>
+            <TableCell sx={{ p: 0 }}>
+              <P>
+                Thank you for submitting a presentation for GLA Summit 2022!
+              </P>
               <P>The data you submitted is shown below.</P>
             </TableCell>
-            <TableCell sx={{p:0}}>
+            <TableCell sx={{ p: 0 }}>
               <img
                 src='https://iuqlmccpbxtgcluccazt.supabase.co/storage/v1/object/public/public-images/GLA-logo.png?t=2022-05-20T09:06:14.131Z'
                 height={80}

@@ -51,26 +51,23 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
-  // const abstract = useWatch({
-  //   control,
-  //   name: 'abstract',
-  // })
-  // const minLengthMessageAbstract = `This field has a minimum length of 100 characters (${abstract?.length ?? 0}/100)`
 
   return (
-    <form onSubmit={handleSubmit((data) => {
-      setIsSubmitting(true)
-      fetch('/api/handlePresentationSubmission', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ formdata: data })
-      }).then(() => {
-        router.push('/')
-        setIsSubmitting(false)
-      })
-    })}>
+    <form
+      onSubmit={handleSubmit((data) => {
+        setIsSubmitting(true)
+        fetch('/api/handlePresentationSubmission', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ formdata: data })
+        }).then(() => {
+          router.push('/')
+          setIsSubmitting(false)
+        })
+      })}
+    >
       <StackedBoxes stackSpacing={1.5}>
         <Typography variant='body1'>
           Please enter the information below and submit your presentation!
@@ -132,9 +129,6 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
                   value: 5000,
                   message: 'This field has a maximum length of 5000 characters'
                 }
-                // onChange: (ev) => {
-                //   setAbstractLength(ev.target.value.length)
-                // }
               })}
               fieldError={errors.abstract}
               placeholder='Presentation Abstract'
@@ -182,8 +176,13 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
             Add Time Window{' '}
           </Button> */}
         </Paper>
-        <Button variant='contained' type='submit' fullWidth disabled={isSubmitting}>
-          {isSubmitting ? 'Submitting now!' : 'Submit Presentation' }
+        <Button
+          variant='contained'
+          type='submit'
+          fullWidth
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Submitting now!' : 'Submit Presentation'}
         </Button>
       </StackedBoxes>
     </form>
