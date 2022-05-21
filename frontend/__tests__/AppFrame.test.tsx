@@ -92,7 +92,7 @@ describe('AppFrame', () => {
   it('contains the title when not scrolled', () => {
     const basicFrame = (
       <AppFrame>
-        <p>Some content</p>
+        {longIpsum}
       </AppFrame>
     )
     render(basicFrame)

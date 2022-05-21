@@ -104,6 +104,7 @@ export const FormSubmissionEmail: React.FC<{ data: FormData }> = ({ data }) => {
               <P>The data you submitted is shown below.</P>
             </TableCell>
             <TableCell sx={{ p: 0 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src='https://iuqlmccpbxtgcluccazt.supabase.co/storage/v1/object/public/public-images/GLA-logo.png?t=2022-05-20T09:06:14.131Z'
                 height={80}
