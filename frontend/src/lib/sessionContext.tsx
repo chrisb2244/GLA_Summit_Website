@@ -66,7 +66,6 @@ const defaultTimezoneInfo = () => {
 export const AuthProvider: React.FC = (props) => {
   const [isLoading, setLoading] = useState(true)
   const [user, setUser] = useState<User | null>(null)
-  const [session, setSession] = useState<Session | null>(null)
   const [profile, setProfile] = useState<ProfileModel | null>(null)
   const [isOrganizer, setIsOrganizer] = useState(false)
   const [timezoneInfo, setTimezoneInfo] =
@@ -120,7 +119,6 @@ export const AuthProvider: React.FC = (props) => {
 
   useEffect(() => {
     const session = supabase.auth.session()
-    setSession(session)
     runUpdates(session?.user ?? null)
     setLoading(false)
 
@@ -128,7 +126,6 @@ export const AuthProvider: React.FC = (props) => {
       (ev, session) => {
         console.log(ev)
         setLoading(true)
-        setSession(session)
         runUpdates(session?.user ?? null)
         setLoading(false)
         // updateSupabaseCookie(ev, session)
