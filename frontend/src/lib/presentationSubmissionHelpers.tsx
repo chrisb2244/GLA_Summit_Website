@@ -76,6 +76,22 @@ const P: React.FC<TypographyProps> = ({ children, ...props }) => (
 
 export const FormSubmissionEmail: React.FC<{ data: FormData }> = ({ data }) => {
   const submitterName = `${data.submitter.firstName} ${data.submitter.lastName}`
+  let typeText = ''
+  switch (data.presentationType) {
+    case '7x7': {
+      typeText = '7x7 (7 minutes)'
+      break
+    }
+    case 'full length': {
+      typeText = 'Full Length (45 minutes)'
+      break
+    }
+    case 'panel': {
+      typeText = 'Panel Discussion'
+      break
+    }
+  }
+
   return (
     <Box sx={{ maxWidth: 800 }}>
       <Table>
@@ -102,6 +118,7 @@ export const FormSubmissionEmail: React.FC<{ data: FormData }> = ({ data }) => {
         <Box>
           <Table>
             <TableBody>
+              <FormRow label='Type:' value={typeText} />
               <FormRow label='Title:' value={data.title} />
               <FormRow label='Abstract:' value={data.abstract} />
               <FormRow label='Learning points:' value={data.learningPoints} />

@@ -1,4 +1,4 @@
-import { Button, Typography, Box, Paper } from '@mui/material'
+import { Button, Typography, Box, Paper, MenuItem } from '@mui/material'
 import { useForm, of, useFieldArray } from 'react-hook-form'
 import { Person } from '@/Components/Form/Person'
 import type { EmailProps, PersonProps } from '@/Components/Form/Person'
@@ -7,6 +7,7 @@ import { EmailArrayFormComponent } from './EmailArray'
 import { FormField } from './FormField'
 import { useState } from 'react'
 import { useRouter } from 'next/router'
+import { PresentationType } from '@/lib/databaseModels'
 
 type FormProps = {
   submitter: PersonProps
@@ -18,6 +19,7 @@ export type FormData = {
   title: string
   abstract: string
   learningPoints: string
+  presentationType: PresentationType
   timeWindows: { windowStartTime: Date; windowEndTime: Date }[]
 }
 
@@ -150,6 +152,21 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
               multiline
               rows={2}
             />
+            <FormField
+              registerReturn={register('presentationType')}
+              fieldError={errors.presentationType}
+              fullWidth
+              select
+              defaultValue='full length'
+              label='Presentation Type'
+            >
+              <MenuItem key='full length' value='full length'>
+                Full Length Presentation (45 minutes)
+              </MenuItem>
+              <MenuItem key='7x7' value='7x7'>
+                7x7 Presentation (7 minutes)
+              </MenuItem>
+            </FormField>
           </StackedBoxes>
           {/* {timeWindowFields?.map((timeWindow, idx) => {
             return (
