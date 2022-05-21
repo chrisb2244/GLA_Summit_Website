@@ -5,7 +5,7 @@ import type { EmailProps, PersonProps } from '@/Components/Form/Person'
 import { StackedBoxes } from '../Layout/StackedBoxes'
 import { EmailArrayFormComponent } from './EmailArray'
 import { FormField } from './FormField'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { PresentationType } from '@/lib/databaseModels'
 
@@ -52,6 +52,11 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
   // })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
+  useEffect(() => {
+    setIsMounted(true)
+    return () => setIsMounted(false)
+  }, [])
   const router = useRouter()
 
   return (
@@ -66,7 +71,9 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
           body: JSON.stringify({ formdata: data })
         }).then(() => {
           router.push('/')
-          setIsSubmitting(false)
+          if (isMounted) {
+            setIsSubmitting(false)
+          }
         })
       })}
     >
