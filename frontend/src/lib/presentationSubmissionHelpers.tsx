@@ -1,4 +1,4 @@
-import { PersonProps } from '@/Components/Form/Person'
+import { EmailProps } from '@/Components/Form/Person'
 import type { FormData } from '@/Components/Form/PresentationSubmissionForm'
 import {
   Box,
@@ -34,7 +34,7 @@ const FormRow: React.FC<{ label: string; value: string }> = ({
   )
 }
 
-const OtherPresenterRows: React.FC<{ presenters: PersonProps[] }> = ({
+const OtherPresenterRows: React.FC<{ presenters: EmailProps[] }> = ({
   presenters
 }) => {
   if (presenters.length === 0) {

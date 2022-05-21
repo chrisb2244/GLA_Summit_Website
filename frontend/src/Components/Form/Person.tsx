@@ -69,7 +69,7 @@ export function Person<FieldValues>(props: {
 
   const fieldProps = (field: keyof PersonProps) => {
     const error = props.errors?.[field]
-    const isError = !! error
+    const isError = !!error
     return {
       defaultValue: defaultValue?.[field],
       placeholder: labels[field],
@@ -108,6 +108,76 @@ export function Person<FieldValues>(props: {
           {...displayProps}
         />
       </Box>
+      <Box>
+        <TextField
+          {...register(join(path, 'email'), {
+            required: 'Required',
+            pattern: {
+              value: /^\S+@\S+\.\S+$/i,
+              message: "This email doesn't match the expected pattern"
+            }
+          })}
+          fullWidth
+          {...fieldProps('email')}
+          {...displayProps}
+        />
+      </Box>
+    </Box>
+  )
+}
+
+export type EmailProps = {
+  email: string
+}
+
+export function EmailFormComponent<FieldValues>(props: {
+  register: UseFormRegister<FieldValues>
+  path: TypedFieldPath<FieldValues, EmailProps>
+  errors: FieldErrors<PersonProps> | undefined
+  defaultValue?: EmailProps
+  locked?: boolean
+  heading?: string
+  sx?: SxProps<Theme>
+}) {
+  const { register, path, defaultValue, locked, heading } = props
+
+  let headElem = null
+  if (typeof heading !== 'undefined') {
+    headElem = (
+      <Box px={1}>
+        <Typography variant='body2'>{heading}</Typography>
+      </Box>
+    )
+  }
+  let displayProps = {}
+  if (locked ?? false) {
+    displayProps = {
+      ...displayProps,
+      variant: 'filled',
+      InputProps: { readOnly: true }
+    }
+  }
+
+  const labels = {
+    email: 'Email'
+  }
+
+  const fieldProps = (field: keyof EmailProps) => {
+    const error = props.errors?.[field]
+    const isError = !!error
+    return {
+      defaultValue: defaultValue?.[field],
+      placeholder: labels[field],
+      label: labels[field],
+      error: isError,
+      helperText: error?.message,
+      FormHelperTextProps: { role: isError ? 'alert' : undefined }
+    }
+  }
+
+  return (
+    <Box sx={props.sx}>
+      {headElem}
       <Box>
         <TextField
           {...register(join(path, 'email'), {

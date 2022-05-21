@@ -1,9 +1,9 @@
 import { Button, Typography, Box, Paper } from '@mui/material'
 import { useForm, of, useFieldArray } from 'react-hook-form'
 import { Person } from '@/Components/Form/Person'
-import type { PersonProps } from '@/Components/Form/Person'
+import type { EmailProps, PersonProps } from '@/Components/Form/Person'
 import { StackedBoxes } from '../Layout/StackedBoxes'
-import { PersonArrayFormComponent } from './PersonArray'
+import { EmailArrayFormComponent } from './EmailArray'
 import { FormField } from './FormField'
 import { useState } from 'react'
 import { useRouter } from 'next/router'
@@ -14,7 +14,7 @@ type FormProps = {
 
 export type FormData = {
   submitter: PersonProps
-  otherPresenters: PersonProps[]
+  otherPresenters: EmailProps[]
   title: string
   abstract: string
   learningPoints: string
@@ -75,6 +75,12 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
         <Typography variant='body1'>
           Please enter the information below and submit your presentation!
         </Typography>
+        <Typography variant='body1'>
+          Any additional presenters that you add here will be emailed inviting
+          them to create an account, if they don&apos;t have one already, and to
+          join this presentation. Only you, the presentation submitter, will be
+          able to edit the presentation.
+        </Typography>
         <Paper>
           <Box px={1} py={2}>
             <Person<FormData>
@@ -88,8 +94,8 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
             />
           </Box>
         </Paper>
-        <PersonArrayFormComponent<FormData>
-          personArray={otherPresenterFields}
+        <EmailArrayFormComponent<FormData>
+          emailArray={otherPresenterFields}
           arrayPath={of('otherPresenters')}
           errors={errors.otherPresenters}
           register={register}
