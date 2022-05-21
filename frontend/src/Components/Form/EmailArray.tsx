@@ -26,7 +26,7 @@ export function EmailArrayFormComponent<FieldValues>(
   props: EmailArrayProps<FieldValues>
 ) {
   const {
-    emailArray: personArray,
+    emailArray,
     errors,
     register,
     removePresenter,
@@ -35,8 +35,8 @@ export function EmailArrayFormComponent<FieldValues>(
 
   return (
     <>
-      {personArray.map((p, idx) => (
-        <Box pb={1} key={`person-${idx}`}>
+      {emailArray.map((p, idx) => (
+        <Box pb={1} key={`email-${idx}`}>
           <Paper>
             <Box px={1} py={2}>
               <OtherEmail
@@ -68,14 +68,14 @@ const OtherEmail = <FieldValues,>(props: {
       alignItems='center'
       justifyContent='space-between'
     >
-      <Box width={{ xs: '100%', sm: '89%' }}>
+      <Box flexGrow={1} width='100%'>
         <EmailFormComponent
           path={join(props.path, `${props.idx}`)}
           register={props.register}
           errors={props.errors}
         />
       </Box>
-      <Box width={{ xs: '100%', sm: '10%' }} textAlign='center'>
+      <Box flexGrow={0} p={1} textAlign='center'>
         <Button onClick={() => props.remove(props.idx)} variant='outlined'>
           Remove
         </Button>
