@@ -27,16 +27,12 @@ const defaultSessionElems = {
 }
 
 const dummySession = {
-  session: {
-    access_token: '',
-    token_type: 'bearer',
-    user: {
-      app_metadata: {},
-      aud: '',
-      created_at: '',
-      id: 'mytestid',
-      user_metadata: {}
-    }
+  user: {
+    app_metadata: {},
+    aud: '',
+    created_at: '',
+    id: 'mytestid',
+    user_metadata: {}
   },
   ...defaultSessionElems
 }
@@ -55,13 +51,17 @@ const setMockImplementations = (
 ) => {
   if (type === 'signed-out') {
     // mockProfile.mockResolvedValue(null)
-    mockSession.mockReturnValue({session: null, profile: null, ...defaultSessionElems})
+    mockSession.mockReturnValue({
+      user: null,
+      profile: null,
+      ...defaultSessionElems
+    })
   } else if (type === 'loading') {
     // mockProfile.mockResolvedValue(null)
-    mockSession.mockReturnValue({...dummySession, profile: null})
+    mockSession.mockReturnValue({ ...dummySession, profile: null })
   } else if (type === 'signed-in') {
     // mockProfile.mockResolvedValue(dummyProfile)
-    mockSession.mockReturnValue({...dummySession, profile: dummyProfile})
+    mockSession.mockReturnValue({ ...dummySession, profile: dummyProfile })
   }
 }
 

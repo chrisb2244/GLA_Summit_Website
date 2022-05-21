@@ -9,10 +9,10 @@ import { useSession } from '@/lib/sessionContext'
 export const User: React.FC<BoxProps> = ({...extraBoxProps}) => {
   const [dialogOpen, setOpenDialog] = useState<'none' | 'registration' | 'signin'>('none')
 
-  const { session } = useSession()
+  const { user } = useSession()
   let button
-  if (session != null) {
-    button = <UserMenu user={session.user} />
+  if (user != null) {
+    button = <UserMenu user={user} />
   } else {
     button = (
       <>

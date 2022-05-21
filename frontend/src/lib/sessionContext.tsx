@@ -38,7 +38,7 @@ type TimezoneInfo = {
 }
 
 type SessionContext = {
-  session: Session | null
+  user: User | null
   profile: ProfileModel | null
   timezoneInfo: TimezoneInfo
   isOrganizer: boolean
@@ -65,14 +65,13 @@ const defaultTimezoneInfo = () => {
 
 export const AuthProvider: React.FC = (props) => {
   const [isLoading, setLoading] = useState(true)
-  const [session, setSession] = useState<Session | null>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<ProfileModel | null>(null)
   const [isOrganizer, setIsOrganizer] = useState(false)
   const [timezoneInfo, setTimezoneInfo] =
     useState<TimezoneInfo>(defaultTimezoneInfo)
 
   const updateProfileInfo = async () => {
-    const user = supabase.auth.user()
     if (user == null) {
       setProfile(null)
       return
@@ -93,7 +92,6 @@ export const AuthProvider: React.FC = (props) => {
   }
 
   const queryTimezonePreferences = async () => {
-    const user = supabase.auth.user()
     if (user == null) {
       return
     }
@@ -114,7 +112,6 @@ export const AuthProvider: React.FC = (props) => {
   }
 
   const checkIsOrganizer = async () => {
-    const user = supabase.auth.user()
     if (user == null) {
       return setIsOrganizer(false)
     }
@@ -150,6 +147,7 @@ export const AuthProvider: React.FC = (props) => {
           console.log(error)
           return { error, session: null, user: null }
         }
+        setUser(user)
         return { session, user, error }
       })
   }
@@ -165,8 +163,6 @@ export const AuthProvider: React.FC = (props) => {
     })
 
   useEffect(() => {
-    const session = supabase.auth.session()
-    setSession(session ?? null)
     updateProfileInfo()
     checkIsOrganizer()
     queryTimezonePreferences()
@@ -175,8 +171,8 @@ export const AuthProvider: React.FC = (props) => {
     const { data: listener } = supabase.auth.onAuthStateChange(
       (ev, session) => {
         console.log(ev)
+        setUser(session?.user ?? null)
         setLoading(true)
-        setSession(session ?? null)
         updateProfileInfo()
         checkIsOrganizer()
         setLoading(false)
@@ -190,7 +186,7 @@ export const AuthProvider: React.FC = (props) => {
   }, [])
 
   const value: SessionContext = {
-    session,
+    user,
     profile,
     isOrganizer,
     isLoading,

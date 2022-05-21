@@ -79,7 +79,7 @@ mockedSession.mockReturnValue({
   signUp: jest.fn(),
   signOut: jest.fn(),
   profile: null,
-  session: null,
+  user: null,
   timezoneInfo: {
     timeZone: 'Asia/Tokyo',
     timeZoneName: 'Japan Standard Time',

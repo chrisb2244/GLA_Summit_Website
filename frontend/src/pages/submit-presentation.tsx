@@ -5,15 +5,11 @@ import type { PersonProps } from '@/Components/Form/Person'
 
 const PresentationSubmissionFormPage = (): JSX.Element => {
   const [submitter, setSubmitter] = useState<PersonProps | null>(null)
-  const { session, profile } = useSession()
+  const { profile, user } = useSession()
 
   useEffect(() => {
-    if (
-      typeof session?.user !== 'undefined' &&
-      session?.user !== null &&
-      profile !== null
-    ) {
-      const email = session.user.email ?? ''
+    if (user !== null && profile !== null) {
+      const email = user.email ?? ''
       const { firstname, lastname } = profile
       const v = {
         firstName: firstname,
@@ -22,14 +18,13 @@ const PresentationSubmissionFormPage = (): JSX.Element => {
       }
       setSubmitter(v)
     }
-  }, [session, profile])
+  }, [user, profile])
 
   if (submitter === null) {
     // Not signed in
     return <p>You need to be signed in to use this page...</p>
   }
 
-  // Readd "What is the most important thing attendees will learn from your presentation"
   // Add question re presentation timezones
 
   return (
