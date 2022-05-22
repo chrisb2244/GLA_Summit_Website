@@ -2,7 +2,7 @@ import nodemailer from 'nodemailer'
 import type { Options } from 'nodemailer/lib/mailer'
 
 export type EmailContent = {
-  to: string
+  to: string | string[]
   subject: string
   bodyPlain: string
   body?: string

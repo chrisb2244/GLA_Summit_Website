@@ -8,6 +8,7 @@ import { FormField } from './FormField'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { PresentationType } from '@/lib/databaseModels'
+import { supabase } from '@/lib/supabaseClient'
 
 type FormProps = {
   submitter: PersonProps
@@ -68,7 +69,7 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ formdata: data })
+          body: JSON.stringify({ formdata: data, submitterId: supabase.auth.user()?.id })
         }).then(() => {
           router.push('/')
           if (isMounted) {

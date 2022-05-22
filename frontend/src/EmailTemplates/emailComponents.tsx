@@ -1,4 +1,11 @@
 import { TableCell, TableRow, Typography, TypographyProps } from '@mui/material'
+import type { FormData } from '@/Components/Form/PresentationSubmissionForm'
+
+export type Recipient = {
+  email: string
+  firstName?: string
+  lastName?: string
+}
 
 export const FormRow: React.FC<{ label: string; value: string }> = ({
   label,
@@ -31,3 +38,7 @@ export const HorizontalDivider: React.FC = () => {
 export const P: React.FC<TypographyProps> = ({ children, ...props }) => (
   <Typography {...props}>{children}</Typography>
 )
+
+export const buildSubmitterName = (data: FormData) => {
+  return `${data.submitter.firstName} ${data.submitter.lastName}`
+}

@@ -9,10 +9,10 @@ import {
   TableRow,
   Typography
 } from '@mui/material'
-import { FormRow, HorizontalDivider, P } from './emailComponents'
+import { FormRow, HorizontalDivider, buildSubmitterName } from './emailComponents'
 
-export const FormSubmissionEmail: React.FC<{ data: FormData }> = ({ data }) => {
-  const submitterName = `${data.submitter.firstName} ${data.submitter.lastName}`
+export const FormSubmissionEmail: React.FC<{ data: FormData, headerText: JSX.Element }> = ({ data, headerText }) => {
+  const submitterName = buildSubmitterName(data)
   let typeText = ''
   switch (data.presentationType) {
     case '7x7': {
@@ -30,16 +30,11 @@ export const FormSubmissionEmail: React.FC<{ data: FormData }> = ({ data }) => {
   }
 
   return (
-    <Box sx={{ maxWidth: 800 }}>
+    <Box>
       <Table>
         <TableBody>
           <TableRow>
-            <TableCell sx={{ p: 0 }}>
-              <P>
-                Thank you for submitting a presentation for GLA Summit 2022!
-              </P>
-              <P>The data you submitted is shown below.</P>
-            </TableCell>
+            <TableCell sx={{ p: 0 }}>{headerText}</TableCell>
             <TableCell sx={{ p: 0 }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
