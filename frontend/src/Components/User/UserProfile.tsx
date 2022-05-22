@@ -29,7 +29,7 @@ export const UserProfile: React.FC = () => {
     useState<ProfileModel | null>(null)
   const [valuesChanged, setValuesChanged] = useState(false)
 
-  const { session, profile } = useSession()
+  const { profile, user } = useSession()
 
   const updateProfileField = (
     profile: ProfileData,
@@ -54,12 +54,12 @@ export const UserProfile: React.FC = () => {
   const [profileData, setProfileField] = useReducer(updateProfileField, null)
 
   async function updateProfile() {
-    if (session == null) return
+    if (user == null) return
     try {
       if (profileData == null) return
 
       const { error } = await supabase.from<ProfileModel>('profiles').upsert(
-        { ...profileData, id: session.user?.id },
+        { ...profileData, id: user.id },
         { returning: 'minimal' } // Don't return the value after inserting
       )
 
@@ -99,7 +99,7 @@ export const UserProfile: React.FC = () => {
 
   const [imageSize, setImageSize] = useState(150)
 
-  if (session == null || session.user == null) {
+  if (user == null) {
     return <p>You are not signed in</p>
   } else {
     if (profileData == null) {
@@ -113,7 +113,7 @@ export const UserProfile: React.FC = () => {
               <TextField
                 fullWidth
                 label='Email'
-                value={session.user.email ?? ''}
+                value={user.email ?? ''}
                 disabled
               />
             </Box>
@@ -142,7 +142,7 @@ export const UserProfile: React.FC = () => {
               if (box) setImageSize(box.clientWidth)
             }}
           >
-            <UserProfileImage userId={session.user.id} size={imageSize} />
+            <UserProfileImage userId={user.id} size={imageSize} />
           </Box>
         </Stack>
         <Button

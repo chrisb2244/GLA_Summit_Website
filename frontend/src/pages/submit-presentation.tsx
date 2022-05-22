@@ -1,18 +1,37 @@
-import { withFormik } from 'formik'
-import { SubmitPresentationForm } from '../Components/Form/SubmitPresentationForm'
+import { useSession } from '@/lib/sessionContext'
+import { useEffect, useState } from 'react'
+import { PresentationSubmissionForm } from '@/Components/Form/PresentationSubmissionForm'
+import type { PersonProps } from '@/Components/Form/Person'
 
-const PresentationSubmissionForm = (): JSX.Element => {
-  const Obj = withFormik({
-    mapPropsToValues: () => ({ name: '' }),
+const PresentationSubmissionFormPage = (): JSX.Element => {
+  const [submitter, setSubmitter] = useState<PersonProps | null>(null)
+  const { profile, user } = useSession()
 
-    handleSubmit: (values, actions) => {
-      console.log(values, actions)
-      alert(JSON.stringify(values, null, 2))
-      // actions.resetForm();
+  useEffect(() => {
+    if (user !== null && profile !== null) {
+      const email = user.email ?? ''
+      const { firstname, lastname } = profile
+      const v = {
+        firstName: firstname,
+        lastName: lastname,
+        email: email
+      }
+      setSubmitter(v)
     }
-  })(SubmitPresentationForm)
+  }, [user, profile])
 
-  return <Obj />
+  if (submitter === null) {
+    // Not signed in
+    return <p>You need to be signed in to use this page...</p>
+  }
+
+  // Add question re presentation timezones
+
+  return (
+    <>
+      <PresentationSubmissionForm submitter={submitter} />
+    </>
+  )
 }
 
-export default PresentationSubmissionForm
+export default PresentationSubmissionFormPage

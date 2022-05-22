@@ -1,19 +1,11 @@
 import { supabase } from '@/lib/supabaseClient'
 import type { GetStaticPaths, GetStaticProps } from 'next'
 import type { AllPresentationsModel, ProfileModel } from '@/lib/databaseModels'
-import { Box, Paper, Typography } from '@mui/material'
-import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
-import { PersonDisplay, PersonProps } from '@/Components/PersonDisplay'
+import type { PersonProps } from '@/Components/PersonDisplay'
 import { useSession } from '@/lib/sessionContext'
+import type { Presentation } from '@/Components/Layout/PresentationDisplay'
+import { PresentationDisplay } from '@/Components/Layout/PresentationDisplay'
 
-type Presentation = {
-  title: string
-  abstract: string
-  speakerNames: string[]
-  speakers: PersonProps[]
-  sessionStart: string
-  sessionEnd: string
-}
 
 type PresentationProps = {
   presentation: Presentation
@@ -131,32 +123,7 @@ const PresentationPage = ({ presentation }: PresentationProps) => {
   const endTime = dateToString(presentation.sessionEnd)
 
   return (
-    <Paper>
-      <StackedBoxes>
-        <Box width={{ xs: '100%', md: '95%' }} marginX='auto'>
-          <Typography variant='h3' gutterBottom>
-            {presentation.title}
-          </Typography>
-          <Typography variant='subtitle1' fontStyle='italic'>
-            {`${startTime} - ${endTime} (${timeZoneName})`}
-          </Typography>
-          <Box>
-            {presentation.abstract.split('\r\n').map((p, idx) => {
-              return <Typography key={`p${idx}`}>{p}</Typography>
-            })}
-          </Box>
-        </Box>
-        {presentation.speakers.map((personProps) => {
-          return (
-            <PersonDisplay
-              {...personProps}
-              stripContainer
-              key={personProps.lastName}
-            />
-          )
-        })}
-      </StackedBoxes>
-    </Paper>
+    <PresentationDisplay startTime={startTime} endTime={endTime} presentation={presentation} timeZoneName={timeZoneName} />
   )
 }
 

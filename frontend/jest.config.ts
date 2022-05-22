@@ -13,6 +13,7 @@ const customJestConfig = {
     '^@/Components/(.*)$': '<rootDir>/src/Components/$1',
     '^@/pages/(.*)$': '<rootDir>/src/pages/$1',
     '^@/lib/(.*)$': '<rootDir>/src/lib/$1',
+    '^@/EmailTemplates/(.*)$': '<rootDir>/src/EmailTemplates/$1',
     '^@/media/(.*)$': '<rootDir>/public/media/$1',
   },
   testEnvironment: 'jest-environment-jsdom',

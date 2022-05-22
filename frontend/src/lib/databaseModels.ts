@@ -20,6 +20,7 @@ export type PresentationSubmissionsModel = {
   updated_at: string
   title: string
   abstract: string
+  learning_points: string | null
   is_submitted: boolean
   presentation_type: PresentationType
 }

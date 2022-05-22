@@ -44,5 +44,12 @@ export const theme = responsiveFontSizes(createTheme({
   typography: {
     fontFamily: 'Roboto',
     fontSize: 16
+  },
+  components: {
+    MuiPaper: {
+      defaultProps: {
+        elevation: 5
+      }
+    }
   }
 }))

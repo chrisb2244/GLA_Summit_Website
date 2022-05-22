@@ -20,6 +20,7 @@
       "@/Components/*": ["src/Components/*"],
       "@/pages/*": ["src/pages/*"],
       "@/lib/*": ["src/lib/*"],
+      "@/EmailTemplates/*": ["src/EmailTemplates/*"],
       "@/media/*": ["public/media/*"]
     },
     "incremental": true

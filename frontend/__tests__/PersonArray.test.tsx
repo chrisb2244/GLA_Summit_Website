@@ -1,39 +1,55 @@
 import { render, waitFor, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { PersonArray } from '@/Components/Form/PersonArray'
-import { PersonValues } from '@/Components/Form/Person'
-import { Formik } from 'formik'
+import { useForm, of, useFieldArray } from 'react-hook-form'
+import { PersonArrayFormComponent } from '@/Components/Form/PersonArray'
+import type { PersonProps } from '@/Components/Form/Person'
+import { Button } from '@mui/material'
 
-describe('PersonArray', () => {
-  const initialValues: {
-    people: PersonValues[]
-  } = { people: [] }
-  const form = (addLabel?: string): JSX.Element => (
-    <Formik initialValues={initialValues} onSubmit={() => {}}>
-      {({ ...props }) => {
-        const field = props.getFieldProps<PersonValues>('people')
-        const meta = props.getFieldMeta('people')
-        return (
-          <PersonArray
-            addLabel={addLabel}
-            form={{ ...props }}
-            field={field}
-            meta={meta}
-          />
-        )
-      }}
-    </Formik>
+type FormData = {
+  people: PersonProps[]
+}
+
+const Form = (props: {addlabel?: string}): JSX.Element => {
+  const {
+    register,
+    control,
+    formState: { errors }
+  } = useForm<FormData>()
+  const { fields, append, remove } = useFieldArray<FormData, 'people'>({
+    name: 'people',
+    control
+  })
+  return (
+    <>
+      <PersonArrayFormComponent<FormData>
+        personArray={fields}
+        arrayPath={of('people')}
+        errors={errors.people}
+        register={register}
+        removePresenter={remove}
+      />
+      <Button
+        fullWidth
+        onClick={() => {
+          append({})
+        }}
+        variant='outlined'
+      >
+        {props.addlabel ?? 'Add Presenter'}
+      </Button>
+    </>
   )
-
+}
+describe('PersonArray', () => {
   const renderForm = (addLabel?: string): { button: HTMLElement } => {
-    const view = render(form(addLabel))
+    const view = render(<Form addlabel={addLabel}/>)
     // eslint-disable-next-line testing-library/prefer-screen-queries
     const button = view.getByRole('button')
     return { button }
   }
 
   it('initially has zero Persons', () => {
-    render(form())
+    render(<Form />)
     const inputs = screen.queryAllByRole('textbox')
     expect(inputs).toHaveLength(0)
   })
@@ -63,7 +79,9 @@ describe('PersonArray', () => {
 
     const deleteButtonCandidates = screen
       .getAllByRole('button')
-      .filter((elem) => elem.getAttribute('name') === 'delete')
+      .filter((elem) => {
+        return elem !== addButton
+      })
 
     await waitFor(() => expect(deleteButtonCandidates).toHaveLength(1))
     await waitFor(() => expect(deleteButtonCandidates[0]).toBeVisible())
@@ -75,7 +93,7 @@ describe('PersonArray', () => {
 
     const deleteButton = screen
       .getAllByRole('button')
-      .filter((elem) => elem.getAttribute('name') === 'delete')[0]
+      .filter((elem) => elem !== addButton)[0]
     userEvent.click(deleteButton)
 
     const inputs = screen.queryAllByRole('textbox')
