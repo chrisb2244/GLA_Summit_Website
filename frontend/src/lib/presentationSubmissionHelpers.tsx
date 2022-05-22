@@ -11,6 +11,7 @@ import { PresentationSubmissionsModel } from './databaseModels'
 import { Session, User } from '@supabase/supabase-js'
 import { buildSubmitterName, P } from '@/EmailTemplates/emailComponents'
 import { PersonProps } from '@/Components/Form/Person'
+import { myLog } from './utils'
 
 function renderFullPage(html: string, css: string) {
   return `
@@ -64,7 +65,7 @@ export const generateBody = (
 
 // This function needs to return the new userId for the invited account
 export const inviteOtherPresenter = async (email: string) => {
-  console.log(`Inviting new user: ${email}`)
+  myLog(`Inviting new user: ${email}`)
 
   const adminClient = createAdminClient()
   return adminClient.auth.api
@@ -75,9 +76,9 @@ export const inviteOtherPresenter = async (email: string) => {
         // Shouldn't get here...
         return Promise.reject(error)
       }
-      console.log({ data })
+      myLog({ data })
       if (Object.hasOwn(data, 'user')) {
-        console.log('Data was a Session object')
+        myLog('Data was a Session object')
         const dataS = data as Session
         const id = dataS.user?.id
         if (typeof id !== 'undefined') {
@@ -85,7 +86,7 @@ export const inviteOtherPresenter = async (email: string) => {
         }
         return Promise.reject('No user found')
       } else {
-        console.log('Data was a User object')
+        myLog('Data was a User object')
         const dataU = data as User
         return dataU.id
       }

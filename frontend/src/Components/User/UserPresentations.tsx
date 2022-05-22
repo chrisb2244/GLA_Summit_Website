@@ -7,22 +7,7 @@ import { useSession } from '@/lib/sessionContext'
 import { Box, Button, Container, Grid, Stack, TextField } from '@mui/material'
 import { UserProfileImage } from './UserProfileImage'
 
-type ProfileData = ProfileModel | null
-type ProfileKey = keyof ProfileModel
-
-const areEqual = (a: ProfileData, b: ProfileData) => {
-  if (a === null || b === null) return false
-  const aKeys = Object.keys(a) as Array<ProfileKey>
-  const bKeys = Object.keys(b) as Array<ProfileKey>
-  return (
-    bKeys.every(function (i) {
-      return aKeys.indexOf(i) !== -1
-    }) &&
-    aKeys.every(function (i) {
-      return a[i] === b[i]
-    })
-  )
-}
+import { myLog } from '@/lib/utils'
 
 export const UserPresentations: React.FC = () => {
   const { profile, user } = useSession()
@@ -41,13 +26,13 @@ export const UserPresentations: React.FC = () => {
     if(user == null) return
     const { data: presentationIdData, error: errorPresIds } = await supabase.from<PresentationPresentersModel>('presentation_presenters').select('presentation_id').eq('presenter_id', user.id)
     if (errorPresIds) {
-      console.log({error: errorPresIds, desc: 'Failed to fetch presentations with this user as a presenter'})
+      myLog({error: errorPresIds, desc: 'Failed to fetch presentations with this user as a presenter'})
       return
     }
     const presentationIds = presentationIdData.map(p => p.presentation_id)
     const { data, error: errorPresData } = await supabase.from<PresentationSubmissionsModel>('presentation_submissions').select().in('id', presentationIds)
     if (errorPresData) {
-      console.log({error: errorPresData, desc: 'Failed to fetch presentation details for this user'})
+      myLog({error: errorPresData, desc: 'Failed to fetch presentation details for this user'})
     }
     if (isMounted) {
       setUserPresentations(data ?? [])

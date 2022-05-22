@@ -11,6 +11,7 @@ import type { TypographyProps } from '@mui/material'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { useState } from 'react'
 import { useSession } from '@/lib/sessionContext'
+import { myLog } from '@/lib/utils'
 
 type SignInProps = {
   open: boolean
@@ -53,7 +54,7 @@ export const UserSignIn: React.FC<SignInProps> = (props) => {
         props.setClosed()
         setAttemptedEmail(email)
         if (error) {
-          console.log(error)
+          myLog(error)
           setFeedbackPopup('invalid')
         } else {
           setFeedbackPopup('valid')

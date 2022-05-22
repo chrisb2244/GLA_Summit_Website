@@ -6,6 +6,7 @@ import type { ApiError } from '@supabase/supabase-js'
 import { randomBytes } from 'crypto'
 import { supabase } from '@/lib/supabaseClient'
 import { Person, PersonProps } from '../Form/Person'
+import { myLog } from '@/lib/utils'
 
 type UserRegistrationProps = {
   open: boolean
@@ -54,7 +55,7 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = (props) => {
         { data: newUserData, redirectTo: 'http://localhost:3000' }
       )
       .then(({ user, session, error }) => {
-        console.log({ user, session, error })
+        myLog({ user, session, error })
         if (error) return Promise.reject(error)
         // If reaching here, no error
         alert('Check your email for the login link!')
@@ -66,7 +67,7 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = (props) => {
     reset()
     return true
   }
-  const onError: SubmitErrorHandler<PersonProps> = (err) => console.log(err)
+  const onError: SubmitErrorHandler<PersonProps> = (err) => myLog(err)
 
   return (
     <Dialog open={props.open} onClose={props.setClosed}>

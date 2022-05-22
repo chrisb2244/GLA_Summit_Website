@@ -8,6 +8,7 @@ import type {
   PostgrestError
 } from '@supabase/supabase-js'
 import { ProfileModel, TimezonePreferencesModel } from './databaseModels'
+import { myLog } from './utils'
 
 // Even for ValidSignIn, session and user are null using magic link via email.
 type ValidSignIn = { session: Session | null; user: User | null; error: null }
@@ -80,7 +81,7 @@ export const AuthProvider: React.FC = (props) => {
       .then(({ session, error, user }) => {
         // if (error === 'AccessDenied') {
         if (error) {
-          console.log(error)
+          myLog(error)
           return { error, session: null, user: null }
         }
         setUser(user)
@@ -103,17 +104,17 @@ export const AuthProvider: React.FC = (props) => {
     getProfileInfo(user)
       .then(setProfile)
       .catch((error) => {
-        console.log(error)
+        myLog(error)
       })
     checkIfOrganizer(user)
       .then(setIsOrganizer)
       .catch((error) => {
-        console.log(error)
+        myLog(error)
       })
     queryTimezonePreferences(user)
       .then(setTimezoneInfo)
       .catch((error) => {
-        console.log(error)
+        myLog(error)
       })
   }
 
@@ -124,7 +125,7 @@ export const AuthProvider: React.FC = (props) => {
 
     const { data: listener } = supabase.auth.onAuthStateChange(
       (ev, session) => {
-        console.log(ev)
+        myLog(ev)
         setLoading(true)
         runUpdates(session?.user ?? null)
         setLoading(false)
