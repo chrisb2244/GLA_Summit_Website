@@ -1,4 +1,12 @@
-import { Button, Typography, Box, Paper, MenuItem } from '@mui/material'
+import {
+  Button,
+  Typography,
+  Box,
+  Paper,
+  MenuItem,
+  Checkbox,
+  FormControlLabel
+} from '@mui/material'
 import { useForm, of, useFieldArray } from 'react-hook-form'
 import { Person } from '@/Components/Form/Person'
 import type { EmailProps, PersonProps } from '@/Components/Form/Person'
@@ -22,6 +30,7 @@ export type FormData = {
   learningPoints: string
   presentationType: PresentationType
   timeWindows: { windowStartTime: Date; windowEndTime: Date }[]
+  isFinal: boolean
 }
 
 export const PresentationSubmissionForm: React.FC<FormProps> = ({
@@ -31,6 +40,7 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
     register,
     control,
     handleSubmit,
+    watch,
     formState: { errors }
   } = useForm<FormData>({ mode: 'onTouched' })
 
@@ -60,6 +70,8 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
   }, [])
   const router = useRouter()
 
+  const isFinal = watch('isFinal')
+
   return (
     <form
       onSubmit={handleSubmit((data) => {
@@ -69,7 +81,10 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ formdata: data, submitterId: supabase.auth.user()?.id })
+          body: JSON.stringify({
+            formdata: data,
+            submitterId: supabase.auth.user()?.id
+          })
         }).then(() => {
           router.push('/')
           if (isMounted) {
@@ -175,6 +190,10 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
                 7x7 Presentation (7 minutes)
               </MenuItem>
             </FormField>
+            <FormControlLabel
+              control={<Checkbox {...register('isFinal')} />}
+              label='I am ready to submit this presentation'
+            />
           </StackedBoxes>
           {/* {timeWindowFields?.map((timeWindow, idx) => {
             return (
@@ -207,7 +226,13 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
           fullWidth
           disabled={isSubmitting}
         >
-          {isSubmitting ? 'Submitting now!' : 'Submit Presentation'}
+          {isSubmitting
+            ? isFinal
+              ? 'Submitting now!'
+              : 'Saving now!'
+            : isFinal
+            ? 'Submit Presentation'
+            : 'Save Draft'}
         </Button>
       </StackedBoxes>
     </form>

@@ -95,15 +95,14 @@ export const inviteOtherPresenter = async (email: string) => {
 
 export const uploadPresentationData = async (
   formData: FormData,
-  submitterId: string,
-  isFinal = true
+  submitterId: string
 ) => {
   const adminClient = createAdminClient()
   return adminClient
     .from<PresentationSubmissionsModel>('presentation_submissions')
     .insert({
       submitter_id: submitterId,
-      is_submitted: isFinal,
+      is_submitted: formData.isFinal,
       title: formData.title,
       abstract: formData.abstract,
       learning_points: formData.learningPoints,
