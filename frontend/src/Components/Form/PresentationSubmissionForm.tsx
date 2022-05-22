@@ -17,6 +17,8 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { PresentationType } from '@/lib/databaseModels'
 import { supabase } from '@/lib/supabaseClient'
+import { ConfirmationPopup } from './ConfirmationPopup'
+import { myLog } from '@/lib/utils'
 
 type FormProps = {
   submitter: PersonProps
@@ -72,130 +74,159 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
 
   const isFinal = watch('isFinal')
 
-  return (
-    <form
-      onSubmit={handleSubmit((data) => {
-        setIsSubmitting(true)
-        fetch('/api/handlePresentationSubmission', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            formdata: data,
-            submitterId: supabase.auth.user()?.id
-          })
-        }).then(() => {
-          router.push('/')
-          if (isMounted) {
-            setIsSubmitting(false)
-          }
+  const [showConfirmation, setShowConfirmation] = useState(false)
+  const [formData, setSubmittedFormData] = useState<FormData | null>(null)
+
+  const handleConfirmation = (result: boolean) => {
+    setShowConfirmation(false)
+    if (result) {
+      myLog('Confirmed form submission - submitting form')
+      myLog({ formData })
+
+      setIsSubmitting(true)
+      fetch('/api/handlePresentationSubmission', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          formdata: formData,
+          submitterId: supabase.auth.user()?.id
         })
-      })}
-    >
-      <StackedBoxes stackSpacing={1.5}>
-        <Typography variant='body1'>
-          Please enter the information below and submit your presentation!
-        </Typography>
-        <Typography variant='body1'>
-          Any additional presenters that you add here will be emailed inviting
-          them to create an account, if they don&apos;t have one already, and to
-          join this presentation. Only you, the presentation submitter, will be
-          able to edit the presentation.
-        </Typography>
-        <Paper>
-          <Box px={1} py={2}>
-            <Person<FormData>
-              heading='Submitter'
-              defaultValue={submitter}
-              errors={errors.submitter}
-              register={register}
-              path={of('submitter')}
-              locked
-              splitSize='sm'
-            />
-          </Box>
-        </Paper>
-        <EmailArrayFormComponent<FormData>
-          emailArray={otherPresenterFields}
-          arrayPath={of('otherPresenters')}
-          errors={errors.otherPresenters}
-          register={register}
-          removePresenter={removePresenter}
-        />
-        <Button
-          fullWidth
-          onClick={() => {
-            addPresenter({})
-          }}
-          variant='outlined'
-        >
-          Add Presenter
-        </Button>
-        <Paper>
-          <StackedBoxes>
-            <FormField
-              registerReturn={register('title', {
-                required: 'Required'
-              })}
-              placeholder='Presentation Title'
-              fullWidth
-              sx={{ pt: 2 }}
-              fieldError={errors.title}
-            />
-            <FormField
-              registerReturn={register('abstract', {
-                required: 'Required',
-                minLength: {
-                  value: 100,
-                  message: 'This field has a minimum length of 100 characters'
-                },
-                maxLength: {
-                  value: 5000,
-                  message: 'This field has a maximum length of 5000 characters'
-                }
-              })}
-              fieldError={errors.abstract}
-              placeholder='Presentation Abstract'
-              fullWidth
-              multiline
-              rows={5}
-            />
-            <FormField
-              registerReturn={register('learningPoints', {
-                required: 'Required',
-                minLength: {
-                  value: 50,
-                  message: 'This field has a minimum length of 50 characters'
-                }
-              })}
-              fieldError={errors.learningPoints}
-              placeholder='What is the most important thing attendees would learn from your presentation?'
-              fullWidth
-              multiline
-              rows={2}
-            />
-            <FormField
-              registerReturn={register('presentationType')}
-              fieldError={errors.presentationType}
-              fullWidth
-              select
-              defaultValue='full length'
-              label='Presentation Type'
-            >
-              <MenuItem key='full length' value='full length'>
-                Full Length Presentation (45 minutes)
-              </MenuItem>
-              <MenuItem key='7x7' value='7x7'>
-                7x7 Presentation (7 minutes)
-              </MenuItem>
-            </FormField>
-            <FormControlLabel
-              control={<Checkbox {...register('isFinal')} />}
-              label='I am ready to submit this presentation'
-            />
-          </StackedBoxes>
-          {/* {timeWindowFields?.map((timeWindow, idx) => {
+      }).then(() => {
+        router.push('/my-presentations')
+        if (isMounted) {
+          setIsSubmitting(false)
+        }
+      })
+
+      setIsSubmitting(false)
+    } else {
+      myLog('Cancelled form submission')
+    }
+  }
+  const confirmationPopup = (
+    <ConfirmationPopup
+      open={showConfirmation}
+      setClosed={() => setShowConfirmation(false)}
+      onResolve={handleConfirmation}
+    />
+  )
+
+  return (
+    <>
+      <form
+        onSubmit={handleSubmit(async (data) => {
+          if (data.isFinal) {
+            setSubmittedFormData(data)
+            setShowConfirmation(true)
+          }
+        })}
+      >
+        <StackedBoxes stackSpacing={1.5}>
+          <Typography variant='body1'>
+            Please enter the information below and submit your presentation!
+          </Typography>
+          <Typography variant='body1'>
+            Any additional presenters that you add here will be emailed inviting
+            them to create an account, if they don&apos;t have one already, and
+            to join this presentation. Only you, the presentation submitter,
+            will be able to edit the presentation.
+          </Typography>
+          <Paper>
+            <Box px={1} py={2}>
+              <Person<FormData>
+                heading='Submitter'
+                defaultValue={submitter}
+                errors={errors.submitter}
+                register={register}
+                path={of('submitter')}
+                locked
+                splitSize='sm'
+              />
+            </Box>
+          </Paper>
+          <EmailArrayFormComponent<FormData>
+            emailArray={otherPresenterFields}
+            arrayPath={of('otherPresenters')}
+            errors={errors.otherPresenters}
+            register={register}
+            removePresenter={removePresenter}
+          />
+          <Button
+            fullWidth
+            onClick={() => {
+              addPresenter({})
+            }}
+            variant='outlined'
+          >
+            Add Presenter
+          </Button>
+          <Paper>
+            <StackedBoxes>
+              <FormField
+                registerReturn={register('title', {
+                  required: 'Required'
+                })}
+                placeholder='Presentation Title'
+                fullWidth
+                sx={{ pt: 2 }}
+                fieldError={errors.title}
+              />
+              <FormField
+                registerReturn={register('abstract', {
+                  required: 'Required',
+                  minLength: {
+                    value: 100,
+                    message: 'This field has a minimum length of 100 characters'
+                  },
+                  maxLength: {
+                    value: 5000,
+                    message:
+                      'This field has a maximum length of 5000 characters'
+                  }
+                })}
+                fieldError={errors.abstract}
+                placeholder='Presentation Abstract'
+                fullWidth
+                multiline
+                rows={5}
+              />
+              <FormField
+                registerReturn={register('learningPoints', {
+                  required: 'Required',
+                  minLength: {
+                    value: 50,
+                    message: 'This field has a minimum length of 50 characters'
+                  }
+                })}
+                fieldError={errors.learningPoints}
+                placeholder='What is the most important thing attendees would learn from your presentation?'
+                fullWidth
+                multiline
+                rows={2}
+              />
+              <FormField
+                registerReturn={register('presentationType')}
+                fieldError={errors.presentationType}
+                fullWidth
+                select
+                defaultValue='full length'
+                label='Presentation Type'
+              >
+                <MenuItem key='full length' value='full length'>
+                  Full Length Presentation (45 minutes)
+                </MenuItem>
+                <MenuItem key='7x7' value='7x7'>
+                  7x7 Presentation (7 minutes)
+                </MenuItem>
+              </FormField>
+              <FormControlLabel
+                control={<Checkbox {...register('isFinal')} />}
+                label='I am ready to submit this presentation'
+              />
+            </StackedBoxes>
+            {/* {timeWindowFields?.map((timeWindow, idx) => {
             return (
               <Box key={`timeWindow-${idx}`}>
                 <p>Time window goes here</p>
@@ -211,7 +242,7 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
               </Box>
             )
           })} */}
-          {/* <Button
+            {/* <Button
             variant='outlined'
             onClick={() => {
               addTimeWindow({})
@@ -219,22 +250,24 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
           >
             Add Time Window{' '}
           </Button> */}
-        </Paper>
-        <Button
-          variant='contained'
-          type='submit'
-          fullWidth
-          disabled={isSubmitting}
-        >
-          {isSubmitting
-            ? isFinal
-              ? 'Submitting now!'
-              : 'Saving now!'
-            : isFinal
-            ? 'Submit Presentation'
-            : 'Save Draft'}
-        </Button>
-      </StackedBoxes>
-    </form>
+          </Paper>
+          <Button
+            variant='contained'
+            type='submit'
+            fullWidth
+            disabled={isSubmitting}
+          >
+            {isSubmitting
+              ? isFinal
+                ? 'Submitting now!'
+                : 'Saving now!'
+              : isFinal
+              ? 'Submit Presentation'
+              : 'Save Draft'}
+          </Button>
+        </StackedBoxes>
+      </form>
+      {confirmationPopup}
+    </>
   )
 }
