@@ -1,11 +1,14 @@
 import { Box } from '@mui/material'
 import { Twitter, Facebook, YouTube, Instagram } from '@mui/icons-material'
 
-export const SocialMediaIcons: React.FC = (props) => {
+export const SocialMediaIcons: React.FC = () => {
   return (
     <Box
       role='grid'
       aria-label='Social Media Links'
+      display='flex'
+      justifyContent='space-around'
+      alignSelf={{md: 'center'}}
       sx={{ '& a': { px: 0.4 }, '.MuiSvgIcon-root': { color: (t) => t.palette.primary.contrastText, fontSize: '18px' } }}
     >
       <a aria-label='Twitter link' href='https://twitter.com/glasummit'>

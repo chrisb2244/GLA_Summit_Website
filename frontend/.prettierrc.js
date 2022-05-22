@@ -1,5 +1,8 @@
 module.exports = {
-  ...require('eslint-config-standard-typescript-prettier/prettier'),
+  ...require('eslint-config-prettier'),
   semi: false,
-  trailingComma: 'none'
+  trailingComma: 'none',
+  singleQuote: true,
+  jsxSingleQuote: true,
+  quoteProps: 'as-needed'
 }

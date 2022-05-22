@@ -1,0 +1,46 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "root": true,
+  "plugins": ["react", "jest-react", "@typescript-eslint", "testing-library"],
+  "extends": [
+    "plugin:react/recommended",
+    "plugin:jest-react/recommended",
+    "next/core-web-vitals",
+    "prettier"
+  ],
+  "rules": {
+    "jsx-quotes": ["error", "prefer-single"]
+  },
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx"],
+      "extends": ["plugin:@typescript-eslint/recommended"],
+      "parser": "@typescript-eslint/parser",
+      "parserOptions": {
+        "project": "./tsconfig.json"
+      }
+    },
+    {
+      "files": ["__tests__/**"],
+      "rules": {
+        "@typescript-eslint/no-empty-function": "off",
+        "testing-library/no-debugging-utils": "warn",
+        "testing-library/no-dom-import": "off"
+      },
+      "extends": ["plugin:testing-library/react"]
+    }
+  ],
+  "settings": {
+    "next": {
+      "dirs": ["src/Components", "src/pages", "__tests__"]
+    }
+  },
+  "ignorePatterns": [
+    "reportWebVitals.ts",
+    "react-app-env.d.ts",
+    "jest.config.ts"
+  ]
+}

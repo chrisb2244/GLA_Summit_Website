@@ -1,6 +1,5 @@
-import { render, within } from '@testing-library/react'
-// import { PresentationSubmissionForm } from '@/pages/submit-presentation'
-import { Person } from '@/Components/Form/Person'
+import { render } from '@testing-library/react'
+import { SubmitPresentationForm } from '@/Components/Form/SubmitPresentationForm'
 
 describe('SubmitPresentationForm', () => {
   // it('initially contains one person', () => {
@@ -8,6 +7,7 @@ describe('SubmitPresentationForm', () => {
   //   expect(form.container).toContainElement(render(<Person />).container)
   // })
   it('pass only', () => {
-    expect(true).toBeTruthy()
+    const view = render(<SubmitPresentationForm />)
+    expect(view).toBeDefined()
   })
 })

@@ -1,9 +1,9 @@
 import { Button } from '@mui/material'
 import { FieldArray, FieldProps } from 'formik'
-import { cloneElement, MouseEventHandler } from 'react'
+import { cloneElement } from 'react'
 import { Person, PersonValues } from './Person'
 
-type PersonArrayProps = {
+interface PersonArrayProps {
   addLabel?: string
   deleteButtonTemplate?: JSX.Element
 }
@@ -16,7 +16,9 @@ export const PersonArray: React.FC<PersonArrayProps & FieldProps> = (props) => {
     lastName: '',
     email: ''
   }
-  const deleteButtonTemplate = props.deleteButtonTemplate ?? <Button>Delete Person</Button>
+  const deleteButtonTemplate = props.deleteButtonTemplate ?? (
+    <Button>Delete Person</Button>
+  )
 
   const fieldArr = (
     <FieldArray name={fieldName}>
@@ -25,7 +27,7 @@ export const PersonArray: React.FC<PersonArrayProps & FieldProps> = (props) => {
           <Button onClick={() => push(defaultVals)}>{addLabel}</Button>
         )
 
-        const vals: Array<PersonValues> = form.values[fieldName]
+        const vals: PersonValues[] = form.values[fieldName]
 
         if (form.values.length === 0) {
           return addButton
@@ -36,7 +38,10 @@ export const PersonArray: React.FC<PersonArrayProps & FieldProps> = (props) => {
                 const nameInner = `${fieldName}.${index}`
                 const fInner = form.getFieldProps(nameInner)
                 const mInner = form.getFieldMeta(nameInner)
-                const deleteButton = cloneElement(deleteButtonTemplate, {onClick: () => remove(index), name: 'delete'})
+                const deleteButton = cloneElement(deleteButtonTemplate, {
+                  onClick: () => remove(index),
+                  name: 'delete'
+                })
                 return (
                   <div key={nameInner}>
                     <Person

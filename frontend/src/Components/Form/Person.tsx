@@ -1,16 +1,14 @@
-import { Grid } from '@mui/material'
 import { Field, FieldProps, FormikErrors } from 'formik'
 import { TextFieldWrapper as TextField } from './TextFieldWrapper'
 import { requireArg } from './SubmitPresentationForm'
-type PersonProps = {}
 
-export type PersonValues = {
+export interface PersonValues {
   firstName: string
   lastName: string
   email: string
 }
 
-export const Person: React.FC<PersonProps & FieldProps> = ({
+export const Person: React.FC<FieldProps> = ({
   field,
   ...props
 }) => {
@@ -18,11 +16,11 @@ export const Person: React.FC<PersonProps & FieldProps> = ({
 
   return (
     <Field
-      as={'div'}
+      as='div'
       name={prefix}
       {...props}
       validate={(values?: PersonValues): FormikErrors<PersonValues> => {
-        if (values) {
+        if (typeof values !== 'undefined') {
           return {
             firstName: requireArg(values.firstName),
             lastName: requireArg(values.lastName),
@@ -32,13 +30,13 @@ export const Person: React.FC<PersonProps & FieldProps> = ({
       }}
     >
       {/* <Grid item xs={12} md={6}> */}
-      <TextField name={`${prefix}.firstName`} label="First Name" />
+      <TextField name={`${prefix}.firstName`} label='First Name' />
       {/* </Grid>
       <Grid item xs={12} md={6}> */}
-      <TextField name={`${prefix}.lastName`} label="Last Name" />
+      <TextField name={`${prefix}.lastName`} label='Last Name' />
       {/* </Grid>
       <Grid item xs={12}> */}
-      <TextField name={`${prefix}.email`} type="email" label="Email Address" />
+      <TextField name={`${prefix}.email`} type='email' label='Email Address' />
       {/* </Grid> */}
     </Field>
   )

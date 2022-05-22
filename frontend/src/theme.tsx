@@ -1,4 +1,4 @@
-import { createTheme, responsiveFontSizes, adaptV4Theme } from '@mui/material'
+import { createTheme, responsiveFontSizes } from '@mui/material'
 
 /*
 Color values
@@ -30,6 +30,9 @@ export const theme = responsiveFontSizes(createTheme({
       main: '#5837b9'
       // main: '#fff'
     },
+    secondary: {
+      main: '#a25bcd'
+    },
     background: {
       // default: '#a25bcd'
       default: '#fff'
@@ -37,8 +40,9 @@ export const theme = responsiveFontSizes(createTheme({
     text: {
       // primary: '#fff',
       primary: '#000',
-      secondary: '#3e4342',
-      disabled: '#e7e9e8'
+      // secondary: '#3e4342',
+      secondary: '#fff',
+      disabled: '#e7e9e8',
     }
   },
   typography: {

@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(uuid()) @db.Uuid
+  userId            String  @db.Uuid
+  type              String  @db.VarChar(255)
+  provider          String  @db.VarChar(255)
+  providerAccountId String  @db.VarChar(255)
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String? @db.VarChar(255)
+  scope             String? @db.VarChar(255)
+  id_token          String? @db.Text
+  session_state     String? @db.VarChar(255)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(uuid()) @db.Uuid
+  sessionToken String   @unique @db.VarChar(255)
+  userId       String   @db.Uuid
+  expires      DateTime @db.Timestamptz(6)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(uuid()) @db.Uuid
+  name          String?   @db.VarChar(255)
+  email         String    @unique @db.VarChar(255)
+  emailVerified DateTime? @db.Timestamptz(6)
+  image         String?   @db.VarChar(255)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  accounts      Account[]
+  sessions      Session[]
+}
+
+model VerificationToken {
+  token      String   @id @db.VarChar(255)
+  identifier String   @db.VarChar(255)
+  expires    DateTime @db.Timestamptz(6)
+
+  @@unique([identifier, token])
+}

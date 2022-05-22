@@ -1,4 +1,4 @@
-import { fireEvent, render, waitFor } from '@testing-library/react'
+import { fireEvent, render, waitFor, screen } from '@testing-library/react'
 import { PersonValues, Person } from '@/Components/Form/Person'
 import { Formik } from 'formik'
 
@@ -21,8 +21,8 @@ describe('Person', () => {
   )
 
   it('has first and last name and email text inputs', () => {
-    const person = render(form)
-    const inputs = person.getAllByRole('textbox')
+    render(form)
+    const inputs = screen.getAllByRole('textbox')
 
     const hasFirstName = inputs.some((elem) => elem.id === 'person.firstName')
     const hasLastName = inputs.some((elem) => elem.id === 'person.lastName')
@@ -44,8 +44,8 @@ describe('Person', () => {
   // })
 
   it('requires firstName after click', async () => {
-    const person = render(form)
-    const firstName = person.getByRole('textbox', { name: 'First Name' })
+    render(form)
+    const firstName = screen.getByRole('textbox', { name: 'First Name' })
     expect(firstName).toBeValid()
     fireEvent.blur(firstName)
     await waitFor(() => expect(firstName).toBeInvalid())
