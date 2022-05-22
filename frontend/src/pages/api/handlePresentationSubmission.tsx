@@ -30,13 +30,9 @@ const handlePresentationSubmission = async (
     return res.status(401).json('No user ID passed - authentication failure')
   }
 
-  // Need to get the draft/final status from the form.
-  const isFinal = false
-
   const presentation_id = await uploadPresentationData(
     formData,
-    submitter_id,
-    isFinal
+    submitter_id
   )
 
   // Get the IDs and necessary information to send the emails
