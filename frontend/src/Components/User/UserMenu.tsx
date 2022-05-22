@@ -111,6 +111,25 @@ export const UserMenu: React.FC<UserMenuProps> = (props) => {
             </>
           </MenuItem>
         </Link>
+        {/* <Link href='/my-presentations' passHref>
+          <MenuItem>
+            <>
+              <ListItemIcon>
+                <Icon sx={{ textAlign: 'center' }}>
+                  <img
+                    style={{
+                      display: 'flex',
+                      height: 'inherit',
+                      width: 'inherit'
+                    }}
+                    src={Pres1.src}
+                  />
+                </Icon>
+              </ListItemIcon>
+              My Presentations
+            </>
+          </MenuItem>
+        </Link> */}
         <MenuItem
           onClick={() => {
             void signOut()
