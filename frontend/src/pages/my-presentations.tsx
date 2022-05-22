@@ -1,7 +1,7 @@
-// import { UserPresentations } from '@/Components/User/UserPresentations'
+import { UserPresentations } from '@/Components/User/UserPresentations'
 
 const MyPresentations = (): JSX.Element => {
-  return <p>Your presentations will be listed here soon...</p>
+  return <UserPresentations />
 }
 
 export default MyPresentations
