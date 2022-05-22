@@ -1,16 +1,12 @@
 import { supabase } from '@/lib/supabaseClient'
-import { PresentationPresentersModel, PresentationSubmissionsModel, ProfileModel } from '@/lib/databaseModels'
-import type { PostgrestError } from '@supabase/supabase-js'
-import { useEffect, useReducer, useRef, useState } from 'react'
-import type { ChangeEvent } from 'react'
+import { PresentationPresentersModel, PresentationSubmissionsModel } from '@/lib/databaseModels'
+import { useEffect, useRef, useState } from 'react'
 import { useSession } from '@/lib/sessionContext'
-import { Box, Button, Container, Grid, Stack, TextField } from '@mui/material'
-import { UserProfileImage } from './UserProfileImage'
-
+import { Box, Container, Grid, Stack, TextField } from '@mui/material'
 import { myLog } from '@/lib/utils'
 
 export const UserPresentations: React.FC = () => {
-  const { profile, user } = useSession()
+  const { user } = useSession()
   const [userPresentations, setUserPresentations] = useState<PresentationSubmissionsModel[]>([])
   const [isLoading, setIsLoading] = useState(true)
   
