@@ -1,5 +1,8 @@
 import { Box, Typography } from '@mui/material'
 import type { BoxProps, TypographyProps } from '@mui/material'
+import GLA_Logo from '@/media/GLA-logo.svg'
+import GLA_Logo_Mobile from '@/media/GLA-logo-mobile.svg'
+import NextImage from 'next/image'
 
 export const MaintenancePage: React.FC = () => {
   const TextElem: React.FC<TypographyProps> = ({ children, ...other }) => {
@@ -17,6 +20,7 @@ export const MaintenancePage: React.FC = () => {
         maxWidth={{ md: 'lg', xs: '90%' }}
         mx='auto'
         p={3}
+        mb={3}
         borderRadius={'25px'}
         {...other}
       >
@@ -24,6 +28,23 @@ export const MaintenancePage: React.FC = () => {
       </Box>
     )
   }
+
+  const imageProps = {
+    'aria-label': 'logo'
+  }
+
+  const logo = (
+    <>
+      <Box py={4}>
+        <NextImage
+          src={GLA_Logo}
+          {...imageProps}
+          height={200}
+          style={{ pointerEvents: 'none' }}
+        />
+      </Box>
+    </>
+  )
 
   return (
     <>
@@ -33,8 +54,10 @@ export const MaintenancePage: React.FC = () => {
         minHeight='100vh'
         justifyContent='center'
         bgcolor='primary.main'
+        alignItems='center'
       >
-        <PurpleBox marginBottom={3}>
+        {logo}
+        <PurpleBox>
           <TextElem variant='h1'>GLA Summit 2022</TextElem>
           <TextElem variant='h4'>14th - 15th November 2022</TextElem>
         </PurpleBox>
