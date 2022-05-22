@@ -17,7 +17,8 @@ export const MenuBar: React.FC<BoxProps> = ({...extraBoxProps}) => {
     { title: 'Home', link: '/' },
     { title: 'Our Team', link: '/our-team' },
     { title: 'Submit a Presentation', link: '/submit-presentation' },
-    { title: 'Lorem', link: '/lorem-ipsum' }
+    { title: 'Presentations', link: '/presentations' },
+    { title: 'Presenters', link: '/presenters' }
   ]
 
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null)
