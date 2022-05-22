@@ -1,5 +1,6 @@
-import { Typography } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 import { Countdown } from './Countdown'
+import { SponsorBar } from './SponsorBar'
 import { StackedBoxes } from './Layout/StackedBoxes'
 
 export const HomePage: React.FC = () => {
@@ -23,6 +24,9 @@ export const HomePage: React.FC = () => {
           all-digital, free event.
         </Typography>
       </StackedBoxes>
+        <Box mt='auto' pb={2}>
+          <SponsorBar/>
+        </Box>
     </>
   )
 }
