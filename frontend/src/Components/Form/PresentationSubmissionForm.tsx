@@ -132,7 +132,7 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
           }
         })}
       >
-        <StackedBoxes stackSpacing={1.5}>
+        <StackedBoxes stackSpacing={1.5} child_mx={{xs: 1, sm: 2, md: 3}}>
           <Typography variant='body1'>
             Please enter the information below and submit your presentation!
           </Typography>
@@ -172,7 +172,7 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
             Add Presenter
           </Button>
           <Paper>
-            <StackedBoxes>
+            <StackedBoxes child_mx={{xs: 1, md: 3}}>
               <FormField
                 registerReturn={register('title', {
                   required: 'Required'
@@ -232,7 +232,7 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
               </FormField>
               <FormControlLabel
                 control={<Checkbox {...register('isFinal')} />}
-                label='I am ready to submit this presentation'
+                label='I am ready to submit this presentation (leave unchecked to save a draft)'
               />
             </StackedBoxes>
             {/* {timeWindowFields?.map((timeWindow, idx) => {
