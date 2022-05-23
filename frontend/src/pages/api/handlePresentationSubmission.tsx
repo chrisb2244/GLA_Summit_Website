@@ -13,6 +13,7 @@ import { createAdminClient } from '@/lib/supabaseClient'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { PresentationPresentersModel, ProfileModel } from '@/lib/databaseModels'
 import { PersonProps } from '@/Components/Form/Person'
+import { myLog } from '@/lib/utils'
 
 const handlePresentationSubmission = async (
   req: NextApiRequest,
@@ -30,10 +31,7 @@ const handlePresentationSubmission = async (
     return res.status(401).json('No user ID passed - authentication failure')
   }
 
-  const presentation_id = await uploadPresentationData(
-    formData,
-    submitter_id
-  )
+  const presentation_id = await uploadPresentationData(formData, submitter_id)
 
   // Get the IDs and necessary information to send the emails
   const idAndInfoArray = await getEmailInfoAndIds(
@@ -43,9 +41,6 @@ const handlePresentationSubmission = async (
   )
   const emailInfoArray = idAndInfoArray.map((v) => v.emailOptions)
   const idArray = idAndInfoArray.map((v) => v.id)
-
-  // Send all emails
-  const emailStatuses = emailInfoArray.map(sendMail)
 
   // Upload presenter information
   const uploadData: PresentationPresentersModel[] = idArray.map(
@@ -58,7 +53,10 @@ const handlePresentationSubmission = async (
     .from<PresentationPresentersModel>('presentation_presenters')
     .insert(uploadData, { returning: 'minimal' })
 
-  await Promise.all(emailStatuses).then((statusArray) => {
+  // Send all emails
+  myLog(`Sending emails to ${emailInfoArray.length} recipient(s)`)
+  return Promise.all(emailInfoArray.map(sendMail)).then((statusArray) => {
+    myLog({ statusArray })
     const failedEmails = statusArray
       .filter((s) => {
         return s.rejected.length > 0
@@ -68,12 +66,10 @@ const handlePresentationSubmission = async (
     if (failedEmails.length === 0) {
       return res.status(201).json({ message: 'success' })
     } else {
+      myLog({ failedEmails, errMessage: 'Not all emails could be sent' })
       return res
-        .status(400)
-        .json({
-          failedEmails,
-          message: 'Unable to send to some email addresses'
-        })
+        .status(201)
+        .json({ message: 'not all emails could be sent', failedEmails })
     }
   })
 }
