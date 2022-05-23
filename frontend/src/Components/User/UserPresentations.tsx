@@ -5,8 +5,9 @@ import {
 } from '@/lib/databaseModels'
 import { useCallback, useEffect, useState } from 'react'
 import { useSession } from '@/lib/sessionContext'
-import { Box, Container, Grid, Stack, TextField } from '@mui/material'
+import { Box, Container, Stack, TextField, Typography } from '@mui/material'
 import { myLog } from '@/lib/utils'
+import { PresentationEditor } from '../Form/PresentationEditor'
 
 export const UserPresentations: React.FC = () => {
   const { user } = useSession()
@@ -71,18 +72,13 @@ export const UserPresentations: React.FC = () => {
         <Stack direction={{ xs: 'column', md: 'row' }}>
           <Box m={2} width='80%' alignSelf={{ xs: 'center', md: 'flex-start' }}>
             <Box p={2}>
-              <TextField
-                fullWidth
-                label='Email'
-                value={user.email ?? ''}
-                disabled
-              />
+              <Typography variant='subtitle1'>Draft editing is coming soon!</Typography>
             </Box>
-            <Grid container p={2} spacing={2}>
+            <Box display='flex' flexDirection='column' gap={2}>
               {userPresentations.map((p) => {
-                return <p key={p.id}>{p.title}</p>
+                return <PresentationEditor presentation={p} key={p.id} />
               })}
-            </Grid>
+            </Box>
           </Box>
         </Stack>
       </Container>
