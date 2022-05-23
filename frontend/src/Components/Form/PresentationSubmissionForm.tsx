@@ -77,30 +77,36 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [formData, setSubmittedFormData] = useState<FormData | null>(null)
 
+  const submitFormData = async (passedData?: FormData) => {
+    setIsSubmitting(true)
+    myLog('Submitting form data')
+    const data = passedData ?? formData
+    myLog({ data })
+
+    fetch('/api/handlePresentationSubmission', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        formdata: data,
+        submitterId: supabase.auth.user()?.id
+      })
+    }).then(() => {
+      router.push('/my-presentations')
+    }).finally(() => {
+      if (isMounted) setIsSubmitting(false)
+    })
+
+  }
+
   const handleConfirmation = (result: boolean) => {
     setShowConfirmation(false)
     if (result) {
       myLog('Confirmed form submission - submitting form')
       myLog({ formData })
 
-      setIsSubmitting(true)
-      fetch('/api/handlePresentationSubmission', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          formdata: formData,
-          submitterId: supabase.auth.user()?.id
-        })
-      }).then(() => {
-        router.push('/my-presentations')
-        if (isMounted) {
-          setIsSubmitting(false)
-        }
-      })
-
-      setIsSubmitting(false)
+      submitFormData()
     } else {
       myLog('Cancelled form submission')
     }
@@ -117,9 +123,12 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
     <>
       <form
         onSubmit={handleSubmit(async (data) => {
+          setSubmittedFormData(data)
           if (data.isFinal) {
-            setSubmittedFormData(data)
+            // This uses a callback to handleConfirmation, which submits the form data (or doesn't)
             setShowConfirmation(true)
+          } else {
+            submitFormData(data)
           }
         })}
       >
