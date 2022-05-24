@@ -1,18 +1,16 @@
 import { supabase } from '@/lib/supabaseClient'
-import {
-  PresentationPresentersModel,
-  PresentationSubmissionsModel
-} from '@/lib/databaseModels'
+import { MySubmissionsModel } from '@/lib/databaseModels'
 import { useCallback, useEffect, useState } from 'react'
 import { useSession } from '@/lib/sessionContext'
-import { Box, Container, Stack, TextField, Typography } from '@mui/material'
+import { Box, Container, Stack, Typography } from '@mui/material'
 import { myLog } from '@/lib/utils'
 import { PresentationEditor } from '../Form/PresentationEditor'
+import { PersonProps } from '../Form/Person'
 
 export const UserPresentations: React.FC = () => {
-  const { user } = useSession()
+  const { user, profile } = useSession()
   const [userPresentations, setUserPresentations] = useState<
-    PresentationSubmissionsModel[]
+    MySubmissionsModel[]
   >([])
   const [isLoading, setIsLoading] = useState(true)
 
@@ -25,22 +23,9 @@ export const UserPresentations: React.FC = () => {
 
   const getPresentations = useCallback(async () => {
     if (user == null) return
-    const { data: presentationIdData, error: errorPresIds } = await supabase
-      .from<PresentationPresentersModel>('presentation_presenters')
-      .select('presentation_id')
-      .eq('presenter_id', user.id)
-    if (errorPresIds) {
-      myLog({
-        error: errorPresIds,
-        desc: 'Failed to fetch presentations with this user as a presenter'
-      })
-      return
-    }
-    const presentationIds = presentationIdData.map((p) => p.presentation_id)
     const { data, error: errorPresData } = await supabase
-      .from<PresentationSubmissionsModel>('presentation_submissions')
+      .from<MySubmissionsModel>('my_submissions')
       .select()
-      .in('id', presentationIds)
     if (errorPresData) {
       myLog({
         error: errorPresData,
@@ -67,16 +52,30 @@ export const UserPresentations: React.FC = () => {
       return <p>You don&apos;t have any draft or submitted presentations</p>
     }
 
+    const submitter: PersonProps = {
+      email: user.email ?? '',
+      firstName: profile?.firstname ?? '',
+      lastName: profile?.lastname ?? ''
+    }
+
     return (
       <Container>
         <Stack direction={{ xs: 'column', md: 'row' }}>
           <Box m={2} width='80%' alignSelf={{ xs: 'center', md: 'flex-start' }}>
             <Box p={2}>
-              <Typography variant='subtitle1'>Draft editing is coming soon!</Typography>
+              <Typography variant='subtitle1'>
+                Draft editing is coming soon!
+              </Typography>
             </Box>
             <Box display='flex' flexDirection='column' gap={2}>
               {userPresentations.map((p) => {
-                return <PresentationEditor presentation={p} key={p.id} />
+                return (
+                  <PresentationEditor
+                    presentation={p}
+                    key={p.presentation_id}
+                    submitter={submitter}
+                  />
+                )
               })}
             </Box>
           </Box>

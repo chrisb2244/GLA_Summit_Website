@@ -20,6 +20,7 @@ type EmailArrayProps<FieldValues> = {
     | undefined
   register: UseFormRegister<FieldValues>
   removePresenter: (idx: number) => void
+  // defaultValue?: Partial<EmailProps[]>
 }
 
 export function EmailArrayFormComponent<FieldValues>(
@@ -45,6 +46,7 @@ export function EmailArrayFormComponent<FieldValues>(
                 errors={errors?.[idx]}
                 register={register}
                 remove={removePresenter}
+                defaultValue={p}
               />
             </Box>
           </Paper>
@@ -60,6 +62,7 @@ const OtherEmail = <FieldValues,>(props: {
   errors: FieldErrors<EmailProps> | undefined
   register: UseFormRegister<FieldValues>
   remove: (idx: number) => void
+  defaultValue?: EmailProps
 }) => {
   return (
     <Box
@@ -73,6 +76,7 @@ const OtherEmail = <FieldValues,>(props: {
           path={join(props.path, `${props.idx}`)}
           register={props.register}
           errors={props.errors}
+          defaultValue={props?.defaultValue}
         />
       </Box>
       <Box flexGrow={0} p={1} textAlign='center'>
