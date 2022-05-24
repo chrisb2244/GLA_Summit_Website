@@ -19,7 +19,8 @@ export const sendMail = async (emailContent: EmailContent) => {
     auth: {
       user: process.env.EMAIL_SERVER_USER,
       pass: process.env.EMAIL_SERVER_PASSWORD
-    }
+    },
+    ignoreTLS: true,
   })
 
   const options: Options = { to, subject, from, text: bodyPlain, html: body }
