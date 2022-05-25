@@ -116,7 +116,11 @@ export const UserPresentations: React.FC = () => {
     return (
       <Container>
         <Stack direction={{ xs: 'column', md: 'row' }}>
-          <Box m={2} width='80%' alignSelf={{ xs: 'center', md: 'flex-start' }}>
+          <Box
+            m={2}
+            width={{ xs: '95%', md: '80%' }}
+            alignSelf={{ xs: 'center', md: 'flex-start' }}
+          >
             <Box p={2}>
               <Typography variant='subtitle1'>
                 Your presentations are shown below:
