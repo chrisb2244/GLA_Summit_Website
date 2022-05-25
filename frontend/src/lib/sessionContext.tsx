@@ -60,7 +60,8 @@ const defaultTimezoneInfo = () => {
   const { timeZone } = Intl.DateTimeFormat().resolvedOptions()
   const timeZoneName = new Date()
     .toLocaleDateString(undefined, { timeZoneName: 'long' })
-    .split(',')[1].trim()
+    .split(',')[1]
+    .trim()
   return { timeZone, timeZoneName, use24HourClock: false }
 }
 
@@ -101,7 +102,7 @@ export const AuthProvider: React.FC = (props) => {
 
   const runUpdates = async (user: User | null) => {
     setUser(user)
-    if(user == null) {
+    if (user == null) {
       return
     }
     getProfileInfo(user)
@@ -184,39 +185,39 @@ const getProfileInfo = async (user: User) => {
 }
 
 const checkIfOrganizer = async (user: User) => {
-  try {
-    const { data, error } = await supabase.from('organizers').select().single()
-    if (error) throw error
-    if (data) return true
-    return false
-  } catch (error) {
+  const { data, error } = await supabase
+    .from('organizers')
+    .select()
+    .eq('id', user.id)
+  if (error) {
     const err = error as PostgrestError
     const expected = 'JSON object requested, multiple (or no) rows returned'
     if (err.message === expected) {
+      console.log('returning false')
       return false
     }
     throw error
+  } else {
+    return data.length > 0
   }
 }
 
 const queryTimezonePreferences = async (user: User) => {
-  try {
-
-    const { data, error } = await supabase
+  const { data, error } = await supabase
     .from<TimezonePreferencesModel>('timezone_preferences')
     .select()
-    .single()
-    if (error) {
-      throw new Error(error.message)
-    }
-    const { timezone_db, timezone_name, use_24h_clock } = data
+    .eq('id', user.id)
+  if (error) {
+    throw new Error(error.message)
+  }
+  if (data.length > 0) {
+    const { timezone_db, timezone_name, use_24h_clock } = data[0]
     return {
       timeZone: timezone_db,
       timeZoneName: timezone_name,
       use24HourClock: use_24h_clock
     }
-  } catch (error) {
-    const err = error as PostgrestError
+  } else {
     return defaultTimezoneInfo()
   }
 }
