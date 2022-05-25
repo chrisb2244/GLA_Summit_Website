@@ -60,7 +60,7 @@ const defaultTimezoneInfo = () => {
   const { timeZone } = Intl.DateTimeFormat().resolvedOptions()
   const timeZoneName = new Date()
     .toLocaleDateString(undefined, { timeZoneName: 'long' })
-    .substring(12)
+    .split(',')[1].trim()
   return { timeZone, timeZoneName, use24HourClock: false }
 }
 
@@ -101,6 +101,9 @@ export const AuthProvider: React.FC = (props) => {
 
   const runUpdates = async (user: User | null) => {
     setUser(user)
+    if(user == null) {
+      return
+    }
     getProfileInfo(user)
       .then(setProfile)
       .catch((error) => {
@@ -165,11 +168,7 @@ export const useSession = () => {
 }
 
 // ---------------------- Helper functions --------------------------------- //
-const getProfileInfo = async (user: User | null) => {
-  if (user == null) {
-    throw new Error('User was null')
-  }
-
+const getProfileInfo = async (user: User) => {
   return supabase
     .from<ProfileModel>('profiles')
     .select('id, firstname, lastname, bio, website, avatar_url')
@@ -184,10 +183,7 @@ const getProfileInfo = async (user: User | null) => {
     })
 }
 
-const checkIfOrganizer = async (user: User | null) => {
-  if (user == null) {
-    throw new Error('User was null')
-  }
+const checkIfOrganizer = async (user: User) => {
   try {
     const { data, error } = await supabase.from('organizers').select().single()
     if (error) throw error
@@ -203,22 +199,24 @@ const checkIfOrganizer = async (user: User | null) => {
   }
 }
 
-const queryTimezonePreferences = async (user: User | null) => {
-  if (user == null) {
-    throw new Error('User was null')
-  }
+const queryTimezonePreferences = async (user: User) => {
+  try {
 
-  const { data, error } = await supabase
+    const { data, error } = await supabase
     .from<TimezonePreferencesModel>('timezone_preferences')
     .select()
     .single()
-  if (error) {
-    throw new Error(error.message)
-  }
-  const { timezone_db, timezone_name, use_24h_clock } = data
-  return {
-    timeZone: timezone_db,
-    timeZoneName: timezone_name,
-    use24HourClock: use_24h_clock
+    if (error) {
+      throw new Error(error.message)
+    }
+    const { timezone_db, timezone_name, use_24h_clock } = data
+    return {
+      timeZone: timezone_db,
+      timeZoneName: timezone_name,
+      use24HourClock: use_24h_clock
+    }
+  } catch (error) {
+    const err = error as PostgrestError
+    return defaultTimezoneInfo()
   }
 }
