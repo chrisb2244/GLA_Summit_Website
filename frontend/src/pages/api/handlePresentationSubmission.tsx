@@ -24,6 +24,9 @@ const handlePresentationSubmission = async (
   // Need to send using e.g. fetch(..., { body: JSON.stringify({ formdata: data, submitterId: id }) })
   const formData = req.body.formdata as FormData
   const submitter_id = req.body.submitterId as string
+  const sendEmails = req.body.sendEmails as boolean
+  const presentationId = req.body.presentationId as string
+
   if (typeof formData === 'undefined' || typeof submitter_id === 'undefined') {
     return res.status(400).json('Missing data elements')
   }
@@ -31,7 +34,11 @@ const handlePresentationSubmission = async (
     return res.status(401).json('No user ID passed - authentication failure')
   }
 
-  const presentation_id = await uploadPresentationData(formData, submitter_id)
+  const presentation_id = await uploadPresentationData(
+    formData,
+    submitter_id,
+    presentationId
+  )
 
   // Get the IDs and necessary information to send the emails
   const idAndInfoArray = await getEmailInfoAndIds(
@@ -51,27 +58,32 @@ const handlePresentationSubmission = async (
 
   await adminClient
     .from<PresentationPresentersModel>('presentation_presenters')
-    .insert(uploadData, { returning: 'minimal' })
+    .upsert(uploadData, { returning: 'minimal' })
 
   // Send all emails
-  myLog(`Sending emails to ${emailInfoArray.length} recipient(s)`)
-  return Promise.all(emailInfoArray.map(sendMail)).then((statusArray) => {
-    myLog({ statusArray })
-    const failedEmails = statusArray
-      .filter((s) => {
-        return s.rejected.length > 0
-      })
-      .flatMap((s) => s.rejected)
+  if (typeof sendEmails === 'undefined' || sendEmails) {
+    // Default to sending, unless directed not to send via the data content
+    myLog(`Sending emails to ${emailInfoArray.length} recipient(s)`)
+    return Promise.all(emailInfoArray.map(sendMail)).then((statusArray) => {
+      const failedEmails = statusArray
+        .filter((s) => {
+          return s.rejected.length > 0
+        })
+        .flatMap((s) => s.rejected)
 
-    if (failedEmails.length === 0) {
-      return res.status(201).json({ message: 'success' })
-    } else {
-      myLog({ failedEmails, errMessage: 'Not all emails could be sent' })
-      return res
-        .status(201)
-        .json({ message: 'not all emails could be sent', failedEmails })
-    }
-  })
+      if (failedEmails.length === 0) {
+        return res.status(201).json({ message: 'success' })
+      } else {
+        myLog({ failedEmails, errMessage: 'Not all emails could be sent' })
+        return res
+          .status(201)
+          .json({ message: 'not all emails could be sent', failedEmails })
+      }
+    })
+  } else {
+    // Don't send email
+    return res.status(201).json({ message: 'success' })
+  }
 }
 
 // Return the userIds for each presenter (new or existing)

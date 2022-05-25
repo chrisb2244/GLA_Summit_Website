@@ -83,8 +83,18 @@ export const UserPresentations: React.FC = () => {
             }
           }}
           updateCallback={async (formData: FormData) => {
-            console.log('In callback')
-            console.log(formData)
+            fetch('/api/handlePresentationSubmission', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                formdata: formData,
+                submitterId: supabase.auth.user()?.id,
+                sendEmails: false,
+                presentationId: p.presentation_id
+              })
+            })
             return
           }}
         />
