@@ -46,7 +46,7 @@ export const FormSubmissionEmail: React.FC<{
             height={80}
             width={80}
             alt='GLA logo'
-            style={{ float: 'right', padding: '5px'}}
+            style={{ float: 'right', padding: '5px' }}
           />
         </Box>
         {headerText}
@@ -56,6 +56,7 @@ export const FormSubmissionEmail: React.FC<{
           <Table>
             <TableBody>
               <FormRow label='Type:' value={typeText} />
+              <HorizontalDivider />
               <FormRow label='Title:' value={data.title} />
               <FormRow label='Abstract:' value={data.abstract} />
               <FormRow label='Learning points:' value={data.learningPoints} />
@@ -75,15 +76,20 @@ export const FormSubmissionEmail: React.FC<{
 const OtherPresenterRows: React.FC<{ presenters: EmailProps[] }> = ({
   presenters
 }) => {
-  if (presenters.length === 0) {
+  const nRows = presenters.length
+  if (nRows === 0) {
     return <FormRow label='Other Presenters:' value='None' />
   }
+  const otherRows = presenters.slice(1)
   return (
     <TableRow>
-      <TableCell>
+      <TableCell rowSpan={nRows}>
         <Typography>Other Presenters:</Typography>
       </TableCell>
-      {presenters.map((p, idx) => {
+      <TableCell>
+        <Typography>{presenters[0].email}</Typography>
+      </TableCell>
+      {otherRows.map((p, idx) => {
         return (
           <TableRow key={`otherPresenter-${idx}`}>
             <TableCell>

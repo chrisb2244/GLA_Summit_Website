@@ -13,7 +13,7 @@ export const FormRow: React.FC<{ label: string; value: string }> = ({
 }) => {
   return (
     <TableRow>
-      <TableCell sx={{ width: '200px' }}>
+      <TableCell sx={{ width: '1px', whiteSpace: 'nowrap' }}>
         <Typography>{label}</Typography>
       </TableCell>
       <TableCell>
