@@ -1,4 +1,4 @@
-import { Button, Paper, MenuItem } from '@mui/material'
+import { Button, Paper, MenuItem, TextFieldProps, Box } from '@mui/material'
 import {
   of,
   UseFormRegister,
@@ -7,7 +7,7 @@ import {
   UseFieldArrayRemove,
   FieldArrayWithId
 } from 'react-hook-form'
-import type { EmailProps, PersonProps } from '@/Components/Form/Person'
+import { EmailProps, Person, PersonProps } from '@/Components/Form/Person'
 import { StackedBoxes } from '../Layout/StackedBoxes'
 import { EmailArrayFormComponent } from './EmailArray'
 import { FormField } from './FormField'
@@ -29,8 +29,9 @@ type PresentationFormCoreProps = {
   register: UseFormRegister<FormData>
   errors: FieldErrors<FormData>
   addPresenter: UseFieldArrayAppend<FormData, 'otherPresenters'>
-  otherPresenters: FieldArrayWithId<FormData, 'otherPresenters'>[]
   removePresenter: UseFieldArrayRemove
+  otherPresenters: FieldArrayWithId<FormData, 'otherPresenters'>[]
+  submitter: PersonProps
   displayLabels?: boolean
   initialPresentationType?: PresentationType
 }
@@ -42,12 +43,26 @@ export const PresentationSubmissionFormCore: React.FC<
   errors,
   addPresenter,
   removePresenter,
+  submitter,
   otherPresenters,
   initialPresentationType = 'full length',
   displayLabels = false
 }) => {
   return (
     <>
+      <Paper>
+        <Box px={1} py={2} mb={1}>
+          <Person<FormData>
+            heading='Submitter'
+            defaultValue={submitter}
+            errors={errors.submitter}
+            register={register}
+            path={of('submitter')}
+            locked={locked}
+            splitSize='sm'
+          />
+        </Box>
+      </Paper>
       <EmailArrayFormComponent<FormData>
         emailArray={otherPresenters}
         arrayPath={of('otherPresenters')}
@@ -66,7 +81,7 @@ export const PresentationSubmissionFormCore: React.FC<
         Add Presenter
       </Button>
       <Paper>
-        <StackedBoxes child_mx={{ xs: 1, md: 3 }}>
+        <StackedBoxes child_mx={1}>
           <FormField
             registerReturn={register('title', {
               required: 'Required'

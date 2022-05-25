@@ -141,20 +141,8 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
             to join this presentation. Only you, the presentation submitter,
             will be able to edit the presentation.
           </Typography>
-          <Paper>
-            <Box px={1} py={2}>
-              <Person<FormData>
-                heading='Submitter'
-                defaultValue={submitter}
-                errors={errors.submitter}
-                register={register}
-                path={of('submitter')}
-                locked
-                splitSize='sm'
-              />
-            </Box>
-          </Paper>
           <PresentationSubmissionFormCore
+            submitter={submitter}
             register={register}
             errors={errors}
             otherPresenters={otherPresenterFields}

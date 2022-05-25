@@ -123,10 +123,11 @@ export const PresentationEditor: React.FC<PresentationEditorProps> = ({
         <Collapse in={expanded} timeout='auto' unmountOnExit>
           <CardContent>
             <form>
-              <StackedBoxes>
+              <StackedBoxes child_mx={{ xs: 0, md: 3 }}>
                 <PresentationSubmissionFormCore
                   register={register}
                   errors={errors}
+                  submitter={submitter}
                   otherPresenters={otherPresenterFields}
                   addPresenter={addPresenter}
                   removePresenter={removePresenter}

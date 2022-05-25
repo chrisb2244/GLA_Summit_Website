@@ -39,7 +39,7 @@ export function Person<FieldValues>(props: {
         width: { xs: '100%', [splitSize]: '50%' },
         paddingInlineEnd: { xs: 0, [splitSize]: side === 'left' ? pVal : 0 },
         paddingInlineStart: { xs: 0, [splitSize]: side === 'right' ? pVal : 0 },
-        paddingBottom: { xs: 1, [splitSize]: 0 }
+        paddingBottom: 1
       }
     }
   }
@@ -47,7 +47,7 @@ export function Person<FieldValues>(props: {
   let headElem = null
   if (typeof heading !== 'undefined') {
     headElem = (
-      <Box px={1}>
+      <Box px={1} mb={1}>
         <Typography variant='body2'>{heading}</Typography>
       </Box>
     )
