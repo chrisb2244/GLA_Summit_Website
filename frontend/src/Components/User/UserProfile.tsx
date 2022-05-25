@@ -107,9 +107,9 @@ export const UserProfile: React.FC = () => {
       return <p>Loading...</p>
     }
     return (
-      <Container>
+      <>
         <Stack direction={{ xs: 'column', md: 'row' }}>
-          <Box m={2} width='80%' alignSelf={{xs: 'center', md: 'flex-start'}}>
+          <Box m={2} width='80%' alignSelf={{ xs: 'center', md: 'flex-start' }}>
             <Box p={2}>
               <TextField
                 fullWidth
@@ -137,7 +137,7 @@ export const UserProfile: React.FC = () => {
             </Grid>
           </Box>
           <Box
-            width={{xs: '80%', md: '20%'}}
+            width={{ xs: '80%', md: '20%' }}
             alignSelf='center'
             ref={(box: HTMLDivElement | null) => {
               if (box) setImageSize(box.clientWidth)
@@ -156,7 +156,7 @@ export const UserProfile: React.FC = () => {
         >
           Update Profile
         </Button>
-      </Container>
+      </>
     )
   }
 }

@@ -8,7 +8,7 @@ export const AppFrame: React.FC = (props) => {
       <Header />
 
       <Box sx={{ flex: '1 0 auto', display: 'flex' }}>
-        <Box maxWidth='lg' width={{xs: '95%', md: '80%'}} mx='auto' display='flex' flexDirection='column'>
+        <Box maxWidth='lg' width={{xs: '100%', md: '80%'}} mx='auto' display='flex' flexDirection='column'>
           {props.children}
         </Box>
       </Box>
