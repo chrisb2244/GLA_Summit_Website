@@ -9,7 +9,10 @@ import { Box, Container, Stack, Typography } from '@mui/material'
 import { myLog } from '@/lib/utils'
 import { PresentationEditor } from '../Form/PresentationEditor'
 import { PersonProps } from '../Form/Person'
-import { FormData } from '../Form/PresentationSubmissionFormCore'
+import {
+  FormData,
+  PresentationLockedStatus
+} from '../Form/PresentationSubmissionFormCore'
 
 export const UserPresentations: React.FC = () => {
   const { user, profile } = useSession()
@@ -56,9 +59,16 @@ export const UserPresentations: React.FC = () => {
       return <p>You don&apos;t have any draft or submitted presentations</p>
     }
 
-
     const presentationList = userPresentations.map((p) => {
-      const submitterIdx = p.all_presenters_ids.findIndex(id => p.submitter_id === id)
+      const isCopresenter = p.submitter_id !== user.id
+      const isSubmitted = p.is_submitted
+      const lockStatus: PresentationLockedStatus = {
+        isCopresenter,
+        isSubmitted
+      }
+      const submitterIdx = p.all_presenters_ids.findIndex(
+        (id) => p.submitter_id === id
+      )
       const submitter: PersonProps = {
         email: p.all_emails[submitterIdx],
         firstName: p.all_firstnames[submitterIdx],
@@ -69,6 +79,7 @@ export const UserPresentations: React.FC = () => {
           presentation={p}
           key={p.presentation_id}
           submitter={submitter}
+          lockStatuses={lockStatus}
           deleteCallback={async () => {
             setUserPresentations((existing) => [
               ...existing.filter(

@@ -8,6 +8,7 @@ import { join } from 'react-hook-form'
 import { EmailFormComponent } from './Person'
 import type { EmailProps } from './Person'
 import { Box, Button, Paper } from '@mui/material'
+import { isLocked, PresentationLockedStatus } from './PresentationSubmissionFormCore'
 
 type EmailArrayProps<FieldValues> = {
   emailArray: EmailProps[]
@@ -20,6 +21,7 @@ type EmailArrayProps<FieldValues> = {
     | undefined
   register: UseFormRegister<FieldValues>
   removePresenter: (idx: number) => void
+  lockStatuses?: PresentationLockedStatus
   // defaultValue?: Partial<EmailProps[]>
 }
 
@@ -31,8 +33,11 @@ export function EmailArrayFormComponent<FieldValues>(
     errors,
     register,
     removePresenter,
-    arrayPath
+    arrayPath,
+    lockStatuses = {isCopresenter: false, isSubmitted: false}
   } = props
+
+  const locked = isLocked(lockStatuses)
 
   return (
     <>
@@ -47,6 +52,7 @@ export function EmailArrayFormComponent<FieldValues>(
                 register={register}
                 remove={removePresenter}
                 defaultValue={p}
+                locked={locked}
               />
             </Box>
           </Paper>
@@ -63,7 +69,10 @@ const OtherEmail = <FieldValues,>(props: {
   register: UseFormRegister<FieldValues>
   remove: (idx: number) => void
   defaultValue?: EmailProps
+  locked?: boolean
 }) => {
+  const hideIfLocked = props.locked ? { display: 'none' } : {}
+
   return (
     <Box
       flexDirection={{ xs: 'column', sm: 'row' }}
@@ -77,9 +86,10 @@ const OtherEmail = <FieldValues,>(props: {
           register={props.register}
           errors={props.errors}
           defaultValue={props?.defaultValue}
+          locked={props.locked}
         />
       </Box>
-      <Box flexGrow={0} p={1} textAlign='center'>
+      <Box flexGrow={0} p={1} textAlign='center' {...hideIfLocked} >
         <Button onClick={() => props.remove(props.idx)} variant='outlined'>
           Remove
         </Button>

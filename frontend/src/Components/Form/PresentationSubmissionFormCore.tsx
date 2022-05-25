@@ -25,6 +25,14 @@ export type FormData = {
   isFinal: boolean
 }
 
+export type PresentationLockedStatus = {
+  isCopresenter: boolean
+  isSubmitted: boolean
+} //'unlocked' | 'copresenter' | 'submitted'
+export const isLocked = (status: PresentationLockedStatus) => {
+  return status.isCopresenter || status.isSubmitted
+}
+
 type PresentationFormCoreProps = {
   register: UseFormRegister<FormData>
   errors: FieldErrors<FormData>
@@ -34,6 +42,7 @@ type PresentationFormCoreProps = {
   submitter: PersonProps
   displayLabels?: boolean
   initialPresentationType?: PresentationType
+  lockStatuses?: PresentationLockedStatus
 }
 
 export const PresentationSubmissionFormCore: React.FC<
@@ -46,9 +55,21 @@ export const PresentationSubmissionFormCore: React.FC<
   submitter,
   otherPresenters,
   initialPresentationType = 'full length',
-  displayLabels = false
+  displayLabels = false,
+  lockStatuses = { isCopresenter: false, isSubmitted: false }
 }) => {
-  return (
+  const locked = isLocked(lockStatuses)
+  const displayLocked = locked ? { display: 'none' } : {}
+  const lockProps = locked
+    ? {
+        InputProps: {
+          readOnly: true
+        },
+        variant: 'filled' as TextFieldProps['variant']
+      }
+    : {}
+
+    return (
     <>
       <Paper>
         <Box px={1} py={2} mb={1}>
@@ -69,6 +90,7 @@ export const PresentationSubmissionFormCore: React.FC<
         errors={errors.otherPresenters}
         register={register}
         removePresenter={removePresenter}
+        lockStatuses={lockStatuses}
       />
       <Button
         fullWidth
@@ -76,7 +98,7 @@ export const PresentationSubmissionFormCore: React.FC<
           addPresenter({})
         }}
         variant='outlined'
-        sx={{ mb: 1 }}
+        sx={{ mb: 1, ...displayLocked}}
       >
         Add Presenter
       </Button>
@@ -92,6 +114,7 @@ export const PresentationSubmissionFormCore: React.FC<
             fieldError={errors.title}
             label='Title'
             hiddenLabel={!displayLabels}
+            {...lockProps}
           />
           <FormField
             registerReturn={register('abstract', {
@@ -112,6 +135,7 @@ export const PresentationSubmissionFormCore: React.FC<
             rows={5}
             label='Abstract'
             hiddenLabel={!displayLabels}
+            {...lockProps}
           />
           <FormField
             registerReturn={register('learningPoints', {
@@ -125,9 +149,10 @@ export const PresentationSubmissionFormCore: React.FC<
             placeholder='What is the most important thing attendees would learn from your presentation?'
             fullWidth
             multiline
-            rows={2}
+            rows={3}
             label='Learning Points'
             hiddenLabel={!displayLabels}
+            {...lockProps}
           />
           <FormField
             registerReturn={register('presentationType')}
@@ -137,6 +162,7 @@ export const PresentationSubmissionFormCore: React.FC<
             defaultValue={initialPresentationType}
             label='Presentation Type'
             hiddenLabel={!displayLabels}
+            {...lockProps}
           >
             <MenuItem key='full length' value='full length'>
               Full Length Presentation (45 minutes)

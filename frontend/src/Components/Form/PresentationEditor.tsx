@@ -12,7 +12,7 @@ import {
 import { useState } from 'react'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { ConfirmationPopup } from './ConfirmationPopup'
-import { PresentationSubmissionFormCore } from './PresentationSubmissionFormCore'
+import { isLocked, PresentationLockedStatus, PresentationSubmissionFormCore } from './PresentationSubmissionFormCore'
 import { useFieldArray, useForm } from 'react-hook-form'
 import type { FormData } from './PresentationSubmissionFormCore'
 import { PersonProps } from './Person'
@@ -21,6 +21,7 @@ import { StackedBoxes } from '../Layout/StackedBoxes'
 type PresentationEditorProps = {
   presentation: MySubmissionsModel
   submitter: PersonProps
+  lockStatuses?: PresentationLockedStatus
   deleteCallback: () => Promise<void>
   updateCallback: (formData: FormData) => Promise<void>
 }
@@ -28,6 +29,7 @@ type PresentationEditorProps = {
 export const PresentationEditor: React.FC<PresentationEditorProps> = ({
   presentation,
   submitter,
+  lockStatuses = {isCopresenter: false, isSubmitted: false},
   updateCallback,
   deleteCallback
 }) => {
@@ -35,21 +37,28 @@ export const PresentationEditor: React.FC<PresentationEditorProps> = ({
   const handleExpandClick = () => setExpanded(!expanded)
   const [submittedData, setShowConfirmation] = useState<FormData | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const locked = isLocked(lockStatuses)
 
   const deleteDraft = async () => {
     // Consider a confirmation dialog?
-    await deleteCallback()
+    if (!locked) {
+      await deleteCallback()
+    }
   }
 
   const saveDraft = (formData: FormData) => {
-    setIsSubmitting(true)
-    updateCallback(formData).then(() => setIsSubmitting(false))
+    if (!locked) {
+      setIsSubmitting(true)
+      updateCallback(formData).then(() => setIsSubmitting(false))
+    }
   }
 
   const submitPresentation = (formData: FormData) => {
     // Submission is handled via callback from the ConfirmationPopup
-    const fDataFinal = { ...formData, isFinal: true }
-    setShowConfirmation(fDataFinal)
+    if (!locked) {
+      const fDataFinal = { ...formData, isFinal: true }
+      setShowConfirmation(fDataFinal)
+    }
   }
 
   const confirmationPopup = (
@@ -108,7 +117,7 @@ export const PresentationEditor: React.FC<PresentationEditorProps> = ({
     <>
       <Card>
         <CardHeader
-          title={presentation.title}
+          title={[presentation.title, lockStatuses.isCopresenter ? '(Copresenter)' : '', lockStatuses.isSubmitted ? '(Submitted)' : ''].join(' ')}
           action={
             <ExpandMore
               expand={expanded}
@@ -133,10 +142,11 @@ export const PresentationEditor: React.FC<PresentationEditorProps> = ({
                   removePresenter={removePresenter}
                   initialPresentationType={presentation.presentation_type}
                   displayLabels
+                  lockStatuses={lockStatuses}
                 />
                 <Box
                   flexDirection={{ xs: 'column', md: 'row' }}
-                  display='flex'
+                  display={locked ? 'none' : 'flex'}
                   gap={1}
                   pt={2}
                 >
