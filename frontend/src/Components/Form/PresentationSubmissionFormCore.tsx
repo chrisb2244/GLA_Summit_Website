@@ -12,7 +12,8 @@ import {
   UseFormRegister,
   UseFieldArrayAppend,
   FieldErrors,
-  UseFieldArrayRemove
+  UseFieldArrayRemove,
+  FieldArrayWithId
 } from 'react-hook-form'
 import { Person } from '@/Components/Form/Person'
 import type { EmailProps, PersonProps } from '@/Components/Form/Person'
@@ -42,10 +43,10 @@ type PresentationFormCoreProps = {
   register: UseFormRegister<FormData>
   errors: FieldErrors<FormData>
   addPresenter: UseFieldArrayAppend<FormData, 'otherPresenters'>
-  otherPresenters: EmailProps[]
+  otherPresenters: FieldArrayWithId<FormData, 'otherPresenters'>[]
   removePresenter: UseFieldArrayRemove
-  defaultValues?: Partial<PresentationSubmissionsModel & {otherPresenters: EmailProps[]}>
   displayLabels?: boolean
+  initialPresentationType?: PresentationType
 }
 
 export const PresentationSubmissionFormCore: React.FC<
@@ -55,14 +56,14 @@ export const PresentationSubmissionFormCore: React.FC<
   errors,
   addPresenter,
   removePresenter,
-  defaultValues,
+  otherPresenters,
+  initialPresentationType = 'full length',
   displayLabels = false
 }) => {
-  const op = defaultValues?.otherPresenters
   return (
     <>
       <EmailArrayFormComponent<FormData>
-        emailArray={op ?? []}
+        emailArray={otherPresenters}
         arrayPath={of('otherPresenters')}
         errors={errors.otherPresenters}
         register={register}
@@ -88,7 +89,6 @@ export const PresentationSubmissionFormCore: React.FC<
             fullWidth
             sx={{ mt: 2 }}
             fieldError={errors.title}
-            defaultValue={defaultValues?.title}
             label='Title'
             hiddenLabel={!displayLabels}
           />
@@ -109,7 +109,6 @@ export const PresentationSubmissionFormCore: React.FC<
             fullWidth
             multiline
             rows={5}
-            defaultValue={defaultValues?.abstract}
             label='Abstract'
             hiddenLabel={!displayLabels}
           />
@@ -126,7 +125,6 @@ export const PresentationSubmissionFormCore: React.FC<
             fullWidth
             multiline
             rows={2}
-            defaultValue={defaultValues?.learning_points}
             label='Learning Points'
             hiddenLabel={!displayLabels}
           />
@@ -135,7 +133,7 @@ export const PresentationSubmissionFormCore: React.FC<
             fieldError={errors.presentationType}
             fullWidth
             select
-            defaultValue={defaultValues?.presentation_type ?? 'full length'}
+            defaultValue={initialPresentationType}
             label='Presentation Type'
             hiddenLabel={!displayLabels}
           >

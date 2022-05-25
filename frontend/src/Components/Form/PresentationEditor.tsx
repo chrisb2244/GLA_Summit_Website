@@ -77,13 +77,30 @@ export const PresentationEditor: React.FC<PresentationEditorProps> = ({
       }}
     />
   )
+  const otherPresenters = presentation.all_emails
+    .filter((e) => e !== submitter.email)
+    .map((e) => {
+      return { email: e }
+    })
 
   const {
     register,
     control,
     handleSubmit,
     formState: { errors }
-  } = useForm<FormData>({ mode: 'onTouched' })
+  } = useForm<FormData>({
+    mode: 'onTouched',
+    defaultValues: {
+      submitter,
+      otherPresenters,
+      abstract: presentation.abstract,
+      isFinal: presentation.is_submitted,
+      learningPoints: presentation.learning_points,
+      presentationType: presentation.presentation_type,
+      title: presentation.title,
+      timeWindows: []
+    }
+  })
 
   const {
     fields: otherPresenterFields,
@@ -93,22 +110,6 @@ export const PresentationEditor: React.FC<PresentationEditorProps> = ({
     name: 'otherPresenters',
     control
   })
-
-  const defaultFormCoreProps: Partial<
-    PresentationSubmissionsModel & { otherPresenters: EmailProps[] }
-  > = {
-    id: presentation.presentation_id,
-    abstract: presentation.abstract,
-    is_submitted: presentation.is_submitted,
-    learning_points: presentation.learning_points,
-    presentation_type: presentation.presentation_type,
-    title: presentation.title,
-    otherPresenters: presentation.all_emails
-      .filter((e) => e !== submitter.email)
-      .map((e) => {
-        return { email: e }
-      })
-  }
 
   return (
     <>
@@ -136,7 +137,7 @@ export const PresentationEditor: React.FC<PresentationEditorProps> = ({
                   otherPresenters={otherPresenterFields}
                   addPresenter={addPresenter}
                   removePresenter={removePresenter}
-                  defaultValues={defaultFormCoreProps}
+                  initialPresentationType={presentation.presentation_type}
                   displayLabels
                 />
                 <Box
