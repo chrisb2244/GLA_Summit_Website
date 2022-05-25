@@ -36,6 +36,19 @@ export type AllPresentationsModel = {
   all_presenters_names: string[]
 }
 
+export type MySubmissionsModel = {
+  presentation_id: string
+  title: string
+  abstract: string
+  learning_points: string
+  presentation_type: PresentationType
+  submitter_id: string
+  is_submitted: boolean
+  all_presenters_ids: string[]
+  all_presenters_names: string[]
+  all_emails: string[]
+}
+
 export type TimezonePreferencesModel = {
   id: string
   timezone_db: string

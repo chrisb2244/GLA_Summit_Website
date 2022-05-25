@@ -19,6 +19,7 @@ import { PresentationType } from '@/lib/databaseModels'
 import { supabase } from '@/lib/supabaseClient'
 import { ConfirmationPopup } from './ConfirmationPopup'
 import { myLog } from '@/lib/utils'
+import { PresentationSubmissionFormCore } from './PresentationSubmissionFormCore'
 
 type FormProps = {
   submitter: PersonProps
@@ -92,12 +93,13 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
         formdata: data,
         submitterId: supabase.auth.user()?.id
       })
-    }).then(() => {
-      router.push('/my-presentations')
-    }).finally(() => {
-      if (isMounted) setIsSubmitting(false)
     })
-
+      .then(() => {
+        router.push('/my-presentations')
+      })
+      .finally(() => {
+        if (isMounted) setIsSubmitting(false)
+      })
   }
 
   const handleConfirmation = (result: boolean) => {
@@ -132,7 +134,7 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
           }
         })}
       >
-        <StackedBoxes stackSpacing={1.5} child_mx={{xs: 1, sm: 2, md: 3}}>
+        <StackedBoxes stackSpacing={1.5} child_mx={{ xs: 1, sm: 2, md: 3 }}>
           <Typography variant='body1'>
             Please enter the information below and submit your presentation!
           </Typography>
@@ -155,111 +157,17 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
               />
             </Box>
           </Paper>
-          <EmailArrayFormComponent<FormData>
-            emailArray={otherPresenterFields}
-            arrayPath={of('otherPresenters')}
-            errors={errors.otherPresenters}
+          <PresentationSubmissionFormCore
             register={register}
+            errors={errors}
+            otherPresenters={otherPresenterFields}
+            addPresenter={addPresenter}
             removePresenter={removePresenter}
           />
-          <Button
-            fullWidth
-            onClick={() => {
-              addPresenter({})
-            }}
-            variant='outlined'
-          >
-            Add Presenter
-          </Button>
-          <Paper>
-            <StackedBoxes child_mx={{xs: 1, md: 3}}>
-              <FormField
-                registerReturn={register('title', {
-                  required: 'Required'
-                })}
-                placeholder='Presentation Title'
-                fullWidth
-                sx={{ pt: 2 }}
-                fieldError={errors.title}
-              />
-              <FormField
-                registerReturn={register('abstract', {
-                  required: 'Required',
-                  minLength: {
-                    value: 100,
-                    message: 'This field has a minimum length of 100 characters'
-                  },
-                  maxLength: {
-                    value: 5000,
-                    message:
-                      'This field has a maximum length of 5000 characters'
-                  }
-                })}
-                fieldError={errors.abstract}
-                placeholder='Presentation Abstract'
-                fullWidth
-                multiline
-                rows={5}
-              />
-              <FormField
-                registerReturn={register('learningPoints', {
-                  required: 'Required',
-                  minLength: {
-                    value: 50,
-                    message: 'This field has a minimum length of 50 characters'
-                  }
-                })}
-                fieldError={errors.learningPoints}
-                placeholder='What is the most important thing attendees would learn from your presentation?'
-                fullWidth
-                multiline
-                rows={2}
-              />
-              <FormField
-                registerReturn={register('presentationType')}
-                fieldError={errors.presentationType}
-                fullWidth
-                select
-                defaultValue='full length'
-                label='Presentation Type'
-              >
-                <MenuItem key='full length' value='full length'>
-                  Full Length Presentation (45 minutes)
-                </MenuItem>
-                <MenuItem key='7x7' value='7x7'>
-                  7x7 Presentation (7 minutes)
-                </MenuItem>
-              </FormField>
-              <FormControlLabel
-                control={<Checkbox {...register('isFinal')} />}
-                label='I am ready to submit this presentation (leave unchecked to save a draft)'
-              />
-            </StackedBoxes>
-            {/* {timeWindowFields?.map((timeWindow, idx) => {
-            return (
-              <Box key={`timeWindow-${idx}`}>
-                <p>Time window goes here</p>
-                <TimeWindowPicker<FormDataType> register={register} path={of('')} />
-                <Button
-                  variant='outlined'
-                  onClick={() => {
-                    removeTimeWindow(idx)
-                  }}
-                >
-                  Remove
-                </Button>
-              </Box>
-            )
-          })} */}
-            {/* <Button
-            variant='outlined'
-            onClick={() => {
-              addTimeWindow({})
-            }}
-          >
-            Add Time Window{' '}
-          </Button> */}
-          </Paper>
+          <FormControlLabel
+            control={<Checkbox {...register('isFinal')} />}
+            label='I am ready to submit this presentation (leave unchecked to save a draft)'
+          />
           <Button
             variant='contained'
             type='submit'

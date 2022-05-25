@@ -95,25 +95,39 @@ export const inviteOtherPresenter = async (email: string) => {
 
 export const uploadPresentationData = async (
   formData: FormData,
-  submitterId: string
+  submitterId: string,
+  presentationId?: string
 ) => {
   const adminClient = createAdminClient()
-  return adminClient
-    .from<PresentationSubmissionsModel>('presentation_submissions')
-    .insert({
-      submitter_id: submitterId,
-      is_submitted: formData.isFinal,
-      title: formData.title,
-      abstract: formData.abstract,
-      learning_points: formData.learningPoints,
-      presentation_type: formData.presentationType
-    })
-    .single()
-    .then(({ data, error }) => {
-      if (error) throw error
-      // Need the presentation submission ID to add rows to the presentation_presenters table
-      return data.id
-    })
+  const content = {
+    submitter_id: submitterId,
+    is_submitted: formData.isFinal,
+    title: formData.title,
+    abstract: formData.abstract,
+    learning_points: formData.learningPoints,
+    presentation_type: formData.presentationType
+  }
+  if (typeof presentationId === 'undefined') {
+    return adminClient
+      .from<PresentationSubmissionsModel>('presentation_submissions')
+      .insert(content)
+      .single()
+      .then(({ data, error }) => {
+        if (error) throw error
+        // Need the presentation submission ID to add rows to the presentation_presenters table
+        return data.id
+      })
+  } else {
+    return adminClient
+      .from<PresentationSubmissionsModel>('presentation_submissions')
+      .upsert({ ...content, id: presentationId })
+      .single()
+      .then(({ data, error }) => {
+        if (error) throw error
+        // Need the presentation submission ID to add rows to the presentation_presenters table
+        return data.id
+      })
+  }
 }
 
 export const EmailToSubmitter: React.FC<{ data: FormData }> = ({ data }) => {
