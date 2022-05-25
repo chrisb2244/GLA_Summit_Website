@@ -56,13 +56,14 @@ export const UserPresentations: React.FC = () => {
       return <p>You don&apos;t have any draft or submitted presentations</p>
     }
 
-    const submitter: PersonProps = {
-      email: user.email ?? '',
-      firstName: profile?.firstname ?? '',
-      lastName: profile?.lastname ?? ''
-    }
 
     const presentationList = userPresentations.map((p) => {
+      const submitterIdx = p.all_presenters_ids.findIndex(id => p.submitter_id === id)
+      const submitter: PersonProps = {
+        email: p.all_emails[submitterIdx],
+        firstName: p.all_firstnames[submitterIdx],
+        lastName: p.all_lastnames[submitterIdx]
+      }
       return (
         <PresentationEditor
           presentation={p}

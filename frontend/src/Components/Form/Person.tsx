@@ -158,17 +158,13 @@ export function EmailFormComponent<FieldValues>(props: {
     }
   }
 
-  const labels = {
-    email: 'Email'
-  }
-
   const fieldProps = (field: keyof EmailProps) => {
     const error = props.errors?.[field]
     const isError = !!error
     return {
       defaultValue: defaultValue?.[field],
-      placeholder: labels[field],
-      label: labels[field],
+      placeholder: 'Co-presenter Email',
+      label: 'Co-presenter Email',
       error: isError,
       helperText: error?.message,
       FormHelperTextProps: { role: isError ? 'alert' : undefined }
