@@ -3,7 +3,6 @@ import {
   Typography,
   Box,
   Paper,
-  MenuItem,
   Checkbox,
   FormControlLabel
 } from '@mui/material'
@@ -11,8 +10,6 @@ import { useForm, of, useFieldArray } from 'react-hook-form'
 import { Person } from '@/Components/Form/Person'
 import type { EmailProps, PersonProps } from '@/Components/Form/Person'
 import { StackedBoxes } from '../Layout/StackedBoxes'
-import { EmailArrayFormComponent } from './EmailArray'
-import { FormField } from './FormField'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { PresentationType } from '@/lib/databaseModels'

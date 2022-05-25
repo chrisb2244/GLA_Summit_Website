@@ -1,12 +1,4 @@
-import {
-  Button,
-  Typography,
-  Box,
-  Paper,
-  MenuItem,
-  Checkbox,
-  FormControlLabel
-} from '@mui/material'
+import { Button, Paper, MenuItem } from '@mui/material'
 import {
   of,
   UseFormRegister,
@@ -15,18 +7,12 @@ import {
   UseFieldArrayRemove,
   FieldArrayWithId
 } from 'react-hook-form'
-import { Person } from '@/Components/Form/Person'
 import type { EmailProps, PersonProps } from '@/Components/Form/Person'
 import { StackedBoxes } from '../Layout/StackedBoxes'
 import { EmailArrayFormComponent } from './EmailArray'
 import { FormField } from './FormField'
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
-import { PresentationSubmissionsModel, PresentationType } from '@/lib/databaseModels'
-import { supabase } from '@/lib/supabaseClient'
-import { ConfirmationPopup } from './ConfirmationPopup'
-import { myLog } from '@/lib/utils'
+import { PresentationType } from '@/lib/databaseModels'
 
 export type FormData = {
   submitter: PersonProps
