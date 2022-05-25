@@ -28,7 +28,7 @@ export const HorizontalDivider: React.FC = () => {
     <TableRow
       sx={{
         borderWidth: 2,
-        borderColor: 'secondary.main',
+        // borderColor: 'secondary.main',
         borderStyle: 'solid'
       }}
     />
