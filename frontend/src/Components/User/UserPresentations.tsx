@@ -107,7 +107,7 @@ export const UserPresentations: React.FC = () => {
           <Box m={2} width='80%' alignSelf={{ xs: 'center', md: 'flex-start' }}>
             <Box p={2}>
               <Typography variant='subtitle1'>
-                Draft editing is coming soon!
+                Your presentations are shown below:
               </Typography>
             </Box>
             <Box display='flex' flexDirection='column' gap={2}>
