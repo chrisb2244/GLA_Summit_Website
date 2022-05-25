@@ -95,7 +95,7 @@ export const UserPresentations: React.FC = () => {
                 presentationId: p.presentation_id
               })
             })
-            return
+            return getPresentations()
           }}
         />
       )
