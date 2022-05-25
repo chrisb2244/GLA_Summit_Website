@@ -131,9 +131,21 @@ export const uploadPresentationData = async (
 }
 
 export const EmailToSubmitter: React.FC<{ data: FormData }> = ({ data }) => {
+  const isSubmitted = data.isFinal
+
+  const introText = isSubmitted ? (
+    <P>Thank you for submitting a presentation for GLA Summit 2022!</P>
+  ) : (
+    <P sx={{textAlign: 'justify'}}>
+      We&apos;ve stored your draft presentation for GLA Summit 2022!
+      <br />
+      Please feel free to edit it as you need until you&apos;re ready to submit
+      it via the "My Presentations" page.
+    </P>
+  )
   const headerText = (
     <>
-      <P>Thank you for submitting a presentation for GLA Summit 2022!</P>
+      {introText}
       <P>The data you submitted is shown below.</P>
     </>
   )
