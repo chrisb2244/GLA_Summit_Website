@@ -1,13 +1,5 @@
-import {
-  Button,
-  Typography,
-  Box,
-  Paper,
-  Checkbox,
-  FormControlLabel
-} from '@mui/material'
-import { useForm, of, useFieldArray } from 'react-hook-form'
-import { Person } from '@/Components/Form/Person'
+import { Button, Typography, Checkbox, FormControlLabel } from '@mui/material'
+import { useForm, useFieldArray } from 'react-hook-form'
 import type { EmailProps, PersonProps } from '@/Components/Form/Person'
 import { StackedBoxes } from '../Layout/StackedBoxes'
 import { useEffect, useState } from 'react'

@@ -4,7 +4,7 @@ import type { PostgrestError } from '@supabase/supabase-js'
 import { useEffect, useReducer, useRef, useState } from 'react'
 import type { ChangeEvent } from 'react'
 import { useSession } from '@/lib/sessionContext'
-import { Box, Button, Container, Grid, Stack, TextField } from '@mui/material'
+import { Box, Button, Grid, Stack, TextField } from '@mui/material'
 import { UserProfileImage } from './UserProfileImage'
 
 type ProfileData = ProfileModel | null

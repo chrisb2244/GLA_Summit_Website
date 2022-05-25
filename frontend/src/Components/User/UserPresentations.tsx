@@ -15,7 +15,7 @@ import {
 } from '../Form/PresentationSubmissionFormCore'
 
 export const UserPresentations: React.FC = () => {
-  const { user, profile } = useSession()
+  const { user } = useSession()
   const [userPresentations, setUserPresentations] = useState<
     MySubmissionsModel[]
   >([])
