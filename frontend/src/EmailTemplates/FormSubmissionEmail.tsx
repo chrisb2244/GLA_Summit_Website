@@ -9,9 +9,16 @@ import {
   TableRow,
   Typography
 } from '@mui/material'
-import { FormRow, HorizontalDivider, buildSubmitterName } from './emailComponents'
+import {
+  FormRow,
+  HorizontalDivider,
+  buildSubmitterName
+} from './emailComponents'
 
-export const FormSubmissionEmail: React.FC<{ data: FormData, headerText: JSX.Element }> = ({ data, headerText }) => {
+export const FormSubmissionEmail: React.FC<{
+  data: FormData
+  headerText: JSX.Element
+}> = ({ data, headerText }) => {
   const submitterName = buildSubmitterName(data)
   let typeText = ''
   switch (data.presentationType) {
@@ -31,22 +38,19 @@ export const FormSubmissionEmail: React.FC<{ data: FormData, headerText: JSX.Ele
 
   return (
     <Box>
-      <Table>
-        <TableBody>
-          <TableRow>
-            <TableCell sx={{ p: 0 }}>{headerText}</TableCell>
-            <TableCell sx={{ p: 0 }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src='https://iuqlmccpbxtgcluccazt.supabase.co/storage/v1/object/public/public-images/GLA-logo.png?t=2022-05-20T09:06:14.131Z'
-                height={80}
-                width={80}
-                alt='GLA logo'
-              />
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
+      <Box>
+        <Box>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src='https://iuqlmccpbxtgcluccazt.supabase.co/storage/v1/object/public/public-images/GLA-logo.png?t=2022-05-20T09:06:14.131Z'
+            height={80}
+            width={80}
+            alt='GLA logo'
+            style={{ float: 'right', padding: '5px'}}
+          />
+        </Box>
+        {headerText}
+      </Box>
       <Paper>
         <Box>
           <Table>
