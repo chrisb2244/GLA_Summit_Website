@@ -17,20 +17,22 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { ConfirmationPopup } from './ConfirmationPopup'
 import { PresentationSubmissionFormCore } from './PresentationSubmissionFormCore'
 import { useFieldArray, useForm } from 'react-hook-form'
-
-type PresentationEditorProps = {
-  presentation: MySubmissionsModel
-  submitter: PersonProps
-}
 import type { FormData } from './PresentationSubmissionFormCore'
-import { EmailProps, PersonProps } from './Person'
+import { PersonProps } from './Person'
 import { StackedBoxes } from '../Layout/StackedBoxes'
 import { supabase } from '@/lib/supabaseClient'
 import { myLog } from '@/lib/utils'
 
+type PresentationEditorProps = {
+  presentation: MySubmissionsModel
+  submitter: PersonProps
+  deleteCallback: () => void
+}
+
 export const PresentationEditor: React.FC<PresentationEditorProps> = ({
   presentation,
-  submitter
+  submitter,
+  deleteCallback
 }) => {
   const [expanded, setExpanded] = useState(false)
   const handleExpandClick = () => setExpanded(!expanded)
@@ -47,6 +49,7 @@ export const PresentationEditor: React.FC<PresentationEditorProps> = ({
       myLog({ error })
     }
     // Handle the mutation to remove this component
+    deleteCallback()
     setIsSubmitting(false)
   }
 

@@ -58,6 +58,19 @@ export const UserPresentations: React.FC = () => {
       lastName: profile?.lastname ?? ''
     }
 
+    const presentationList = userPresentations.map((p) => {
+      return (
+        <PresentationEditor
+          presentation={p}
+          key={p.presentation_id}
+          submitter={submitter}
+          deleteCallback={() => {
+            setUserPresentations((existing) => [...(existing.filter(p2 => p2.presentation_id !== p.presentation_id))])
+          }}
+        />
+      )
+    })
+
     return (
       <Container>
         <Stack direction={{ xs: 'column', md: 'row' }}>
@@ -68,15 +81,7 @@ export const UserPresentations: React.FC = () => {
               </Typography>
             </Box>
             <Box display='flex' flexDirection='column' gap={2}>
-              {userPresentations.map((p) => {
-                return (
-                  <PresentationEditor
-                    presentation={p}
-                    key={p.presentation_id}
-                    submitter={submitter}
-                  />
-                )
-              })}
+              {presentationList}
             </Box>
           </Box>
         </Stack>
