@@ -1,11 +1,15 @@
 import { supabase } from '@/lib/supabaseClient'
-import { MySubmissionsModel } from '@/lib/databaseModels'
+import {
+  MySubmissionsModel,
+  PresentationSubmissionsModel
+} from '@/lib/databaseModels'
 import { useCallback, useEffect, useState } from 'react'
 import { useSession } from '@/lib/sessionContext'
 import { Box, Container, Stack, Typography } from '@mui/material'
 import { myLog } from '@/lib/utils'
 import { PresentationEditor } from '../Form/PresentationEditor'
 import { PersonProps } from '../Form/Person'
+import { FormData } from '../Form/PresentationSubmissionFormCore'
 
 export const UserPresentations: React.FC = () => {
   const { user, profile } = useSession()
@@ -64,8 +68,24 @@ export const UserPresentations: React.FC = () => {
           presentation={p}
           key={p.presentation_id}
           submitter={submitter}
-          deleteCallback={() => {
-            setUserPresentations((existing) => [...(existing.filter(p2 => p2.presentation_id !== p.presentation_id))])
+          deleteCallback={async () => {
+            setUserPresentations((existing) => [
+              ...existing.filter(
+                (p2) => p2.presentation_id !== p.presentation_id
+              )
+            ])
+            const { error } = await supabase
+              .from<PresentationSubmissionsModel>('presentation_submissions')
+              .delete()
+              .eq('id', p.presentation_id)
+            if (error) {
+              myLog({ error })
+            }
+          }}
+          updateCallback={async (formData: FormData) => {
+            console.log('In callback')
+            console.log(formData)
+            return
           }}
         />
       )

@@ -1,7 +1,4 @@
-import {
-  MySubmissionsModel,
-  PresentationSubmissionsModel
-} from '@/lib/databaseModels'
+import { MySubmissionsModel } from '@/lib/databaseModels'
 import {
   Box,
   Button,
@@ -20,62 +17,55 @@ import { useFieldArray, useForm } from 'react-hook-form'
 import type { FormData } from './PresentationSubmissionFormCore'
 import { PersonProps } from './Person'
 import { StackedBoxes } from '../Layout/StackedBoxes'
-import { supabase } from '@/lib/supabaseClient'
-import { myLog } from '@/lib/utils'
 
 type PresentationEditorProps = {
   presentation: MySubmissionsModel
   submitter: PersonProps
-  deleteCallback: () => void
+  deleteCallback: () => Promise<void>
+  updateCallback: (formData: FormData) => Promise<void>
 }
 
 export const PresentationEditor: React.FC<PresentationEditorProps> = ({
   presentation,
   submitter,
+  updateCallback,
   deleteCallback
 }) => {
   const [expanded, setExpanded] = useState(false)
   const handleExpandClick = () => setExpanded(!expanded)
-  const [showConfirmation, setShowConfirmation] = useState(false)
+  const [submittedData, setShowConfirmation] = useState<FormData | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const deleteDraft = async () => {
-    setIsSubmitting(true)
-    const { error } = await supabase
-      .from<PresentationSubmissionsModel>('presentation_submissions')
-      .delete()
-      .eq('id', presentation.presentation_id)
-    if (error) {
-      myLog({ error })
-    }
-    // Handle the mutation to remove this component
-    deleteCallback()
-    setIsSubmitting(false)
+    // Consider a confirmation dialog?
+    await deleteCallback()
   }
 
-  const saveDraft = () => {
-    console.log('Saving draft')
+  const saveDraft = (formData: FormData) => {
     setIsSubmitting(true)
-    setTimeout(() => setIsSubmitting(false), 1000)
+    updateCallback(formData).then(() => setIsSubmitting(false))
   }
 
-  const submitPresentation = () => {
-    setShowConfirmation(true)
+  const submitPresentation = (formData: FormData) => {
+    // Submission is handled via callback from the ConfirmationPopup
+    const fDataFinal = { ...formData, isFinal: true }
+    setShowConfirmation(fDataFinal)
   }
 
   const confirmationPopup = (
     <ConfirmationPopup
-      open={showConfirmation}
-      setClosed={() => setShowConfirmation(false)}
+      open={submittedData !== null}
+      setClosed={() => setShowConfirmation(null)}
       onResolve={(confirmed) => {
         if (confirmed) {
-          console.log('You submitted the presentation')
-          setShowConfirmation(false)
-          setIsSubmitting(true)
-          setTimeout(() => setIsSubmitting(false), 1000)
+          const formData = submittedData
+          if (formData != null) {
+            setShowConfirmation(null)
+            setIsSubmitting(true)
+            updateCallback(formData).then(() => setIsSubmitting(false))
+          }
         } else {
-          console.log('Cancelled')
-          setShowConfirmation(false)
+          setShowConfirmation(null)
         }
       }}
     />
@@ -161,7 +151,7 @@ export const PresentationEditor: React.FC<PresentationEditorProps> = ({
                     variant='outlined'
                     disabled={isSubmitting}
                     sx={{ flexGrow: 1 }}
-                    onClick={saveDraft}
+                    onClick={handleSubmit(saveDraft)}
                   >
                     {isSubmitting ? 'Saving draft...' : 'Save Draft'}
                   </Button>
@@ -169,7 +159,7 @@ export const PresentationEditor: React.FC<PresentationEditorProps> = ({
                     variant='contained'
                     disabled={isSubmitting}
                     sx={{ flexGrow: 1 }}
-                    onClick={submitPresentation}
+                    onClick={handleSubmit(submitPresentation)}
                   >
                     {isSubmitting ? 'Submitting now...' : 'Submit Presentation'}
                   </Button>
