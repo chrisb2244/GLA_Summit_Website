@@ -23,7 +23,7 @@ type SupabaseApiResponse = {
   error: ApiError | null
 }
 
-export const generateSupabaseLinks = (bodyData: GenerateLinkBody) => {
+export const generateSupabaseLinks = async (bodyData: GenerateLinkBody) => {
   // Need 'type', 'email', and 'options', where options is a struct with 'password', 'data' and 'redirectTo'.
   // 'data''s required/optional contents are unclear... But it might be a signup only
   // password might also be signup only (README.md in github.com/supabase/gotrue)
@@ -49,6 +49,14 @@ export const generateSupabaseLinks = (bodyData: GenerateLinkBody) => {
         .then(handleApiResponse)
     }
     case 'magiclink': {
+      // Workaround the inability to pass shouldCreateUser: false
+      const exists = await api.listUsers().then(({data, error}) => {
+        if(error) throw error
+        return data.filter(u => u.email === email).length > 0
+      })
+      if(!exists) {
+        throw new Error('User not found')
+      }
       return api
         .generateLink('magiclink', email, { redirectTo })
         .then(handleApiResponse)
