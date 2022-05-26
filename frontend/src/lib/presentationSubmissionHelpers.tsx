@@ -86,7 +86,7 @@ export const EmailToSubmitter: React.FC<{ data: FormData }> = ({ data }) => {
       We&apos;ve stored your draft presentation for GLA Summit 2022!
       <br />
       Please feel free to edit it as you need until you&apos;re ready to submit
-      it via the "My Presentations" page.
+      it via the &quot;My Presentations&quot; page.
     </P>
   )
   const headerText = (

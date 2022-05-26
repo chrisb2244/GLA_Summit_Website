@@ -12,6 +12,7 @@ export const SignInEmail: React.FC<{
         Please use this link to sign in: <br />
         <a href={link}>Sign In</a>
         <br />
+        <br />
         You can also copy and paste this URL into your web browser:
         <br />
         {link}
