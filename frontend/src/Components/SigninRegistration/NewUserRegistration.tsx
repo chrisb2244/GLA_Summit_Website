@@ -52,16 +52,17 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = (props) => {
     await supabase.auth
       .signUp(
         { email: data.email, password: randomBytes(32).toString('hex') },
-        { data: newUserData, redirectTo: 'http://localhost:3000' }
+        { data: newUserData, redirectTo: window.location.href }
       )
       .then(({ user, session, error }) => {
+        console.log('In signUp response then')
         myLog({ user, session, error })
         if (error) return Promise.reject(error)
         // If reaching here, no error
-        alert('Check your email for the login link!')
+        console.log('Check your email for the login link!')
       })
       .catch((error: ApiError) => {
-        alert(error.message)
+        console.log(error.message)
       })
     props.setClosed()
     reset()
