@@ -1,10 +1,4 @@
 import type { FormData } from '@/Components/Form/PresentationSubmissionForm'
-import { CssBaseline, ThemeProvider } from '@mui/material'
-import { renderToString } from 'react-dom/server'
-import { CacheProvider } from '@emotion/react'
-import createEmotionCache from 'src/createEmotionCache'
-import createEmotionServer from '@emotion/server/create-instance'
-import { theme } from 'src/theme'
 import { createAdminClient } from './supabaseClient'
 import { FormSubmissionEmail } from '@/EmailTemplates/FormSubmissionEmail'
 import { PresentationSubmissionsModel } from './databaseModels'
@@ -12,56 +6,6 @@ import { Session, User } from '@supabase/supabase-js'
 import { buildSubmitterName, P } from '@/EmailTemplates/emailComponents'
 import { PersonProps } from '@/Components/Form/Person'
 import { myLog } from './utils'
-
-function renderFullPage(html: string, css: string) {
-  return `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        ${css}
-      </head>
-      <body>
-        <div id="root">${html}</div>
-      </body>
-    </html>
-  `
-}
-
-const generateHTMLBody = (emailComponent: JSX.Element) => {
-  const cache = createEmotionCache()
-  const { extractCriticalToChunks, constructStyleTagsFromChunks } =
-    createEmotionServer(cache)
-
-  const renderTarget = (
-    <CacheProvider value={cache}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        {emailComponent}
-      </ThemeProvider>
-    </CacheProvider>
-  )
-  const html = renderToString(renderTarget)
-  const chunks = extractCriticalToChunks(html)
-  const styles = constructStyleTagsFromChunks(chunks)
-
-  return renderFullPage(html, styles)
-}
-
-export const generateBody = (
-  emailComponent: JSX.Element,
-  plainText: string
-) => {
-  const footer =
-    `The non-HTML version of this email has reduced content - if you're ` +
-    `seeing this and want more content in future emails, please contact ` +
-    `web@glasummit.org and let us know that non-HTML-rendered emails are ` +
-    `important to you!`
-
-  return {
-    body: generateHTMLBody(emailComponent),
-    bodyPlain: plainText + footer
-  }
-}
 
 // This function needs to return the new userId for the invited account
 export const inviteOtherPresenter = async (email: string) => {
@@ -134,9 +78,11 @@ export const EmailToSubmitter: React.FC<{ data: FormData }> = ({ data }) => {
   const isSubmitted = data.isFinal
 
   const introText = isSubmitted ? (
-    <P>Thank you for submitting a presentation for GLA Summit 2022!</P>
+    <P sx={{ textAlign: 'justify' }}>
+      Thank you for submitting a presentation for GLA Summit 2022!
+    </P>
   ) : (
-    <P sx={{textAlign: 'justify'}}>
+    <P sx={{ textAlign: 'justify' }}>
       We&apos;ve stored your draft presentation for GLA Summit 2022!
       <br />
       Please feel free to edit it as you need until you&apos;re ready to submit
