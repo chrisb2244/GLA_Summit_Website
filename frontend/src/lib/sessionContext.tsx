@@ -2,13 +2,15 @@ import React, { useContext, useState, createContext, useEffect } from 'react'
 import { supabase } from './supabaseClient'
 import type {
   Session,
-  ApiError,
   UserCredentials,
   User,
   PostgrestError
 } from '@supabase/supabase-js'
+import { ApiError } from '@supabase/supabase-js'
 import { ProfileModel, TimezonePreferencesModel } from './databaseModels'
 import { myLog } from './utils'
+import { GenerateLinkBody } from '@/lib/generateSupabaseLinks'
+import { NewUserInformation } from '@/Components/SigninRegistration/NewUserRegistration'
 
 // Even for ValidSignIn, session and user are null using magic link via email.
 type ValidSignIn = { session: Session | null; user: User | null; error: null }
@@ -74,31 +76,32 @@ export const AuthProvider: React.FC = (props) => {
     useState<TimezoneInfo>(defaultTimezoneInfo)
 
   const signIn = async (email: string, options?: SignInOptions) => {
-    const url = new URL(window.location.href)
-    const redirectTo = url.origin + '/'
+    // Need the '/' to match allowed URLs in the Supabase configuration.
+    const redirectTo = new URL(window.location.href).origin + '/'
 
-    return await supabase.auth
-      .signIn({ email }, { shouldCreateUser: false, redirectTo, ...options })
-      .then(({ session, error, user }) => {
-        // if (error === 'AccessDenied') {
-        if (error) {
-          myLog(error)
-          return { error, session: null, user: null }
+    const bodyData: GenerateLinkBody = {
+      email,
+      type: 'magiclink',
+      redirectTo
+    }
+
+    return fetch('/api/auth_links/magiclink', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ bodyData })
+    })
+      .then((res) => {
+        if (res.status !== 201) {
+          throw new Error(res.statusText)
         }
-        setUser(user)
-        return { session, user, error }
+        return res.json()
+      })
+      .catch((err) => {
+        return { user: null, session: null, error: new Error(err) }
       })
   }
-
-  const signUp = async (cred: UserCredentials, options?: SignUpOptions) =>
-    supabase.auth.signUp(cred, options).then(({ user, session, error }) => {
-      if (error) {
-        return { user: null, session: null, error }
-      }
-      // The documentation claims user is valid if no error.
-      const validUser = user as User
-      return { user: validUser, session, error }
-    })
 
   const runUpdates = async (user: User | null) => {
     setUser(user)
@@ -193,7 +196,6 @@ const checkIfOrganizer = async (user: User) => {
     const err = error as PostgrestError
     const expected = 'JSON object requested, multiple (or no) rows returned'
     if (err.message === expected) {
-      console.log('returning false')
       return false
     }
     throw error
@@ -220,4 +222,39 @@ const queryTimezonePreferences = async (user: User) => {
   } else {
     return defaultTimezoneInfo()
   }
+}
+
+const signUp = async (cred: UserCredentials, options?: SignUpOptions) => {
+  if (typeof cred.email === 'undefined') {
+    return {
+      user: null,
+      session: null,
+      error: { message: 'Undefined email passed', status: 401 }
+    }
+  }
+  if (typeof cred.password === 'undefined') {
+    return {
+      user: null,
+      session: null,
+      error: { message: 'No password provided', status: 401 }
+    }
+  }
+
+  const bodyData: GenerateLinkBody = {
+    email: cred.email,
+    type: 'signup',
+    redirectTo: options?.redirectTo,
+    signUpData: {
+      password: cred.password,
+      data: options?.data as NewUserInformation
+    }
+  }
+
+  return fetch('/api/auth_links/signup', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ bodyData })
+  }).then((res) => res.json())
 }

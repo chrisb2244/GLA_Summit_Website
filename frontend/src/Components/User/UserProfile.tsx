@@ -69,7 +69,7 @@ export const UserProfile: React.FC = () => {
       setStoredProfileData(profileData)
       setValuesChanged(false)
     } catch (error) {
-      alert((error as PostgrestError).message)
+      console.log((error as PostgrestError).message)
     }
   }
 

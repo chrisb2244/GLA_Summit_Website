@@ -2,13 +2,13 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import type { FormData } from '@/Components/Form/PresentationSubmissionForm'
 import { EmailContent, sendMail } from '@/lib/sendMail'
 import {
-  generateBody,
   inviteOtherPresenter,
   uploadPresentationData,
   EmailToSubmitter,
   EmailToNewOtherPresenter,
   EmailToExistingOtherPresenter
 } from '@/lib/presentationSubmissionHelpers'
+import { generateBody } from '@/lib/emailGeneration'
 import { createAdminClient } from '@/lib/supabaseClient'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { PresentationPresentersModel, ProfileModel } from '@/lib/databaseModels'

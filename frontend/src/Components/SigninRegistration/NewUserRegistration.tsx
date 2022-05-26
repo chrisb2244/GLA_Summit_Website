@@ -4,9 +4,9 @@ import { TypedFieldPath, useForm } from 'react-hook-form'
 import type { SubmitHandler, SubmitErrorHandler } from 'react-hook-form'
 import type { ApiError } from '@supabase/supabase-js'
 import { randomBytes } from 'crypto'
-import { supabase } from '@/lib/supabaseClient'
 import { Person, PersonProps } from '../Form/Person'
 import { myLog } from '@/lib/utils'
+import { useSession } from '@/lib/sessionContext'
 
 type UserRegistrationProps = {
   open: boolean
@@ -14,7 +14,7 @@ type UserRegistrationProps = {
   switchToSignIn: () => void
 }
 
-type NewUserInformation = {
+export type NewUserInformation = {
   firstname: string
   lastname: string
 }
@@ -43,25 +43,25 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = (props) => {
   const { handleSubmit, reset, register, formState: {errors} } = useForm<PersonProps>({
     mode: 'onTouched'
   })
+  const { signUp } = useSession()
   const onSubmit: SubmitHandler<PersonProps> = async (data) => {
     const newUserData: NewUserInformation = {
       firstname: data['firstName'],
       lastname: data['lastName']
     }
 
-    await supabase.auth
-      .signUp(
+    signUp(
         { email: data.email, password: randomBytes(32).toString('hex') },
-        { data: newUserData, redirectTo: 'http://localhost:3000' }
+        { data: newUserData, redirectTo: window.location.href }
       )
       .then(({ user, session, error }) => {
         myLog({ user, session, error })
         if (error) return Promise.reject(error)
         // If reaching here, no error
-        alert('Check your email for the login link!')
+        // console.log('Check your email for the login link!')
       })
       .catch((error: ApiError) => {
-        alert(error.message)
+        myLog(error.message)
       })
     props.setClosed()
     reset()

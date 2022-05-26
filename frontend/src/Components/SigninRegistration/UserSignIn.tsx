@@ -49,18 +49,16 @@ export const UserSignIn: React.FC<SignInProps> = (props) => {
 
   const { register, handleSubmit } = useForm<SignInFormValues>()
   const onSubmit: SubmitHandler<SignInFormValues> = async ({ email }) => {
-    signIn(email).then(
-      ({ error }) => {
-        props.setClosed()
-        setAttemptedEmail(email)
-        if (error) {
-          myLog(error)
-          setFeedbackPopup('invalid')
-        } else {
-          setFeedbackPopup('valid')
-        }
+    signIn(email).then(({ error }) => {
+      setAttemptedEmail(email)
+      if (error) {
+        myLog(error)
+        setFeedbackPopup('invalid')
+      } else {
+        setFeedbackPopup('valid')
       }
-    )
+    })
+    props.setClosed()
   }
 
   const BoldEmail = (props: { email: string | null }) => {
@@ -86,7 +84,7 @@ export const UserSignIn: React.FC<SignInProps> = (props) => {
   return (
     <>
       <Dialog open={props.open} onClose={props.setClosed}>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit, (e) => myLog(e))}>
           <Container maxWidth='md' sx={{ p: 2 }}>
             <SmallCenteredText sx={{ pb: 2 }}>
               In order to sign in, enter the email address you used to register
@@ -127,20 +125,22 @@ export const UserSignIn: React.FC<SignInProps> = (props) => {
         </form>
       </Dialog>
 
-      {feedbackPopup !== null && <Dialog
-        open={feedbackPopup !== null}
-        onClose={() => {
-          setFeedbackPopup(null)
-        }}
-      >
-        <Container maxWidth='md' sx={{ p: 2 }}>
-          {feedbackPopup === 'valid'
-            ? validEmailContent
-            : feedbackPopup === 'invalid'
-            ? invalidEmailContent
-            : null}
-        </Container>
-      </Dialog>}
+      {feedbackPopup !== null && (
+        <Dialog
+          open={feedbackPopup !== null}
+          onClose={() => {
+            setFeedbackPopup(null)
+          }}
+        >
+          <Container maxWidth='md' sx={{ p: 2 }}>
+            {feedbackPopup === 'valid'
+              ? validEmailContent
+              : feedbackPopup === 'invalid'
+              ? invalidEmailContent
+              : null}
+          </Container>
+        </Dialog>
+      )}
     </>
   )
 }
