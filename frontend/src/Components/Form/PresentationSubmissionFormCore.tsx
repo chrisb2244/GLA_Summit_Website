@@ -79,7 +79,7 @@ export const PresentationSubmissionFormCore: React.FC<
             errors={errors.submitter}
             register={register}
             path={of('submitter')}
-            locked={locked}
+            locked={true}
             splitSize='sm'
           />
         </Box>
