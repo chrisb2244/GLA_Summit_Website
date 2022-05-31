@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import type { FormData } from '@/Components/Form/PresentationSubmissionForm'
 import { EmailContent, sendMail } from '@/lib/sendMail'
 import {
-  inviteOtherPresenter,
+  generateInviteCode,
   uploadPresentationData,
   EmailToSubmitter,
   EmailToNewOtherPresenter,
@@ -149,13 +149,18 @@ const getEmailInfoAndIds = async (
             }
           } else {
             // New account, invite
+            // This also provides the action link, which we should probably use...
+            const { newUserId, confirmationLink } = await generateInviteCode(
+              email,
+              '/my-profile'
+            )
             const emailOptions = emailOptionsForNewOtherPresenter(
               formData,
-              email
+              email,
+              confirmationLink
             )
-            const newId = await inviteOtherPresenter(email)
             return {
-              id: newId,
+              id: newUserId,
               emailOptions
             }
           }
@@ -203,12 +208,16 @@ const emailOptionsForExistingOtherPresenter = (
 
 const emailOptionsForNewOtherPresenter = (
   data: FormData,
-  email: string
+  email: string,
+  confirmationLink?: string
 ): EmailContent => {
   const emailComponent = <EmailToNewOtherPresenter data={data} email={email} />
+  const actionLine = confirmationLink
+    ? `Please use this link to navigate to your profile page and add profile information:\n${confirmationLink}\n`
+    : 'Please use the login form there and add profile information '
   const plainText =
     `You have been listed as a co-presenter for GLA Summit 2022.\n` +
-    `Please use the login form there and add profile information ` +
+    actionLine +
     `or contact web@glasummit if you believe this is a mistake.\n\n`
 
   const { body, bodyPlain } = generateBody(emailComponent, plainText)
