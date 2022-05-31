@@ -22,14 +22,13 @@ export const HomePage: React.FC = () => {
         <Countdown event_start={eventStart} event_end={eventEnd} />
         <P>
           In collaboration with the Certified LabVIEW Architect community and
-          NI, we&apos;d like to welcome all LabVIEW Architects (certified or
-          self-proclaimed) to join us in our third Global LabVIEW
-          Architects&apos; Summit!
+          NI, we&apos;d like to welcome all LabVIEW enthusiasts to join us in
+          our third Global LabVIEW Architects&apos; Summit!
         </P>
         <P>
-          This is an exciting opportunity for advanced LabVIEW developers from
-          around the world to network and participate in a more inclusive,
-          all-digital, free event.
+          This is an exciting opportunity for advanced LabVIEW developers and
+          Architects (certified or self-proclaimed) from around the world to
+          network and participate in a more inclusive, all-digital, free event.
         </P>
         <P>
           Presenters at the GLA Summit will be eligible to receive 30
