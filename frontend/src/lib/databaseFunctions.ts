@@ -116,16 +116,20 @@ export const getProfileInfo = async (user: User) => {
     })
 }
 
+export const getAvatarPublicUrl = (userAvatarUrl: string | null) => {
+  if(userAvatarUrl == null) {
+    return null
+  }
+  const { error, publicURL } = supabase.storage
+    .from('avatars')
+    .getPublicUrl(userAvatarUrl)
+  if (error) throw error
+  return publicURL
+}
+
 export const getPerson = async (
   userId: string
 ): Promise<PersonDisplayProps> => {
-  const getAvatarPublicUrl = (userAvatarUrl: string) => {
-    const { error, publicURL } = supabase.storage
-      .from('avatars')
-      .getPublicUrl(userAvatarUrl)
-    if (error) throw error
-    return publicURL
-  }
 
   return supabase
     .from<ProfileModel>('profiles')
@@ -141,10 +145,32 @@ export const getPerson = async (
       const personProps: PersonDisplayProps = {
         firstName: data.firstname ?? '',
         lastName: data.lastname ?? '',
-        description: data.bio ?? '',
+        description:
+          data.bio ?? 'This presenter has not provided a description',
         image: avatarUrl
       }
       return personProps
+    })
+}
+
+export const getPublicProfiles = async (): Promise<ProfileModel[]> => {
+  return supabase
+    .from<{ id: string }>('public_profiles')
+    .select()
+    .then(({ data, error }) => {
+      if (error) throw error
+      return data.map((d) => d.id)
+    })
+    .then((ids) => {
+      return supabase
+        .from<ProfileModel>('profiles')
+        .select()
+        .in('id', ids)
+        .order('lastname', { ascending: true })
+    })
+    .then(({ data, error }) => {
+      if (error) throw error
+      return data
     })
 }
 

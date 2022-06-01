@@ -3,11 +3,12 @@ import type { GetStaticPaths, GetStaticProps, NextPage } from 'next'
 import type { AllPresentationsModel, ProfileModel } from '@/lib/databaseModels'
 import { Box, Paper } from '@mui/material'
 import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
-import { PersonDisplay, PersonProps } from '@/Components/PersonDisplay'
+import { PersonDisplay, PersonDisplayProps } from '@/Components/PersonDisplay'
 import { Link } from '@/lib/link'
+import { getPerson } from '@/lib/databaseFunctions'
 
 type ProfileProps = {
-  presenter: PersonProps
+  presenter: PersonDisplayProps
   presentations: Array<{ id: string; title: string }>
 }
 
@@ -36,33 +37,7 @@ export const getStaticProps: GetStaticProps<ProfileProps> = async ({
     }
   }
 
-  const { data, error } = await supabase
-    .from<ProfileModel>('profiles')
-    .select('*')
-    .eq('id', presenterId)
-    .single()
-
-  if (error) {
-    return {
-      notFound: true
-    }
-  }
-
-  const getAvatarPublicUrl = (userAvatarUrl: string) => {
-    const { error, publicURL } = supabase.storage
-      .from('avatars')
-      .getPublicUrl(userAvatarUrl)
-    if (error) throw error
-    return publicURL
-  }
-
-  const avatarUrl = data.avatar_url ? getAvatarPublicUrl(data.avatar_url) : null
-  const presenterInfo: PersonProps = {
-    firstName: data.firstname,
-    lastName: data.lastname,
-    description: data.bio ?? '',
-    image: avatarUrl
-  }
+  const presenterInfo = await getPerson(presenterId)
 
   const { data: presentationData, error: presentationsError } = await supabase
     .from<AllPresentationsModel>('all_presentations')
@@ -84,7 +59,10 @@ export const getStaticProps: GetStaticProps<ProfileProps> = async ({
 }
 
 // Render (and hydrate if required) the page
-const PresenterPage: NextPage<ProfileProps> = ({ presenter, presentations }) => {
+const PresenterPage: NextPage<ProfileProps> = ({
+  presenter,
+  presentations
+}) => {
   return (
     <Paper>
       <Box marginTop={2} paddingTop={2}>

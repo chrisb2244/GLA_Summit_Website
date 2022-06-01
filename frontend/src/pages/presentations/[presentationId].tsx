@@ -29,7 +29,7 @@ export const getStaticProps: GetStaticProps<PresentationProps> = async ({
       const presenters: PersonDisplayProps[] = await Promise.all(
         speakerIds.map(async (id) => {
           return {
-            ...getPerson(id),
+            ...(await getPerson(id)),
             pageLink: `/presenters/${id}`
           }
         })

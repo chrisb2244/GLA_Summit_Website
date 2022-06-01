@@ -18,7 +18,9 @@ type PresentationDisplayProps = {
   timeZoneName: string
 }
 
-export const PresentationDisplay: React.FC<PresentationDisplayProps> = (props) => {
+export const PresentationDisplay: React.FC<PresentationDisplayProps> = (
+  props
+) => {
   const { presentation, startTime, endTime, timeZoneName } = props
   return (
     <Paper>
@@ -41,7 +43,7 @@ export const PresentationDisplay: React.FC<PresentationDisplayProps> = (props) =
             <PersonDisplay
               {...personProps}
               stripContainer
-              key={personProps.lastName}
+              key={`${personProps.lastName}_${personProps.firstName}`}
             />
           )
         })}

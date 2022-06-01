@@ -12,8 +12,8 @@ const PresentationSubmissionFormPage = (): JSX.Element => {
       const email = user.email ?? ''
       const { firstname, lastname } = profile
       const v = {
-        firstName: firstname,
-        lastName: lastname,
+        firstName: firstname ?? '',
+        lastName: lastname ?? '',
         email: email
       }
       setSubmitter(v)
