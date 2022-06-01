@@ -2,7 +2,7 @@ import { NewUserInformation } from '@/Components/SigninRegistration/NewUserRegis
 import { PostgrestError, User } from '@supabase/supabase-js'
 import { ProfileModel, TimezonePreferencesModel } from './databaseModels'
 import { supabase, createAdminClient } from './supabaseClient'
-import { defaultTimezoneInfo, myLog } from './utils'
+import { defaultTimezoneInfo } from './utils'
 
 export const checkForExistingUser = async (
   email: string
@@ -109,24 +109,4 @@ export const getProfileInfo = async (user: User) => {
         return data
       }
     })
-}
-
-export const sessionEffectFn = (
-  updateCallback: (user: User | null) => void,
-  setLoadingState: (value: React.SetStateAction<boolean>) => void
-) => {
-  const session = supabase.auth.session()
-  updateCallback(session?.user ?? null)
-  setLoadingState(false)
-
-  const { data: listener } = supabase.auth.onAuthStateChange((ev, session) => {
-    myLog(ev)
-    setLoadingState(true)
-    updateCallback(session?.user ?? null)
-    setLoadingState(false)
-  })
-
-  return () => {
-    listener?.unsubscribe()
-  }
 }

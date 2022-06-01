@@ -9,8 +9,7 @@ import { NewUserInformation } from '@/Components/SigninRegistration/NewUserRegis
 import {
   checkIfOrganizer,
   getProfileInfo,
-  queryTimezonePreferences,
-  sessionEffectFn
+  queryTimezonePreferences
 } from '@/lib/databaseFunctions'
 
 // Even for ValidSignIn, session and user are null using magic link via email.
@@ -115,7 +114,24 @@ export const AuthProvider: React.FC = (props) => {
       })
   }
 
-  useEffect(sessionEffectFn(runUpdates, setLoading), [])
+  useEffect(() => {
+    const session = supabase.auth.session()
+    runUpdates(session?.user ?? null)
+    setLoading(false)
+
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (ev, session) => {
+        myLog(ev)
+        setLoading(true)
+        runUpdates(session?.user ?? null)
+        setLoading(false)
+      }
+    )
+
+    return () => {
+      listener?.unsubscribe()
+    }
+  }, [])
 
   const value: SessionContext = {
     user,
