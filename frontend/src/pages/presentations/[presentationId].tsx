@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabaseClient'
 import type { GetStaticPaths, GetStaticProps } from 'next'
 import type { AllPresentationsModel, ProfileModel } from '@/lib/databaseModels'
-import type { PersonProps } from '@/Components/PersonDisplay'
+import type { PersonDisplayProps } from '@/Components/PersonDisplay'
 import { useSession } from '@/lib/sessionContext'
 import type { Presentation } from '@/Components/Layout/PresentationDisplay'
 import { PresentationDisplay } from '@/Components/Layout/PresentationDisplay'
@@ -34,7 +34,7 @@ export const getStaticProps: GetStaticProps<PresentationProps> = async ({
   }
 
   const speakerIds = data.all_presenters
-  const presenters: PersonProps[] = await Promise.all(
+  const presenters: PersonDisplayProps[] = await Promise.all(
     speakerIds.map(async (id) => {
       const { data: presenterInfo, error: presenterError } = await supabase
         .from<ProfileModel>('profiles')
