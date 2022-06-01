@@ -1,6 +1,11 @@
+import { PersonDisplayProps } from '@/Components/PersonDisplay'
 import { NewUserInformation } from '@/Components/SigninRegistration/NewUserRegistration'
 import { PostgrestError, User } from '@supabase/supabase-js'
-import { ProfileModel, TimezonePreferencesModel } from './databaseModels'
+import {
+  AllPresentationsModel,
+  ProfileModel,
+  TimezonePreferencesModel
+} from './databaseModels'
 import { supabase, createAdminClient } from './supabaseClient'
 import { defaultTimezoneInfo } from './utils'
 
@@ -109,4 +114,58 @@ export const getProfileInfo = async (user: User) => {
         return data
       }
     })
+}
+
+export const getPerson = async (
+  userId: string
+): Promise<PersonDisplayProps> => {
+  const getAvatarPublicUrl = (userAvatarUrl: string) => {
+    const { error, publicURL } = supabase.storage
+      .from('avatars')
+      .getPublicUrl(userAvatarUrl)
+    if (error) throw error
+    return publicURL
+  }
+
+  return supabase
+    .from<ProfileModel>('profiles')
+    .select()
+    .eq('id', userId)
+    .single()
+    .then(({ data, error }) => {
+      if (error) throw error
+      const avatarUrl = data.avatar_url
+        ? getAvatarPublicUrl(data.avatar_url)
+        : null
+
+      const personProps: PersonDisplayProps = {
+        firstName: data.firstname ?? '',
+        lastName: data.lastname ?? '',
+        description: data.bio ?? '',
+        image: avatarUrl
+      }
+      return personProps
+    })
+}
+
+export const getPublicPresentation = async (
+  presentationId: string
+): Promise<AllPresentationsModel> => {
+  return supabase
+    .from<AllPresentationsModel>('all_presentations')
+    .select()
+    .eq('presentation_id', presentationId)
+    .single()
+    .then(({ data, error }) => {
+      if (error) throw error
+      return data
+    })
+}
+
+export const getAcceptedPresentationIds = async (): Promise<string[]> => {
+  const { data, error } = await supabase
+    .from<{ id: string }>('accepted_presentations')
+    .select('id')
+  if (error) throw error
+  return data.map((d) => d.id)
 }

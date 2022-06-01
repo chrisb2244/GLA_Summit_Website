@@ -1,12 +1,12 @@
 import { Paper, Box, Typography } from '@mui/material'
-import { PersonDisplay, PersonProps } from '@/Components/PersonDisplay'
+import { PersonDisplay, PersonDisplayProps } from '@/Components/PersonDisplay'
 import { StackedBoxes } from './StackedBoxes'
 
 export type Presentation = {
   title: string
   abstract: string
   speakerNames: string[]
-  speakers: PersonProps[]
+  speakers: PersonDisplayProps[]
   sessionStart: string
   sessionEnd: string
 }
