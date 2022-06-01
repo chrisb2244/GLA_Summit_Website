@@ -75,7 +75,7 @@ export const AuthProvider: React.FC = (props) => {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ bodyData })
+      body: JSON.stringify({ bodyData, redirectTo: options?.redirectTo })
     })
       .then((res) => {
         console.log(res)
