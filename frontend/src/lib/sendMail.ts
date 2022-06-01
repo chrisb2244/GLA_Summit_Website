@@ -1,7 +1,7 @@
-import nodemailer from 'nodemailer'
+// import nodemailer from 'nodemailer'
 import Mailgun from 'mailgun.js'
 import FormDataPackage from 'form-data'
-import type { Options } from 'nodemailer/lib/mailer'
+// import type { Options } from 'nodemailer/lib/mailer'
 
 const MG_API_KEY = process.env.MG_API_KEY as string
 
@@ -16,24 +16,24 @@ export type EmailContent = {
   from?: string
 }
 
-export const sendMail = async (emailContent: EmailContent) => {
-  const { to, subject, body, bodyPlain } = emailContent
-  const from = emailContent.from ?? process.env.EMAIL_FROM
+// export const sendMail = async (emailContent: EmailContent) => {
+//   const { to, subject, body, bodyPlain } = emailContent
+//   const from = emailContent.from ?? process.env.EMAIL_FROM
 
-  const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_SERVER_HOST,
-    port: Number.parseInt(process.env.EMAIL_SERVER_PORT ?? '465'),
-    auth: {
-      user: process.env.EMAIL_SERVER_USER,
-      pass: process.env.EMAIL_SERVER_PASSWORD
-    },
-    ignoreTLS: true
-  })
+//   const transporter = nodemailer.createTransport({
+//     host: process.env.EMAIL_SERVER_HOST,
+//     port: Number.parseInt(process.env.EMAIL_SERVER_PORT ?? '465'),
+//     auth: {
+//       user: process.env.EMAIL_SERVER_USER,
+//       pass: process.env.EMAIL_SERVER_PASSWORD
+//     },
+//     ignoreTLS: true
+//   })
 
-  const options: Options = { to, subject, from, text: bodyPlain, html: body }
+//   const options: Options = { to, subject, from, text: bodyPlain, html: body }
 
-  return transporter.sendMail(options)
-}
+//   return transporter.sendMail(options)
+// }
 
 export const sendMailApi = async (emailContent: EmailContent) => {
   const { to, subject, body, bodyPlain } = emailContent

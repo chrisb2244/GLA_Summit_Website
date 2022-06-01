@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import type { FormData } from '@/Components/Form/PresentationSubmissionForm'
-import { EmailContent, sendMail } from '@/lib/sendMail'
+import { EmailContent, sendMailApi } from '@/lib/sendMail'
 import {
   generateInviteCode,
   uploadPresentationData,
@@ -64,21 +64,21 @@ const handlePresentationSubmission = async (
   if (typeof sendEmails === 'undefined' || sendEmails) {
     // Default to sending, unless directed not to send via the data content
     myLog(`Sending emails to ${emailInfoArray.length} recipient(s)`)
-    return Promise.all(emailInfoArray.map(sendMail)).then((statusArray) => {
-      const failedEmails = statusArray
-        .filter((s) => {
-          return s.rejected.length > 0
-        })
-        .flatMap((s) => s.rejected)
+    return Promise.all(emailInfoArray.map(sendMailApi)).then((_statusArray) => {
+      // const failedEmails = statusArray
+      //   .filter((s) => {
+      //     return s.rejected.length > 0
+      //   })
+      //   .flatMap((s) => s.rejected)
 
-      if (failedEmails.length === 0) {
+      // if (failedEmails.length === 0) {
         return res.status(201).json({ message: 'success' })
-      } else {
-        myLog({ failedEmails, errMessage: 'Not all emails could be sent' })
-        return res
-          .status(201)
-          .json({ message: 'not all emails could be sent', failedEmails })
-      }
+      // } else {
+      //   myLog({ failedEmails, errMessage: 'Not all emails could be sent' })
+      //   return res
+      //     .status(201)
+      //     .json({ message: 'not all emails could be sent', failedEmails })
+      // }
     })
   } else {
     // Don't send email

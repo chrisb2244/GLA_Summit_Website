@@ -1,7 +1,7 @@
 import { generateSupabaseLinks } from '@/lib/generateSupabaseLinks'
 import type { GenerateLinkBody } from '@/lib/generateSupabaseLinks'
 import { NextApiHandler } from 'next'
-import { sendMail } from '@/lib/sendMail'
+import { sendMailApi } from '@/lib/sendMail'
 import { generateBody } from '@/lib/emailGeneration'
 import { RegistrationEmail } from '@/EmailTemplates/RegistrationEmail'
 import { SignInEmail } from '@/EmailTemplates/SignInEmail'
@@ -66,22 +66,22 @@ const handler: NextApiHandler = async (req, res) => {
     })
     .then(async ({user, ...textParts}) => {
       return {
-        status: await sendMail({ to: bodyData.email, subject, ...textParts }),
+        status: await sendMailApi({ to: bodyData.email, subject, ...textParts }),
         user
       }
     })
     .then(({ status, user }) => {
       console.log({ status, user })
-      if (status.accepted.includes(bodyData.email)) {
+      // if (status.accepted.includes(bodyData.email)) {
         return res.status(201).json({ user, session: null, error: null })
-      } else {
-        console.log('Error with mailing...')
-        return res.status(500).json({
-          user: null,
-          session: null,
-          error: 'Unable to deliver the mail'
-        })
-      }
+      // } else {
+      //   console.log('Error with mailing...')
+      //   return res.status(500).json({
+      //     user: null,
+      //     session: null,
+      //     error: 'Unable to deliver the mail'
+      //   })
+      // }
     })
     .catch((err) => {
       console.log({ err, m: 'In auth function, erorr finding user?' })
