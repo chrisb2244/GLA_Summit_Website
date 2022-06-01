@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabaseClient'
 import type { GetStaticPaths, GetStaticProps, NextPage } from 'next'
-import type { AllPresentationsModel, ProfileModel } from '@/lib/databaseModels'
+import type { AllPresentationsModel } from '@/lib/databaseModels'
 import { Box, Paper } from '@mui/material'
 import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
 import { PersonDisplay, PersonDisplayProps } from '@/Components/PersonDisplay'
