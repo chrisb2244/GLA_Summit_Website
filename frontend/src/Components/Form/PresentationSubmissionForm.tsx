@@ -71,6 +71,10 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
     setIsSubmitting(true)
     myLog('Submitting form data')
     const data = passedData ?? formData
+    if(data == null) {
+      setIsSubmitting(false)
+      return
+    }
     myLog({ data })
 
     fetch('/api/handlePresentationSubmission', {

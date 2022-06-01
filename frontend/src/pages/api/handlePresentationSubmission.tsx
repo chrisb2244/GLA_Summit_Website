@@ -24,8 +24,8 @@ const handlePresentationSubmission = async (
   // Need to send using e.g. fetch(..., { body: JSON.stringify({ formdata: data, submitterId: id }) })
   const formData = req.body.formdata as FormData
   const submitter_id = req.body.submitterId as string
-  const sendEmails = req.body.sendEmails as boolean
-  const presentationId = req.body.presentationId as string
+  const sendEmails = req.body.sendEmails as boolean | undefined
+  const presentationId = req.body.presentationId as string | undefined
 
   if (typeof formData === 'undefined' || typeof submitter_id === 'undefined') {
     return res.status(400).json('Missing data elements')
@@ -50,7 +50,7 @@ const handlePresentationSubmission = async (
   const idArray = idAndInfoArray.map((v) => v.id)
 
   // Upload presenter information
-  const uploadData: PresentationPresentersModel[] = idArray.map(
+  const presentationPresenterData: PresentationPresentersModel[] = idArray.map(
     (presenter_id) => {
       return { presenter_id, presentation_id }
     }
@@ -58,7 +58,7 @@ const handlePresentationSubmission = async (
 
   await adminClient
     .from<PresentationPresentersModel>('presentation_presenters')
-    .upsert(uploadData, { returning: 'minimal' })
+    .upsert(presentationPresenterData, { returning: 'minimal' })
 
   // Send all emails
   if (typeof sendEmails === 'undefined' || sendEmails) {
@@ -136,8 +136,8 @@ const getEmailInfoAndIds = async (
             if (error) throw error
             const otherPresenter: PersonProps = {
               email,
-              firstName: data.firstname,
-              lastName: data.lastname
+              firstName: data.firstname ?? '',
+              lastName: data.lastname ?? ''
             }
             const emailOptions = emailOptionsForExistingOtherPresenter(
               formData,
