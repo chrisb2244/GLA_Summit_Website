@@ -29,7 +29,7 @@ export const UserProfile: React.FC = () => {
     useState<ProfileModel | null>(null)
   const [valuesChanged, setValuesChanged] = useState(false)
 
-  const { profile, user } = useSession()
+  const { profile, user, triggerUpdate } = useSession()
 
   const updateProfileField = (
     profile: ProfileData,
@@ -62,6 +62,7 @@ export const UserProfile: React.FC = () => {
         // Not sure which is preferable.
         setStoredProfileData(returnedRow)
         setValuesChanged(false)
+        triggerUpdate(user)
       })
       .catch((error) => {
         console.log((error as PostgrestError).message)

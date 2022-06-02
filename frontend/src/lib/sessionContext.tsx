@@ -47,7 +47,8 @@ type SessionContext = {
     credentials: UserCredentials,
     options?: SignUpOptions
   ) => Promise<ValidSignUp | InvalidSignUp>
-  signOut: () => Promise<{ error: ApiError | null }>
+  signOut: () => Promise<{ error: ApiError | null }>,
+  triggerUpdate: (user: User | null) => void
 }
 
 const AuthContext = createContext<SessionContext | undefined>(undefined)
@@ -141,7 +142,8 @@ export const AuthProvider: React.FC = (props) => {
     signIn,
     signUp,
     signOut: async () => await supabase.auth.signOut(),
-    timezoneInfo
+    timezoneInfo,
+    triggerUpdate: async (user: User | null) => runUpdates(user)
   }
 
   return (
