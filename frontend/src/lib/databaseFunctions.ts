@@ -64,6 +64,20 @@ export const adminUpdateExistingProfile = async (
 }
 
 /* ------------------ Client side functions ---------------------------- */
+export const clientUpdateExistingProfile = async (
+  userId: string,
+  profileData: Partial<ProfileModel>
+) => {
+  return supabase
+    .from<ProfileModel>('profiles')
+    .upsert({ ...profileData, id: userId })
+    .single()
+    .then(({ data, error }) => {
+      if (error) throw error
+      return data
+    })
+}
+
 export const checkIfOrganizer = async (user: User) => {
   const { data, error } = await supabase
     .from('organizers')
@@ -117,7 +131,7 @@ export const getProfileInfo = async (user: User) => {
 }
 
 export const getAvatarPublicUrl = (userAvatarUrl: string | null) => {
-  if(userAvatarUrl == null) {
+  if (userAvatarUrl == null) {
     return null
   }
   const { error, publicURL } = supabase.storage
@@ -130,7 +144,6 @@ export const getAvatarPublicUrl = (userAvatarUrl: string | null) => {
 export const getPerson = async (
   userId: string
 ): Promise<PersonDisplayProps> => {
-
   return supabase
     .from<ProfileModel>('profiles')
     .select()
