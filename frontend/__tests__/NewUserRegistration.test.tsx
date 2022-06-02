@@ -4,7 +4,18 @@ import { NewUserRegistration } from '@/Components/SigninRegistration/NewUserRegi
 
 describe('NewUserRegistration', () => {
   const form = (
-    <NewUserRegistration open setClosed={() => {}} switchToSignIn={() => {}} />
+    <NewUserRegistration
+      open
+      setClosed={() => {}}
+      switchToSignIn={() => {}}
+      signUp={() => {
+        return Promise.resolve({
+          user: null,
+          session: null,
+          error: { status: 500, message: 'Test method only' }
+        })
+      }}
+    />
   )
 
   it('contains an input for first name', () => {

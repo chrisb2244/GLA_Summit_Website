@@ -2,18 +2,22 @@ import { Dialog, Button, Typography, Container, Link, Box } from '@mui/material'
 import type { TypographyProps } from '@mui/material'
 import { TypedFieldPath, useForm } from 'react-hook-form'
 import type { SubmitHandler, SubmitErrorHandler } from 'react-hook-form'
-import type { ApiError } from '@supabase/supabase-js'
+import type { ApiError, UserCredentials } from '@supabase/supabase-js'
 import { randomBytes } from 'crypto'
 import { Person, PersonProps } from '../Form/Person'
 import { myLog } from '@/lib/utils'
-import { useSession } from '@/lib/sessionContext'
 import { useState } from 'react'
 import { NotificationDialogPopup } from '../NotificationDialogPopup'
+import type { SignUpOptions, SignUpReturn } from '@/lib/sessionContext'
 
 type UserRegistrationProps = {
   open: boolean
   setClosed: () => void
   switchToSignIn: () => void
+  signUp: (
+    credentials: UserCredentials,
+    options?: SignUpOptions | undefined
+  ) => Promise<SignUpReturn>
 }
 
 export type NewUserInformation = {
@@ -41,7 +45,10 @@ function EMPTY<T>() {
   return '' as TypedFieldPath<T, T>
 }
 
-export const NewUserRegistration: React.FC<UserRegistrationProps> = (props) => {
+export const NewUserRegistration: React.FC<UserRegistrationProps> = ({
+  signUp,
+  ...props
+}) => {
   const {
     handleSubmit,
     reset,
@@ -50,7 +57,6 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = (props) => {
   } = useForm<PersonProps>({
     mode: 'onTouched'
   })
-  const { signUp } = useSession()
   const [popupEmail, setPopupOpen] = useState<string | null>(null)
 
   const onSubmit: SubmitHandler<PersonProps> = async (data) => {
@@ -59,12 +65,10 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = (props) => {
       lastname: data['lastName']
     }
 
+    const redirectTo = new URL(window.location.href).origin + '/'
     signUp(
       { email: data.email, password: randomBytes(32).toString('hex') },
-      {
-        data: newUserData,
-        redirectTo: new URL(window.location.href).origin + '/'
-      }
+      { data: newUserData, redirectTo }
     )
       .then(({ user, session, error }) => {
         myLog({ user, session, error })
@@ -130,7 +134,8 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = (props) => {
       >
         <Typography>
           Thank you for registering for the GLA Summit 2022 website. Please
-          check your email at <BoldEmail email={popupEmail} /> to verify your account.
+          check your email at <BoldEmail email={popupEmail} /> to verify your
+          account.
         </Typography>
       </NotificationDialogPopup>
     </>

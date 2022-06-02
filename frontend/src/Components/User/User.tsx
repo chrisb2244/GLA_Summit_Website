@@ -9,7 +9,7 @@ import { useSession } from '@/lib/sessionContext'
 export const User: React.FC<BoxProps> = ({...extraBoxProps}) => {
   const [dialogOpen, setOpenDialog] = useState<'none' | 'registration' | 'signin'>('none')
 
-  const { user } = useSession()
+  const { user, signUp } = useSession()
   let button
   if (user != null) {
     button = <UserMenu user={user} />
@@ -23,6 +23,7 @@ export const User: React.FC<BoxProps> = ({...extraBoxProps}) => {
           Sign In / Register
         </Button>
         <NewUserRegistration
+          signUp={signUp}
           open={dialogOpen === 'registration'}
           setClosed={() => {
             setOpenDialog('none')

@@ -20,6 +20,7 @@ type InvalidSignIn = { session: null; user: null; error: ApiError }
 // If turned off, both are valid when error: null.
 type ValidSignUp = { user: User; session: Session | null; error: null }
 type InvalidSignUp = { user: null; session: null; error: ApiError }
+export type SignUpReturn = ValidSignUp | InvalidSignUp
 
 type SignInOptions = {
   redirectTo?: string
@@ -27,7 +28,7 @@ type SignInOptions = {
   captchaToken?: string
 }
 
-type SignUpOptions = {
+export type SignUpOptions = {
   redirectTo?: string
   data?: object
   captchaToken?: string
