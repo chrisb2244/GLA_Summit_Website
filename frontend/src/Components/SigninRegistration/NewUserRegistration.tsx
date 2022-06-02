@@ -1,4 +1,4 @@
-import { Dialog, Button, Typography, Container, Link } from '@mui/material'
+import { Dialog, Button, Typography, Container, Link, Box } from '@mui/material'
 import type { TypographyProps } from '@mui/material'
 import { TypedFieldPath, useForm } from 'react-hook-form'
 import type { SubmitHandler, SubmitErrorHandler } from 'react-hook-form'
@@ -7,6 +7,8 @@ import { randomBytes } from 'crypto'
 import { Person, PersonProps } from '../Form/Person'
 import { myLog } from '@/lib/utils'
 import { useSession } from '@/lib/sessionContext'
+import { useState } from 'react'
+import { NotificationDialogPopup } from '../NotificationDialogPopup'
 
 type UserRegistrationProps = {
   open: boolean
@@ -40,10 +42,17 @@ function EMPTY<T>() {
 }
 
 export const NewUserRegistration: React.FC<UserRegistrationProps> = (props) => {
-  const { handleSubmit, reset, register, formState: {errors} } = useForm<PersonProps>({
+  const {
+    handleSubmit,
+    reset,
+    register,
+    formState: { errors }
+  } = useForm<PersonProps>({
     mode: 'onTouched'
   })
   const { signUp } = useSession()
+  const [popupEmail, setPopupOpen] = useState<string | null>(null)
+
   const onSubmit: SubmitHandler<PersonProps> = async (data) => {
     const newUserData: NewUserInformation = {
       firstname: data['firstName'],
@@ -51,14 +60,18 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = (props) => {
     }
 
     signUp(
-        { email: data.email, password: randomBytes(32).toString('hex') },
-        { data: newUserData, redirectTo: window.location.href }
-      )
+      { email: data.email, password: randomBytes(32).toString('hex') },
+      {
+        data: newUserData,
+        redirectTo: new URL(window.location.href).origin + '/'
+      }
+    )
       .then(({ user, session, error }) => {
         myLog({ user, session, error })
-        if (error) return Promise.reject(error)
+        if (error) throw error
         // If reaching here, no error
         // console.log('Check your email for the login link!')
+        setPopupOpen(data.email)
       })
       .catch((error: ApiError) => {
         myLog(error.message)
@@ -68,40 +81,58 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = (props) => {
     return true
   }
   const onError: SubmitErrorHandler<PersonProps> = (err) => myLog(err)
+  const BoldEmail = (props: { email: string | null }) => {
+    return (
+      <Box component='span' fontWeight={500}>
+        {props.email}
+      </Box>
+    )
+  }
 
   return (
-    <Dialog open={props.open} onClose={props.setClosed}>
-      <form onSubmit={handleSubmit(onSubmit, onError)}>
-        <Container maxWidth='md' sx={{ p: 2 }}>
-          <SmallCenteredText sx={{ pb: 2 }}>
-            Please fill out the information below. You will receive an email
-            with a verification link - click the link to automatically sign into
-            the site.
-          </SmallCenteredText>
-          <Person<PersonProps>
-            register={register}
-            path={EMPTY()}
-            errors={errors}
-            splitSize={null}
-            sx={{ pb: 2 }}
-          />
-          <Button type='submit' variant='outlined' fullWidth>
-            Register
-          </Button>
-          <SmallCenteredText sx={{ pt: 2 }}>
-            Already registered?{' '}
-            <Link
-              onClick={(ev) => {
-                ev.preventDefault()
-                props.switchToSignIn()
-              }}
-              component='button'
-            >
-              Sign In
-            </Link>
-          </SmallCenteredText>
-        </Container>
-      </form>
-    </Dialog>
+    <>
+      <Dialog open={props.open} onClose={props.setClosed}>
+        <form onSubmit={handleSubmit(onSubmit, onError)}>
+          <Container maxWidth='md' sx={{ p: 2 }}>
+            <SmallCenteredText sx={{ pb: 2 }}>
+              Please fill out the information below. You will receive an email
+              with a verification link - click the link to automatically sign
+              into the site.
+            </SmallCenteredText>
+            <Person<PersonProps>
+              register={register}
+              path={EMPTY()}
+              errors={errors}
+              splitSize={null}
+              sx={{ pb: 2 }}
+            />
+            <Button type='submit' variant='outlined' fullWidth>
+              Register
+            </Button>
+            <SmallCenteredText sx={{ pt: 2 }}>
+              Already registered?{' '}
+              <Link
+                onClick={(ev) => {
+                  ev.preventDefault()
+                  props.switchToSignIn()
+                }}
+                component='button'
+              >
+                Sign In
+              </Link>
+            </SmallCenteredText>
+          </Container>
+        </form>
+      </Dialog>
+      <NotificationDialogPopup
+        open={popupEmail !== null}
+        onClose={() => setPopupOpen(null)}
+      >
+        <Typography>
+          Thank you for registering for the GLA Summit 2022 website. Please
+          check your email at <BoldEmail email={popupEmail} /> to verify your account.
+        </Typography>
+      </NotificationDialogPopup>
+    </>
   )
 }

@@ -1,16 +1,16 @@
 import React, { useContext, useState, createContext, useEffect } from 'react'
 import { supabase } from './supabaseClient'
-import type {
-  Session,
-  UserCredentials,
-  User,
-  PostgrestError
-} from '@supabase/supabase-js'
+import type { Session, UserCredentials, User } from '@supabase/supabase-js'
 import { ApiError } from '@supabase/supabase-js'
-import { ProfileModel, TimezonePreferencesModel } from './databaseModels'
-import { myLog } from './utils'
+import { ProfileModel } from './databaseModels'
+import { defaultTimezoneInfo, myLog, TimezoneInfo } from './utils'
 import { GenerateLinkBody } from '@/lib/generateSupabaseLinks'
 import { NewUserInformation } from '@/Components/SigninRegistration/NewUserRegistration'
+import {
+  checkIfOrganizer,
+  getProfileInfo,
+  queryTimezonePreferences
+} from '@/lib/databaseFunctions'
 
 // Even for ValidSignIn, session and user are null using magic link via email.
 type ValidSignIn = { session: Session | null; user: User | null; error: null }
@@ -33,13 +33,6 @@ type SignUpOptions = {
   captchaToken?: string
 }
 
-// Timezone info - default to client local, allow storing preference in profile
-type TimezoneInfo = {
-  timeZone: string
-  timeZoneName: string
-  use24HourClock: boolean
-}
-
 type SessionContext = {
   user: User | null
   profile: ProfileModel | null
@@ -54,18 +47,11 @@ type SessionContext = {
     credentials: UserCredentials,
     options?: SignUpOptions
   ) => Promise<ValidSignUp | InvalidSignUp>
-  signOut: () => Promise<{ error: ApiError | null }>
+  signOut: () => Promise<{ error: ApiError | null }>,
+  triggerUpdate: (user: User | null) => void
 }
 
 const AuthContext = createContext<SessionContext | undefined>(undefined)
-const defaultTimezoneInfo = () => {
-  const { timeZone } = Intl.DateTimeFormat().resolvedOptions()
-  const timeZoneName = new Date()
-    .toLocaleDateString(undefined, { timeZoneName: 'long' })
-    .split(',')[1]
-    .trim()
-  return { timeZone, timeZoneName, use24HourClock: false }
-}
 
 export const AuthProvider: React.FC = (props) => {
   const [isLoading, setLoading] = useState(true)
@@ -90,13 +76,17 @@ export const AuthProvider: React.FC = (props) => {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ bodyData })
+      body: JSON.stringify({ bodyData, redirectTo: options?.redirectTo })
     })
       .then((res) => {
+        console.log(res)
+        const j = res.json()
+        console.log(j)
         if (res.status !== 201) {
+          console.log({ statusCode: res.status, m: res.statusText })
           throw new Error(res.statusText)
         }
-        return res.json()
+        return j
       })
       .catch((err) => {
         return { user: null, session: null, error: new Error(err) }
@@ -136,11 +126,9 @@ export const AuthProvider: React.FC = (props) => {
         setLoading(true)
         runUpdates(session?.user ?? null)
         setLoading(false)
-        // updateSupabaseCookie(ev, session)
       }
     )
 
-    // Cleanup function
     return () => {
       listener?.unsubscribe()
     }
@@ -154,7 +142,8 @@ export const AuthProvider: React.FC = (props) => {
     signIn,
     signUp,
     signOut: async () => await supabase.auth.signOut(),
-    timezoneInfo
+    timezoneInfo,
+    triggerUpdate: async (user: User | null) => runUpdates(user)
   }
 
   return (
@@ -169,59 +158,6 @@ export const useSession = () => {
   const context = useContext(AuthContext)
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   return context!
-}
-
-// ---------------------- Helper functions --------------------------------- //
-const getProfileInfo = async (user: User) => {
-  return supabase
-    .from<ProfileModel>('profiles')
-    .select('id, firstname, lastname, bio, website, avatar_url')
-    .eq('id', user.id)
-    .single()
-    .then(({ data, error }) => {
-      if (error) {
-        throw new Error(error.message)
-      } else {
-        return data
-      }
-    })
-}
-
-const checkIfOrganizer = async (user: User) => {
-  const { data, error } = await supabase
-    .from('organizers')
-    .select()
-    .eq('id', user.id)
-  if (error) {
-    const err = error as PostgrestError
-    const expected = 'JSON object requested, multiple (or no) rows returned'
-    if (err.message === expected) {
-      return false
-    }
-    throw error
-  } else {
-    return data.length > 0
-  }
-}
-
-const queryTimezonePreferences = async (user: User) => {
-  const { data, error } = await supabase
-    .from<TimezonePreferencesModel>('timezone_preferences')
-    .select()
-    .eq('id', user.id)
-  if (error) {
-    throw new Error(error.message)
-  }
-  if (data.length > 0) {
-    const { timezone_db, timezone_name, use_24h_clock } = data[0]
-    return {
-      timeZone: timezone_db,
-      timeZoneName: timezone_name,
-      use24HourClock: use_24h_clock
-    }
-  } else {
-    return defaultTimezoneInfo()
-  }
 }
 
 const signUp = async (cred: UserCredentials, options?: SignUpOptions) => {

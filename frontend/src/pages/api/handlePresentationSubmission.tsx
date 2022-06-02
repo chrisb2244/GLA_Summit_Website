@@ -1,8 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import type { FormData } from '@/Components/Form/PresentationSubmissionForm'
-import { EmailContent, sendMail } from '@/lib/sendMail'
+import { EmailContent, sendMailApi } from '@/lib/sendMail'
 import {
-  inviteOtherPresenter,
+  generateInviteCode,
   uploadPresentationData,
   EmailToSubmitter,
   EmailToNewOtherPresenter,
@@ -24,8 +24,8 @@ const handlePresentationSubmission = async (
   // Need to send using e.g. fetch(..., { body: JSON.stringify({ formdata: data, submitterId: id }) })
   const formData = req.body.formdata as FormData
   const submitter_id = req.body.submitterId as string
-  const sendEmails = req.body.sendEmails as boolean
-  const presentationId = req.body.presentationId as string
+  const sendEmails = req.body.sendEmails as boolean | undefined
+  const presentationId = req.body.presentationId as string | undefined
 
   if (typeof formData === 'undefined' || typeof submitter_id === 'undefined') {
     return res.status(400).json('Missing data elements')
@@ -50,7 +50,7 @@ const handlePresentationSubmission = async (
   const idArray = idAndInfoArray.map((v) => v.id)
 
   // Upload presenter information
-  const uploadData: PresentationPresentersModel[] = idArray.map(
+  const presentationPresenterData: PresentationPresentersModel[] = idArray.map(
     (presenter_id) => {
       return { presenter_id, presentation_id }
     }
@@ -58,27 +58,27 @@ const handlePresentationSubmission = async (
 
   await adminClient
     .from<PresentationPresentersModel>('presentation_presenters')
-    .upsert(uploadData, { returning: 'minimal' })
+    .upsert(presentationPresenterData, { returning: 'minimal' })
 
   // Send all emails
   if (typeof sendEmails === 'undefined' || sendEmails) {
     // Default to sending, unless directed not to send via the data content
     myLog(`Sending emails to ${emailInfoArray.length} recipient(s)`)
-    return Promise.all(emailInfoArray.map(sendMail)).then((statusArray) => {
-      const failedEmails = statusArray
-        .filter((s) => {
-          return s.rejected.length > 0
-        })
-        .flatMap((s) => s.rejected)
+    return Promise.all(emailInfoArray.map(sendMailApi)).then((_statusArray) => {
+      // const failedEmails = statusArray
+      //   .filter((s) => {
+      //     return s.rejected.length > 0
+      //   })
+      //   .flatMap((s) => s.rejected)
 
-      if (failedEmails.length === 0) {
+      // if (failedEmails.length === 0) {
         return res.status(201).json({ message: 'success' })
-      } else {
-        myLog({ failedEmails, errMessage: 'Not all emails could be sent' })
-        return res
-          .status(201)
-          .json({ message: 'not all emails could be sent', failedEmails })
-      }
+      // } else {
+      //   myLog({ failedEmails, errMessage: 'Not all emails could be sent' })
+      //   return res
+      //     .status(201)
+      //     .json({ message: 'not all emails could be sent', failedEmails })
+      // }
     })
   } else {
     // Don't send email
@@ -136,8 +136,8 @@ const getEmailInfoAndIds = async (
             if (error) throw error
             const otherPresenter: PersonProps = {
               email,
-              firstName: data.firstname,
-              lastName: data.lastname
+              firstName: data.firstname ?? '',
+              lastName: data.lastname ?? ''
             }
             const emailOptions = emailOptionsForExistingOtherPresenter(
               formData,
@@ -149,13 +149,18 @@ const getEmailInfoAndIds = async (
             }
           } else {
             // New account, invite
+            // This also provides the action link, which we should probably use...
+            const { newUserId, confirmationLink } = await generateInviteCode(
+              email,
+              '/my-profile'
+            )
             const emailOptions = emailOptionsForNewOtherPresenter(
               formData,
-              email
+              email,
+              confirmationLink
             )
-            const newId = await inviteOtherPresenter(email)
             return {
-              id: newId,
+              id: newUserId,
               emailOptions
             }
           }
@@ -203,12 +208,16 @@ const emailOptionsForExistingOtherPresenter = (
 
 const emailOptionsForNewOtherPresenter = (
   data: FormData,
-  email: string
+  email: string,
+  confirmationLink?: string
 ): EmailContent => {
   const emailComponent = <EmailToNewOtherPresenter data={data} email={email} />
+  const actionLine = confirmationLink
+    ? `Please use this link to navigate to your profile page and add profile information:\n${confirmationLink}\n`
+    : 'Please use the login form there and add profile information '
   const plainText =
     `You have been listed as a co-presenter for GLA Summit 2022.\n` +
-    `Please use the login form there and add profile information ` +
+    actionLine +
     `or contact web@glasummit if you believe this is a mistake.\n\n`
 
   const { body, bodyPlain } = generateBody(emailComponent, plainText)

@@ -1,4 +1,3 @@
-import { supabase } from '@/lib/supabaseClient'
 import type { ProfileModel } from '@/lib/databaseModels'
 import type { PostgrestError } from '@supabase/supabase-js'
 import { useEffect, useReducer, useRef, useState } from 'react'
@@ -6,6 +5,7 @@ import type { ChangeEvent } from 'react'
 import { useSession } from '@/lib/sessionContext'
 import { Box, Button, Grid, Stack, TextField } from '@mui/material'
 import { UserProfileImage } from './UserProfileImage'
+import { clientUpdateExistingProfile } from '@/lib/databaseFunctions'
 
 type ProfileData = ProfileModel | null
 type ProfileKey = keyof ProfileModel
@@ -29,7 +29,7 @@ export const UserProfile: React.FC = () => {
     useState<ProfileModel | null>(null)
   const [valuesChanged, setValuesChanged] = useState(false)
 
-  const { profile, user } = useSession()
+  const { profile, user, triggerUpdate } = useSession()
 
   const updateProfileField = (
     profile: ProfileData,
@@ -54,32 +54,29 @@ export const UserProfile: React.FC = () => {
   const [profileData, setProfileField] = useReducer(updateProfileField, null)
 
   async function updateProfile() {
-    if (user == null) return
-    try {
-      if (profileData == null) return
+    if (user == null || profileData == null) return
 
-      const { error } = await supabase.from<ProfileModel>('profiles').upsert(
-        { ...profileData, id: user.id },
-        { returning: 'minimal' } // Don't return the value after inserting
-      )
+    clientUpdateExistingProfile(user.id, profileData)
+      .then((returnedRow) => {
+        // profileData doesn't include the updated_at time, returnedRow does.
+        // Not sure which is preferable.
+        setStoredProfileData(returnedRow)
+        setValuesChanged(false)
+        triggerUpdate(user)
+      })
+      .catch((error) => {
+        console.log((error as PostgrestError).message)
+      })
 
-      if (error) {
-        throw error
-      }
-      setStoredProfileData(profileData)
-      setValuesChanged(false)
-    } catch (error) {
-      console.log((error as PostgrestError).message)
-    }
   }
 
-  const isMounted = useRef(false)
-  useEffect(() => {
-    isMounted.current = true
-    return () => {
-      isMounted.current = false
-    }
-  }, [])
+  // const isMounted = useRef(false)
+  // useEffect(() => {
+  //   isMounted.current = true
+  //   return () => {
+  //     isMounted.current = false
+  //   }
+  // }, [])
 
   useEffect(() => {
     setProfileField({ type: 'init', value: profile })

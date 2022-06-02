@@ -1,12 +1,12 @@
 import { Paper, Box, Typography } from '@mui/material'
-import { PersonDisplay, PersonProps } from '@/Components/PersonDisplay'
+import { PersonDisplay, PersonDisplayProps } from '@/Components/PersonDisplay'
 import { StackedBoxes } from './StackedBoxes'
 
 export type Presentation = {
   title: string
   abstract: string
   speakerNames: string[]
-  speakers: PersonProps[]
+  speakers: PersonDisplayProps[]
   sessionStart: string
   sessionEnd: string
 }
@@ -18,7 +18,9 @@ type PresentationDisplayProps = {
   timeZoneName: string
 }
 
-export const PresentationDisplay: React.FC<PresentationDisplayProps> = (props) => {
+export const PresentationDisplay: React.FC<PresentationDisplayProps> = (
+  props
+) => {
   const { presentation, startTime, endTime, timeZoneName } = props
   return (
     <Paper>
@@ -41,7 +43,7 @@ export const PresentationDisplay: React.FC<PresentationDisplayProps> = (props) =
             <PersonDisplay
               {...personProps}
               stripContainer
-              key={personProps.lastName}
+              key={`${personProps.lastName}_${personProps.firstName}`}
             />
           )
         })}

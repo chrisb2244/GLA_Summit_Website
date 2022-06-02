@@ -1,7 +1,7 @@
 import { generateSupabaseLinks } from '@/lib/generateSupabaseLinks'
 import type { GenerateLinkBody } from '@/lib/generateSupabaseLinks'
 import { NextApiHandler } from 'next'
-import { sendMail } from '@/lib/sendMail'
+import { sendMailApi } from '@/lib/sendMail'
 import { generateBody } from '@/lib/emailGeneration'
 import { RegistrationEmail } from '@/EmailTemplates/RegistrationEmail'
 import { SignInEmail } from '@/EmailTemplates/SignInEmail'
@@ -25,7 +25,8 @@ const handler: NextApiHandler = async (req, res) => {
     type === 'recovery' ? 'GLA Summit 2022 Website - Password Recovery' : ''
 
   return generateSupabaseLinks(bodyData)
-    .then(({ user }) => {
+    .then(({ user, error }) => {
+      if (error) throw error
       if (typeof user.action_link === 'undefined') {
         throw new Error('Unable to generate a link')
       }
@@ -50,36 +51,43 @@ const handler: NextApiHandler = async (req, res) => {
         case 'magiclink': {
           const plainText =
             "Here's your sign-in link for the GLA Summit Website. " +
-            "Please use this link to sign in: " + link
+            'Please use this link to sign in: ' +
+            link
           const { body, bodyPlain } = generateBody(
             <SignInEmail link={link} />,
             plainText
           )
-          return { body, bodyPlain, user}
+          return { body, bodyPlain, user }
         }
         default: {
           return { body: '', bodyPlain: '', user: null }
         }
       }
     })
-    .then(async ({ body, bodyPlain, user }) => {
+    .then(async ({user, ...textParts}) => {
       return {
-        status: await sendMail({ to: bodyData.email, subject, body, bodyPlain }),
+        status: await sendMailApi({ to: bodyData.email, subject, ...textParts }),
         user
       }
     })
     .then(({ status, user }) => {
-      if (status.accepted.includes(bodyData.email)) {
+      console.log({ status, user })
+      // if (status.accepted.includes(bodyData.email)) {
         return res.status(201).json({ user, session: null, error: null })
-      } else {
-        return res.status(500).json({
-          user: null,
-          session: null,
-          error: 'Unable to deliver the mail'
-        })
-      }
+      // } else {
+      //   console.log('Error with mailing...')
+      //   return res.status(500).json({
+      //     user: null,
+      //     session: null,
+      //     error: 'Unable to deliver the mail'
+      //   })
+      // }
     })
     .catch((err) => {
+      console.log({ err, m: 'In auth function, erorr finding user?' })
+      if (err.message === 'User not found') {
+        return res.status(401).json({ error: err })
+      }
       return res.status(500).json(err)
     })
 }

@@ -1,7 +1,7 @@
 export type ProfileModel = {
   id: string
-  firstname: string
-  lastname: string
+  firstname: string | null
+  lastname: string | null
   bio: string | null
   website: string | null
   avatar_url: string | null

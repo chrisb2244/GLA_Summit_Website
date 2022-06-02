@@ -5,7 +5,7 @@ import { Person as PersonIcon } from '@mui/icons-material'
 import { Link } from '@/lib/link'
 import type { LinkProps } from '@/lib/link'
 
-export interface PersonProps {
+export interface PersonDisplayProps {
   firstName: string
   lastName: string
   description: string | ReactElement
@@ -17,7 +17,7 @@ export interface PersonProps {
   pageLink?: string
 }
 
-export const PersonDisplay: React.FC<PersonProps> = ({pageLink, ...props}) => {
+export const PersonDisplay: React.FC<PersonDisplayProps> = ({pageLink, ...props}) => {
   const direction =
     typeof props.imageSide !== 'undefined'
       ? props.imageSide === 'right'

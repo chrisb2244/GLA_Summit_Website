@@ -8,12 +8,12 @@ import { PersonProps } from '@/Components/Form/Person'
 import { myLog } from './utils'
 
 // This function needs to return the new userId for the invited account
-export const inviteOtherPresenter = async (email: string) => {
+export const generateInviteCode = async (email: string, redirectTo?: string) => {
   myLog(`Inviting new user: ${email}`)
 
   const adminClient = createAdminClient()
   return adminClient.auth.api
-    .generateLink('invite', email, {})
+    .generateLink('invite', email, {redirectTo})
     .then(({ data, error }) => {
       if (error) return Promise.reject(error)
       if (data == null) {
@@ -22,17 +22,18 @@ export const inviteOtherPresenter = async (email: string) => {
       }
       myLog({ data })
       if (Object.hasOwn(data, 'user')) {
+        // I don't think this branch is used
         myLog('Data was a Session object')
         const dataS = data as Session
         const id = dataS.user?.id
         if (typeof id !== 'undefined') {
-          return id
+          return { newUserId: id, confirmationLink: undefined }
         }
         return Promise.reject('No user found')
       } else {
         myLog('Data was a User object')
         const dataU = data as User
-        return dataU.id
+        return { newUserId: dataU.id, confirmationLink: dataU.action_link }
       }
     })
 }

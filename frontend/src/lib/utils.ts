@@ -6,3 +6,19 @@ export const myLog = (v: any) => {
     console.log(v)
   }
 }
+
+// Timezone info - default to client local, allow storing preference in profile
+export type TimezoneInfo = {
+  timeZone: string
+  timeZoneName: string
+  use24HourClock: boolean
+}
+
+export const defaultTimezoneInfo = () => {
+  const { timeZone } = Intl.DateTimeFormat().resolvedOptions()
+  const timeZoneName = new Date()
+    .toLocaleDateString(undefined, { timeZoneName: 'long' })
+    .split(',')[1]
+    .trim()
+  return { timeZone, timeZoneName, use24HourClock: false }
+}
