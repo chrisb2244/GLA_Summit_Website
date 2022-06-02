@@ -52,11 +52,11 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = (props) => {
 
     signUp(
         { email: data.email, password: randomBytes(32).toString('hex') },
-        { data: newUserData, redirectTo: window.location.href }
+        { data: newUserData, redirectTo: new URL(window.location.href).origin + '/' }
       )
       .then(({ user, session, error }) => {
         myLog({ user, session, error })
-        if (error) return Promise.reject(error)
+        if (error) throw error
         // If reaching here, no error
         // console.log('Check your email for the login link!')
       })
