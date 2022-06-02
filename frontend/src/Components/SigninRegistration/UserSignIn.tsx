@@ -12,6 +12,7 @@ import { SubmitHandler, useForm } from 'react-hook-form'
 import { useState } from 'react'
 import { useSession } from '@/lib/sessionContext'
 import { myLog } from '@/lib/utils'
+import { NotificationDialogPopup } from '../NotificationDialogPopup'
 
 type SignInProps = {
   open: boolean
@@ -125,22 +126,18 @@ export const UserSignIn: React.FC<SignInProps> = (props) => {
         </form>
       </Dialog>
 
-      {feedbackPopup !== null && (
-        <Dialog
-          open={feedbackPopup !== null}
-          onClose={() => {
-            setFeedbackPopup(null)
-          }}
-        >
-          <Container maxWidth='md' sx={{ p: 2 }}>
-            {feedbackPopup === 'valid'
-              ? validEmailContent
-              : feedbackPopup === 'invalid'
-              ? invalidEmailContent
-              : null}
-          </Container>
-        </Dialog>
-      )}
+      <NotificationDialogPopup
+        open={feedbackPopup !== null}
+        onClose={() => {
+          setFeedbackPopup(null)
+        }}
+      >
+        {feedbackPopup === 'valid'
+          ? validEmailContent
+          : feedbackPopup === 'invalid'
+          ? invalidEmailContent
+          : null}
+      </NotificationDialogPopup>
     </>
   )
 }
