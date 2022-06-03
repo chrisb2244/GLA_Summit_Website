@@ -1,4 +1,4 @@
-import { generateSupabaseLinks } from '@/lib/generateSupabaseLinks'
+import { generateSupabaseLinks, LinkType } from '@/lib/generateSupabaseLinks'
 import type { GenerateLinkBody } from '@/lib/generateSupabaseLinks'
 import { NextApiHandler } from 'next'
 import { sendMailApi } from '@/lib/sendMail'
@@ -18,35 +18,47 @@ const handler: NextApiHandler = async (req, res) => {
       .json({ message: 'Missing data to handle the required operation' })
   }
   const type = bodyData.type
-  const subject =
-    type === 'signup' ? 'GLA Summit 2022 Website Signup' :
-    type === 'magiclink' ? 'GLA Summit 2022 Signin Link' :
-    type === 'invite' ? 'GLA Summit 2022 Website Invitation' :
-    type === 'recovery' ? 'GLA Summit 2022 Website - Password Recovery' : ''
 
   return generateSupabaseLinks(bodyData)
-    .then(({ user, error }) => {
+    .then(({ user, error, linkType }) => {
       if (error) throw error
       if (typeof user.action_link === 'undefined') {
         throw new Error('Unable to generate a link')
       }
+      const subject = getSubject(linkType)
       const link = user.action_link
-      switch (type) {
+      switch (linkType) {
         case 'signup': {
-          const person = {
-            firstName: bodyData.signUpData.data?.firstname ?? 'Unnamed',
-            lastName: bodyData.signUpData.data?.lastname ?? 'User',
-            email: bodyData.email
-          }
           const plainText =
             'Thank you for signing up for the GLA Summit Website. ' +
             'Please use this link to confirm your email address: ' +
             link
-          const { body, bodyPlain } = generateBody(
-            <RegistrationEmail registrationLink={link} person={person} />,
-            plainText
-          )
-          return { body, bodyPlain, user }
+          let component = <></>
+          if (type === 'signup') {
+            const person = {
+              firstName: bodyData.signUpData.data?.firstname ?? 'Unnamed',
+              lastName: bodyData.signUpData.data?.lastname ?? 'User',
+              email: bodyData.email
+            }
+            component = (
+              <RegistrationEmail registrationLink={link} person={person} />
+            )
+          } else {
+            // generateSupabaseLink changed from something other than signup to signup
+            // This shouldn't happen...
+            component = (
+              <RegistrationEmail
+                registrationLink={link}
+                person={{
+                  email: bodyData.email,
+                  firstName: 'new',
+                  lastName: 'user'
+                }}
+              />
+            )
+          }
+          const { body, bodyPlain } = generateBody(component, plainText)
+          return { body, bodyPlain, user, subject }
         }
         case 'magiclink': {
           const plainText =
@@ -57,23 +69,26 @@ const handler: NextApiHandler = async (req, res) => {
             <SignInEmail link={link} />,
             plainText
           )
-          return { body, bodyPlain, user }
+          return { body, bodyPlain, user, subject }
         }
         default: {
-          return { body: '', bodyPlain: '', user: null }
+          return { body: '', bodyPlain: '', user: null, subject }
         }
       }
     })
-    .then(async ({user, ...textParts}) => {
+    .then(async ({ user, ...textParts }) => {
       return {
-        status: await sendMailApi({ to: bodyData.email, subject, ...textParts }),
+        status: await sendMailApi({
+          to: bodyData.email,
+          ...textParts
+        }),
         user
       }
     })
     .then(({ status, user }) => {
       console.log({ status, user })
       // if (status.accepted.includes(bodyData.email)) {
-        return res.status(201).json({ user, session: null, error: null })
+      return res.status(201).json({ user, session: null, error: null })
       // } else {
       //   console.log('Error with mailing...')
       //   return res.status(500).json({
@@ -90,6 +105,20 @@ const handler: NextApiHandler = async (req, res) => {
       }
       return res.status(500).json(err)
     })
+}
+
+const getSubject = (type: LinkType) => {
+  const subject =
+    type === 'signup'
+      ? 'GLA Summit 2022 Website Signup'
+      : type === 'magiclink'
+      ? 'GLA Summit 2022 Signin Link'
+      : type === 'invite'
+      ? 'GLA Summit 2022 Website Invitation'
+      : type === 'recovery'
+      ? 'GLA Summit 2022 Website - Password Recovery'
+      : ''
+  return subject
 }
 
 export default handler

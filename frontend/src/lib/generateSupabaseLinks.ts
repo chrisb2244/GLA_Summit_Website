@@ -25,14 +25,16 @@ export type GenerateLinkBody =
 type GenerateLinkReturn =
   | {
       user: User
+      linkType: LinkType
       error: null
     }
   | {
       user: null
+      linkType: null
       error: ApiError
     }
 
-type LinkType = 'signup' | 'magiclink' | 'invite' | 'recovery'
+export type LinkType = 'signup' | 'magiclink' | 'invite' | 'recovery'
 type OptionsType =
   | {
       password?: string | undefined
@@ -81,6 +83,7 @@ export const generateSupabaseLinks = async (
       if (!existingId) {
         return {
           user: null,
+          linkType: null,
           error: { message: 'User not found', status: 401 }
         }
       }
@@ -95,12 +98,12 @@ export const generateSupabaseLinks = async (
 const makeLink = (type: LinkType, email: string, options?: OptionsType) =>
   createAdminClient()
     .auth.api.generateLink(type, email, options)
-    .then(handleApiResponse)
+    .then(res => handleApiResponse(res, type))
 
-const handleApiResponse = (value: SupabaseApiResponse) => {
+const handleApiResponse = (value: SupabaseApiResponse, type: LinkType) => {
   const { data, error } = value
   if (error) {
-    return { user: null, error }
+    return { user: null, linkType: null, error }
   }
-  return { user: data as User, error: null }
+  return { user: data as User, linkType: type, error: null }
 }
