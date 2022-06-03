@@ -11,25 +11,27 @@ export const Header: React.FC = () => {
     'aria-label': 'logo'
   }
   const logo = (
-    <NextLink href='/'>
-      <a>
-        <Box flexGrow={0} display={{ xs: 'none', md: 'flex' }}>
-          <NextImage
-            src={GLA_Logo}
-            {...imageProps}
-            height={80}
-            style={{ pointerEvents: 'none' }}
-          />
-        </Box>
-        <Box display={{ xs: 'flex', md: 'none' }} >
-          <NextImage
-            src={GLA_Logo_Mobile}
-            {...imageProps}
-            style={{ pointerEvents: 'none' }}
-          />
-        </Box>
-      </a>
-    </NextLink>
+    <Box gridColumn={{ xs: '1/-1', md: '1' }} height='100%'>
+      <NextLink href='/'>
+        <a>
+          <Box display={{ xs: 'none', md: 'flex' }} pt={2} pb={1} justifyContent='center' height='100%'>
+            <NextImage
+              src={GLA_Logo}
+              {...imageProps}
+              height='100%'
+              style={{ pointerEvents: 'none' }}
+            />
+          </Box>
+          <Box display={{ xs: 'flex', md: 'none' }}>
+            <NextImage
+              src={GLA_Logo_Mobile}
+              {...imageProps}
+              style={{ pointerEvents: 'none' }}
+            />
+          </Box>
+        </a>
+      </NextLink>
+    </Box>
   )
 
   // The 'Toolbar' component appears to make the flow
@@ -37,16 +39,26 @@ export const Header: React.FC = () => {
   return (
     <>
       <AppBar position='static' sx={{ backgroundColor: 'primary.main' }}>
-        <Toolbar id='logo bar' disableGutters sx={{justifyContent: {xs: 'center', md: undefined}}}>
+        <Toolbar
+          id='logo bar'
+          disableGutters
+          sx={{
+            justifyContent: { xs: 'center', md: undefined },
+            gridTemplateColumns: '1fr 5fr 1fr',
+            display: 'grid'
+          }}
+        >
           {logo}
-          <Typography
-            variant='h1'
-            textAlign='center'
-            display={{ xs: 'none', md: 'flex' }}
+          <Box
             mx='auto'
+            display={{ xs: 'none', md: 'flex' }}
+            flexDirection='column'
+            textAlign='center'
+            gridColumn={2}
           >
-            GLA Summit
-          </Typography>
+            <Typography variant='h1'>GLA Summit</Typography>
+            <Typography variant='h4'>14-15 November, 12:00 UTC</Typography>
+          </Box>
         </Toolbar>
       </AppBar>
       <Box

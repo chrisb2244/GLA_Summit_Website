@@ -24,6 +24,9 @@ export const HomePage: React.FC = () => {
           In collaboration with the Certified LabVIEW Architect community and
           NI, we&apos;d like to welcome all LabVIEW enthusiasts to join us in
           our third Global LabVIEW Architects&apos; Summit!
+          <br />
+          The Summit will run between 12:00 UTC, 14<sup>th</sup> and 12:00 UTC,
+          15<sup>th</sup> November 2022, for a full 24 hours.
         </P>
         <P>
           This is an exciting opportunity for advanced LabVIEW developers and
