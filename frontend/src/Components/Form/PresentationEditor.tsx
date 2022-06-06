@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Card,
+  CardActionArea,
   CardContent,
   CardHeader,
   Collapse,
@@ -116,12 +117,12 @@ export const PresentationEditor: React.FC<PresentationEditorProps> = ({
   return (
     <>
       <Card>
+        <CardActionArea onClick={handleExpandClick}>
         <CardHeader
           title={[presentation.title, lockStatuses.isCopresenter ? '(Copresenter)' : '', lockStatuses.isSubmitted ? '(Submitted)' : ''].join(' ')}
           action={
             <ExpandMore
               expand={expanded}
-              onClick={handleExpandClick}
               aria-expanded={expanded}
               aria-label='show more'
             >
@@ -129,6 +130,7 @@ export const PresentationEditor: React.FC<PresentationEditorProps> = ({
             </ExpandMore>
           }
         />
+        </CardActionArea>
         <Collapse in={expanded} timeout='auto' unmountOnExit>
           <CardContent>
             <form>
