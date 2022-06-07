@@ -69,7 +69,6 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = ({
       firstname: data['firstName'],
       lastname: data['lastName']
     }
-    console.log('signing up')
 
     const redirectTo = new URL(window.location.href).origin + '/'
     signUp(
