@@ -21,9 +21,8 @@ export const HomePage: React.FC = () => {
       <StackedBoxes>
         <Countdown event_start={eventStart} event_end={eventEnd} />
         <P>
-          In collaboration with the Certified LabVIEW Architect community and
-          NI, we&apos;d like to welcome all LabVIEW enthusiasts to join us in
-          our third Global LabVIEW Architects&apos; Summit!
+          The GLA Summit Organizers would like to welcome all LabVIEW
+          enthusiasts to join us in our third GLA Summit!
           <br />
           The Summit will run between 12:00 UTC, 14<sup>th</sup> and 12:00 UTC,
           15<sup>th</sup> November 2022, for a full 24 hours.
@@ -31,7 +30,7 @@ export const HomePage: React.FC = () => {
         <P>
           This is an exciting opportunity for advanced LabVIEW developers and
           Architects (certified or self-proclaimed) from around the world to
-          network and participate in a more inclusive, all-digital, free event.
+          network and participate in an inclusive, all-digital, free event.
         </P>
         <P>
           Presenters at the GLA Summit will be eligible to receive 30
