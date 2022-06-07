@@ -59,7 +59,7 @@ export const UserPresentations: React.FC = () => {
       return <p>You don&apos;t have any draft or submitted presentations</p>
     }
 
-    const presentationList = userPresentations.map((p) => {
+    const presentationToEditorComponent = (p: MySubmissionsModel) => {
       const isCopresenter = p.submitter_id !== user.id
       const isSubmitted = p.is_submitted
       const lockStatus: PresentationLockedStatus = {
@@ -111,7 +111,14 @@ export const UserPresentations: React.FC = () => {
           }}
         />
       )
-    })
+    }
+
+    const draftList = userPresentations
+      .filter((p) => !p.is_submitted)
+      .map(presentationToEditorComponent)
+    const submittedList = userPresentations
+      .filter((p) => p.is_submitted)
+      .map(presentationToEditorComponent)
 
     return (
       <Container>
@@ -126,9 +133,18 @@ export const UserPresentations: React.FC = () => {
                 Your presentations are shown below:
               </Typography>
             </Box>
-            <Box display='flex' flexDirection='column' gap={2}>
-              {presentationList}
-            </Box>
+            <Stack direction='column' spacing={1} mb={3}>
+              <Typography variant='h5'>Drafts</Typography>
+              <Box display='flex' flexDirection='column' gap={2}>
+                {draftList}
+              </Box>
+            </Stack>
+            <Stack direction='column' spacing={1} mb={3}>
+              <Typography variant='h5'>Submitted Presentations</Typography>
+              <Box display='flex' flexDirection='column' gap={2}>
+                {submittedList}
+              </Box>
+            </Stack>
           </Box>
         </Stack>
       </Container>

@@ -117,9 +117,9 @@ export const PresentationEditor: React.FC<PresentationEditorProps> = ({
   return (
     <>
       <Card>
-        <CardActionArea onClick={handleExpandClick}>
+        <CardActionArea onClick={handleExpandClick} sx={{backgroundColor: lockStatuses.isSubmitted ? 'lightgrey' : undefined}}>
         <CardHeader
-          title={[presentation.title, lockStatuses.isCopresenter ? '(Copresenter)' : '', lockStatuses.isSubmitted ? '(Submitted)' : ''].join(' ')}
+          title={[presentation.title, lockStatuses.isCopresenter ? '(Copresenter)' : ''].join(' ')}
           action={
             <ExpandMore
               expand={expanded}
