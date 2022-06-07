@@ -6,9 +6,10 @@ import type { ApiError, UserCredentials } from '@supabase/supabase-js'
 import { randomBytes } from 'crypto'
 import { Person, PersonProps } from '../Form/Person'
 import { myLog } from '@/lib/utils'
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { NotificationDialogPopup } from '../NotificationDialogPopup'
 import type { SignUpOptions, SignUpReturn } from '@/lib/sessionContext'
+import { WaitingIndicator } from '../WaitingIndicator'
 
 type UserRegistrationProps = {
   open: boolean
@@ -47,6 +48,7 @@ function EMPTY<T>() {
 
 export const NewUserRegistration: React.FC<UserRegistrationProps> = ({
   signUp,
+  setClosed,
   ...props
 }) => {
   const {
@@ -57,13 +59,17 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = ({
   } = useForm<PersonProps>({
     mode: 'onTouched'
   })
+  const [isWaiting, setIsWaiting] = useState(false)
   const [popupEmail, setPopupOpen] = useState<string | null>(null)
 
-  const onSubmit: SubmitHandler<PersonProps> = async (data) => {
+  // State and useEffect are required to get the setIsWaiting call to work before the signin.
+  const [formData, setFormData] = useState<PersonProps | null>(null)
+  const signupCallback = useCallback((data: PersonProps) => {
     const newUserData: NewUserInformation = {
       firstname: data['firstName'],
       lastname: data['lastName']
     }
+    console.log('signing up')
 
     const redirectTo = new URL(window.location.href).origin + '/'
     signUp(
@@ -75,15 +81,30 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = ({
         if (error) throw error
         // If reaching here, no error
         // console.log('Check your email for the login link!')
+        setIsWaiting(false)
         setPopupOpen(data.email)
       })
       .catch((error: ApiError) => {
         myLog(error.message)
+        setIsWaiting(false)
       })
-    props.setClosed()
+    setClosed()
     reset()
-    return true
+    setFormData(null)
+  }, [signUp, setClosed, reset])
+
+  useEffect(() => {
+    if (formData == null) {
+      return
+    }
+    setIsWaiting(true)
+    signupCallback(formData)
+  }, [formData, signupCallback])
+
+  const onSubmit: SubmitHandler<PersonProps> = async (data) => {
+    setFormData(data)
   }
+
   const onError: SubmitErrorHandler<PersonProps> = (err) => myLog(err)
   const BoldEmail = (props: { email: string | null }) => {
     return (
@@ -95,7 +116,7 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = ({
 
   return (
     <>
-      <Dialog open={props.open} onClose={props.setClosed}>
+      <Dialog open={props.open} onClose={setClosed}>
         <form onSubmit={handleSubmit(onSubmit, onError)}>
           <Container maxWidth='md' sx={{ p: 2 }}>
             <SmallCenteredText sx={{ pb: 2 }}>
@@ -138,6 +159,7 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = ({
           account.
         </Typography>
       </NotificationDialogPopup>
+      <WaitingIndicator open={isWaiting} onClose={() => {return}} />
     </>
   )
 }
