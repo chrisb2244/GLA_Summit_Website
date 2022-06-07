@@ -1,11 +1,11 @@
-import { supabase } from '@/lib/supabaseClient'
 import type { ProfileModel } from '@/lib/databaseModels'
 import type { PostgrestError } from '@supabase/supabase-js'
 import { useEffect, useReducer, useRef, useState } from 'react'
 import type { ChangeEvent } from 'react'
 import { useSession } from '@/lib/sessionContext'
-import { Box, Button, Container, Grid, Stack, TextField } from '@mui/material'
+import { Box, Button, Grid, Stack, TextField } from '@mui/material'
 import { UserProfileImage } from './UserProfileImage'
+import { clientUpdateExistingProfile } from '@/lib/databaseFunctions'
 
 type ProfileData = ProfileModel | null
 type ProfileKey = keyof ProfileModel
@@ -29,7 +29,7 @@ export const UserProfile: React.FC = () => {
     useState<ProfileModel | null>(null)
   const [valuesChanged, setValuesChanged] = useState(false)
 
-  const { session, profile } = useSession()
+  const { profile, user, triggerUpdate } = useSession()
 
   const updateProfileField = (
     profile: ProfileData,
@@ -54,31 +54,29 @@ export const UserProfile: React.FC = () => {
   const [profileData, setProfileField] = useReducer(updateProfileField, null)
 
   async function updateProfile() {
-    if (session == null) return
-    try {
-      if (profileData == null) return
+    if (user == null || profileData == null) return
 
-      const { error } = await supabase.from<ProfileModel>('profiles').upsert(
-        { ...profileData, id: session.user?.id },
-        { returning: 'minimal' } // Don't return the value after inserting
-      )
+    clientUpdateExistingProfile(user.id, profileData)
+      .then((returnedRow) => {
+        // profileData doesn't include the updated_at time, returnedRow does.
+        // Not sure which is preferable.
+        setStoredProfileData(returnedRow)
+        setValuesChanged(false)
+        triggerUpdate(user)
+      })
+      .catch((error) => {
+        console.log((error as PostgrestError).message)
+      })
 
-      if (error) {
-        throw error
-      }
-      setStoredProfileData(profileData)
-    } catch (error) {
-      alert((error as PostgrestError).message)
-    }
   }
 
-  const isMounted = useRef(false)
-  useEffect(() => {
-    isMounted.current = true
-    return () => {
-      isMounted.current = false
-    }
-  }, [])
+  // const isMounted = useRef(false)
+  // useEffect(() => {
+  //   isMounted.current = true
+  //   return () => {
+  //     isMounted.current = false
+  //   }
+  // }, [])
 
   useEffect(() => {
     setProfileField({ type: 'init', value: profile })
@@ -99,21 +97,21 @@ export const UserProfile: React.FC = () => {
 
   const [imageSize, setImageSize] = useState(150)
 
-  if (session == null || session.user == null) {
+  if (user == null) {
     return <p>You are not signed in</p>
   } else {
     if (profileData == null) {
       return <p>Loading...</p>
     }
     return (
-      <Container>
+      <>
         <Stack direction={{ xs: 'column', md: 'row' }}>
-          <Box m={2} width='80%' alignSelf={{xs: 'center', md: 'flex-start'}}>
+          <Box m={2} width='80%' alignSelf={{ xs: 'center', md: 'flex-start' }}>
             <Box p={2}>
               <TextField
                 fullWidth
                 label='Email'
-                value={session.user.email ?? ''}
+                value={user.email ?? ''}
                 disabled
               />
             </Box>
@@ -136,13 +134,13 @@ export const UserProfile: React.FC = () => {
             </Grid>
           </Box>
           <Box
-            width={{xs: '80%', md: '20%'}}
+            width={{ xs: '80%', md: '20%' }}
             alignSelf='center'
             ref={(box: HTMLDivElement | null) => {
               if (box) setImageSize(box.clientWidth)
             }}
           >
-            <UserProfileImage userId={session.user.id} size={imageSize} />
+            <UserProfileImage userId={user.id} size={imageSize} />
           </Box>
         </Stack>
         <Button
@@ -155,7 +153,7 @@ export const UserProfile: React.FC = () => {
         >
           Update Profile
         </Button>
-      </Container>
+      </>
     )
   }
 }

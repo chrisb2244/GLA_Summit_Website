@@ -1,44 +1,42 @@
 import React, { useContext, useState, createContext, useEffect } from 'react'
 import { supabase } from './supabaseClient'
-import type {
-  Session,
-  ApiError,
-  UserCredentials,
-  User,
-  PostgrestError
-} from '@supabase/supabase-js'
-import { ProfileModel, TimezonePreferencesModel } from './databaseModels'
+import type { Session, UserCredentials, User } from '@supabase/supabase-js'
+import { ApiError } from '@supabase/supabase-js'
+import { ProfileModel } from './databaseModels'
+import { defaultTimezoneInfo, myLog, TimezoneInfo } from './utils'
+import { GenerateLinkBody } from '@/lib/generateSupabaseLinks'
+import { NewUserInformation } from '@/Components/SigninRegistration/NewUserRegistration'
+import {
+  checkIfOrganizer,
+  getProfileInfo,
+  queryTimezonePreferences
+} from '@/lib/databaseFunctions'
 
 // Even for ValidSignIn, session and user are null using magic link via email.
 type ValidSignIn = { session: Session | null; user: User | null; error: null }
 type InvalidSignIn = { session: null; user: null; error: ApiError }
+export type SignInReturn = ValidSignIn | InvalidSignIn
 
 // If "Email Confirmations" is turned on, user is valid and session is null
 // If turned off, both are valid when error: null.
 type ValidSignUp = { user: User; session: Session | null; error: null }
 type InvalidSignUp = { user: null; session: null; error: ApiError }
+export type SignUpReturn = ValidSignUp | InvalidSignUp
 
-type SignInOptions = {
+export type SignInOptions = {
   redirectTo?: string
   scopes?: string
   captchaToken?: string
 }
 
-type SignUpOptions = {
+export type SignUpOptions = {
   redirectTo?: string
   data?: object
   captchaToken?: string
 }
 
-// Timezone info - default to client local, allow storing preference in profile
-type TimezoneInfo = {
-  timeZone: string
-  timeZoneName: string
-  use24HourClock: boolean
-}
-
 type SessionContext = {
-  session: Session | null
+  user: User | null
   profile: ProfileModel | null
   timezoneInfo: TimezoneInfo
   isOrganizer: boolean
@@ -51,153 +49,103 @@ type SessionContext = {
     credentials: UserCredentials,
     options?: SignUpOptions
   ) => Promise<ValidSignUp | InvalidSignUp>
-  signOut: () => Promise<{ error: ApiError | null }>
+  signOut: () => Promise<{ error: ApiError | null }>,
+  triggerUpdate: (user: User | null) => void
 }
 
 const AuthContext = createContext<SessionContext | undefined>(undefined)
-const defaultTimezoneInfo = () => {
-  const { timeZone } = Intl.DateTimeFormat().resolvedOptions()
-  const timeZoneName = new Date()
-    .toLocaleDateString(undefined, { timeZoneName: 'long' })
-    .substring(12)
-  return { timeZone, timeZoneName, use24HourClock: false }
-}
 
 export const AuthProvider: React.FC = (props) => {
   const [isLoading, setLoading] = useState(true)
-  const [session, setSession] = useState<Session | null>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<ProfileModel | null>(null)
   const [isOrganizer, setIsOrganizer] = useState(false)
   const [timezoneInfo, setTimezoneInfo] =
     useState<TimezoneInfo>(defaultTimezoneInfo)
 
-  const updateProfileInfo = async () => {
-    const user = supabase.auth.user()
-    if (user == null) {
-      setProfile(null)
-      return
-    }
-
-    const { data, error } = await supabase
-      .from<ProfileModel>('profiles')
-      .select('id, firstname, lastname, bio, website, avatar_url')
-      .eq('id', user.id)
-      .single()
-
-    if (error) {
-      setProfile(null)
-    }
-    if (data) {
-      setProfile(data)
-    }
-  }
-
-  const queryTimezonePreferences = async () => {
-    const user = supabase.auth.user()
-    if (user == null) {
-      return
-    }
-
-    const { data, error } = await supabase
-      .from<TimezonePreferencesModel>('timezone_preferences')
-      .select()
-      .single()
-    if (error) {
-      return
-    }
-    const { timezone_db, timezone_name, use_24h_clock } = data
-    setTimezoneInfo({
-      timeZone: timezone_db,
-      timeZoneName: timezone_name,
-      use24HourClock: use_24h_clock
-    })
-  }
-
-  const checkIsOrganizer = async () => {
-    const user = supabase.auth.user()
-    if (user == null) {
-      return setIsOrganizer(false)
-    }
-    try {
-      const { data, error } = await supabase
-        .from('organizers')
-        .select()
-        .single()
-      if (error) throw error
-      if (data) {
-        console.log('Setting true org!')
-        return setIsOrganizer(true)
-      }
-    } catch (error) {
-      const err = error as PostgrestError
-      const expected = 'JSON object requested, multiple (or no) rows returned'
-      if (err.message === expected) {
-        return
-      }
-      console.log(error)
-    }
-  }
-
   const signIn = async (email: string, options?: SignInOptions) => {
-    const url = new URL(window.location.href)
-    const redirectTo = url.origin + '/'
+    // Need the '/' to match allowed URLs in the Supabase configuration.
+    const redirectTo = new URL(window.location.href).origin + '/'
 
-    return await supabase.auth
-      .signIn({ email }, { shouldCreateUser: false, redirectTo, ...options })
-      .then(({ session, error, user }) => {
-        // if (error === 'AccessDenied') {
-        if (error) {
-          console.log(error)
-          return { error, session: null, user: null }
+    const bodyData: GenerateLinkBody = {
+      email,
+      type: 'magiclink',
+      redirectTo
+    }
+
+    return fetch('/api/auth_links/magiclink', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ bodyData, redirectTo: options?.redirectTo })
+    })
+      .then((res) => {
+        console.log(res)
+        const j = res.json()
+        console.log(j)
+        if (res.status !== 201) {
+          console.log({ statusCode: res.status, m: res.statusText })
+          throw new Error(res.statusText)
         }
-        return { session, user, error }
+        return j
+      })
+      .catch((err) => {
+        return { user: null, session: null, error: new Error(err) }
       })
   }
 
-  const signUp = async (cred: UserCredentials, options?: SignUpOptions) =>
-    supabase.auth.signUp(cred, options).then(({ user, session, error }) => {
-      if (error) {
-        return { user: null, session: null, error }
-      }
-      // The documentation claims user is valid if no error.
-      const validUser = user as User
-      return { user: validUser, session, error }
-    })
+  const runUpdates = async (user: User | null) => {
+    setUser(user)
+    if (user == null) {
+      return
+    }
+    getProfileInfo(user)
+      .then(setProfile)
+      .catch((error) => {
+        myLog(error)
+      })
+    checkIfOrganizer(user)
+      .then(setIsOrganizer)
+      .catch((error) => {
+        myLog(error)
+      })
+    queryTimezonePreferences(user)
+      .then(setTimezoneInfo)
+      .catch((error) => {
+        myLog(error)
+      })
+  }
 
   useEffect(() => {
     const session = supabase.auth.session()
-    setSession(session ?? null)
-    updateProfileInfo()
-    checkIsOrganizer()
-    queryTimezonePreferences()
+    runUpdates(session?.user ?? null)
     setLoading(false)
 
     const { data: listener } = supabase.auth.onAuthStateChange(
       (ev, session) => {
-        console.log(ev)
+        myLog(ev)
         setLoading(true)
-        setSession(session ?? null)
-        updateProfileInfo()
-        checkIsOrganizer()
+        runUpdates(session?.user ?? null)
         setLoading(false)
       }
     )
 
-    // Cleanup function
     return () => {
       listener?.unsubscribe()
     }
   }, [])
 
   const value: SessionContext = {
-    session,
+    user,
     profile,
     isOrganizer,
     isLoading,
     signIn,
     signUp,
     signOut: async () => await supabase.auth.signOut(),
-    timezoneInfo
+    timezoneInfo,
+    triggerUpdate: async (user: User | null) => runUpdates(user)
   }
 
   return (
@@ -212,4 +160,39 @@ export const useSession = () => {
   const context = useContext(AuthContext)
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   return context!
+}
+
+const signUp = async (cred: UserCredentials, options?: SignUpOptions) => {
+  if (typeof cred.email === 'undefined') {
+    return {
+      user: null,
+      session: null,
+      error: { message: 'Undefined email passed', status: 401 }
+    }
+  }
+  if (typeof cred.password === 'undefined') {
+    return {
+      user: null,
+      session: null,
+      error: { message: 'No password provided', status: 401 }
+    }
+  }
+
+  const bodyData: GenerateLinkBody = {
+    email: cred.email,
+    type: 'signup',
+    redirectTo: options?.redirectTo,
+    signUpData: {
+      password: cred.password,
+      data: options?.data as NewUserInformation
+    }
+  }
+
+  return fetch('/api/auth_links/signup', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ bodyData })
+  }).then((res) => res.json())
 }

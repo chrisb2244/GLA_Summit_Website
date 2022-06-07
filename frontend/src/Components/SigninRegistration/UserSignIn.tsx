@@ -9,13 +9,20 @@ import {
 } from '@mui/material'
 import type { TypographyProps } from '@mui/material'
 import { SubmitHandler, useForm } from 'react-hook-form'
-import { useState } from 'react'
-import { useSession } from '@/lib/sessionContext'
+import { useCallback, useEffect, useState } from 'react'
+import type { SignInOptions, SignInReturn } from '@/lib/sessionContext'
+import { myLog } from '@/lib/utils'
+import { NotificationDialogPopup } from '../NotificationDialogPopup'
+import { WaitingIndicator } from '../WaitingIndicator'
 
 type SignInProps = {
   open: boolean
   setClosed: () => void
   switchToRegistration: () => void
+  signIn: (
+    email: string,
+    options?: SignInOptions | undefined
+  ) => Promise<SignInReturn>
 }
 
 type SignInFormValues = {
@@ -38,28 +45,46 @@ const SmallCenteredText: React.FC<TypographyProps> = ({
   )
 }
 
-export const UserSignIn: React.FC<SignInProps> = (props) => {
-  const [feedbackPopup, setFeedbackPopup] = useState<
-    'valid' | 'invalid' | null
-  >(null)
+export const UserSignIn: React.FC<SignInProps> = ({
+  signIn,
+  setClosed,
+  ...props
+}) => {
+  const [feedbackPopup, setFeedbackPopup] = useState<{
+    state: 'valid' | 'invalid'
+    email: string
+  } | null>(null)
   const [attemptedEmail, setAttemptedEmail] = useState<string | null>(null)
 
-  const { signIn } = useSession()
-
   const { register, handleSubmit } = useForm<SignInFormValues>()
-  const onSubmit: SubmitHandler<SignInFormValues> = async ({ email }) => {
-    signIn(email).then(
-      ({ error }) => {
-        props.setClosed()
-        setAttemptedEmail(email)
+
+  const [isWaiting, setIsWaiting] = useState(false)
+  const signinCallback = useCallback((email: string) => {
+      signIn(email).then(({ error }) => {
         if (error) {
-          console.log(error)
-          setFeedbackPopup('invalid')
+          myLog(error)
+          setFeedbackPopup({ state: 'invalid', email })
         } else {
-          setFeedbackPopup('valid')
+          setFeedbackPopup({ state: 'valid', email })
         }
-      }
-    )
+        setIsWaiting(false)
+      })
+      setClosed()
+      setAttemptedEmail(null)
+    },
+    [signIn, setClosed]
+  )
+
+  useEffect(() => {
+    if (attemptedEmail == null) {
+      return
+    }
+    setIsWaiting(true)
+    signinCallback(attemptedEmail)
+  }, [attemptedEmail, signinCallback])
+
+  const onSubmit: SubmitHandler<SignInFormValues> = async ({ email }) => {
+    setAttemptedEmail(email)
   }
 
   const BoldEmail = (props: { email: string | null }) => {
@@ -69,23 +94,33 @@ export const UserSignIn: React.FC<SignInProps> = (props) => {
       </Box>
     )
   }
-  const invalidEmailContent = (
-    <Typography>
-      The email you gave, <BoldEmail email={attemptedEmail} />, was not found.
-    </Typography>
-  )
 
-  const validEmailContent = (
-    <Typography>
-      An email has been sent to <BoldEmail email={attemptedEmail} />. Please use
-      the link in that email to sign in.
-    </Typography>
-  )
+  const popupText = (
+    v: { state: 'valid' | 'invalid'; email: string } | null
+  ) => {
+    if (v == null) {
+      return null
+    }
+    if (v.state === 'valid') {
+      return (
+        <Typography>
+          An email has been sent to <BoldEmail email={v.email} />. Please use
+          the link in that email to sign in.
+        </Typography>
+      )
+    } else if (v.state === 'invalid') {
+      return (
+        <Typography>
+          The email you gave, <BoldEmail email={v.email} />, was not found.
+        </Typography>
+      )
+    }
+  }
 
   return (
     <>
-      <Dialog open={props.open} onClose={props.setClosed}>
-        <form onSubmit={handleSubmit(onSubmit)}>
+      <Dialog open={props.open} onClose={setClosed}>
+        <form onSubmit={handleSubmit(onSubmit, (e) => myLog(e))}>
           <Container maxWidth='md' sx={{ p: 2 }}>
             <SmallCenteredText sx={{ pb: 2 }}>
               In order to sign in, enter the email address you used to register
@@ -126,20 +161,20 @@ export const UserSignIn: React.FC<SignInProps> = (props) => {
         </form>
       </Dialog>
 
-      {feedbackPopup !== null && <Dialog
+      <NotificationDialogPopup
         open={feedbackPopup !== null}
         onClose={() => {
           setFeedbackPopup(null)
         }}
       >
-        <Container maxWidth='md' sx={{ p: 2 }}>
-          {feedbackPopup === 'valid'
-            ? validEmailContent
-            : feedbackPopup === 'invalid'
-            ? invalidEmailContent
-            : null}
-        </Container>
-      </Dialog>}
+        {popupText(feedbackPopup)}
+      </NotificationDialogPopup>
+      <WaitingIndicator
+        open={isWaiting}
+        onClose={() => {
+          return
+        }}
+      />
     </>
   )
 }

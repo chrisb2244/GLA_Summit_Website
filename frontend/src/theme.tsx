@@ -40,13 +40,20 @@ export const theme = responsiveFontSizes(createTheme({
     text: {
       // primary: '#fff',
       primary: '#000',
-      // secondary: '#3e4342',
-      secondary: '#fff',
-      disabled: '#e7e9e8',
+      // secondary: '#fff',
+      secondary: '#3e4342',
+      disabled: '#e7e9e8'
     }
   },
   typography: {
     fontFamily: 'Roboto',
     fontSize: 16
+  },
+  components: {
+    MuiPaper: {
+      defaultProps: {
+        elevation: 5
+      }
+    }
   }
 }))

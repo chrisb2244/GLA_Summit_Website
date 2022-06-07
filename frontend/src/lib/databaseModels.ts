@@ -1,7 +1,7 @@
 export type ProfileModel = {
   id: string
-  firstname: string
-  lastname: string
+  firstname: string | null
+  lastname: string | null
   bio: string | null
   website: string | null
   avatar_url: string | null
@@ -20,6 +20,7 @@ export type PresentationSubmissionsModel = {
   updated_at: string
   title: string
   abstract: string
+  learning_points: string | null
   is_submitted: boolean
   presentation_type: PresentationType
 }
@@ -33,6 +34,20 @@ export type AllPresentationsModel = {
   primary_presenter: string
   all_presenters: string[]
   all_presenters_names: string[]
+}
+
+export type MySubmissionsModel = {
+  presentation_id: string
+  title: string
+  abstract: string
+  learning_points: string
+  presentation_type: PresentationType
+  submitter_id: string
+  is_submitted: boolean
+  all_presenters_ids: string[]
+  all_firstnames: string[]
+  all_lastnames: string[]
+  all_emails: string[]
 }
 
 export type TimezonePreferencesModel = {

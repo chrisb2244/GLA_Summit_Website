@@ -6,7 +6,10 @@ import {
   MenuItem,
   ListItemIcon
 } from '@mui/material'
-import { Logout as LogoutIcon } from '@mui/icons-material'
+import {
+  Logout as LogoutIcon,
+  CoPresentOutlined as PresentationsIcon
+} from '@mui/icons-material'
 import { useState } from 'react'
 import Link from 'next/link'
 import type { Session } from '@supabase/supabase-js'
@@ -31,13 +34,8 @@ export const UserMenu: React.FC<UserMenuProps> = (props) => {
   const avatarSrc = useProfileImage(userId)?.src
 
   const userAvatar = (
-    <Avatar
-      sx={{ width: 48, height: 48 }}
-      src={avatarSrc}
-    >
-      {profile
-        ? profile.firstname + ' ' + profile.lastname
-        : props.user?.email}
+    <Avatar sx={{ width: 48, height: 48 }} src={avatarSrc}>
+      {profile ? profile.firstname + ' ' + profile.lastname : props.user?.email}
     </Avatar>
   )
 
@@ -103,6 +101,35 @@ export const UserMenu: React.FC<UserMenuProps> = (props) => {
             <MenuItem>Yay, I&apos;m an organizer...</MenuItem>
           </Link>
         )}
+        <Link href='/my-presentations' passHref>
+          <MenuItem>
+            <>
+              <ListItemIcon>
+                <PresentationsIcon />
+              </ListItemIcon>
+              My Presentations
+            </>
+          </MenuItem>
+        </Link>
+        {/* <Link href='/my-presentations' passHref>
+          <MenuItem>
+            <>
+              <ListItemIcon>
+                <Icon sx={{ textAlign: 'center' }}>
+                  <img
+                    style={{
+                      display: 'flex',
+                      height: 'inherit',
+                      width: 'inherit'
+                    }}
+                    src={Pres1.src}
+                  />
+                </Icon>
+              </ListItemIcon>
+              My Presentations
+            </>
+          </MenuItem>
+        </Link> */}
         <MenuItem
           onClick={() => {
             void signOut()

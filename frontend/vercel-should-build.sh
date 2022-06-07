@@ -1,6 +1,7 @@
 #!/bin/bash
 
 echo "VERCEL_GIT_COMMIT_REF: $VERCEL_GIT_COMMIT_REF"
+exit 1;
 
 if [[ "$VERCEL_GIT_COMMIT_REF" == "staging" || "$VERCEL_GIT_COMMIT_REF" == "master" || "$VERCEL_GIT_COMMIT_REF" == "maintenancePage" ]] ; then
   # Proceed with the build
