@@ -25,7 +25,7 @@ export const Footer: React.FC = () => {
         >
           <SocialMediaIcons />
           <FileLink title='Code of Conduct' link='media/codeofconduct.pdf' />
-          <FileLink title='Privacy Policy' link='' />
+          <FileLink title='Privacy Policy' link='media/privacypolicy.pdf' />
           <Box display='flex' flexDirection='column' alignItems='center'>
             <SmallFont>
               Contact Us:&nbsp;
