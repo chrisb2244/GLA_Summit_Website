@@ -9,7 +9,7 @@ import Image_WR from '@/media/WilliamRichards.jpg'
 import Image_MR from '@/media/MichalRadziwon.jpg'
 import Image_AB from '@/media/AmandaBacala.webp'
 import Image_ML from '@/media/MartinLentz.jpg'
-import Image_QA from '@/media/QuentinAlldredge.png'
+import Image_QA from '@/media/QuentinAlldredge.webp'
 import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
 
 const OurTeam: React.FC = () => {
