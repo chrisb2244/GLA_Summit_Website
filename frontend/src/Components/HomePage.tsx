@@ -1,8 +1,17 @@
-import { Box, Button, Typography, TypographyProps } from '@mui/material'
+import {
+  Box,
+  Button,
+  Snackbar,
+  Typography,
+  TypographyProps,
+  IconButton
+} from '@mui/material'
 import { Countdown } from './Countdown'
 import { SponsorBar } from './SponsorBar'
 import { StackedBoxes } from './Layout/StackedBoxes'
 import { Link } from '@/lib/link'
+import { useState } from 'react'
+import CloseIcon from '@mui/icons-material/Close'
 
 export const HomePage: React.FC = () => {
   // The month value is 0-based (so 10 -> November)
@@ -15,6 +24,8 @@ export const HomePage: React.FC = () => {
       </Typography>
     )
   }
+
+  const [snackbarOpen, setSnackbarOpen] = useState(true)
 
   return (
     <>
@@ -46,6 +57,27 @@ export const HomePage: React.FC = () => {
           </Link>
         </Box>
       </StackedBoxes>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        action={
+          <>
+            <P textAlign='center'>
+              The service we use to send emails is currently having technical
+              difficulties - if you are unable to signin or register, please try
+              again later...
+            </P>
+            <IconButton
+              size='small'
+              aria-label='close'
+              color='inherit'
+              onClick={() => setSnackbarOpen(false)}
+            >
+              <CloseIcon fontSize='small' />
+            </IconButton>
+          </>
+        }
+      />
       <Box my='auto' pb={2}>
         <Box>
           <SponsorBar />
