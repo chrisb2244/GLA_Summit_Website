@@ -4,7 +4,10 @@ import {
   Snackbar,
   Typography,
   TypographyProps,
-  IconButton
+  IconButton,
+  useMediaQuery,
+  useTheme,
+  SnackbarProps
 } from '@mui/material'
 import { Countdown } from './Countdown'
 import { SponsorBar } from './SponsorBar'
@@ -26,6 +29,11 @@ export const HomePage: React.FC = () => {
   }
 
   const [snackbarOpen, setSnackbarOpen] = useState(true)
+  const theme = useTheme()
+  const isLargerScreen = useMediaQuery(theme.breakpoints.up('md'))
+  const anchorPosition: SnackbarProps['anchorOrigin'] = isLargerScreen
+    ? { vertical: 'top', horizontal: 'right' }
+    : undefined
 
   return (
     <>
@@ -58,13 +66,10 @@ export const HomePage: React.FC = () => {
         </Box>
       </StackedBoxes>
       <Snackbar
-        sx={{maxWidth: {md: '20%'}}}
+        sx={{ maxWidth: { md: '20%' } }}
         open={snackbarOpen}
         autoHideDuration={6000}
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'right'
-        }}
+        anchorOrigin={anchorPosition}
         action={
           <>
             <P textAlign='center' mb={2}>
