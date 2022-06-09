@@ -1,20 +1,20 @@
 import {
   Box,
   Button,
-  Snackbar,
   Typography,
   TypographyProps,
-  IconButton,
-  useMediaQuery,
-  useTheme,
-  SnackbarProps
+  // useMediaQuery,
+  // useTheme,
+  // Snackbar,
+  // IconButton,
+  // SnackbarProps
 } from '@mui/material'
 import { Countdown } from './Countdown'
 import { SponsorBar } from './SponsorBar'
 import { StackedBoxes } from './Layout/StackedBoxes'
 import { Link } from '@/lib/link'
-import { useState } from 'react'
-import CloseIcon from '@mui/icons-material/Close'
+// import { useState } from 'react'
+// import CloseIcon from '@mui/icons-material/Close'
 
 export const HomePage: React.FC = () => {
   // The month value is 0-based (so 10 -> November)
@@ -28,12 +28,12 @@ export const HomePage: React.FC = () => {
     )
   }
 
-  const [snackbarOpen, setSnackbarOpen] = useState(true)
-  const theme = useTheme()
-  const isLargerScreen = useMediaQuery(theme.breakpoints.up('md'))
-  const anchorPosition: SnackbarProps['anchorOrigin'] = isLargerScreen
-    ? { vertical: 'top', horizontal: 'right' }
-    : undefined
+  // const [snackbarOpen, setSnackbarOpen] = useState(true)
+  // const theme = useTheme()
+  // const isLargerScreen = useMediaQuery(theme.breakpoints.up('md'))
+  // const anchorPosition: SnackbarProps['anchorOrigin'] = isLargerScreen
+  //   ? { vertical: 'top', horizontal: 'right' }
+  //   : undefined
 
   return (
     <>
@@ -65,7 +65,7 @@ export const HomePage: React.FC = () => {
           </Link>
         </Box>
       </StackedBoxes>
-      <Snackbar
+      {/* <Snackbar
         sx={{ maxWidth: { md: '20%' } }}
         open={snackbarOpen}
         autoHideDuration={6000}
@@ -87,7 +87,7 @@ export const HomePage: React.FC = () => {
             </IconButton>
           </>
         }
-      />
+      /> */}
       <Box my='auto' pb={2}>
         <Box>
           <SponsorBar />
