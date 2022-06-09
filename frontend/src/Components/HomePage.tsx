@@ -58,14 +58,19 @@ export const HomePage: React.FC = () => {
         </Box>
       </StackedBoxes>
       <Snackbar
+        sx={{maxWidth: {md: '20%'}}}
         open={snackbarOpen}
         autoHideDuration={6000}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'right'
+        }}
         action={
           <>
-            <P textAlign='center'>
+            <P textAlign='center' mb={2}>
               The service we use to send emails is currently having technical
               difficulties - if you are unable to signin or register, please try
-              again later...
+              again later
             </P>
             <IconButton
               size='small'
