@@ -1,6 +1,6 @@
 import type { ProfileModel } from '@/lib/databaseModels'
 import type { PostgrestError } from '@supabase/supabase-js'
-import { useEffect, useReducer, useRef, useState } from 'react'
+import { useEffect, useReducer, useState } from 'react'
 import type { ChangeEvent } from 'react'
 import { useSession } from '@/lib/sessionContext'
 import { Box, Button, Grid, Stack, TextField } from '@mui/material'

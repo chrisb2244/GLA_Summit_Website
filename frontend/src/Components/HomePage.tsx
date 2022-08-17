@@ -1,8 +1,20 @@
-import { Box, Button, Typography, TypographyProps } from '@mui/material'
+import {
+  Box,
+  Button,
+  Typography,
+  TypographyProps,
+  // useMediaQuery,
+  // useTheme,
+  // Snackbar,
+  // IconButton,
+  // SnackbarProps
+} from '@mui/material'
 import { Countdown } from './Countdown'
 import { SponsorBar } from './SponsorBar'
 import { StackedBoxes } from './Layout/StackedBoxes'
 import { Link } from '@/lib/link'
+// import { useState } from 'react'
+// import CloseIcon from '@mui/icons-material/Close'
 
 export const HomePage: React.FC = () => {
   // The month value is 0-based (so 10 -> November)
@@ -16,14 +28,20 @@ export const HomePage: React.FC = () => {
     )
   }
 
+  // const [snackbarOpen, setSnackbarOpen] = useState(true)
+  // const theme = useTheme()
+  // const isLargerScreen = useMediaQuery(theme.breakpoints.up('md'))
+  // const anchorPosition: SnackbarProps['anchorOrigin'] = isLargerScreen
+  //   ? { vertical: 'top', horizontal: 'right' }
+  //   : undefined
+
   return (
     <>
       <StackedBoxes>
         <Countdown event_start={eventStart} event_end={eventEnd} />
         <P>
-          In collaboration with the Certified LabVIEW Architect community and
-          NI, we&apos;d like to welcome all LabVIEW enthusiasts to join us in
-          our third Global LabVIEW Architects&apos; Summit!
+          The GLA Summit Organizers would like to welcome all LabVIEW
+          enthusiasts to join us in our third GLA Summit!
           <br />
           The Summit will run between 12:00 UTC, 14<sup>th</sup> and 12:00 UTC,
           15<sup>th</sup> November 2022, for a full 24 hours.
@@ -31,7 +49,7 @@ export const HomePage: React.FC = () => {
         <P>
           This is an exciting opportunity for advanced LabVIEW developers and
           Architects (certified or self-proclaimed) from around the world to
-          network and participate in a more inclusive, all-digital, free event.
+          network and participate in an inclusive, all-digital, free event.
         </P>
         <P>
           Presenters at the GLA Summit will be eligible to receive 30
@@ -47,6 +65,29 @@ export const HomePage: React.FC = () => {
           </Link>
         </Box>
       </StackedBoxes>
+      {/* <Snackbar
+        sx={{ maxWidth: { md: '20%' } }}
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        anchorOrigin={anchorPosition}
+        action={
+          <>
+            <P textAlign='center' mb={2}>
+              The service we use to send emails is currently having technical
+              difficulties - if you are unable to signin or register, please try
+              again later
+            </P>
+            <IconButton
+              size='small'
+              aria-label='close'
+              color='inherit'
+              onClick={() => setSnackbarOpen(false)}
+            >
+              <CloseIcon fontSize='small' />
+            </IconButton>
+          </>
+        }
+      /> */}
       <Box my='auto' pb={2}>
         <Box>
           <SponsorBar />

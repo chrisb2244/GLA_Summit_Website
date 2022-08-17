@@ -2,18 +2,23 @@ import { Dialog, Button, Typography, Container, Link, Box } from '@mui/material'
 import type { TypographyProps } from '@mui/material'
 import { TypedFieldPath, useForm } from 'react-hook-form'
 import type { SubmitHandler, SubmitErrorHandler } from 'react-hook-form'
-import type { ApiError } from '@supabase/supabase-js'
+import type { ApiError, UserCredentials } from '@supabase/supabase-js'
 import { randomBytes } from 'crypto'
 import { Person, PersonProps } from '../Form/Person'
 import { myLog } from '@/lib/utils'
-import { useSession } from '@/lib/sessionContext'
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { NotificationDialogPopup } from '../NotificationDialogPopup'
+import type { SignUpOptions, SignUpReturn } from '@/lib/sessionContext'
+import { WaitingIndicator } from '../WaitingIndicator'
 
 type UserRegistrationProps = {
   open: boolean
   setClosed: () => void
   switchToSignIn: () => void
+  signUp: (
+    credentials: UserCredentials,
+    options?: SignUpOptions | undefined
+  ) => Promise<SignUpReturn>
 }
 
 export type NewUserInformation = {
@@ -41,7 +46,11 @@ function EMPTY<T>() {
   return '' as TypedFieldPath<T, T>
 }
 
-export const NewUserRegistration: React.FC<UserRegistrationProps> = (props) => {
+export const NewUserRegistration: React.FC<UserRegistrationProps> = ({
+  signUp,
+  setClosed,
+  ...props
+}) => {
   const {
     handleSubmit,
     reset,
@@ -50,36 +59,51 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = (props) => {
   } = useForm<PersonProps>({
     mode: 'onTouched'
   })
-  const { signUp } = useSession()
+  const [isWaiting, setIsWaiting] = useState(false)
   const [popupEmail, setPopupOpen] = useState<string | null>(null)
 
-  const onSubmit: SubmitHandler<PersonProps> = async (data) => {
+  // State and useEffect are required to get the setIsWaiting call to work before the signin.
+  const [formData, setFormData] = useState<PersonProps | null>(null)
+  const signupCallback = useCallback((data: PersonProps) => {
     const newUserData: NewUserInformation = {
       firstname: data['firstName'],
       lastname: data['lastName']
     }
 
+    const redirectTo = new URL(window.location.href).origin + '/'
     signUp(
       { email: data.email, password: randomBytes(32).toString('hex') },
-      {
-        data: newUserData,
-        redirectTo: new URL(window.location.href).origin + '/'
-      }
+      { data: newUserData, redirectTo }
     )
       .then(({ user, session, error }) => {
         myLog({ user, session, error })
         if (error) throw error
         // If reaching here, no error
         // console.log('Check your email for the login link!')
+        setIsWaiting(false)
         setPopupOpen(data.email)
       })
       .catch((error: ApiError) => {
         myLog(error.message)
+        setIsWaiting(false)
       })
-    props.setClosed()
+    setClosed()
     reset()
-    return true
+    setFormData(null)
+  }, [signUp, setClosed, reset])
+
+  useEffect(() => {
+    if (formData == null) {
+      return
+    }
+    setIsWaiting(true)
+    signupCallback(formData)
+  }, [formData, signupCallback])
+
+  const onSubmit: SubmitHandler<PersonProps> = async (data) => {
+    setFormData(data)
   }
+
   const onError: SubmitErrorHandler<PersonProps> = (err) => myLog(err)
   const BoldEmail = (props: { email: string | null }) => {
     return (
@@ -91,7 +115,7 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = (props) => {
 
   return (
     <>
-      <Dialog open={props.open} onClose={props.setClosed}>
+      <Dialog open={props.open} onClose={setClosed}>
         <form onSubmit={handleSubmit(onSubmit, onError)}>
           <Container maxWidth='md' sx={{ p: 2 }}>
             <SmallCenteredText sx={{ pb: 2 }}>
@@ -130,9 +154,11 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = (props) => {
       >
         <Typography>
           Thank you for registering for the GLA Summit 2022 website. Please
-          check your email at <BoldEmail email={popupEmail} /> to verify your account.
+          check your email at <BoldEmail email={popupEmail} /> to verify your
+          account.
         </Typography>
       </NotificationDialogPopup>
+      <WaitingIndicator open={isWaiting} onClose={() => {return}} />
     </>
   )
 }
