@@ -1,5 +1,5 @@
 import { sendMailApi } from "@/lib/sendMail";
-import { NextApiHandler } from "next";
+import type { NextApiHandler } from "next";
 
 const sendMailTest: NextApiHandler = async (req, res) => {
   const now = Date.now().toString()
