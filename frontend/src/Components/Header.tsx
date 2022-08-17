@@ -11,7 +11,7 @@ export const Header: React.FC = () => {
     'aria-label': 'logo'
   }
   const logo = (
-    <Box gridColumn={{ xs: '1/-1', md: '1' }} height='100%'>
+    <Box gridColumn={{ xs: '1/-1', md: '1' }} height='100%' >
       <NextLink href='/'>
         <a>
           <Box display={{ xs: 'none', md: 'flex' }} pt={2} pb={1} justifyContent='center' height='100%'>
@@ -45,6 +45,7 @@ export const Header: React.FC = () => {
           sx={{
             justifyContent: { xs: 'center', md: undefined },
             gridTemplateColumns: '1fr 5fr 1fr',
+            gridTemplateRows: '1fr',
             display: 'grid'
           }}
         >
