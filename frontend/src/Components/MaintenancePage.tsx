@@ -1,7 +1,6 @@
 import { Box, Typography } from '@mui/material'
 import type { BoxProps, TypographyProps } from '@mui/material'
 import GLA_Logo from '@/media/GLA-logo.svg'
-import GLA_Logo_Mobile from '@/media/GLA-logo-mobile.svg'
 import NextImage from 'next/image'
 
 export const MaintenancePage: React.FC = () => {
