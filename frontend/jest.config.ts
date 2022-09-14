@@ -17,6 +17,7 @@ const customJestConfig = {
     '^@/media/(.*)$': '<rootDir>/public/media/$1',
   },
   testEnvironment: 'jest-environment-jsdom',
+  testMatch: ['<rootDir>/__tests__/**/*.test.ts(x)?'],
   testPathIgnorePatterns: ['<rootDir>/cypress/', '<rootDir>/node_modules/'],
   setupFiles: ['<rootDir>/.env.test'],
 }
