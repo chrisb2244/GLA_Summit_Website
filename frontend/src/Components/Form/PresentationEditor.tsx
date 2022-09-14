@@ -6,9 +6,7 @@ import {
   CardActionArea,
   CardContent,
   CardHeader,
-  Collapse,
-  IconButton,
-  IconButtonProps
+  Collapse
 } from '@mui/material'
 import { useState } from 'react'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
@@ -118,18 +116,20 @@ export const PresentationEditor: React.FC<PresentationEditorProps> = ({
     <>
       <Card>
         <CardActionArea onClick={handleExpandClick} sx={{backgroundColor: lockStatuses.isSubmitted ? 'lightgrey' : undefined}}>
-        <CardHeader
-          title={[presentation.title, lockStatuses.isCopresenter ? '(Copresenter)' : ''].join(' ')}
-          action={
-            <ExpandMore
-              expand={expanded}
-              aria-expanded={expanded}
-              aria-label='show more'
-            >
-              <ExpandMoreIcon />
-            </ExpandMore>
-          }
-        />
+          <CardHeader
+            sx={{'> .MuiCardHeader-action': {alignSelf: 'center'}}}
+            title={[presentation.title, lockStatuses.isCopresenter ? '(Copresenter)' : ''].join(' ')}
+            action={
+              <ExpandMoreIcon
+                aria-expanded={expanded}
+                aria-label='show more'
+                sx={{
+                  transform: !expanded ? 'rotate(0deg)' : 'rotate(180deg)',
+                  marginLeft: 'auto'
+                }}
+              />
+            }
+          />
         </CardActionArea>
         <Collapse in={expanded} timeout='auto' unmountOnExit>
           <CardContent>
@@ -184,21 +184,5 @@ export const PresentationEditor: React.FC<PresentationEditorProps> = ({
       </Card>
       {confirmationPopup}
     </>
-  )
-}
-
-interface ExpandMoreProps extends IconButtonProps {
-  expand: boolean
-}
-
-const ExpandMore: React.FC<ExpandMoreProps> = ({ expand, ...other }) => {
-  return (
-    <IconButton
-      {...other}
-      sx={{
-        transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
-        marginLeft: 'auto'
-      }}
-    />
   )
 }
