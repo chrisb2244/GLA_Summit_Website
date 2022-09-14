@@ -117,24 +117,30 @@ export const AuthProvider: React.FC = (props) => {
       })
   }
 
+  const [currentSession, setCurrentSession] = useState<Session|null>(null);
   useEffect(() => {
-    const session = supabase.auth.session()
-    runUpdates(session?.user ?? null)
+    runUpdates(currentSession?.user ?? null)
     setLoading(false)
 
     const { data: listener } = supabase.auth.onAuthStateChange(
       (ev, session) => {
+        if (session?.user?.id === currentSession?.user?.id) {
+          myLog('early exit from onAuthStateChange')
+          return
+        }
         myLog(ev)
+        myLog({session, currentSession})
         setLoading(true)
         runUpdates(session?.user ?? null)
         setLoading(false)
+        setCurrentSession(session);
       }
     )
 
     return () => {
       listener?.unsubscribe()
     }
-  }, [])
+  }, [currentSession])
 
   const value: SessionContext = {
     user,
