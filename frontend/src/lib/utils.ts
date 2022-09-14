@@ -16,9 +16,19 @@ export type TimezoneInfo = {
 
 export const defaultTimezoneInfo = () => {
   const { timeZone } = Intl.DateTimeFormat().resolvedOptions()
-  const timeZoneName = new Date()
-    .toLocaleDateString(undefined, { timeZoneName: 'long' })
-    .split(',')[1]
-    .trim()
+  const timeZoneString = new Date().toLocaleDateString(undefined, { timeZoneName: 'long' })
+  const timeZoneNameBlock = timeZoneString.split(',')[1]
+  let timeZoneName = ''
+  if(timeZoneNameBlock != null) {
+    timeZoneName = timeZoneNameBlock.trim()
+  } else {
+    const fallbackBlock = timeZoneString.split(' ')[1]
+    if (fallbackBlock != null) {
+      timeZoneName = fallbackBlock.trim()
+    } else {
+      timeZoneName = ''
+      console.warn("Unable to detect timezone name from " + timeZoneString)
+    }
+  }
   return { timeZone, timeZoneName, use24HourClock: false }
 }
