@@ -21,7 +21,7 @@ describe('Footer', () => {
   it('contains social media icons with links', () => {
     render(<Footer />)
     const socialmediadiv = screen.getByLabelText('Social Media Links')
-    expect(within(socialmediadiv).getAllByRole('link')).toHaveLength(4)
+    expect(within(socialmediadiv).getAllByRole('link')).toHaveLength(5)
     // const elems = Array.from(socialmediadiv.children) as HTMLElement[]
     // const linkMatcher = /<a .*href=".*".*>.*<\/a>/
     // const isLink = (elem: HTMLElement): boolean =>

@@ -1,5 +1,5 @@
 import { Box } from '@mui/material'
-import { Twitter, Facebook, YouTube, Instagram } from '@mui/icons-material'
+import { Twitter, Facebook, YouTube, Instagram, LinkedIn } from '@mui/icons-material'
 
 export const SocialMediaIcons: React.FC = () => {
   return (
@@ -22,6 +22,9 @@ export const SocialMediaIcons: React.FC = () => {
       </a>
       <a aria-label='Instagram link' href='https://www.instagram.com/glasummit/'>
         <Instagram />
+      </a>
+      <a aria-label='LinkedIn link' href='https://www.linkedin.com/company/glasummit/'>
+        <LinkedIn />
       </a>
     </Box>
   )
