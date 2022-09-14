@@ -47,7 +47,7 @@ export const UserPresentations: React.FC = () => {
 
   useEffect(() => {
     getPresentations()
-  }, [user, getPresentations])
+  }, [getPresentations])
 
   if (user == null) {
     return <p>You are not signed in</p>
