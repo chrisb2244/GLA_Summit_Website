@@ -6,6 +6,7 @@ import FB_Speaker from '@/media/banners/speaker-fb-2022-01.jpg'
 import IN_Speaker from '@/media/banners/speaker-in-2021-01.jpg'
 import LI_Speaker from '@/media/banners/speaker-li-2022-01.jpg'
 import TW_Speaker from '@/media/banners/speaker-tw-2022-01.jpg'
+import SignatureImage from '@/media/banners/GLASummit2022WikiBanner.png'
 import JKI_Logo from '@/media/JKI-Logo.webp'
 import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
 import { NextPage } from 'next'
@@ -30,11 +31,7 @@ const MediaPage: NextPage = () => {
   const Paragraph: React.FC<TypographyProps> = ({children, ...other}) => <Typography variant='body1' {...other}>{children}</Typography>;
   const SidewaysBox: React.FC<BoxProps> = ({children, ...other}) => {
     return <Box display='flex' flexDirection={{xs: 'column', sm: 'row'}} alignItems='center' {...other}>{children}</Box>
-  }
-
-  const speakerImage = TW_Speaker;
-  const attendeeImage = TW_Attendee;
-  
+  }  
 
   return (
     <StackedBoxes>
@@ -61,29 +58,21 @@ const MediaPage: NextPage = () => {
         Examples of HTML that could be copied into the signature line are below:
       </Paragraph>
 
-      <Subtitle>Attendees</Subtitle>
       <SidewaysBox>
-        <NextImage src={attendeeImage} height={225} width={900} />
+        <NextImage src={SignatureImage} />
         <Typography variant='body2' fontFamily='monospace' bgcolor='lightgrey' margin={3} padding={2}>
           &lt;a href=&ldquo;https://glasummit.org&rdquo;&gt;
-          &lt;img src=&ldquo;{hostname + attendeeImage.src}&rdquo; height=&ldquo;75&rdquo; width=&ldquo;300&rdquo; alt=&ldquo;I&apos;m attending the GLA Summit!&rdquo;&gt;
+          &lt;img src=&ldquo;{hostname + SignatureImage.src}&rdquo; height=&ldquo;100&rdquo; width=&ldquo;300&rdquo; alt=&ldquo;I&apos;m attending the GLA Summit!&rdquo;&gt;
           &lt;/a&gt;
         </Typography>
       </SidewaysBox>
 
+      <Subtitle>Attendees</Subtitle>
       {bannerImagesAttendee}
 
       <Subtitle>Speakers</Subtitle>
-      <SidewaysBox>
-        <NextImage src={speakerImage} height={225} width={900} />
-        <Typography variant='body2' fontFamily='monospace' bgcolor='lightgrey' margin={3} padding={2}>
-        &lt;a href=&ldquo;https://glasummit.org&rdquo;&gt;
-          &lt;img src=&ldquo;{hostname + speakerImage.src}&rdquo; height=&ldquo;75&rdquo; width=&ldquo;300&rdquo; alt=&ldquo;I&apos;m attending the GLA Summit!&rdquo;&gt;
-          &lt;/a&gt;
-        </Typography>
-      </SidewaysBox>
-
       {bannerImagesSpeaker}
+
     </StackedBoxes>
   )
 }
