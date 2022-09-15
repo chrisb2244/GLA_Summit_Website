@@ -2,7 +2,7 @@ import { Box, IconButton, Tooltip, Typography } from '@mui/material'
 import type { TypographyProps } from '@mui/material'
 import CopyIcon from '@mui/icons-material/ContentCopy'
 import type { Property } from 'csstype'
-import { useState } from 'react'
+import React, { useState } from 'react'
 
 type CopyableTextBoxProps = {
   role?: string
@@ -16,6 +16,7 @@ export const CopyableTextBox: React.FC<CopyableTextBoxProps> = ({
   ...others
 }) => {
   const [displayCopy, setDisplayCopy] = useState(false)
+  const [domRect, setDomRect] = useState<DOMRect | null>(null)
 
   const copyToClipboard = async (text: string) => {
     if ('clipboard' in navigator) {
@@ -26,14 +27,48 @@ export const CopyableTextBox: React.FC<CopyableTextBoxProps> = ({
     }
   }
 
+  const onCopyClick = () => {
+    let textString: string | undefined = undefined
+    if (Array.isArray(children)) {
+      textString = children.join('')
+    } else {
+      textString = children?.valueOf().toString()
+    }
+    if (typeof textString !== 'undefined') {
+      copyToClipboard(textString)
+    }
+  }
+
+  const onRefLoad = (elem: HTMLButtonElement) => {
+    if (elem === null) {
+      return
+    }
+    const newRect = elem.getBoundingClientRect()
+    if (
+      displayCopy &&
+      !elem.hidden &&
+      (domRect === null || newRect.x !== domRect.x)
+    ) {
+      setDomRect(newRect)
+    }
+  }
+
   return (
     <Box
       onMouseEnter={() => setDisplayCopy(true)}
       onMouseLeave={() => setDisplayCopy(false)}
       position='relative'
     >
-      <Tooltip title='Copy'>
+      <Tooltip
+        title='Copy'
+        PopperProps={{
+          anchorEl: {
+            getBoundingClientRect: () => domRect!
+          }
+        }}
+      >
         <IconButton
+          ref={onRefLoad}
           sx={{
             display: displayCopy ? 'block' : 'none',
             position: 'absolute',
@@ -42,17 +77,7 @@ export const CopyableTextBox: React.FC<CopyableTextBoxProps> = ({
           }}
           aria-label='copy'
           aria-hidden={!displayCopy}
-          onClick={() => {
-            let textString: string | undefined = undefined
-            if (Array.isArray(children)) {
-              textString = children.join('')
-            } else {
-              textString = children?.valueOf().toString()
-            }
-            if (typeof textString !== 'undefined') {
-              copyToClipboard(textString)
-            }
-          }}
+          onClick={onCopyClick}
         >
           <CopyIcon fontSize='small' />
         </IconButton>
