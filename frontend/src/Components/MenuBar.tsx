@@ -17,6 +17,7 @@ export const MenuBar: React.FC<BoxProps> = ({...extraBoxProps}) => {
     { title: 'Home', link: '/' },
     { title: 'Our Team', link: '/our-team' },
     { title: 'Submit a Presentation', link: '/submit-presentation' },
+    { title: 'Media and Banners', link: '/media' },
     // { title: 'Presentations', link: '/presentations' },
     // { title: 'Presenters', link: '/presenters' }
   ]
