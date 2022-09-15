@@ -111,6 +111,7 @@ const MediaPage: NextPage = () => {
           fill='lightgrey'
           variant='body2'
           fontFamily='monospace'
+          sx={{wordBreak: 'break-all'}}
         >
           &lt;a href=&quot;https://glasummit.org&quot;&gt; &lt;img src=&quot;
           {hostname + SignatureImage.src}&quot; height=&quot;100&quot;
