@@ -12,12 +12,12 @@ import { useState } from 'react'
 import type { MouseEvent } from 'react'
 import type { BoxProps } from '@mui/system'
 
-export const MenuBar: React.FC<BoxProps> = ({...extraBoxProps}) => {
+export const MenuBar: React.FC<BoxProps> = ({ ...extraBoxProps }) => {
   const menuElements = [
     { title: 'Home', link: '/' },
     { title: 'Our Team', link: '/our-team' },
     { title: 'Submit a Presentation', link: '/submit-presentation' },
-    { title: 'Media and Banners', link: '/media' },
+    { title: 'Media and Banners', link: '/media' }
     // { title: 'Presentations', link: '/presentations' },
     // { title: 'Presenters', link: '/presenters' }
   ]
@@ -38,11 +38,7 @@ export const MenuBar: React.FC<BoxProps> = ({...extraBoxProps}) => {
 
   return (
     <>
-      <Box
-        id='mobile-menu'
-        display={{ xs: 'flex', md: 'none' }}
-        {...boxProps}
-      >
+      <Box id='mobile-menu' display={{ xs: 'flex', md: 'none' }} {...boxProps}>
         <IconButton
           aria-haspopup
           aria-controls='menu-appbar'
@@ -74,18 +70,20 @@ export const MenuBar: React.FC<BoxProps> = ({...extraBoxProps}) => {
           })}
         </Menu>
       </Box>
-      <Box
-        id='desktop-menu'
-        display={{ xs: 'none', md: 'flex' }}
-        {...boxProps}
-      >
+      <Box id='desktop-menu' display={{ xs: 'none', md: 'flex' }} {...boxProps}>
         {menuElements.map(({ title, link }) => {
           return (
-            <Link href={link} passHref key={title}>
-              <Button onClick={() => handleCloseNavMenu()} role='menuitem' color='inherit'>
-                <Typography textAlign='center'>{title}</Typography>
-              </Button>
-            </Link>
+            <Box sx={{ mx: 1 }} key={title}>
+              <Link href={link} passHref>
+                <Button
+                  onClick={() => handleCloseNavMenu()}
+                  role='menuitem'
+                  color='inherit'
+                >
+                  <Typography textAlign='center'>{title}</Typography>
+                </Button>
+              </Link>
+            </Box>
           )
         })}
       </Box>
