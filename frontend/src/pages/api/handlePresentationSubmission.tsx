@@ -10,8 +10,8 @@ import {
 } from '@/lib/presentationSubmissionHelpers'
 import { generateBody } from '@/lib/emailGeneration'
 import { createAdminClient } from '@/lib/supabaseClient'
-import type { SupabaseClient } from '@supabase/supabase-js'
-import { PresentationPresentersModel, ProfileModel } from '@/lib/databaseModels'
+import type { SupabaseClient, User } from '@supabase/supabase-js'
+import type {Database} from '@/lib/sb_databaseModels'
 import { PersonProps } from '@/Components/Form/Person'
 import { myLog } from '@/lib/utils'
 
@@ -50,15 +50,14 @@ const handlePresentationSubmission = async (
   const idArray = idAndInfoArray.map((v) => v.id)
 
   // Upload presenter information
-  const presentationPresenterData: PresentationPresentersModel[] = idArray.map(
+  type PresentationPresentersRow = Database['public']['Tables']['presentation_presenters']['Row']
+  const presentationPresenterData: PresentationPresentersRow[] = idArray.map(
     (presenter_id) => {
       return { presenter_id, presentation_id }
     }
   )
 
-  await adminClient
-    .from<PresentationPresentersModel>('presentation_presenters')
-    .upsert(presentationPresenterData, { returning: 'minimal' })
+  await adminClient.from('presentation_presenters').upsert(presentationPresenterData)
 
   // Send all emails
   if (typeof sendEmails === 'undefined' || sendEmails) {
@@ -97,14 +96,15 @@ const getEmailInfoAndIds = async (
   const formSubmitterOptions = emailOptionsForFormSubmitter(formData)
 
   const otherPresenterEmails = formData.otherPresenters.map((p) => p.email)
-  const emailOtherPresentersChain = await adminClient.auth.api
+  const emailOtherPresentersChain = await adminClient.auth.admin
     .listUsers()
     .then(({ data: userList, error }) => {
       if (error) throw error
 
       // Create a map from email to existing userIds
+      const { users }: {users: Array<User>} = userList
       return new Map(
-        userList
+        users
           .filter((u) => typeof u.email !== 'undefined')
           .map((u) => {
             // email is always defined after filter
@@ -129,7 +129,7 @@ const getEmailInfoAndIds = async (
           if (id !== null) {
             // Existing account, notify
             const { data, error } = await adminClient
-              .from<ProfileModel>('profiles')
+              .from('profiles')
               .select()
               .eq('id', id)
               .single()

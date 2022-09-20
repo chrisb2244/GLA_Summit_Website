@@ -77,6 +77,14 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
     }
     myLog({ data })
 
+    const user = await supabase.auth.getSession().then(({data, error}) => {
+      if(error) throw error;
+
+      return data.session?.user
+    }).catch((error) => {
+      myLog(error)
+    })
+
     fetch('/api/handlePresentationSubmission', {
       method: 'POST',
       headers: {
@@ -84,7 +92,7 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
       },
       body: JSON.stringify({
         formdata: data,
-        submitterId: supabase.auth.user()?.id
+        submitterId: user?.id
       })
     })
       .then(() => {
