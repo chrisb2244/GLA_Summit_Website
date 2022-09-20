@@ -12,7 +12,7 @@ export type PresentationPresentersModel = {
   presenter_id: string
 }
 
-export type PresentationType = '7x7' | 'full length' | 'panel'
+export type PresentationType = '7x7' | '15 minutes' | 'full length' | 'panel'
 
 export type PresentationSubmissionsModel = {
   id: string
