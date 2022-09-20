@@ -167,6 +167,9 @@ export const PresentationSubmissionFormCore: React.FC<
             <MenuItem key='full length' value='full length'>
               Full Length Presentation (45 minutes)
             </MenuItem>
+            <MenuItem key='15 minutes' value='15 minutes'>
+              Short Presentation (15 minutes)
+            </MenuItem>
             <MenuItem key='7x7' value='7x7'>
               7x7 Presentation (7 minutes)
             </MenuItem>
