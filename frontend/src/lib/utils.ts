@@ -32,3 +32,42 @@ export const defaultTimezoneInfo = () => {
   }
   return { timeZone, timeZoneName, use24HourClock: false }
 }
+
+export const estimateAspectRatio = (width: number, height: number) => {
+  // https://gist.github.com/jonathantneal/d3a259ebeb46de7ab0de
+  const ratio = (width * 100) / (height * 100)
+  const maxW = 16
+  const maxH = 16
+
+  const ratiosW = new Array(maxW).join(',').split(',')
+  const ratiosH = new Array(maxH).join(',').split(',')
+  const ratiosT: { [key: number]: boolean } = {}
+  const ratios: { [key: string]: number } = {}
+  let match: string | undefined = undefined
+
+  ratiosW.forEach((empty, ratioW) => {
+    ++ratioW // value from 1 to 16
+    ratiosH.forEach((empty, ratioH) => {
+      ++ratioH
+      const ratioX = (ratioW * 100) / (ratioH *100)
+      if (!ratiosT[ratioX]) {
+        ratiosT[ratioX] = true
+        ratios[ratioW + ":" + ratioH] = ratioX
+      }
+    })
+  })
+
+  // return '16:9'
+
+  for (const key in ratios) {
+    if (!match || (Math.abs(ratio - ratios[key]) < Math.abs(ratio - ratios[match]))) {
+        match = key
+    }
+  }
+
+  if (match === '8:5') {
+    return '16:10'
+  }
+
+  return match
+}

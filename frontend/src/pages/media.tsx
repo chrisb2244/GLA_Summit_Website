@@ -10,10 +10,11 @@ import SignatureImage from '@/media/banners/GLASummit2022WikiBanner.png'
 import JKI_Logo from '@/media/JKI-Logo.webp'
 import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
 import { NextPage } from 'next'
-import NextImage from 'next/image'
-import { Box, Typography } from '@mui/material'
+import NextImage, { StaticImageData } from 'next/image'
+import { Box, Table, TableCell, TableRow, Typography } from '@mui/material'
 import type { TypographyProps, BoxProps } from '@mui/material'
 import { CopyableTextBox } from '@/Components/CopyableTextBox'
+import { estimateAspectRatio } from '@/lib/utils'
 
 const MediaPage: NextPage = () => {
   const hostname =
@@ -21,40 +22,45 @@ const MediaPage: NextPage = () => {
       ? window.location.protocol + '//' + window.location.host
       : ''
 
-  const images = [
+  type ImageList = {
+    label: string
+    attendeeImg: StaticImageData
+    speakerImg: StaticImageData
+  }[]
+  const images: ImageList = [
     { label: 'Facebook', attendeeImg: FB_Attendee, speakerImg: FB_Speaker },
     { label: 'Instagram', attendeeImg: IN_Attendee, speakerImg: IN_Speaker },
     { label: 'LinkedIn', attendeeImg: LI_Attendee, speakerImg: LI_Speaker },
     { label: 'Twitter', attendeeImg: TW_Attendee, speakerImg: TW_Speaker }
   ]
 
-  const bannerImagesAttendee = images
-    .map((elem) => {
-      const img = elem.attendeeImg
+  const buildImageTableRows = (
+    imageList: ImageList,
+    listType: 'Attendee' | 'Speaker'
+  ) => {
+    return imageList.map((elem) => {
+      const img = listType === 'Attendee' ? elem.attendeeImg : elem.speakerImg
       const url = hostname + img.src
+      const closeAspectRatio = estimateAspectRatio(img.width, img.height)
+      const sizeInfo = `(${closeAspectRatio}, ${img.width}x${img.height}px)`
+      const key = `bannerimage-link-${listType.toLowerCase()}-${elem.label}`
       return (
-        <a key={`bannerimage-link-attendee-${elem.label}`} href={url}>
-          <Typography>
-            {`Attendee - ${elem.label}: (${img.width}x${img.height} px)`}
-          </Typography>
-        </a>
+        <TableRow key={key}>
+          <TableCell>
+            <Typography>
+              <a href={url}>{`${listType} - ${elem.label}`}</a>
+            </Typography>
+          </TableCell>
+          <TableCell>
+            <Typography>{`${sizeInfo}`}</Typography>
+          </TableCell>
+        </TableRow>
       )
     })
-    .concat(<NextImage key='bannerimage-attendee' src={TW_Attendee} />)
+  }
 
-  const bannerImagesSpeaker = images
-    .map((elem) => {
-      const img = elem.speakerImg
-      const url = hostname + img.src
-      return (
-        <a key={`bannerimage-link-speaker-${elem.label}`} href={url}>
-          <Typography>
-            {`Speaker - ${elem.label}: (${img.width}x${img.height} px)`}
-          </Typography>
-        </a>
-      )
-    })
-    .concat(<NextImage key='bannerimage-speaker' src={TW_Speaker} />)
+  const bannerImagesAttendee = buildImageTableRows(images, 'Attendee')
+  const bannerImagesSpeaker = buildImageTableRows(images, 'Speaker')
 
   const Subtitle: React.FC<TypographyProps> = ({ children, ...other }) => (
     <Typography variant='h4' {...other}>
@@ -111,7 +117,7 @@ const MediaPage: NextPage = () => {
           fill='lightgrey'
           variant='body2'
           fontFamily='monospace'
-          sx={{wordBreak: 'break-all'}}
+          sx={{ wordBreak: 'break-all' }}
         >
           &lt;a href=&quot;https://glasummit.org&quot;&gt; &lt;img src=&quot;
           {hostname + SignatureImage.src}&quot; height=&quot;100&quot;
@@ -121,10 +127,26 @@ const MediaPage: NextPage = () => {
       </SidewaysBox>
 
       <Subtitle>Attendees</Subtitle>
-      {bannerImagesAttendee}
+      <Table
+        sx={{
+          width: 'min-content',
+          ' td': { whiteSpace: 'nowrap', paddingY: 0, border: 'none' }
+        }}
+      >
+        {bannerImagesAttendee}
+      </Table>
+      <NextImage key='bannerimage-attendee' src={TW_Attendee} />
 
       <Subtitle>Speakers</Subtitle>
-      {bannerImagesSpeaker}
+      <Table
+        sx={{
+          width: 'min-content',
+          ' td': { whiteSpace: 'nowrap', paddingY: 0, border: 'none' }
+        }}
+      >
+        {bannerImagesSpeaker}
+      </Table>
+      <NextImage key='bannerimage-speaker' src={TW_Speaker} />
     </StackedBoxes>
   )
 }
