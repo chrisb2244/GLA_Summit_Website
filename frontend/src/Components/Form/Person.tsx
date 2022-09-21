@@ -4,7 +4,8 @@ import {
   join,
   UseFormRegister,
   TypedFieldPath,
-  FieldErrors
+  FieldErrors,
+  FieldValues
 } from 'react-hook-form'
 
 export type PersonProps = {
@@ -13,9 +14,9 @@ export type PersonProps = {
   email: string
 }
 
-export function Person<FieldValues>(props: {
-  register: UseFormRegister<FieldValues>
-  path: TypedFieldPath<FieldValues, PersonProps>
+export function Person<FV extends FieldValues>(props: {
+  register: UseFormRegister<FV>
+  path: TypedFieldPath<FV, PersonProps>
   errors: FieldErrors<PersonProps> | undefined
   defaultValue?: PersonProps
   locked?: boolean
@@ -130,9 +131,9 @@ export type EmailProps = {
   email: string
 }
 
-export function EmailFormComponent<FieldValues>(props: {
-  register: UseFormRegister<FieldValues>
-  path: TypedFieldPath<FieldValues, EmailProps>
+export function EmailFormComponent<FV extends FieldValues>(props: {
+  register: UseFormRegister<FV>
+  path: TypedFieldPath<FV, EmailProps>
   errors: FieldErrors<PersonProps> | undefined
   defaultValue?: EmailProps
   locked?: boolean

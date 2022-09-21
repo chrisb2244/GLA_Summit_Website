@@ -1,6 +1,7 @@
 import type {
   FieldError,
   FieldErrors,
+  FieldValues,
   TypedFieldPath,
   UseFormRegister
 } from 'react-hook-form'
@@ -9,15 +10,16 @@ import { Person } from './Person'
 import type { PersonProps } from './Person'
 import { Box, Button, Paper } from '@mui/material'
 
-type PersonArrayProps<FieldValues> = {
+type PersonArrayProps<FV extends FieldValues> = {
   personArray: PersonProps[]
-  arrayPath: TypedFieldPath<FieldValues, PersonProps[]>
+  arrayPath: TypedFieldPath<FV, PersonProps[]>
   errors: Merge<FieldError, (Merge<FieldError, FieldErrors<PersonProps>> | undefined)[]> | undefined
-  register: UseFormRegister<FieldValues>
+  register: UseFormRegister<FV>
   removePresenter: (idx: number) => void
 }
 
-export function PersonArrayFormComponent<FieldValues>(props: PersonArrayProps<FieldValues>) {
+export function PersonArrayFormComponent<FV extends FieldValues>
+  (props: PersonArrayProps<FV>) {
   const { personArray, errors, register, removePresenter, arrayPath } = props
 
   return (
@@ -41,11 +43,11 @@ export function PersonArrayFormComponent<FieldValues>(props: PersonArrayProps<Fi
   )
 }
 
-const OtherPerson = <FieldValues,>(props: {
+const OtherPerson = <FV extends FieldValues,>(props: {
   idx: number
-  path: TypedFieldPath<FieldValues, PersonProps[]>
+  path: TypedFieldPath<FV, PersonProps[]>
   errors: FieldErrors<PersonProps> | undefined
-  register: UseFormRegister<FieldValues>
+  register: UseFormRegister<FV>
   remove: (idx: number) => void
 }) => {
   return (
