@@ -1,6 +1,7 @@
 import { NewUserInformation } from '@/Components/SigninRegistration/NewUserRegistration'
 import { createAdminClient } from '@/lib/supabaseClient'
-import type { User, Session, ApiError } from '@supabase/supabase-js'
+import type { User, GenerateLinkResponse, AuthError } from '@supabase/supabase-js'
+import type { ApiError } from './sessionContext'
 import {
   adminUpdateExistingProfile,
   checkForExistingUser
@@ -31,7 +32,7 @@ type GenerateLinkReturn =
   | {
       user: null
       linkType: null
-      error: ApiError
+      error: ApiError | AuthError
     }
 
 export type LinkType = 'signup' | 'magiclink' | 'invite' | 'recovery'
@@ -43,11 +44,6 @@ type OptionsType =
     }
   | undefined
 
-type SupabaseApiResponse = {
-  data: Session | User | null
-  error: ApiError | null
-}
-
 export const generateSupabaseLinks = async (
   bodyData: GenerateLinkBody
 ): Promise<GenerateLinkReturn> => {
@@ -58,6 +54,8 @@ export const generateSupabaseLinks = async (
 
   const { type, email, redirectTo } = bodyData
   const { userId: existingId } = await checkForExistingUser(email)
+  const genLinkFn = createAdminClient().auth.admin.generateLink
+  let fnPromise = null
 
   switch (type) {
     case 'signup': {
@@ -67,16 +65,12 @@ export const generateSupabaseLinks = async (
         if (typeof data !== 'undefined') {
           adminUpdateExistingProfile(existingId, data)
         }
-
-        return makeLink('magiclink', email, { redirectTo })
+        fnPromise = genLinkFn({type: 'magiclink', email, options: { redirectTo }})
       } else {
         // There was no existingId (this is expected), so create new user.
-        return makeLink('signup', email, {
-          password,
-          data,
-          redirectTo
-        })
+        fnPromise = genLinkFn({type: 'signup', email, password, options: {data, redirectTo}})
       }
+      break
     }
     case 'magiclink': {
       // Workaround the inability to pass shouldCreateUser: false
@@ -87,23 +81,20 @@ export const generateSupabaseLinks = async (
           error: { message: 'User not found', status: 401 }
         }
       }
-      return makeLink('magiclink', email, { redirectTo })
+      fnPromise = genLinkFn({type: 'magiclink', email, options: {redirectTo}})
+      break
     }
     default: {
       throw new Error('generateLink for this type is not yet implemented')
     }
   }
+  return fnPromise.then(res => handleApiResponse(res, type))
 }
 
-const makeLink = (type: LinkType, email: string, options?: OptionsType) =>
-  createAdminClient()
-    .auth.api.generateLink(type, email, options)
-    .then(res => handleApiResponse(res, type))
-
-const handleApiResponse = (value: SupabaseApiResponse, type: LinkType) => {
+const handleApiResponse = (value: GenerateLinkResponse, type: LinkType) => {
   const { data, error } = value
   if (error) {
     return { user: null, linkType: null, error }
   }
-  return { user: data as User, linkType: type, error: null }
+  return { user: data.user, linkType: type, error: null }
 }

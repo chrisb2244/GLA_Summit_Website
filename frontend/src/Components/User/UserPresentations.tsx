@@ -1,8 +1,5 @@
 import { supabase } from '@/lib/supabaseClient'
-import {
-  MySubmissionsModel,
-  PresentationSubmissionsModel
-} from '@/lib/databaseModels'
+import { MySubmissionsModel } from '@/lib/databaseModels'
 import { useCallback, useEffect, useState } from 'react'
 import { useSession } from '@/lib/sessionContext'
 import { Box, Container, Stack, Typography } from '@mui/material'
@@ -31,7 +28,7 @@ export const UserPresentations: React.FC = () => {
   const getPresentations = useCallback(async () => {
     if (user == null) return
     const { data, error: errorPresData } = await supabase
-      .from<MySubmissionsModel>('my_submissions')
+      .from('my_submissions')
       .select()
     if (errorPresData) {
       myLog({
@@ -48,7 +45,7 @@ export const UserPresentations: React.FC = () => {
   useEffect(() => {
     getPresentations()
   }, [getPresentations])
-
+  
   if (user == null) {
     return <p>You are not signed in</p>
   } else {
@@ -60,7 +57,7 @@ export const UserPresentations: React.FC = () => {
     }
 
     const presentationToEditorComponent = (p: MySubmissionsModel) => {
-      const isCopresenter = p.submitter_id !== user.id
+      const isCopresenter = p.submitter_id !== user?.id
       const isSubmitted = p.is_submitted
       const lockStatus: PresentationLockedStatus = {
         isCopresenter,
@@ -87,7 +84,7 @@ export const UserPresentations: React.FC = () => {
               )
             ])
             const { error } = await supabase
-              .from<PresentationSubmissionsModel>('presentation_submissions')
+              .from('presentation_submissions')
               .delete()
               .eq('id', p.presentation_id)
             if (error) {
@@ -102,7 +99,7 @@ export const UserPresentations: React.FC = () => {
               },
               body: JSON.stringify({
                 formdata: formData,
-                submitterId: supabase.auth.user()?.id,
+                submitterId: user?.id,
                 sendEmails: false,
                 presentationId: p.presentation_id
               })

@@ -3,8 +3,7 @@ import { NewUserInformation } from '@/Components/SigninRegistration/NewUserRegis
 import { PostgrestError, User } from '@supabase/supabase-js'
 import {
   AllPresentationsModel,
-  ProfileModel,
-  TimezonePreferencesModel
+  ProfileModel
 } from './databaseModels'
 import { supabase, createAdminClient } from './supabaseClient'
 import { defaultTimezoneInfo } from './utils'
@@ -38,7 +37,7 @@ export const adminUpdateExistingProfile = async (
   const client = createAdminClient()
 
   const existingData = await client
-    .from<ProfileModel>('profiles')
+    .from('profiles')
     .select('firstname,lastname')
     .eq('id', userId)
     .single()
@@ -58,7 +57,7 @@ export const adminUpdateExistingProfile = async (
   }
 
   await client
-    .from<ProfileModel>('profiles')
+    .from('profiles')
     .update(updatedData)
     .eq('id', userId)
 }
@@ -69,12 +68,16 @@ export const clientUpdateExistingProfile = async (
   profileData: Partial<ProfileModel>
 ) => {
   return supabase
-    .from<ProfileModel>('profiles')
+    .from('profiles')
     .upsert({ ...profileData, id: userId })
-    .single()
+    .select()
+    // .single()
     .then(({ data, error }) => {
       if (error) throw error
-      return data
+      if (data.length !== 1) {
+        throw new Error("Unexpected data length when updating profile")
+      }
+      return data[0]
     })
 }
 
@@ -97,7 +100,7 @@ export const checkIfOrganizer = async (user: User) => {
 
 export const queryTimezonePreferences = async (user: User) => {
   const { data, error } = await supabase
-    .from<TimezonePreferencesModel>('timezone_preferences')
+    .from('timezone_preferences')
     .select()
     .eq('id', user.id)
   if (error) {
@@ -117,7 +120,7 @@ export const queryTimezonePreferences = async (user: User) => {
 
 export const getProfileInfo = async (user: User) => {
   return supabase
-    .from<ProfileModel>('profiles')
+    .from('profiles')
     .select('id, firstname, lastname, bio, website, avatar_url')
     .eq('id', user.id)
     .single()
@@ -134,18 +137,17 @@ export const getAvatarPublicUrl = (userAvatarUrl: string | null) => {
   if (userAvatarUrl == null) {
     return null
   }
-  const { error, publicURL } = supabase.storage
+  const { data: { publicUrl } } = supabase.storage
     .from('avatars')
     .getPublicUrl(userAvatarUrl)
-  if (error) throw error
-  return publicURL
+  return publicUrl
 }
 
 export const getPerson = async (
   userId: string
 ): Promise<PersonDisplayProps> => {
   return supabase
-    .from<ProfileModel>('profiles')
+    .from('profiles')
     .select()
     .eq('id', userId)
     .single()
@@ -168,7 +170,7 @@ export const getPerson = async (
 
 export const getPublicProfiles = async (): Promise<ProfileModel[]> => {
   return supabase
-    .from<{ id: string }>('public_profiles')
+    .from('public_profiles')
     .select()
     .then(({ data, error }) => {
       if (error) throw error
@@ -176,7 +178,7 @@ export const getPublicProfiles = async (): Promise<ProfileModel[]> => {
     })
     .then((ids) => {
       return supabase
-        .from<ProfileModel>('profiles')
+        .from('profiles')
         .select()
         .in('id', ids)
         .order('lastname', { ascending: true })
@@ -191,11 +193,11 @@ export const getPublicPresentation = async (
   presentationId: string
 ): Promise<AllPresentationsModel> => {
   return supabase
-    .from<AllPresentationsModel>('all_presentations')
+    .from('all_presentations')
     .select()
     .eq('presentation_id', presentationId)
     .single()
-    .then(({ data, error }) => {
+    .then(({data, error}) => {
       if (error) throw error
       return data
     })
@@ -203,7 +205,7 @@ export const getPublicPresentation = async (
 
 export const getAcceptedPresentationIds = async (): Promise<string[]> => {
   const { data, error } = await supabase
-    .from<{ id: string }>('accepted_presentations')
+    .from('accepted_presentations')
     .select('id')
   if (error) throw error
   return data.map((d) => d.id)
