@@ -11,7 +11,14 @@ import JKI_Logo from '@/media/JKI-Logo.webp'
 import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
 import { NextPage } from 'next'
 import NextImage, { StaticImageData } from 'next/image'
-import { Box, Table, TableCell, TableRow, Typography } from '@mui/material'
+import {
+  Box,
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+  Typography
+} from '@mui/material'
 import type { TypographyProps, BoxProps } from '@mui/material'
 import { CopyableTextBox } from '@/Components/CopyableTextBox'
 import { estimateAspectRatio } from '@/lib/utils'
@@ -133,7 +140,7 @@ const MediaPage: NextPage = () => {
           ' td': { whiteSpace: 'nowrap', paddingY: 0, border: 'none' }
         }}
       >
-        {bannerImagesAttendee}
+        <TableBody>{bannerImagesAttendee}</TableBody>
       </Table>
       <NextImage key='bannerimage-attendee' src={TW_Attendee} />
 
@@ -144,7 +151,7 @@ const MediaPage: NextPage = () => {
           ' td': { whiteSpace: 'nowrap', paddingY: 0, border: 'none' }
         }}
       >
-        {bannerImagesSpeaker}
+        <TableBody>{bannerImagesSpeaker}</TableBody>
       </Table>
       <NextImage key='bannerimage-speaker' src={TW_Speaker} />
     </StackedBoxes>
