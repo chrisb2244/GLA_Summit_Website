@@ -2,7 +2,6 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import type { FormData } from '@/Components/Form/PresentationSubmissionForm'
 import { EmailContent, sendMailApi } from '@/lib/sendMail'
 import {
-  generateInviteCode,
   uploadPresentationData,
   EmailToSubmitter,
   EmailToNewOtherPresenter,
@@ -14,6 +13,7 @@ import type { SupabaseClient, User } from '@supabase/supabase-js'
 import type {Database} from '@/lib/sb_databaseModels'
 import { PersonProps } from '@/Components/Form/Person'
 import { myLog } from '@/lib/utils'
+import { generateInviteLink } from '@/lib/generateSupabaseLinks'
 
 const handlePresentationSubmission = async (
   req: NextApiRequest,
@@ -150,7 +150,7 @@ const getEmailInfoAndIds = async (
           } else {
             // New account, invite
             // This also provides the action link, which we should probably use...
-            const { newUserId, confirmationLink } = await generateInviteCode(
+            const { newUserId, confirmationLink } = await generateInviteLink(
               email,
               '/my-profile'
             )

@@ -5,10 +5,10 @@ import { StackedBoxes } from '../Layout/StackedBoxes'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { PresentationType } from '@/lib/databaseModels'
-import { supabase } from '@/lib/supabaseClient'
 import { ConfirmationPopup } from './ConfirmationPopup'
 import { myLog } from '@/lib/utils'
 import { PresentationSubmissionFormCore } from './PresentationSubmissionFormCore'
+import { useSession } from '@/lib/sessionContext'
 
 type FormProps = {
   submitter: PersonProps
@@ -56,6 +56,7 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
+  const { user } = useSession()
   useEffect(() => {
     setIsMounted(true)
     return () => setIsMounted(false)
@@ -76,14 +77,6 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
       return
     }
     myLog({ data })
-
-    const user = await supabase.auth.getSession().then(({data, error}) => {
-      if(error) throw error;
-
-      return data.session?.user
-    }).catch((error) => {
-      myLog(error)
-    })
 
     fetch('/api/handlePresentationSubmission', {
       method: 'POST',

@@ -12,12 +12,12 @@ import {
 } from '@mui/icons-material'
 import { useState } from 'react'
 import Link from 'next/link'
-import type { Session } from '@supabase/supabase-js'
 import { useSession } from '@/lib/sessionContext'
 import { useProfileImage } from '@/lib/profileImage'
+import type { User } from '@/lib/databaseFunctions'
 
 type UserMenuProps = {
-  user: Session['user']
+  user: User
 }
 
 export const UserMenu: React.FC<UserMenuProps> = (props) => {

@@ -6,6 +6,7 @@ import {
   adminUpdateExistingProfile,
   checkForExistingUser
 } from './databaseFunctions'
+import { myLog } from './utils'
 
 export type GenerateLinkBody =
   | {
@@ -36,13 +37,6 @@ type GenerateLinkReturn =
     }
 
 export type LinkType = 'signup' | 'magiclink' | 'invite' | 'recovery'
-type OptionsType =
-  | {
-      password?: string | undefined
-      data?: object | undefined
-      redirectTo?: string | undefined
-    }
-  | undefined
 
 export const generateSupabaseLinks = async (
   bodyData: GenerateLinkBody
@@ -51,7 +45,6 @@ export const generateSupabaseLinks = async (
   // 'data''s required/optional contents are unclear... But it might be a signup only
   // password might also be signup only (README.md in github.com/supabase/gotrue)
   // data looks to have the same format as the 'data' object accepted by signUp.
-
   const { type, email, redirectTo } = bodyData
   const { userId: existingId } = await checkForExistingUser(email)
   const genLinkFn = createAdminClient().auth.admin.generateLink
@@ -88,11 +81,31 @@ export const generateSupabaseLinks = async (
       throw new Error('generateLink for this type is not yet implemented')
     }
   }
-  return fnPromise.then(res => handleApiResponse(res, type))
+  console.log({fnPromise})
+  return fnPromise.then(response => handleApiResponse(response, type))
+}
+
+// This function needs to return the new userId for the invited account
+export const generateInviteLink = async (email: string, redirectTo?: string) => {
+  myLog(`Inviting new user: ${email}`)
+
+  return createAdminClient().auth.admin.generateLink({
+    type: 'invite',
+    email,
+    options: { redirectTo }
+  }).then(({data, error}) => {
+    if (error) throw error
+    myLog({data})
+    return {
+      newUserId: data.user.id,
+      confirmationLink: data.properties.action_link
+    }
+  })
 }
 
 const handleApiResponse = (value: GenerateLinkResponse, type: LinkType) => {
   const { data, error } = value
+  console.log({data, error})
   if (error) {
     return { user: null, linkType: null, error }
   }

@@ -1,5 +1,4 @@
 import type { ProfileModel } from '@/lib/databaseModels'
-import type { PostgrestError } from '@supabase/supabase-js'
 import { useEffect, useReducer, useState } from 'react'
 import type { ChangeEvent } from 'react'
 import { useSession } from '@/lib/sessionContext'
@@ -65,7 +64,7 @@ export const UserProfile: React.FC = () => {
         triggerUpdate(user)
       })
       .catch((error) => {
-        console.log((error as PostgrestError).message)
+        console.log((error as {message: string}).message)
       })
 
   }
