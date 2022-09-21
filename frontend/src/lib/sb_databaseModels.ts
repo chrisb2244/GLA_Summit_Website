@@ -167,33 +167,32 @@ export interface Database {
     Views: {
       all_presentations: {
         Row: {
-          presentation_id: string | null;
-          scheduled_for: string | null;
-          title: string | null;
-          abstract: string | null;
+          presentation_id: string;
+          scheduled_for: string;
+          title: string;
+          abstract: string;
           presentation_type:
-            | Database["public"]["Enums"]["presentation_type"]
-            | null;
-          primary_presenter: string | null;
-          all_presenters: string[] | null;
-          all_presenters_names: string[] | null;
+            | Database["public"]["Enums"]["presentation_type"];
+          primary_presenter: string;
+          all_presenters: string[];
+          all_presenters_names: string[];
         };
       };
       my_submissions: {
         Row: {
-          presentation_id: string | null;
-          title: string | null;
-          abstract: string | null;
-          learning_points: string | null;
+          presentation_id: string;
+          title: string;
+          abstract: string;
+          learning_points: string;
           presentation_type:
             | Database["public"]["Enums"]["presentation_type"]
-            | null;
-          submitter_id: string | null;
-          is_submitted: boolean | null;
-          all_presenters_ids: string[] | null;
-          all_firstnames: string[] | null;
-          all_lastnames: string[] | null;
-          all_emails: string[] | null;
+           ;
+          submitter_id: string;
+          is_submitted: boolean;
+          all_presenters_ids: string[];
+          all_firstnames: string[];
+          all_lastnames: string[];
+          all_emails: string[];
         };
       };
     };
