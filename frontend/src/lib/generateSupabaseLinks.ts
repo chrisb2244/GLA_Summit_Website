@@ -1,6 +1,6 @@
 import { NewUserInformation } from '@/Components/SigninRegistration/NewUserRegistration'
 import { createAdminClient } from '@/lib/supabaseClient'
-import type { User, GenerateLinkResponse, AuthError } from '@supabase/supabase-js'
+import type { User, GenerateLinkResponse, AuthError, GenerateLinkProperties } from '@supabase/supabase-js'
 import type { ApiError } from './sessionContext'
 import {
   adminUpdateExistingProfile,
@@ -26,12 +26,12 @@ export type GenerateLinkBody =
 
 type GenerateLinkReturn =
   | {
-      user: User
+      data: { user: User, properties: GenerateLinkProperties }
       linkType: LinkType
       error: null
     }
   | {
-      user: null
+      data: { user: null, properties: null }
       linkType: null
       error: ApiError | AuthError
     }
@@ -69,7 +69,7 @@ export const generateSupabaseLinks = async (
       // Workaround the inability to pass shouldCreateUser: false
       if (!existingId) {
         return {
-          user: null,
+          data: { user: null, properties: null },
           linkType: null,
           error: { message: 'User not found', status: 401 }
         }
@@ -81,7 +81,6 @@ export const generateSupabaseLinks = async (
       throw new Error('generateLink for this type is not yet implemented')
     }
   }
-  console.log({fnPromise})
   return fnPromise.then(response => handleApiResponse(response, type))
 }
 
@@ -103,11 +102,11 @@ export const generateInviteLink = async (email: string, redirectTo?: string) => 
   })
 }
 
-const handleApiResponse = (value: GenerateLinkResponse, type: LinkType) => {
+const handleApiResponse = (value: GenerateLinkResponse, type: LinkType): GenerateLinkReturn => {
   const { data, error } = value
   console.log({data, error})
   if (error) {
-    return { user: null, linkType: null, error }
+    return { data, linkType: null, error }
   }
-  return { user: data.user, linkType: type, error: null }
+  return { data, linkType: type, error }
 }
