@@ -26,6 +26,10 @@ export const FormSubmissionEmail: React.FC<{
       typeText = '7x7 (7 minutes)'
       break
     }
+    case '15 minutes': {
+      typeText = 'Short Length (15 minutes)'
+      break
+    }
     case 'full length': {
       typeText = 'Full Length (45 minutes)'
       break
