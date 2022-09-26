@@ -9,6 +9,81 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      profiles: {
+        Row: {
+          id: string;
+          updated_at: string;
+          firstname: string;
+          lastname: string;
+          avatar_url: string | null;
+          website: string | null;
+          bio: string | null;
+        };
+        Insert: {
+          id: string;
+          updated_at?: string;
+          firstname: string;
+          lastname: string;
+          avatar_url?: string | null;
+          website?: string | null;
+          bio?: string | null;
+        };
+        Update: {
+          id?: string;
+          updated_at?: string;
+          firstname?: string;
+          lastname?: string;
+          avatar_url?: string | null;
+          website?: string | null;
+          bio?: string | null;
+        };
+      };
+      presentation_submissions: {
+        Row: {
+          id: string;
+          submitter_id: string;
+          updated_at: string;
+          title: string;
+          abstract: string;
+          is_submitted: boolean;
+          presentation_type: Database["public"]["Enums"]["presentation_type"];
+          learning_points: string | null;
+        };
+        Insert: {
+          id?: string;
+          submitter_id: string;
+          updated_at?: string;
+          title: string;
+          abstract: string;
+          is_submitted: boolean;
+          presentation_type: Database["public"]["Enums"]["presentation_type"];
+          learning_points?: string | null;
+        };
+        Update: {
+          id?: string;
+          submitter_id?: string;
+          updated_at?: string;
+          title?: string;
+          abstract?: string;
+          is_submitted?: boolean;
+          presentation_type?: Database["public"]["Enums"]["presentation_type"];
+          learning_points?: string | null;
+        };
+      };
+      email_lookup: {
+        Row: {
+          id: string;
+          email: string;
+        };
+        Insert: {
+          id: string;
+          email: string;
+        };
+        Update: {
+          id?: string;
+          email?: string;
+        };
+      };
       presentation_presenters: {
         Row: {
           presentation_id: string;
@@ -23,42 +98,26 @@ export interface Database {
           presenter_id?: string;
         };
       };
-      presentation_submissions: {
+      organizers: {
         Row: {
-          submitter_id: string;
-          title: string | null;
-          abstract: string | null;
-          is_submitted: boolean | null;
-          presentation_type:
-            | Database["public"]["Enums"]["presentation_type"]
-            | null;
-          learning_points: string | null;
           id: string;
-          updated_at: string | null;
         };
         Insert: {
-          submitter_id: string;
-          title?: string | null;
-          abstract?: string | null;
-          is_submitted?: boolean | null;
-          presentation_type?:
-            | Database["public"]["Enums"]["presentation_type"]
-            | null;
-          learning_points?: string | null;
-          id?: string;
-          updated_at?: string | null;
+          id: string;
         };
         Update: {
-          submitter_id?: string;
-          title?: string | null;
-          abstract?: string | null;
-          is_submitted?: boolean | null;
-          presentation_type?:
-            | Database["public"]["Enums"]["presentation_type"]
-            | null;
-          learning_points?: string | null;
           id?: string;
-          updated_at?: string | null;
+        };
+      };
+      public_profiles: {
+        Row: {
+          id: string;
+        };
+        Insert: {
+          id: string;
+        };
+        Update: {
+          id?: string;
         };
       };
       accepted_presentations: {
@@ -76,71 +135,6 @@ export interface Database {
           id?: string;
           accepted_at?: string;
           scheduled_for?: string | null;
-        };
-      };
-      email_lookup: {
-        Row: {
-          id: string;
-          email: string;
-        };
-        Insert: {
-          id: string;
-          email: string;
-        };
-        Update: {
-          id?: string;
-          email?: string;
-        };
-      };
-      organizers: {
-        Row: {
-          id: string;
-        };
-        Insert: {
-          id: string;
-        };
-        Update: {
-          id?: string;
-        };
-      };
-      profiles: {
-        Row: {
-          id: string;
-          firstname: string | null;
-          lastname: string | null;
-          avatar_url: string | null;
-          website: string | null;
-          bio: string | null;
-          updated_at: string | null;
-        };
-        Insert: {
-          id: string;
-          firstname?: string | null;
-          lastname?: string | null;
-          avatar_url?: string | null;
-          website?: string | null;
-          bio?: string | null;
-          updated_at?: string | null;
-        };
-        Update: {
-          id?: string;
-          firstname?: string | null;
-          lastname?: string | null;
-          avatar_url?: string | null;
-          website?: string | null;
-          bio?: string | null;
-          updated_at?: string | null;
-        };
-      };
-      public_profiles: {
-        Row: {
-          id: string;
-        };
-        Insert: {
-          id: string;
-        };
-        Update: {
-          id?: string;
         };
       };
       timezone_preferences: {
@@ -171,8 +165,7 @@ export interface Database {
           scheduled_for: string;
           title: string;
           abstract: string;
-          presentation_type:
-            | Database["public"]["Enums"]["presentation_type"];
+          presentation_type: Database["public"]["Enums"]["presentation_type"];
           primary_presenter: string;
           all_presenters: string[];
           all_presenters_names: string[];
@@ -184,9 +177,7 @@ export interface Database {
           title: string;
           abstract: string;
           learning_points: string;
-          presentation_type:
-            | Database["public"]["Enums"]["presentation_type"]
-           ;
+          presentation_type: Database["public"]["Enums"]["presentation_type"];
           submitter_id: string;
           is_submitted: boolean;
           all_presenters_ids: string[];
@@ -197,27 +188,6 @@ export interface Database {
       };
     };
     Functions: {
-      get_all_presentations: {
-        Args: Record<PropertyKey, never>;
-        Returns: Record<string, unknown>[];
-      };
-      get_email_by_id: {
-        Args: { user_id: string };
-        Returns: string;
-      };
-      get_my_submissions: {
-        Args: Record<PropertyKey, never>;
-        Returns: Record<string, unknown>[];
-      };
-      get_presentation_ids:
-        | {
-            Args: Record<PropertyKey, never>;
-            Returns: string[];
-          }
-        | {
-            Args: { p_id: string };
-            Returns: string[];
-          };
       is_ok:
         | {
             Args: Record<string, unknown>;
@@ -227,6 +197,27 @@ export interface Database {
             Args: Record<string, unknown>;
             Returns: boolean;
           };
+      get_presentation_ids:
+        | {
+            Args: { p_id: string };
+            Returns: string[];
+          }
+        | {
+            Args: Record<PropertyKey, never>;
+            Returns: string[];
+          };
+      get_email_by_id: {
+        Args: { user_id: string };
+        Returns: string;
+      };
+      get_my_submissions: {
+        Args: Record<PropertyKey, never>;
+        Returns: Record<string, unknown>[];
+      };
+      get_all_presentations: {
+        Args: Record<PropertyKey, never>;
+        Returns: Record<string, unknown>[];
+      };
     };
     Enums: {
       presentation_type: "7x7" | "full length" | "panel" | "15 minutes";
