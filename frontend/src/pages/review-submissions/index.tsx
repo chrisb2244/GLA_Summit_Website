@@ -3,18 +3,17 @@ import { Typography } from '@mui/material'
 import ErrorIcon from '@mui/icons-material/NoEncryptionGmailerrorredTwoTone';
 import type { NextPage } from 'next'
 import { useEffect, useState } from 'react';
-import { MySubmissionsModel } from '@/lib/databaseModels';
-import { SubmittedPresentationReviewCard } from '@/Components/SubmittedPresentationReviewCard';
+import { PresentationReviewInfo, SubmittedPresentationReviewCard } from '@/Components/SubmittedPresentationReviewCard';
 import { Box } from '@mui/system';
 
 const ReviewSubmissionsPage: NextPage = () => {
   const T: React.FC = ({children}) => <Typography textAlign='center'>{children}</Typography>
 
-  const [submittedPresentations, setSubmittedPresentations] = useState<MySubmissionsModel[]>([])
+  const [submittedPresentations, setSubmittedPresentations] = useState<PresentationReviewInfo[]>([])
   useEffect(() => {
     fetch('/api/presentation_submissions').then((res) => {
       res.json().then((jsonValue) => {
-        const { presentationSubmissions } = jsonValue as { presentationSubmissions: MySubmissionsModel[]}
+        const { presentationSubmissions } = jsonValue as { presentationSubmissions: PresentationReviewInfo[]}
         console.log(jsonValue)
         console.log(presentationSubmissions)
         setSubmittedPresentations(presentationSubmissions)
@@ -34,7 +33,7 @@ const ReviewSubmissionsPage: NextPage = () => {
     <StackedBoxes>
       <T><ErrorIcon fontSize='large' sx={{mt: 5}}/></T>
       <T>{`Here's a list of ${submittedPresentations.length} presentations!!!`}</T>
-      <Box>
+      <Box sx={{'> *': {m: 0.5, p: 0.5}}}>
         {listElems}
       </Box>
     </StackedBoxes>

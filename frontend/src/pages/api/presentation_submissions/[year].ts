@@ -1,8 +1,8 @@
-import type { MySubmissionsModel } from "@/lib/databaseModels"
+import { PresentationReviewInfo } from "@/Components/SubmittedPresentationReviewCard"
 import { createServerClient_UserRLS } from "@/lib/supabaseClient"
 import type { NextApiHandler } from "next"
 
-const handler: NextApiHandler<{presentationSubmissions: Array<MySubmissionsModel>}> = async (req, res) => {
+const handler: NextApiHandler<{presentationSubmissions: Array<PresentationReviewInfo>}> = async (req, res) => {
   const {year: targetYear} = req.query as { year: string }
 
   // 2021 presentations were last updated on 2022-04-23 (when they were imported)
@@ -26,25 +26,33 @@ const handler: NextApiHandler<{presentationSubmissions: Array<MySubmissionsModel
     return res.json({presentationSubmissions: []})
   }
   const { start, end } = availableYears[targetYear]
-  
 
-  // const presentationSubmissions: MySubmissionsModel[] = []
   const supabase = createServerClient_UserRLS(req, res)
-  const { data, error } = await supabase.from('presentation_submissions').select('*').eq('is_submitted', true)
+  const { data, error } = await supabase
+    .from('presentation_submissions')
+    .select('*, profiles!presentation_presenters (id, firstname, lastname)')
+    .eq('is_submitted', true)
   if (error) throw error;
+  console.log("Data!!")
+  // console.log(data)
 
-  const presentationSubmissions: MySubmissionsModel[] = data.filter((d) => {
+  const presentationSubmissions: PresentationReviewInfo[] = data.filter((d) => {
     const updatedAt = new Date(d.updated_at)
     return updatedAt > start && updatedAt < end
   }).map((d) => {
+    // console.log(d)
+    const { title, abstract, presentation_type, submitter_id } = d
+    console.log({m: 'attempt for profiles', p: d.profiles, d}) //, presenter_email_lookup (email) e: d.presenter_email_lookup
+    const presenters = (d.profiles as [{ id: string, firstname: string, lastname: string }])
+
     return {
-      presentation_id: '',
-      all_emails: [],
-      all_firstnames: [],
-      all_lastnames: [],
-      all_presenters_ids: [],
-      ...d,
-      learning_points: d.learning_points ?? ''
+      title,
+      abstract,
+      presentation_type,
+      learning_points: d.learning_points ?? '',
+      presentation_id: d.id,
+      submitter: presenters.filter(p => p.id === submitter_id)[0],
+      presenters
     }
   })
   return res.json({presentationSubmissions})
