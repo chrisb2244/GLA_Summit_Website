@@ -1,6 +1,5 @@
 import React, { useContext, useState, createContext, useEffect } from 'react'
-import { supabase } from './supabaseClient'
-import type { Session, User } from '@supabase/supabase-js'
+import type { Session, SupabaseClient, User } from '@supabase/supabase-js'
 import type { AuthError } from '@supabase/supabase-js'
 import { ProfileModel } from './databaseModels'
 import { defaultTimezoneInfo, myLog, TimezoneInfo } from './utils'
@@ -11,6 +10,9 @@ import {
   getProfileInfo,
   queryTimezonePreferences
 } from '@/lib/databaseFunctions'
+import { SessionContextProvider } from '@supabase/auth-helpers-react'
+import type { Database } from './sb_databaseModels'
+
 
 export type ApiError = {
   message: string,
@@ -64,13 +66,14 @@ type SessionContext = {
 
 const AuthContext = createContext<SessionContext | undefined>(undefined)
 
-export const AuthProvider: React.FC = (props) => {
+export const AuthProvider: React.FC<{supabase: SupabaseClient<Database>}> = ({supabase, children}) => {
   const [isLoading, setLoading] = useState(true)
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<ProfileModel | null>(null)
   const [isOrganizer, setIsOrganizer] = useState(false)
   const [timezoneInfo, setTimezoneInfo] =
     useState<TimezoneInfo>(defaultTimezoneInfo)
+  // const { session, isLoading: isLoadingSession, error, supabaseClient } = useSessionContext()
 
   const signIn = async (email: string, options?: SignInOptions) => {
     // Need the '/' to match allowed URLs in the Supabase configuration.
@@ -141,7 +144,9 @@ export const AuthProvider: React.FC = (props) => {
     }
 
     initialFunction()
+  }, [])
 
+  useEffect(() => {
     const { data: {subscription} } = supabase.auth.onAuthStateChange(
       (ev, session) => {
         if (session?.user?.id === currentSession?.user?.id) {
@@ -156,10 +161,7 @@ export const AuthProvider: React.FC = (props) => {
         setCurrentSession(session);
       }
     )
-
-    return () => {
-      subscription.unsubscribe()
-    }
+    return subscription.unsubscribe
   }, [])
 
   const value: SessionContext = {
@@ -175,9 +177,11 @@ export const AuthProvider: React.FC = (props) => {
   }
 
   return (
+    <SessionContextProvider supabaseClient={supabase}>
     <AuthContext.Provider value={value}>
-      {!isLoading && props.children}
+      {!isLoading && children}
     </AuthContext.Provider>
+    </SessionContextProvider>
   )
 }
 
