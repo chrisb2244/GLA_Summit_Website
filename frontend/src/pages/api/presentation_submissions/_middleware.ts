@@ -6,11 +6,10 @@ export const middleware = async (req: NextRequest): Promise<NextResponse> => {
   const targetUrl = req.url
   const deniedUrl = req.nextUrl.origin + '/access-denied'
   const res = NextResponse.next()
-
+  
   const supabase = createServerClient_UserRLS(req, res)
 
   const { data: { user }, error } = await supabase.auth.getUser()
-  // console.log({user, error, supabase})
   if (error || user === null) {
     if(error && error.name !== 'AuthApiError') {
       myLog({m: 'User was null, or an error occurred', user, error})
@@ -18,7 +17,7 @@ export const middleware = async (req: NextRequest): Promise<NextResponse> => {
     return NextResponse.redirect(deniedUrl)
   }
   const isOrganizer = (await supabase.from('organizers').select('*').eq('id', user.id)).count !== 0
-  console.log({isOrganizer})
+
   if (isOrganizer) {
     return NextResponse.rewrite(targetUrl);
   } else {
