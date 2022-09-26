@@ -47,7 +47,6 @@ export const generateSupabaseLinks = async (
   // data looks to have the same format as the 'data' object accepted by signUp.
   const { type, email, redirectTo } = bodyData
   const { userId: existingId } = await checkForExistingUser(email)
-  const genLinkFn = createAdminClient().auth.admin.generateLink
   let fnPromise = null
 
   switch (type) {
@@ -58,10 +57,10 @@ export const generateSupabaseLinks = async (
         if (typeof data !== 'undefined') {
           adminUpdateExistingProfile(existingId, data)
         }
-        fnPromise = genLinkFn({type: 'magiclink', email, options: { redirectTo }})
+        fnPromise = createAdminClient().auth.admin.generateLink({type: 'magiclink', email, options: { redirectTo }})
       } else {
         // There was no existingId (this is expected), so create new user.
-        fnPromise = genLinkFn({type: 'signup', email, password, options: {data, redirectTo}})
+        fnPromise = createAdminClient().auth.admin.generateLink({type: 'signup', email, password, options: {data, redirectTo}})
       }
       break
     }
@@ -74,7 +73,7 @@ export const generateSupabaseLinks = async (
           error: { message: 'User not found', status: 401 }
         }
       }
-      fnPromise = genLinkFn({type: 'magiclink', email, options: {redirectTo}})
+      fnPromise = createAdminClient().auth.admin.generateLink({type: 'magiclink', email, options: {redirectTo}})
       break
     }
     default: {
