@@ -3,16 +3,15 @@ import PersonIcon from '@mui/icons-material/Person'
 import Image from 'next/image'
 import { uploadProfileImage, useProfileImage } from '@/lib/profileImage'
 import { useSWRConfig } from 'swr'
-import { useSession } from '@/lib/sessionContext'
 import { useState } from 'react'
 
 type UserProfileImageProps = {
+  avatarUrl: string | null
   userId: string
   size: number
 }
 
 export const UserProfileImage: React.FC<UserProfileImageProps> = (props) => {
-  const { profile } = useSession()
   const { src: profileImageSrc, loading } = useProfileImage(props.userId) || {}
   const sizeInfo = { width: props.size, height: props.size }
 
@@ -52,7 +51,7 @@ export const UserProfileImage: React.FC<UserProfileImageProps> = (props) => {
                 fileList[0],
                 props.userId,
                 mutate,
-                profile?.avatar_url ?? null
+                props.avatarUrl
               ).finally(() => setUploading(false))
             }
           }}

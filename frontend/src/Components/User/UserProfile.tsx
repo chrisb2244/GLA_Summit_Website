@@ -1,18 +1,18 @@
-import type { ProfileModel } from '@/lib/databaseModels'
-import { useEffect, useReducer, useState } from 'react'
-import type { ChangeEvent } from 'react'
-import { useSession } from '@/lib/sessionContext'
 import { Box, Button, Grid, Stack, TextField } from '@mui/material'
-import { UserProfileImage } from './UserProfileImage'
+import { useReducer, useState } from 'react'
 import { clientUpdateExistingProfile } from '@/lib/databaseFunctions'
+import { UserProfileImage } from './UserProfileImage'
+import type { ProfileModel } from '@/lib/databaseModels'
+import type { ChangeEvent } from 'react'
+import type { KeyedMutator } from 'swr'
 
-type ProfileData = ProfileModel['Row'] | null
-type ProfileKey = keyof ProfileModel['Row']
+type ProfileData = ProfileModel['Row'] 
+type ProfileKey = keyof Omit<ProfileData, 'updated_at'>
 
 const areEqual = (a: ProfileData, b: ProfileData) => {
   if (a === null || b === null) return false
-  const aKeys = Object.keys(a) as Array<ProfileKey>
-  const bKeys = Object.keys(b) as Array<ProfileKey>
+  const aKeys = Object.keys(a).filter(key => key !== 'updated_at') as Array<ProfileKey>
+  const bKeys = Object.keys(b).filter(key => key !== 'updated_at') as Array<ProfileKey>
   return (
     bKeys.every(function (i) {
       return aKeys.indexOf(i) !== -1
@@ -23,14 +23,35 @@ const areEqual = (a: ProfileData, b: ProfileData) => {
   )
 }
 
-export const UserProfile: React.FC = () => {
-  const [storedProfileData, setStoredProfileData] = useState<ProfileData>(null)
-  const [valuesChanged, setValuesChanged] = useState(false)
+type UserProfileProps = {
+  profile: ProfileData,
+  userEmail: string,
+  mutate: KeyedMutator<ProfileData>
+}
 
-  const { profile, user, triggerUpdate } = useSession()
+export const UserProfile: React.FC<UserProfileProps> = ({profile, mutate, userEmail }) => {
+  const [valuesChanged, setValuesChanged] = useState(false)
+  const [updating, setUpdating] = useState(false)
+
+  const submitUpdate = async () => {
+    setUpdating(true)
+    mutate(() => {
+      return clientUpdateExistingProfile(localProfileData)
+    }, {
+      optimisticData: localProfileData,
+      revalidate: false, // Acquired by the clientUpdateExistingProfile function
+      rollbackOnError: true,
+      populateCache: (updatedData: ProfileData) => {
+        const returnedValuesEqualToSetValues = areEqual(updatedData, localProfileData)
+        setValuesChanged(!returnedValuesEqualToSetValues)
+        setUpdating(false)
+        return updatedData
+      }
+    })
+  }
 
   const updateProfileField = (
-    profile: ProfileData,
+    previousLocalState: ProfileData,
     action:
       | {
           type?: 'update'
@@ -43,43 +64,12 @@ export const UserProfile: React.FC = () => {
         }
   ): ProfileData => {
     if (action.type === 'init') return action.value
-    if (profile == null) return null
-    const newProfileData = { ...profile, [action.key]: action.value }
-    setValuesChanged(!areEqual(newProfileData, storedProfileData))
+    const newProfileData = { ...previousLocalState, [action.key]: action.value }
+    setValuesChanged(!areEqual(newProfileData, profile))
     return newProfileData
   }
 
-  const [profileData, setProfileField] = useReducer(updateProfileField, null)
-
-  async function updateProfile() {
-    if (user == null || profileData == null) return
-
-    clientUpdateExistingProfile(user.id, profileData)
-      .then((returnedRow) => {
-        // profileData doesn't include the updated_at time, returnedRow does.
-        // Not sure which is preferable.
-        setStoredProfileData(returnedRow)
-        setValuesChanged(false)
-        triggerUpdate(user)
-      })
-      .catch((error) => {
-        console.log((error as {message: string}).message)
-      })
-
-  }
-
-  // const isMounted = useRef(false)
-  // useEffect(() => {
-  //   isMounted.current = true
-  //   return () => {
-  //     isMounted.current = false
-  //   }
-  // }, [])
-
-  useEffect(() => {
-    setProfileField({ type: 'init', value: profile })
-    setStoredProfileData(profile)
-  }, [profile])
+  const [localProfileData, setProfileField] = useReducer(updateProfileField, profile)
 
   const onChangeFn =
     (key: ProfileKey) => (ev: ChangeEvent<HTMLInputElement>) => {
@@ -87,7 +77,7 @@ export const UserProfile: React.FC = () => {
     }
   const inputProps = (key: ProfileKey) => {
     return {
-      value: profileData?.[key] ?? '',
+      value: localProfileData?.[key] ?? '',
       onChange: onChangeFn(key),
       fullWidth: true
     }
@@ -95,63 +85,57 @@ export const UserProfile: React.FC = () => {
 
   const [imageSize, setImageSize] = useState(150)
 
-  if (user == null) {
-    return <p>You are not signed in</p>
-  } else {
-    if (profileData == null) {
-      return <p>Loading...</p>
-    }
-    return (
-      <>
-        <Stack direction={{ xs: 'column', md: 'row' }}>
-          <Box m={2} width='80%' alignSelf={{ xs: 'center', md: 'flex-start' }}>
-            <Box p={2}>
-              <TextField
-                fullWidth
-                label='Email'
-                value={user.email ?? ''}
-                disabled
-              />
-            </Box>
-            <Grid container p={2} spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField label='First Name' {...inputProps('firstname')} />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField label='Last Name' {...inputProps('lastname')} />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  multiline
-                  minRows={5}
-                  label='Biography'
-                  {...inputProps('bio')}
-                  placeholder={`${profileData.firstname} ${profileData.lastname} is an awesome LabVIEW developer who hasn't yet filled out a bio...`}
-                />
-              </Grid>
+  return (
+    <>
+      <Stack direction={{ xs: 'column', md: 'row' }}>
+        <Box m={2} width='80%' alignSelf={{ xs: 'center', md: 'flex-start' }}>
+          <Box p={2}>
+            <TextField
+              fullWidth
+              label='Email'
+              value={userEmail}
+              disabled
+            />
+          </Box>
+          <Grid container p={2} spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField label='First Name' {...inputProps('firstname')} />
             </Grid>
-          </Box>
-          <Box
-            width={{ xs: '80%', md: '20%' }}
-            alignSelf='center'
-            ref={(box: HTMLDivElement | null) => {
-              if (box) setImageSize(box.clientWidth)
-            }}
-          >
-            <UserProfileImage userId={user.id} size={imageSize} />
-          </Box>
-        </Stack>
-        <Button
-          onClick={updateProfile}
-          disabled={
-            !valuesChanged ||
-            profileData.firstname === '' ||
-            profileData.lastname === ''
-          }
+            <Grid item xs={12} sm={6}>
+              <TextField label='Last Name' {...inputProps('lastname')} />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                multiline
+                minRows={5}
+                label='Biography'
+                {...inputProps('bio')}
+                placeholder={`${localProfileData.firstname} ${localProfileData.lastname} is an awesome LabVIEW developer who hasn't yet filled out a bio...`}
+              />
+            </Grid>
+          </Grid>
+        </Box>
+        <Box
+          width={{ xs: '80%', md: '20%' }}
+          alignSelf='center'
+          ref={(box: HTMLDivElement | null) => {
+            if (box) setImageSize(box.clientWidth)
+          }}
         >
-          Update Profile
-        </Button>
-      </>
-    )
-  }
+          <UserProfileImage userId={profile.id} size={imageSize} avatarUrl={profile.avatar_url} />
+        </Box>
+      </Stack>
+      <Button
+        onClick={submitUpdate}
+        disabled={
+          !valuesChanged ||
+          localProfileData.firstname === '' ||
+          localProfileData.lastname === '' || 
+          updating
+        }
+      >
+        Update Profile
+      </Button>
+    </>
+  )
 }

@@ -92,15 +92,13 @@ export const adminUpdateExistingPresentationSubmission = async (
 
 /* ------------------ Client side functions ---------------------------- */
 export const clientUpdateExistingProfile = async (
-  userId: string,
-  profileData: Partial<ProfileModel['Row']>
+  profileData: ProfileModel['Row']
 ) => {
   return (
     supabase
       .from('profiles')
-      .update({ ...profileData, id: userId })
+      .upsert(profileData)
       .select()
-      // .single()
       .then(({ data, error }) => {
         if (error) throw error
         if (data.length !== 1) {
@@ -175,7 +173,7 @@ export const uploadAvatar = async (
   
   // Set that file as the profile avatar
   const { error: profileUpdateError } = await supabase
-    .from('profiles').update({id: userId, avatar_url: remoteFilePath})
+    .from('profiles').update({avatar_url: remoteFilePath}).match({'id': userId})
   if (profileUpdateError) {
     deleteAvatar(remoteFilePath)
     throw profileUpdateError
