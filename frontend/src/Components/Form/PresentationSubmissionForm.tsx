@@ -5,7 +5,7 @@ import { StackedBoxes } from '../Layout/StackedBoxes'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { PresentationType } from '@/lib/databaseModels'
-import { ConfirmationPopup } from './ConfirmationPopup'
+import { PresentationSubmissionConfirmationPopup } from './PresentationSubmissionConfirmationPopup'
 import { myLog } from '@/lib/utils'
 import { PresentationSubmissionFormCore } from './PresentationSubmissionFormCore'
 import { useSession } from '@/lib/sessionContext'
@@ -97,7 +97,6 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
   }
 
   const handleConfirmation = (result: boolean) => {
-    setShowConfirmation(false)
     if (result) {
       myLog('Confirmed form submission - submitting form')
       myLog({ formData })
@@ -108,7 +107,7 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
     }
   }
   const confirmationPopup = (
-    <ConfirmationPopup
+    <PresentationSubmissionConfirmationPopup
       open={showConfirmation}
       setClosed={() => setShowConfirmation(false)}
       onResolve={handleConfirmation}
