@@ -48,7 +48,7 @@ export type SignUpOptions = {
 
 type SessionContext = {
   user: User | null
-  profile: ProfileModel | null
+  profile: ProfileModel['Row'] | null
   timezoneInfo: TimezoneInfo
   isOrganizer: boolean
   isLoading: boolean
@@ -69,7 +69,7 @@ const AuthContext = createContext<SessionContext | undefined>(undefined)
 export const AuthProvider: React.FC<{supabase: SupabaseClient<Database>}> = ({supabase, children}) => {
   const [isLoading, setLoading] = useState(true)
   const [user, setUser] = useState<User | null>(null)
-  const [profile, setProfile] = useState<ProfileModel | null>(null)
+  const [profile, setProfile] = useState<ProfileModel['Insert'] | null>(null)
   const [isOrganizer, setIsOrganizer] = useState(false)
   const [timezoneInfo, setTimezoneInfo] =
     useState<TimezoneInfo>(defaultTimezoneInfo)
@@ -166,7 +166,7 @@ export const AuthProvider: React.FC<{supabase: SupabaseClient<Database>}> = ({su
 
   const value: SessionContext = {
     user,
-    profile,
+    profile: (profile as ProfileModel['Row']),
     isOrganizer,
     isLoading,
     signIn,

@@ -6,8 +6,8 @@ import { Box, Button, Grid, Stack, TextField } from '@mui/material'
 import { UserProfileImage } from './UserProfileImage'
 import { clientUpdateExistingProfile } from '@/lib/databaseFunctions'
 
-type ProfileData = ProfileModel | null
-type ProfileKey = keyof ProfileModel
+type ProfileData = ProfileModel['Row'] | null
+type ProfileKey = keyof ProfileModel['Row']
 
 const areEqual = (a: ProfileData, b: ProfileData) => {
   if (a === null || b === null) return false
@@ -24,8 +24,7 @@ const areEqual = (a: ProfileData, b: ProfileData) => {
 }
 
 export const UserProfile: React.FC = () => {
-  const [storedProfileData, setStoredProfileData] =
-    useState<ProfileModel | null>(null)
+  const [storedProfileData, setStoredProfileData] = useState<ProfileData>(null)
   const [valuesChanged, setValuesChanged] = useState(false)
 
   const { profile, user, triggerUpdate } = useSession()

@@ -23,7 +23,8 @@ const defaultSessionElems = {
     timeZone: '',
     timeZoneName: '',
     use24HourClock: false
-  }
+  },
+  triggerUpdate: jest.fn()
 }
 
 const dummySession = {
@@ -37,13 +38,14 @@ const dummySession = {
   ...defaultSessionElems
 }
 
-const dummyProfile: ProfileModel = {
+const dummyProfile: ProfileModel['Row'] = {
   firstname: 'Test',
   lastname: 'User',
   id: 'mytestid',
   avatar_url: null,
   website: null,
-  bio: null
+  bio: null,
+  updated_at: ''
 }
 
 const setMockImplementations = (

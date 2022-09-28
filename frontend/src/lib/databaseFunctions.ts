@@ -93,12 +93,12 @@ export const adminUpdateExistingPresentationSubmission = async (
 /* ------------------ Client side functions ---------------------------- */
 export const clientUpdateExistingProfile = async (
   userId: string,
-  profileData: Partial<ProfileModel>
+  profileData: Partial<ProfileModel['Row']>
 ) => {
   return (
     supabase
       .from('profiles')
-      .upsert({ ...profileData, id: userId })
+      .update({ ...profileData, id: userId })
       .select()
       // .single()
       .then(({ data, error }) => {
@@ -175,7 +175,7 @@ export const uploadAvatar = async (
   
   // Set that file as the profile avatar
   const { error: profileUpdateError } = await supabase
-    .from('profiles').upsert({id: userId, avatar_url: remoteFilePath})
+    .from('profiles').update({id: userId, avatar_url: remoteFilePath})
   if (profileUpdateError) {
     deleteAvatar(remoteFilePath)
     throw profileUpdateError
@@ -261,7 +261,7 @@ export const getPublicProfileIds = async () => {
     })
 }
 
-export const getPublicProfiles = async (): Promise<ProfileModel[]> => {
+export const getPublicProfiles = async (): Promise<ProfileModel['Row'][]> => {
   return getPublicProfileIds()
     .then((ids) => {
       return supabase
