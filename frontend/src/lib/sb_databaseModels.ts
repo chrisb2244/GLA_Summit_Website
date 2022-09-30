@@ -109,6 +109,29 @@ export interface Database {
           id?: string;
         };
       };
+      mentoring: {
+        Row: {
+          email: string;
+          firstname: string;
+          lastname: string;
+          entry_type: Database["public"]["Enums"]["mentoring_type"];
+          created_at: string;
+        };
+        Insert: {
+          email: string;
+          firstname: string;
+          lastname: string;
+          entry_type: Database["public"]["Enums"]["mentoring_type"];
+          created_at?: string;
+        };
+        Update: {
+          email?: string;
+          firstname?: string;
+          lastname?: string;
+          entry_type?: Database["public"]["Enums"]["mentoring_type"];
+          created_at?: string;
+        };
+      };
       public_profiles: {
         Row: {
           id: string;
@@ -218,9 +241,14 @@ export interface Database {
         Args: Record<PropertyKey, never>;
         Returns: Record<string, unknown>[];
       };
+      presenter_email_lookup: {
+        Args: Record<string, unknown>;
+        Returns: unknown;
+      };
     };
     Enums: {
       presentation_type: "7x7" | "full length" | "panel" | "15 minutes";
+      mentoring_type: "mentor" | "mentee";
     };
   };
 }
