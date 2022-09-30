@@ -9,7 +9,6 @@ import { join } from 'react-hook-form'
 import { EmailFormComponent } from './Person'
 import type { EmailProps } from './Person'
 import { Box, Button, Paper } from '@mui/material'
-import { isLocked, PresentationLockedStatus } from './PresentationSubmissionFormCore'
 
 type EmailArrayProps<FV extends FieldValues> = {
   emailArray: EmailProps[]
@@ -22,7 +21,7 @@ type EmailArrayProps<FV extends FieldValues> = {
     | undefined
   register: UseFormRegister<FV>
   removePresenter: (idx: number) => void
-  lockStatuses?: PresentationLockedStatus
+  locked?: boolean
   // defaultValue?: Partial<EmailProps[]>
 }
 
@@ -35,10 +34,8 @@ export function EmailArrayFormComponent<FV extends FieldValues>(
     register,
     removePresenter,
     arrayPath,
-    lockStatuses = {isCopresenter: false, isSubmitted: false}
+    locked = false
   } = props
-
-  const locked = isLocked(lockStatuses)
 
   return (
     <>

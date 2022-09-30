@@ -2,12 +2,12 @@ import { MySubmissionsModel } from '@/lib/databaseModels'
 import { useCallback, useEffect, useState } from 'react'
 import { useSession } from '@/lib/sessionContext'
 import { Box, Container, Stack, Typography } from '@mui/material'
-import { PresentationEditor } from '../Form/PresentationEditor'
+import { PresentationEditor } from '../Forms/PresentationEditor'
 import { PersonProps } from '../Form/Person'
 import {
   FormData,
   PresentationLockedStatus
-} from '../Form/PresentationSubmissionFormCore'
+} from '@/Components/Forms/PresentationSubmissionFormCore'
 import { deletePresentation, getMyPresentations } from '@/lib/databaseFunctions'
 
 export const UserPresentations: React.FC = () => {

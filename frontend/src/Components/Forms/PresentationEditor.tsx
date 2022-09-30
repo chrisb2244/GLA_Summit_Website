@@ -10,12 +10,12 @@ import {
 } from '@mui/material'
 import { useState } from 'react'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import { PresentationSubmissionConfirmationPopup } from './PresentationSubmissionConfirmationPopup'
-import { isLocked, PresentationLockedStatus, PresentationSubmissionFormCore } from './PresentationSubmissionFormCore'
 import { useFieldArray, useForm } from 'react-hook-form'
+import { PresentationSubmissionConfirmationPopup } from '@/Components/Form'
+import type { PersonProps } from '@/Components/Form'
+import { isLocked, PresentationLockedStatus, PresentationSubmissionFormCore } from './PresentationSubmissionFormCore'
 import type { FormData } from './PresentationSubmissionFormCore'
-import { PersonProps } from './Person'
-import { StackedBoxes } from '../Layout/StackedBoxes'
+import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
 
 type PresentationEditorProps = {
   presentation: MySubmissionsModel

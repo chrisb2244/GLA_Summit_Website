@@ -7,10 +7,10 @@ import {
   UseFieldArrayRemove,
   FieldArrayWithId
 } from 'react-hook-form'
-import { EmailProps, Person, PersonProps } from '@/Components/Form/Person'
+import { EmailArrayFormComponent, FormField, Person } from '@/Components/Form'
+import type { EmailProps, PersonProps } from '@/Components/Form'
 import { StackedBoxes } from '../Layout/StackedBoxes'
-import { EmailArrayFormComponent } from './EmailArray'
-import { FormField } from './FormField'
+
 
 import { PresentationType } from '@/lib/databaseModels'
 
@@ -90,7 +90,7 @@ export const PresentationSubmissionFormCore: React.FC<
         errors={errors.otherPresenters}
         register={register}
         removePresenter={removePresenter}
-        lockStatuses={lockStatuses}
+        locked={locked}
       />
       <Button
         fullWidth
