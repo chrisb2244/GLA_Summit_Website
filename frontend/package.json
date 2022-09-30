@@ -8,8 +8,9 @@
     "@emotion/styled": "^11.8.1",
     "@mui/icons-material": "^5.4.4",
     "@mui/material": "^5.4.4",
-    "@prisma/client": "^3.11.1",
-    "@supabase/supabase-js": "^1.33.3",
+    "@supabase/auth-helpers-nextjs": "^0.4.0-next.3",
+    "@supabase/auth-helpers-react": "^0.3.0-next.2",
+    "@supabase/supabase-js": "^2.0.0-rc.10",
     "form-data": "^4.0.0",
     "formik": "^2.2.9",
     "mailgun.js": "^7.0.0",
@@ -26,7 +27,7 @@
   "scripts": {
     "start": "next start",
     "build": "next build",
-    "dev": "npx prisma generate && next dev",
+    "dev": "next dev",
     "test": "jest && npx playwright test",
     "test-w": "jest --watch",
     "lint": "eslint --format visualstudio ./src/ ./__tests__/",
@@ -70,7 +71,6 @@
     "husky": "^7.0.0",
     "is-ci": "^3.0.1",
     "jest": "^27.5.1",
-    "prisma": "^3.11.1",
     "ts-node": "^10.7.0"
   }
 }

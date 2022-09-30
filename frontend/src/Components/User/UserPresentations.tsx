@@ -1,18 +1,14 @@
-import { supabase } from '@/lib/supabaseClient'
-import {
-  MySubmissionsModel,
-  PresentationSubmissionsModel
-} from '@/lib/databaseModels'
+import { MySubmissionsModel } from '@/lib/databaseModels'
 import { useCallback, useEffect, useState } from 'react'
 import { useSession } from '@/lib/sessionContext'
 import { Box, Container, Stack, Typography } from '@mui/material'
-import { myLog } from '@/lib/utils'
-import { PresentationEditor } from '../Form/PresentationEditor'
+import { PresentationEditor } from '../Forms/PresentationEditor'
 import { PersonProps } from '../Form/Person'
 import {
   FormData,
   PresentationLockedStatus
-} from '../Form/PresentationSubmissionFormCore'
+} from '@/Components/Forms/PresentationSubmissionFormCore'
+import { deletePresentation, getMyPresentations } from '@/lib/databaseFunctions'
 
 export const UserPresentations: React.FC = () => {
   const { user } = useSession()
@@ -29,18 +25,9 @@ export const UserPresentations: React.FC = () => {
   }, [])
 
   const getPresentations = useCallback(async () => {
-    if (user == null) return
-    const { data, error: errorPresData } = await supabase
-      .from<MySubmissionsModel>('my_submissions')
-      .select()
-    if (errorPresData) {
-      myLog({
-        error: errorPresData,
-        desc: 'Failed to fetch presentation details for this user'
-      })
-    }
+    const myPresentations = (await getMyPresentations(user)) ?? []
     if (isMounted) {
-      setUserPresentations(data ?? [])
+      setUserPresentations(myPresentations)
       setIsLoading(false)
     }
   }, [user, isMounted])
@@ -60,7 +47,7 @@ export const UserPresentations: React.FC = () => {
     }
 
     const presentationToEditorComponent = (p: MySubmissionsModel) => {
-      const isCopresenter = p.submitter_id !== user.id
+      const isCopresenter = p.submitter_id !== user?.id
       const isSubmitted = p.is_submitted
       const lockStatus: PresentationLockedStatus = {
         isCopresenter,
@@ -86,13 +73,7 @@ export const UserPresentations: React.FC = () => {
                 (p2) => p2.presentation_id !== p.presentation_id
               )
             ])
-            const { error } = await supabase
-              .from<PresentationSubmissionsModel>('presentation_submissions')
-              .delete()
-              .eq('id', p.presentation_id)
-            if (error) {
-              myLog({ error })
-            }
+            deletePresentation(p.presentation_id)
           }}
           updateCallback={async (formData: FormData) => {
             fetch('/api/handlePresentationSubmission', {
@@ -102,7 +83,7 @@ export const UserPresentations: React.FC = () => {
               },
               body: JSON.stringify({
                 formdata: formData,
-                submitterId: supabase.auth.user()?.id,
+                submitterId: user?.id,
                 sendEmails: false,
                 presentationId: p.presentation_id
               })

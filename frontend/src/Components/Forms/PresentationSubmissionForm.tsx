@@ -1,14 +1,14 @@
 import { Button, Typography, Checkbox, FormControlLabel } from '@mui/material'
 import { useForm, useFieldArray } from 'react-hook-form'
-import type { EmailProps, PersonProps } from '@/Components/Form/Person'
-import { StackedBoxes } from '../Layout/StackedBoxes'
+import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { PresentationType } from '@/lib/databaseModels'
-import { supabase } from '@/lib/supabaseClient'
-import { ConfirmationPopup } from './ConfirmationPopup'
+import { PresentationSubmissionConfirmationPopup } from '@/Components/Form'
+import type { EmailProps, PersonProps } from '@/Components/Form'
 import { myLog } from '@/lib/utils'
 import { PresentationSubmissionFormCore } from './PresentationSubmissionFormCore'
+import { useSession } from '@/lib/sessionContext'
 
 type FormProps = {
   submitter: PersonProps
@@ -56,6 +56,7 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
+  const { user } = useSession()
   useEffect(() => {
     setIsMounted(true)
     return () => setIsMounted(false)
@@ -84,7 +85,7 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
       },
       body: JSON.stringify({
         formdata: data,
-        submitterId: supabase.auth.user()?.id
+        submitterId: user?.id
       })
     })
       .then(() => {
@@ -96,7 +97,6 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
   }
 
   const handleConfirmation = (result: boolean) => {
-    setShowConfirmation(false)
     if (result) {
       myLog('Confirmed form submission - submitting form')
       myLog({ formData })
@@ -107,7 +107,7 @@ export const PresentationSubmissionForm: React.FC<FormProps> = ({
     }
   }
   const confirmationPopup = (
-    <ConfirmationPopup
+    <PresentationSubmissionConfirmationPopup
       open={showConfirmation}
       setClosed={() => setShowConfirmation(false)}
       onResolve={handleConfirmation}

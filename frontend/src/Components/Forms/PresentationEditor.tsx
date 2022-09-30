@@ -10,12 +10,12 @@ import {
 } from '@mui/material'
 import { useState } from 'react'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import { ConfirmationPopup } from './ConfirmationPopup'
-import { isLocked, PresentationLockedStatus, PresentationSubmissionFormCore } from './PresentationSubmissionFormCore'
 import { useFieldArray, useForm } from 'react-hook-form'
+import { PresentationSubmissionConfirmationPopup } from '@/Components/Form'
+import type { PersonProps } from '@/Components/Form'
+import { isLocked, PresentationLockedStatus, PresentationSubmissionFormCore } from './PresentationSubmissionFormCore'
 import type { FormData } from './PresentationSubmissionFormCore'
-import { PersonProps } from './Person'
-import { StackedBoxes } from '../Layout/StackedBoxes'
+import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
 
 type PresentationEditorProps = {
   presentation: MySubmissionsModel
@@ -61,19 +61,16 @@ export const PresentationEditor: React.FC<PresentationEditorProps> = ({
   }
 
   const confirmationPopup = (
-    <ConfirmationPopup
+    <PresentationSubmissionConfirmationPopup
       open={submittedData !== null}
       setClosed={() => setShowConfirmation(null)}
       onResolve={(confirmed) => {
         if (confirmed) {
           const formData = submittedData
           if (formData != null) {
-            setShowConfirmation(null)
             setIsSubmitting(true)
             updateCallback(formData).then(() => setIsSubmitting(false))
           }
-        } else {
-          setShowConfirmation(null)
         }
       }}
     />

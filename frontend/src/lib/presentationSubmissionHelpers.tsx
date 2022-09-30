@@ -1,49 +1,14 @@
 import type { FormData } from '@/Components/Form/PresentationSubmissionForm'
-import { createAdminClient } from './supabaseClient'
 import { FormSubmissionEmail } from '@/EmailTemplates/FormSubmissionEmail'
-import { PresentationSubmissionsModel } from './databaseModels'
-import { Session, User } from '@supabase/supabase-js'
 import { buildSubmitterName, P } from '@/EmailTemplates/emailComponents'
 import { PersonProps } from '@/Components/Form/Person'
-import { myLog } from './utils'
-
-// This function needs to return the new userId for the invited account
-export const generateInviteCode = async (email: string, redirectTo?: string) => {
-  myLog(`Inviting new user: ${email}`)
-
-  const adminClient = createAdminClient()
-  return adminClient.auth.api
-    .generateLink('invite', email, {redirectTo})
-    .then(({ data, error }) => {
-      if (error) return Promise.reject(error)
-      if (data == null) {
-        // Shouldn't get here...
-        return Promise.reject(error)
-      }
-      myLog({ data })
-      if (Object.hasOwn(data, 'user')) {
-        // I don't think this branch is used
-        myLog('Data was a Session object')
-        const dataS = data as Session
-        const id = dataS.user?.id
-        if (typeof id !== 'undefined') {
-          return { newUserId: id, confirmationLink: undefined }
-        }
-        return Promise.reject('No user found')
-      } else {
-        myLog('Data was a User object')
-        const dataU = data as User
-        return { newUserId: dataU.id, confirmationLink: dataU.action_link }
-      }
-    })
-}
+import { adminAddNewPresentationSubmission, adminUpdateExistingPresentationSubmission } from './databaseFunctions'
 
 export const uploadPresentationData = async (
   formData: FormData,
   submitterId: string,
   presentationId?: string
 ) => {
-  const adminClient = createAdminClient()
   const content = {
     submitter_id: submitterId,
     is_submitted: formData.isFinal,
@@ -53,25 +18,9 @@ export const uploadPresentationData = async (
     presentation_type: formData.presentationType
   }
   if (typeof presentationId === 'undefined') {
-    return adminClient
-      .from<PresentationSubmissionsModel>('presentation_submissions')
-      .insert(content)
-      .single()
-      .then(({ data, error }) => {
-        if (error) throw error
-        // Need the presentation submission ID to add rows to the presentation_presenters table
-        return data.id
-      })
+    return adminAddNewPresentationSubmission(content)
   } else {
-    return adminClient
-      .from<PresentationSubmissionsModel>('presentation_submissions')
-      .upsert({ ...content, id: presentationId })
-      .single()
-      .then(({ data, error }) => {
-        if (error) throw error
-        // Need the presentation submission ID to add rows to the presentation_presenters table
-        return data.id
-      })
+    return adminUpdateExistingPresentationSubmission({...content, id: presentationId})
   }
 }
 

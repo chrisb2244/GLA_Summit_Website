@@ -1,6 +1,6 @@
 import { useSession } from '@/lib/sessionContext'
 import { useEffect, useState } from 'react'
-import { PresentationSubmissionForm } from '@/Components/Form/PresentationSubmissionForm'
+import { PresentationSubmissionForm } from '@/Components/Forms/PresentationSubmissionForm'
 import type { PersonProps } from '@/Components/Form/Person'
 
 const PresentationSubmissionFormPage = (): JSX.Element => {

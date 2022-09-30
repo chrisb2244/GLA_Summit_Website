@@ -1,11 +1,9 @@
-import { supabase } from '@/lib/supabaseClient'
 import type { GetStaticPaths, GetStaticProps, NextPage } from 'next'
-import type { AllPresentationsModel } from '@/lib/databaseModels'
 import { Box, Paper } from '@mui/material'
 import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
 import { PersonDisplay, PersonDisplayProps } from '@/Components/PersonDisplay'
 import { Link } from '@/lib/link'
-import { getPerson } from '@/lib/databaseFunctions'
+import { getPerson, getPublicPresentationsForPresenter, getPublicProfileIds } from '@/lib/databaseFunctions'
 
 type ProfileProps = {
   presenter: PersonDisplayProps
@@ -14,14 +12,11 @@ type ProfileProps = {
 
 // Get the list of presenterIds for which to generate static pages
 export const getStaticPaths: GetStaticPaths = async () => {
-  const { data, error } = await supabase.from('public_profiles').select('id')
-  if (error) throw error
-  const presenterIdArray = data.map((p) => {
-    return '/presenters/' + p.id
-  })
+  const pathArray = await getPublicProfileIds()
+    .then(ids => ids.map(id => '/presenters/' + id))
 
   return {
-    paths: presenterIdArray,
+    paths: pathArray,
     fallback: 'blocking'
   }
 }
@@ -38,22 +33,21 @@ export const getStaticProps: GetStaticProps<ProfileProps> = async ({
   }
 
   const presenterInfo = await getPerson(presenterId)
-
-  const { data: presentationData, error: presentationsError } = await supabase
-    .from<AllPresentationsModel>('all_presentations')
-    .select('presentation_id,title')
-    .contains('all_presenters', [presenterId])
-
-  const debugEntry = { id: 'oops', title: JSON.stringify(presentationsError) }
+  
+  const presentations = await getPublicPresentationsForPresenter(presenterId)
+    .then((presentationsData) => {
+      return presentationsData.map((d) => {
+        return { id: d.presentation_id, title: d.title }
+      })
+    })
+    .catch((error) => {
+      return [{ id: 'oops', title: JSON.stringify(error)}]
+    })
 
   return {
     props: {
       presenter: presenterInfo,
-      presentations: presentationsError
-        ? [debugEntry]
-        : presentationData.map((d) => {
-            return { id: d.presentation_id, title: d.title }
-          })
+      presentations
     }
   }
 }

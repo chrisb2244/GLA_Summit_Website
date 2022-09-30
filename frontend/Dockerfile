@@ -12,7 +12,5 @@ ENV NODE_ENV=development
 RUN npm install
 ENV PATH /usr/app/node_modules/.bin:$PATH
 
-COPY --chown=node:node prisma ./
-
 COPY --chown=node:node next.config.js next-env.d.ts .env.local .env ./
 CMD ["npm", "run", "dev"]
