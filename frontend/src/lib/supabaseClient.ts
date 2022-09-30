@@ -1,7 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
 import { createServerSupabaseClient } from '@supabase/auth-helpers-shared'
 import type { Database } from './sb_databaseModels'
-import { NextRequest, NextResponse } from 'next/server'
+// eslint-disable-next-line @next/next/no-server-import-in-page
+import type { NextRequest, NextResponse } from 'next/server'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string
