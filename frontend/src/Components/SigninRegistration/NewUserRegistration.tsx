@@ -15,11 +15,13 @@ type UserRegistrationProps = {
   open: boolean
   setClosed: () => void
   switchToSignIn: () => void
-  signUp: (
-    credentials: UserCredentials,
-    options?: SignUpOptions | undefined
-  ) => Promise<SignUpReturn>
+  signUp: SignUpFunction
 }
+
+export type SignUpFunction = (
+  credentials: UserCredentials,
+  options?: SignUpOptions | undefined
+) => Promise<SignUpReturn>
 
 export type NewUserInformation = {
   firstname: string
@@ -64,33 +66,36 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = ({
 
   // State and useEffect are required to get the setIsWaiting call to work before the signin.
   const [formData, setFormData] = useState<PersonProps | null>(null)
-  const signupCallback = useCallback((data: PersonProps) => {
-    const newUserData: NewUserInformation = {
-      firstname: data['firstName'],
-      lastname: data['lastName']
-    }
+  const signupCallback = useCallback(
+    (data: PersonProps) => {
+      const newUserData: NewUserInformation = {
+        firstname: data['firstName'],
+        lastname: data['lastName']
+      }
 
-    const redirectTo = new URL(window.location.href).origin + '/'
-    signUp(
-      { email: data.email, password: randomBytes(32).toString('hex') },
-      { data: newUserData, redirectTo }
-    )
-      .then(({ user, session, error }) => {
-        myLog({ user, session, error })
-        if (error) throw error
-        // If reaching here, no error
-        // console.log('Check your email for the login link!')
-        setIsWaiting(false)
-        setPopupOpen(data.email)
-      })
-      .catch((error: ApiError) => {
-        myLog(error.message)
-        setIsWaiting(false)
-      })
-    setClosed()
-    reset()
-    setFormData(null)
-  }, [signUp, setClosed, reset])
+      const redirectTo = new URL(window.location.href).origin + '/'
+      signUp(
+        { email: data.email, password: randomBytes(32).toString('hex') },
+        { data: newUserData, redirectTo }
+      )
+        .then(({ user, session, error }) => {
+          myLog({ user, session, error })
+          if (error) throw error
+          // If reaching here, no error
+          // console.log('Check your email for the login link!')
+          setIsWaiting(false)
+          setPopupOpen(data.email)
+        })
+        .catch((error: ApiError) => {
+          myLog(error.message)
+          setIsWaiting(false)
+        })
+      setClosed()
+      reset()
+      setFormData(null)
+    },
+    [signUp, setClosed, reset]
+  )
 
   useEffect(() => {
     if (formData == null) {
@@ -158,7 +163,12 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = ({
           account.
         </Typography>
       </NotificationDialogPopup>
-      <WaitingIndicator open={isWaiting} onClose={() => {return}} />
+      <WaitingIndicator
+        open={isWaiting}
+        onClose={() => {
+          return
+        }}
+      />
     </>
   )
 }
