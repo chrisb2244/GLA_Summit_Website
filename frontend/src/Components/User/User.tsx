@@ -2,12 +2,11 @@ import { Button, Box } from '@mui/material'
 import type { BoxProps } from '@mui/system'
 import { UserMenu } from '@/Components/User/UserMenu'
 import { useState } from 'react'
-import { NewUserRegistration } from '@/Components/SigninRegistration/NewUserRegistration'
-import { UserSignIn } from '@/Components/SigninRegistration/UserSignIn'
 import { useSession } from '@/lib/sessionContext'
+import { RegistrationPopup } from '../SigninRegistration/RegistrationPopup'
 
 export const User: React.FC<BoxProps> = ({...extraBoxProps}) => {
-  const [dialogOpen, setOpenDialog] = useState<'none' | 'registration' | 'signin'>('none')
+  const [dialogOpen, setDialogOpen] = useState(false)
 
   const { user, signUp, signIn } = useSession()
   let button
@@ -17,31 +16,12 @@ export const User: React.FC<BoxProps> = ({...extraBoxProps}) => {
     button = (
       <>
         <Button
-          onClick={() => setOpenDialog('signin')}
+          onClick={() => setDialogOpen(true)}
           color='warning'
         >
           Sign In / Register
         </Button>
-        <NewUserRegistration
-          signUp={signUp}
-          open={dialogOpen === 'registration'}
-          setClosed={() => {
-            setOpenDialog('none')
-          }}
-          switchToSignIn={() => {
-            setOpenDialog('signin')
-          }}
-        />
-        <UserSignIn
-          open={dialogOpen === 'signin'}
-          setClosed={() => {
-            setOpenDialog('none')
-          }}
-          switchToRegistration={() => {
-            setOpenDialog('registration')
-          }}
-          signIn={signIn}
-        />
+        <RegistrationPopup signUp={signUp} signIn={signIn} open={dialogOpen} setClosed={() => setDialogOpen(false)} />
       </>
     )
   }
