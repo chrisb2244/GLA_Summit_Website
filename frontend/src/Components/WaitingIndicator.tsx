@@ -41,9 +41,7 @@ export const WaitingIndicator: React.FC<WaitingIndicatorProps> = ({
           width={length}
           height={length}
           style={{
-            animation: 'rotation 10s infinite linear',
-            maxWidth: '20px',
-            maxHeight: '20px'
+            animation: 'rotation 10s infinite linear'
           }}
         />
         {children}

@@ -78,8 +78,9 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = ({
         { email: data.email, password: randomBytes(32).toString('hex') },
         { data: newUserData, redirectTo }
       )
-        .then(({ user, session, error }) => {
-          myLog({ user, session, error })
+        // .then(({ user, session, error }) => {
+        .then(({ error }) => {
+          // myLog({ user, session, error })
           if (error) throw error
           // If reaching here, no error
           // console.log('Check your email for the login link!')
