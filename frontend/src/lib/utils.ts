@@ -1,9 +1,29 @@
+import { createAdminClient } from "./supabaseClient"
+
 const shouldLog = process.env.NODE_ENV !== 'production'
+const dbLog = true // process.env.NODE_ENV === 'production'
 
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 export const myLog = (v: any) => {
   if (shouldLog) {
     console.log(v)
+  }
+}
+
+export const logErrorToDb = async (v: {message: string} | string, severity: 'info' | 'error' | 'severe', currentUserId?: string) => {
+  if (dbLog) {
+    const client = createAdminClient()
+    const {error} = await client.from('log').insert({
+      severity,
+      message: (typeof v === 'string' ? v : v.message),
+      user_id: currentUserId
+    })
+    if(error) {
+      console.log(error)
+      // client.from('log').insert({
+      //   s
+      // }
+    }
   }
 }
 
