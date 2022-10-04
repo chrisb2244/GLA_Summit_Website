@@ -5,9 +5,10 @@ import type { NextPage } from 'next'
 import type { PersonProps } from '@/Components/Form/Person'
 import { supabase } from '@/lib/supabaseClient'
 import { myLog } from '@/lib/utils'
+import { RegistrationPopup } from '@/Components/SigninRegistration/RegistrationPopup'
 
 const MentorshipPage: NextPage = () => {
-  const { user, profile } = useSession()
+  const { user, profile, signIn, signUp } = useSession()
   const [defaultPerson, setDefaultPerson] = useState<PersonProps | undefined>(
     undefined
   )
@@ -56,15 +57,25 @@ const MentorshipPage: NextPage = () => {
     
   }
 
+  const [open, setOpenState] = useState(!user)
+
   return (
     <>
-      {!loading && (
+      {!loading && user && (
         <MentoringForm
           defaultEntry={defaultPerson}
           registered={existingRegistrationType}
           registrationFn={registrationFn}
         />
       )}
+      {!user &&
+        (
+          <>
+            <p>You need to be signed in to use this page.</p>
+            <RegistrationPopup open={open} setClosed={() => setOpenState(false)} signIn={signIn} signUp={signUp} />
+          </>
+        )
+      }
     </>
   )
 }
