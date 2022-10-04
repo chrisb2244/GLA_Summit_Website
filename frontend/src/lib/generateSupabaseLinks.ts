@@ -1,4 +1,4 @@
-import { NewUserInformation } from '@/Components/SigninRegistration/NewUserRegistration'
+import type { NewUserInformation } from '@/Components/SigninRegistration/NewUserRegistration'
 import { createAdminClient } from '@/lib/supabaseClient'
 import type { User, GenerateLinkResponse, AuthError, GenerateLinkProperties } from '@supabase/supabase-js'
 import type { ApiError } from './sessionContext'

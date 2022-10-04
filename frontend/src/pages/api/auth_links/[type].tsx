@@ -1,5 +1,5 @@
-import { generateSupabaseLinks, LinkType } from '@/lib/generateSupabaseLinks'
-import type { GenerateLinkBody } from '@/lib/generateSupabaseLinks'
+import { generateSupabaseLinks } from '@/lib/generateSupabaseLinks'
+import type { GenerateLinkBody, LinkType } from '@/lib/generateSupabaseLinks'
 import { NextApiHandler } from 'next'
 import { sendMailApi } from '@/lib/sendMail'
 import { generateBody } from '@/lib/emailGeneration'
