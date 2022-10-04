@@ -95,7 +95,9 @@ const MediaPage: NextPage = () => {
   return (
     <StackedBoxes>
       <SidewaysBox paddingX={4}>
-        <NextImage src={JKI_Logo} />
+        <a href={"https://jki.net"}>
+          <NextImage src={JKI_Logo} />
+        </a>
         <Typography marginX={2}>
           The GLA Summit Organizers would like to thank JKI for providing us
           with the images and banners available below, along with other graphics
