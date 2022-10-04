@@ -19,11 +19,13 @@ type SignInProps = {
   open: boolean
   setClosed: () => void
   switchToRegistration: () => void
-  signIn: (
-    email: string,
-    options?: SignInOptions | undefined
-  ) => Promise<SignInReturn>
+  signIn: SignInFunction
 }
+
+export type SignInFunction = (
+  email: string,
+  options?: SignInOptions | undefined
+) => Promise<SignInReturn>
 
 type SignInFormValues = {
   email: string
@@ -59,7 +61,8 @@ export const UserSignIn: React.FC<SignInProps> = ({
   const { register, handleSubmit } = useForm<SignInFormValues>()
 
   const [isWaiting, setIsWaiting] = useState(false)
-  const signinCallback = useCallback((email: string) => {
+  const signinCallback = useCallback(
+    (email: string) => {
       signIn(email).then(({ error }) => {
         if (error) {
           myLog(error)

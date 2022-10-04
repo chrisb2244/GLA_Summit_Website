@@ -180,6 +180,40 @@ export interface Database {
           use_24h_clock?: boolean;
         };
       };
+      log: {
+        Row: {
+          id: number;
+          created_at: string;
+          severity: Database["public"]["Enums"]["log_type"];
+          message: string;
+          user_id: string | null;
+        };
+        Insert: {
+          id?: number;
+          created_at?: string;
+          severity: Database["public"]["Enums"]["log_type"];
+          message: string;
+          user_id?: string | null;
+        };
+        Update: {
+          id?: number;
+          created_at?: string;
+          severity?: Database["public"]["Enums"]["log_type"];
+          message?: string;
+          user_id?: string | null;
+        };
+      };
+      log_viewers: {
+        Row: {
+          user_id: string;
+        };
+        Insert: {
+          user_id: string;
+        };
+        Update: {
+          user_id?: string;
+        };
+      };
     };
     Views: {
       all_presentations: {
@@ -249,6 +283,7 @@ export interface Database {
     Enums: {
       presentation_type: "7x7" | "full length" | "panel" | "15 minutes";
       mentoring_type: "mentor" | "mentee";
+      log_type: "info" | "error" | "severe";
     };
   };
 }

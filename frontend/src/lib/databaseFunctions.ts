@@ -1,5 +1,5 @@
 import { PersonDisplayProps } from '@/Components/PersonDisplay'
-import { NewUserInformation } from '@/Components/SigninRegistration/NewUserRegistration'
+import type { NewUserInformation } from '@/Components/SigninRegistration/NewUserRegistration'
 import { PostgrestError, User as SB_User } from '@supabase/supabase-js'
 import { AllPresentationsModel, ProfileModel } from './databaseModels'
 import { Database } from './sb_databaseModels'
@@ -313,8 +313,7 @@ export const getAcceptedPresentationIds = async (): Promise<string[]> => {
   return data.map((d) => d.id)
 }
 
-export const getMyPresentations = async (user: User | null) => {
-  if (user == null) return
+export const getMyPresentations = async () => {
   const { data, error: errorPresData } = await supabase
     .from('my_submissions')
     .select()

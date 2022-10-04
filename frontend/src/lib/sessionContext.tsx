@@ -4,7 +4,7 @@ import type { AuthError } from '@supabase/supabase-js'
 import { ProfileModel } from './databaseModels'
 import { defaultTimezoneInfo, myLog, TimezoneInfo } from './utils'
 import { GenerateLinkBody } from '@/lib/generateSupabaseLinks'
-import { NewUserInformation } from '@/Components/SigninRegistration/NewUserRegistration'
+import type { NewUserInformation } from '@/Components/SigninRegistration/NewUserRegistration'
 import {
   checkIfOrganizer,
   getProfileInfo,
