@@ -13,7 +13,10 @@ export const generateInviteCode = async (email: string, redirectTo?: string) => 
 
   const adminClient = createAdminClient()
   return adminClient.auth.api
-    .generateLink('invite', email, {redirectTo})
+    .generateLink('invite', email, {redirectTo, data: {
+      firstname: '',
+      lastname: ''
+    }})
     .then(({ data, error }) => {
       if (error) return Promise.reject(error)
       if (data == null) {
