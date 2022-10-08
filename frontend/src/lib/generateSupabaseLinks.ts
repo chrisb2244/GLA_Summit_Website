@@ -24,7 +24,7 @@ export type GenerateLinkBody =
       redirectTo?: string
     }
 
-type GenerateLinkReturn =
+export type GenerateLinkReturn =
   | {
       data: { user: User, properties: GenerateLinkProperties }
       linkType: LinkType
@@ -91,8 +91,15 @@ export const generateInviteLink = async (email: string, redirectTo?: string) => 
   return createAdminClient().auth.admin.generateLink({
     type: 'invite',
     email,
-    options: { redirectTo }
-  }).then(({data, error}) => {
+    options: {
+      redirectTo,
+      data: {
+        firstname: '',
+        lastname: ''
+      }
+    }
+  })
+  .then(({data, error}) => {
     if (error) throw error
     myLog({data})
     return {
@@ -104,7 +111,7 @@ export const generateInviteLink = async (email: string, redirectTo?: string) => 
 
 const handleApiResponse = (value: GenerateLinkResponse, type: LinkType): GenerateLinkReturn => {
   const { data, error } = value
-  console.log({data, error})
+  // console.log({data, error})
   if (error) {
     return { data, linkType: null, error }
   }

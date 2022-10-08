@@ -58,6 +58,13 @@ export const HomePage: React.FC = () => {
           Attendees will also be able to receive 20 points.
         </P>
         <Box>
+          <Link href={'https://hopin.com/events/gla-summit-2022'}>
+            <Button fullWidth variant='contained'>
+              Register for a ticket at Hopin
+            </Button>
+          </Link>
+        </Box>
+        <Box>
           <Link href={'/submit-presentation'}>
             <Button fullWidth variant='contained'>
               Submit a Presentation Now!
