@@ -26,5 +26,5 @@
     "incremental": true
   },
   "include": ["src", "__tests__", "playwright", "next-env.d.ts", "playwright.config.ts"],
-  "exclude": ["node_modules", "src/tsconfig.json"]
+  "exclude": ["node_modules", "src/tsconfig.json", "playwright/global-setup.ts"]
 }

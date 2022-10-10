@@ -42,6 +42,8 @@ const config: PlaywrightTestConfig = {
     trace: 'on-first-retry',
   },
 
+  globalSetup: require.resolve('./playwright/global-setup.ts'),
+
   /* Configure projects for major browsers */
   projects: [
     // {

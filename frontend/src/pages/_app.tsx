@@ -11,6 +11,7 @@ import { AuthProvider } from '@/lib/sessionContext'
 import { Fragment, useState } from 'react'
 import type { Database } from '@/lib/sb_databaseModels'
 import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs'
+// import { setupServer } from 'msw/node'
 
 import '../spinningLogo.css'
 import '../GLA-generic.css'
@@ -28,6 +29,15 @@ const isMaintenancePage = process.env.NEXT_PUBLIC_MAINTENANCE_MODE === 'true'
 interface MyAppProps extends AppProps {
   emotionCache?: EmotionCache
 }
+
+// if (process.env.PLAYWRIGHT === '1') {
+//   console.log('loading mocks')
+//   import('../../playwright/mocks').then(({initMocks}) => {
+//     // initMocks()
+//   })
+// } else {
+//   console.log('not loading mocks')
+// }
 
 export default function MyApp(props: MyAppProps): JSX.Element {
   const {
