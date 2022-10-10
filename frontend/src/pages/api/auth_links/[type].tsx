@@ -1,7 +1,7 @@
 import { generateSupabaseLinks } from '@/lib/generateSupabaseLinks'
 import type { GenerateLinkBody, LinkType } from '@/lib/generateSupabaseLinks'
 import { NextApiHandler } from 'next'
-import { sendMailApi } from '@/lib/sendMail'
+import { EmailContent, sendMailApi } from '@/lib/sendMail'
 import { generateBody } from '@/lib/emailGeneration'
 import { RegistrationEmail } from '@/EmailTemplates/RegistrationEmail'
 import { SignInEmail } from '@/EmailTemplates/SignInEmail'
@@ -11,6 +11,10 @@ const handler: NextApiHandler = async (req, res) => {
   // 'data''s required/optional contents are unclear... But it might be a signup only
   // password might also be signup only (README.md in github.com/supabase/gotrue)
   // data looks to have the same format as the 'data' object accepted by signUp.
+  const IS_TEST_ONLY_DO_NOT_SEND_EMAILS = typeof(req.headers.test_only_headers_blocked) !== 'undefined'
+  const TEST_EMAIL_ENDPOINT_URL = req.headers.test_only_headers_blocked as string // This is actually undefined if IS_TEST_ONLY... is not true
+  console.log(`This method is being executed in ${IS_TEST_ONLY_DO_NOT_SEND_EMAILS ? 'test' : 'production'}`)
+  
   const bodyData = req.body.bodyData as GenerateLinkBody
   if (typeof bodyData === 'undefined') {
     return res
@@ -19,7 +23,10 @@ const handler: NextApiHandler = async (req, res) => {
   }
   const type = bodyData.type
 
-  return generateSupabaseLinks(bodyData)
+  // return generateSupabaseLinks(bodyData)
+  // const fnPromise = IS_TEST_ONLY_DO_NOT_SEND_EMAILS ? dummyGenerateLinks(type) : generateSupabaseLinks(bodyData)
+  const fnPromise = generateSupabaseLinks(bodyData)
+  return fnPromise
     .then(({ data, error, linkType }) => {
       if (error) throw error
       if (typeof data.properties.action_link === 'undefined') {
@@ -78,16 +85,30 @@ const handler: NextApiHandler = async (req, res) => {
       }
     })
     .then(async ({ user, ...textParts }) => {
-      return {
-        status: await sendMailApi({
-          to: bodyData.email,
-          ...textParts
-        }),
-        user
+      const content: EmailContent = {
+        to: bodyData.email,
+        ...textParts
+      }
+      if (IS_TEST_ONLY_DO_NOT_SEND_EMAILS && false) {
+        console.log('Not sending email - testing only due to header')
+        console.log('Attempting to post to: ' + TEST_EMAIL_ENDPOINT_URL)
+        await fetch(TEST_EMAIL_ENDPOINT_URL, {
+          method: 'POST',
+          body: JSON.stringify(content)
+        })
+        return {
+          status: null,
+          user
+        }
+      } else {
+        return {
+          status: await sendMailApi(content),
+          user
+        }
       }
     })
     .then(({ status, user }) => {
-      console.log({ status, user })
+      // console.log({ status, user })
       // if (status.accepted.includes(bodyData.email)) {
       return res.status(201).json({ user, session: null, error: null })
       // } else {

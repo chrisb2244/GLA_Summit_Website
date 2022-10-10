@@ -30,14 +30,14 @@ interface MyAppProps extends AppProps {
   emotionCache?: EmotionCache
 }
 
-// if (process.env.PLAYWRIGHT === '1') {
-//   console.log('loading mocks')
-//   import('../../playwright/mocks').then(({initMocks}) => {
-//     // initMocks()
-//   })
-// } else {
-//   console.log('not loading mocks')
-// }
+if (process.env.PLAYWRIGHT === '1') {
+  console.log('loading mocks')
+  import('../../playwright/mocks').then(({initMocks}) => {
+    initMocks()
+  })
+} else {
+  console.log('not loading mocks')
+}
 
 export default function MyApp(props: MyAppProps): JSX.Element {
   const {
