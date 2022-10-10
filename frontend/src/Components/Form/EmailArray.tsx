@@ -1,6 +1,7 @@
 import type {
   FieldError,
   FieldErrors,
+  FieldValues,
   TypedFieldPath,
   UseFormRegister
 } from 'react-hook-form'
@@ -8,25 +9,24 @@ import { join } from 'react-hook-form'
 import { EmailFormComponent } from './Person'
 import type { EmailProps } from './Person'
 import { Box, Button, Paper } from '@mui/material'
-import { isLocked, PresentationLockedStatus } from './PresentationSubmissionFormCore'
 
-type EmailArrayProps<FieldValues> = {
+type EmailArrayProps<FV extends FieldValues> = {
   emailArray: EmailProps[]
-  arrayPath: TypedFieldPath<FieldValues, EmailProps[]>
+  arrayPath: TypedFieldPath<FV, EmailProps[]>
   errors:
     | Merge<
         FieldError,
         (Merge<FieldError, FieldErrors<EmailProps>> | undefined)[]
       >
     | undefined
-  register: UseFormRegister<FieldValues>
+  register: UseFormRegister<FV>
   removePresenter: (idx: number) => void
-  lockStatuses?: PresentationLockedStatus
+  locked?: boolean
   // defaultValue?: Partial<EmailProps[]>
 }
 
-export function EmailArrayFormComponent<FieldValues>(
-  props: EmailArrayProps<FieldValues>
+export function EmailArrayFormComponent<FV extends FieldValues>(
+  props: EmailArrayProps<FV>
 ) {
   const {
     emailArray,
@@ -34,10 +34,8 @@ export function EmailArrayFormComponent<FieldValues>(
     register,
     removePresenter,
     arrayPath,
-    lockStatuses = {isCopresenter: false, isSubmitted: false}
+    locked = false
   } = props
-
-  const locked = isLocked(lockStatuses)
 
   return (
     <>
@@ -62,11 +60,11 @@ export function EmailArrayFormComponent<FieldValues>(
   )
 }
 
-const OtherEmail = <FieldValues,>(props: {
+const OtherEmail = <FV extends FieldValues,>(props: {
   idx: number
-  path: TypedFieldPath<FieldValues, EmailProps[]>
+  path: TypedFieldPath<FV, EmailProps[]>
   errors: FieldErrors<EmailProps> | undefined
-  register: UseFormRegister<FieldValues>
+  register: UseFormRegister<FV>
   remove: (idx: number) => void
   defaultValue?: EmailProps
   locked?: boolean

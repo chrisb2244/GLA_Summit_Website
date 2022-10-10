@@ -1,6 +1,6 @@
-import { Box, Button, Container, Dialog, Typography } from '@mui/material'
+import { Box, Button, Container, Dialog } from '@mui/material'
 
-type PopupProps = {
+export type PopupProps = {
   open: boolean
   setClosed: () => void
   onResolve: (response: boolean) => void
@@ -13,35 +13,22 @@ export const ConfirmationPopup: React.FC<PopupProps> = (props) => {
     flexGrow: 1
   }
 
-  const P: React.FC = ({ children }) => {
-    return (
-      <Typography align='justify' pb={2}>
-        {children}
-      </Typography>
-    )
+  const resolveFn = (response: boolean) => {
+    props.setClosed()
+    props.onResolve(response)
   }
 
   return (
     <>
       <Dialog open={props.open} onClose={() => props.setClosed()}>
         <Container maxWidth='md' sx={{ p: 2 }}>
-          <P>
-            If you submit this presentation, then it will be locked and you will
-            be unable to continue to edit it.
-          </P>
-          <P>
-            Additionally, if your presentation is accepted then the
-            public-intended components (name, bio, and image) of your (and your
-            co-presenters&apos;) profiles will be made public and placed alongside
-            your accepted presentation.
-          </P>
-          <P>Please confirm that you accept this.</P>
+          {props.children}
           <Box display='flex' flexDirection={{ xs: 'column', md: 'row' }}>
             <Button
               type='submit'
               variant='outlined'
               sx={{ ...buttonDisplayProps }}
-              onClick={() => props.onResolve(false)}
+              onClick={() => resolveFn(false)}
             >
               Cancel
             </Button>
@@ -49,7 +36,7 @@ export const ConfirmationPopup: React.FC<PopupProps> = (props) => {
               type='submit'
               variant='contained'
               sx={{ ...buttonDisplayProps }}
-              onClick={() => props.onResolve(true)}
+              onClick={() => resolveFn(true)}
             >
               Confirm
             </Button>

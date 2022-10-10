@@ -27,7 +27,8 @@ const dummyReturn = {
     timeZone: '',
     timeZoneName: '',
     use24HourClock: false
-  }
+  },
+  triggerUpdate: jest.fn()
 }
 
 jest.mock('@/lib/sessionContext')
@@ -60,13 +61,14 @@ describe('User', () => {
   })
 
   it('shows name rather than email if both are available', async () => {
-    const localpm: ProfileModel = {
+    const localpm: ProfileModel['Row'] = {
       firstname: 'Test',
       lastname: 'User',
       id: '',
       avatar_url: null,
       website: null,
-      bio: null
+      bio: null,
+      updated_at: new Date().toISOString()
     }
 
     mockedSession.mockReturnValue({

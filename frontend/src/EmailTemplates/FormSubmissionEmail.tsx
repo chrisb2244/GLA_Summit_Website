@@ -1,5 +1,5 @@
 import { EmailProps } from '@/Components/Form/Person'
-import type { FormData } from '@/Components/Form/PresentationSubmissionForm'
+import type { FormData } from '@/Components/Forms/PresentationSubmissionForm'
 import {
   Box,
   Paper,
@@ -24,6 +24,10 @@ export const FormSubmissionEmail: React.FC<{
   switch (data.presentationType) {
     case '7x7': {
       typeText = '7x7 (7 minutes)'
+      break
+    }
+    case '15 minutes': {
+      typeText = 'Short Length (15 minutes)'
       break
     }
     case 'full length': {

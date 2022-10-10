@@ -1,13 +1,12 @@
 import { PersonDisplayProps } from '@/Components/PersonDisplay'
-import { NewUserInformation } from '@/Components/SigninRegistration/NewUserRegistration'
-import { PostgrestError, User } from '@supabase/supabase-js'
-import {
-  AllPresentationsModel,
-  ProfileModel,
-  TimezonePreferencesModel
-} from './databaseModels'
+import type { NewUserInformation } from '@/Components/SigninRegistration/NewUserRegistration'
+import { PostgrestError, User as SB_User } from '@supabase/supabase-js'
+import { AllPresentationsModel, ProfileModel } from './databaseModels'
+import { Database } from './sb_databaseModels'
 import { supabase, createAdminClient } from './supabaseClient'
-import { defaultTimezoneInfo } from './utils'
+import { defaultTimezoneInfo, myLog } from './utils'
+
+export type User = SB_User
 
 export const checkForExistingUser = async (
   email: string
@@ -38,7 +37,7 @@ export const adminUpdateExistingProfile = async (
   const client = createAdminClient()
 
   const existingData = await client
-    .from<ProfileModel>('profiles')
+    .from('profiles')
     .select('firstname,lastname')
     .eq('id', userId)
     .single()
@@ -57,25 +56,57 @@ export const adminUpdateExistingProfile = async (
     lastname: existingData.lastname ?? data.lastname
   }
 
-  await client
-    .from<ProfileModel>('profiles')
-    .update(updatedData)
-    .eq('id', userId)
+  await client.from('profiles').update(updatedData).eq('id', userId)
+}
+
+type PresentationSubmissionsModel =
+  Database['public']['Tables']['presentation_submissions']['Row']
+type NewSubmission = Omit<PresentationSubmissionsModel, 'id' | 'updated_at'>
+export const adminAddNewPresentationSubmission = async (
+  content: NewSubmission
+) => {
+  return createAdminClient()
+    .from('presentation_submissions')
+    .insert(content)
+    .select()
+    .single()
+    .then(({ data, error }) => {
+      if (error) throw error
+      return data.id
+    })
+}
+type ExistingSubmission = Omit<PresentationSubmissionsModel, 'updated_at'>
+export const adminUpdateExistingPresentationSubmission = async (
+  content: ExistingSubmission
+) => {
+  return createAdminClient()
+    .from('presentation_submissions')
+    .upsert(content)
+    .select()
+    .single()
+    .then(({ data, error }) => {
+      if (error) throw error
+      return data.id
+    })
 }
 
 /* ------------------ Client side functions ---------------------------- */
 export const clientUpdateExistingProfile = async (
-  userId: string,
-  profileData: Partial<ProfileModel>
+  profileData: ProfileModel['Row']
 ) => {
-  return supabase
-    .from<ProfileModel>('profiles')
-    .upsert({ ...profileData, id: userId })
-    .single()
-    .then(({ data, error }) => {
-      if (error) throw error
-      return data
-    })
+  return (
+    supabase
+      .from('profiles')
+      .upsert(profileData)
+      .select()
+      .then(({ data, error }) => {
+        if (error) throw error
+        if (data.length !== 1) {
+          throw new Error('Unexpected data length when updating profile')
+        }
+        return data[0]
+      })
+  )
 }
 
 export const checkIfOrganizer = async (user: User) => {
@@ -97,7 +128,7 @@ export const checkIfOrganizer = async (user: User) => {
 
 export const queryTimezonePreferences = async (user: User) => {
   const { data, error } = await supabase
-    .from<TimezonePreferencesModel>('timezone_preferences')
+    .from('timezone_preferences')
     .select()
     .eq('id', user.id)
   if (error) {
@@ -117,7 +148,7 @@ export const queryTimezonePreferences = async (user: User) => {
 
 export const getProfileInfo = async (user: User) => {
   return supabase
-    .from<ProfileModel>('profiles')
+    .from('profiles')
     .select('id, firstname, lastname, bio, website, avatar_url')
     .eq('id', user.id)
     .single()
@@ -130,22 +161,73 @@ export const getProfileInfo = async (user: User) => {
     })
 }
 
+export const uploadAvatar = async (
+  remoteFilePath: string,
+  localFile: File,
+  userId: string,
+  originalProfileURL: string | null
+) => {
+  // Upload a new file to storage
+  const { error } = await supabase.storage.from('avatars').upload(remoteFilePath, localFile)
+  if (error) throw error
+  
+  // Set that file as the profile avatar
+  const { error: profileUpdateError } = await supabase
+    .from('profiles').update({avatar_url: remoteFilePath}).match({'id': userId})
+  if (profileUpdateError) {
+    deleteAvatar(remoteFilePath)
+    throw profileUpdateError
+  }
+  
+  if (originalProfileURL != null) {
+    await deleteAvatar(originalProfileURL)
+  }
+  return true
+}
+
+export const downloadAvatar = async (userId: string) => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('avatar_url, id')
+    .eq('id', userId)
+    .single()
+  if (error) throw error
+  if (data.avatar_url == null) {
+    // Found profile, but no avatar_url defined
+    return null
+  }
+
+  return await supabase.storage.from('avatars')
+    .download(data.avatar_url)
+    .then(({data, error}) => {
+      if (error) throw error
+      return data
+    })
+}
+
 export const getAvatarPublicUrl = (userAvatarUrl: string | null) => {
   if (userAvatarUrl == null) {
     return null
   }
-  const { error, publicURL } = supabase.storage
+  const {
+    data: { publicUrl }
+  } = supabase.storage.from('avatars').getPublicUrl(userAvatarUrl)
+  return publicUrl
+}
+
+export const deleteAvatar = async (remotePath: string) => {
+  const { data, error } = await supabase.storage
     .from('avatars')
-    .getPublicUrl(userAvatarUrl)
+    .remove([remotePath])
   if (error) throw error
-  return publicURL
+  return data.length === 1
 }
 
 export const getPerson = async (
   userId: string
 ): Promise<PersonDisplayProps> => {
   return supabase
-    .from<ProfileModel>('profiles')
+    .from('profiles')
     .select()
     .eq('id', userId)
     .single()
@@ -166,17 +248,22 @@ export const getPerson = async (
     })
 }
 
-export const getPublicProfiles = async (): Promise<ProfileModel[]> => {
+export const getPublicProfileIds = async () => {
   return supabase
-    .from<{ id: string }>('public_profiles')
-    .select()
-    .then(({ data, error }) => {
+    .from('public_profiles')
+    .select('id')
+    .then(({data, error}) => {
       if (error) throw error
-      return data.map((d) => d.id)
+      const ids = data.map(({id}) => id)
+      return ids
     })
+}
+
+export const getPublicProfiles = async (): Promise<ProfileModel['Row'][]> => {
+  return getPublicProfileIds()
     .then((ids) => {
       return supabase
-        .from<ProfileModel>('profiles')
+        .from('profiles')
         .select()
         .in('id', ids)
         .order('lastname', { ascending: true })
@@ -187,11 +274,28 @@ export const getPublicProfiles = async (): Promise<ProfileModel[]> => {
     })
 }
 
+export const getPublicPresentations = async () => {
+  const { data, error } = await supabase.from('all_presentations')
+    .select()
+    .order('scheduled_for', { ascending: true })
+  if (error) throw error
+  return data
+}
+export const getPublicPresentationsForPresenter = async (presenterId: string) => {
+  const { data, error } = await supabase.from('all_presentations')
+    .select()
+    .contains('all_presenters', [presenterId])
+    .order('scheduled_for', { ascending: true })
+  if (error) throw error
+  return data
+}
+
+
 export const getPublicPresentation = async (
   presentationId: string
 ): Promise<AllPresentationsModel> => {
   return supabase
-    .from<AllPresentationsModel>('all_presentations')
+    .from('all_presentations')
     .select()
     .eq('presentation_id', presentationId)
     .single()
@@ -203,8 +307,33 @@ export const getPublicPresentation = async (
 
 export const getAcceptedPresentationIds = async (): Promise<string[]> => {
   const { data, error } = await supabase
-    .from<{ id: string }>('accepted_presentations')
+    .from('accepted_presentations')
     .select('id')
   if (error) throw error
   return data.map((d) => d.id)
+}
+
+export const getMyPresentations = async () => {
+  const { data, error: errorPresData } = await supabase
+    .from('my_submissions')
+    .select()
+  if (errorPresData) {
+    myLog({
+      error: errorPresData,
+      desc: 'Failed to fetch presentation details for this user'
+    })
+  }
+  return data
+}
+
+export const deletePresentation = async (presentationId: string) => {
+  const { error } = await supabase
+    .from('presentation_submissions')
+    .delete()
+    .eq('id', presentationId)
+  if (error) {
+    myLog({ error })
+    return false
+  }
+  return true
 }

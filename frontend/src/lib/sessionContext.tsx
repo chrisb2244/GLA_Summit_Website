@@ -1,16 +1,27 @@
 import React, { useContext, useState, createContext, useEffect } from 'react'
-import { supabase } from './supabaseClient'
-import type { Session, UserCredentials, User } from '@supabase/supabase-js'
-import { ApiError } from '@supabase/supabase-js'
+import type { Session, SupabaseClient, User } from '@supabase/supabase-js'
+import type { AuthError } from '@supabase/supabase-js'
 import { ProfileModel } from './databaseModels'
 import { defaultTimezoneInfo, myLog, TimezoneInfo } from './utils'
 import { GenerateLinkBody } from '@/lib/generateSupabaseLinks'
-import { NewUserInformation } from '@/Components/SigninRegistration/NewUserRegistration'
+import type { NewUserInformation } from '@/Components/SigninRegistration/NewUserRegistration'
 import {
   checkIfOrganizer,
   getProfileInfo,
   queryTimezonePreferences
 } from '@/lib/databaseFunctions'
+import { SessionContextProvider } from '@supabase/auth-helpers-react'
+import type { Database } from './sb_databaseModels'
+
+
+export type ApiError = {
+  message: string,
+  status: number
+}
+export type UserCredentials = {
+  email: string,
+  password: string
+}
 
 // Even for ValidSignIn, session and user are null using magic link via email.
 type ValidSignIn = { session: Session | null; user: User | null; error: null }
@@ -37,7 +48,7 @@ export type SignUpOptions = {
 
 type SessionContext = {
   user: User | null
-  profile: ProfileModel | null
+  profile: ProfileModel['Row'] | null
   timezoneInfo: TimezoneInfo
   isOrganizer: boolean
   isLoading: boolean
@@ -49,19 +60,20 @@ type SessionContext = {
     credentials: UserCredentials,
     options?: SignUpOptions
   ) => Promise<ValidSignUp | InvalidSignUp>
-  signOut: () => Promise<{ error: ApiError | null }>,
+  signOut: () => Promise<{ error: AuthError | null }>,
   triggerUpdate: (user: User | null) => void
 }
 
 const AuthContext = createContext<SessionContext | undefined>(undefined)
 
-export const AuthProvider: React.FC = (props) => {
+export const AuthProvider: React.FC<{supabase: SupabaseClient<Database>}> = ({supabase, children}) => {
   const [isLoading, setLoading] = useState(true)
   const [user, setUser] = useState<User | null>(null)
-  const [profile, setProfile] = useState<ProfileModel | null>(null)
+  const [profile, setProfile] = useState<ProfileModel['Insert'] | null>(null)
   const [isOrganizer, setIsOrganizer] = useState(false)
   const [timezoneInfo, setTimezoneInfo] =
     useState<TimezoneInfo>(defaultTimezoneInfo)
+  // const { session, isLoading: isLoadingSession, error, supabaseClient } = useSessionContext()
 
   const signIn = async (email: string, options?: SignInOptions) => {
     // Need the '/' to match allowed URLs in the Supabase configuration.
@@ -119,10 +131,23 @@ export const AuthProvider: React.FC = (props) => {
 
   const [currentSession, setCurrentSession] = useState<Session|null>(null);
   useEffect(() => {
-    runUpdates(currentSession?.user ?? null)
-    setLoading(false)
+    const initialFunction = async () => {
+      const session = await supabase.auth.getSession().then(({data: {session}, error}) => {
+        if (error) {
+          myLog(error)
+        }
+        return session
+      })
+      setCurrentSession(session)
+      runUpdates(session?.user ?? null)
+      setLoading(false)
+    }
 
-    const { data: listener } = supabase.auth.onAuthStateChange(
+    initialFunction()
+  }, [])
+
+  useEffect(() => {
+    const { data: {subscription} } = supabase.auth.onAuthStateChange(
       (ev, session) => {
         if (session?.user?.id === currentSession?.user?.id) {
           myLog('early exit from onAuthStateChange')
@@ -136,28 +161,31 @@ export const AuthProvider: React.FC = (props) => {
         setCurrentSession(session);
       }
     )
-
-    return () => {
-      listener?.unsubscribe()
-    }
-  }, [currentSession])
+    return subscription.unsubscribe
+  }, [])
 
   const value: SessionContext = {
     user,
-    profile,
+    profile: (profile as ProfileModel['Row']),
     isOrganizer,
     isLoading,
     signIn,
     signUp,
-    signOut: async () => await supabase.auth.signOut(),
+    signOut: async () => {
+      const signOutReturn = await supabase.auth.signOut()
+      runUpdates(null)
+      return signOutReturn
+    },
     timezoneInfo,
     triggerUpdate: async (user: User | null) => runUpdates(user)
   }
 
   return (
+    <SessionContextProvider supabaseClient={supabase}>
     <AuthContext.Provider value={value}>
-      {!isLoading && props.children}
+      {!isLoading && children}
     </AuthContext.Provider>
+    </SessionContextProvider>
   )
 }
 
@@ -169,21 +197,6 @@ export const useSession = () => {
 }
 
 const signUp = async (cred: UserCredentials, options?: SignUpOptions) => {
-  if (typeof cred.email === 'undefined') {
-    return {
-      user: null,
-      session: null,
-      error: { message: 'Undefined email passed', status: 401 }
-    }
-  }
-  if (typeof cred.password === 'undefined') {
-    return {
-      user: null,
-      session: null,
-      error: { message: 'No password provided', status: 401 }
-    }
-  }
-
   const bodyData: GenerateLinkBody = {
     email: cred.email,
     type: 'signup',

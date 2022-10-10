@@ -1,5 +1,5 @@
 import { TableCell, TableRow, Typography, TypographyProps } from '@mui/material'
-import type { FormData } from '@/Components/Form/PresentationSubmissionForm'
+import type { FormData } from '@/Components/Forms/PresentationSubmissionForm'
 
 export type Recipient = {
   email: string

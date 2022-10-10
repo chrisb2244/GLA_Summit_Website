@@ -1,5 +1,5 @@
-import { generateSupabaseLinks, LinkType } from '@/lib/generateSupabaseLinks'
-import type { GenerateLinkBody } from '@/lib/generateSupabaseLinks'
+import { generateSupabaseLinks } from '@/lib/generateSupabaseLinks'
+import type { GenerateLinkBody, LinkType } from '@/lib/generateSupabaseLinks'
 import { NextApiHandler } from 'next'
 import { sendMailApi } from '@/lib/sendMail'
 import { generateBody } from '@/lib/emailGeneration'
@@ -20,13 +20,14 @@ const handler: NextApiHandler = async (req, res) => {
   const type = bodyData.type
 
   return generateSupabaseLinks(bodyData)
-    .then(({ user, error, linkType }) => {
+    .then(({ data, error, linkType }) => {
       if (error) throw error
-      if (typeof user.action_link === 'undefined') {
+      if (typeof data.properties.action_link === 'undefined') {
         throw new Error('Unable to generate a link')
       }
       const subject = getSubject(linkType)
-      const link = user.action_link
+      const user = data.user
+      const link = data.properties.action_link
       switch (linkType) {
         case 'signup': {
           const plainText =
@@ -99,7 +100,7 @@ const handler: NextApiHandler = async (req, res) => {
       // }
     })
     .catch((err) => {
-      console.log({ err, m: 'In auth function, erorr finding user?' })
+      console.log({ err, m: 'In auth function, error finding user?' })
       if (err.message === 'User not found') {
         return res.status(401).json({ error: err })
       }

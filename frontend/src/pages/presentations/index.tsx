@@ -1,27 +1,17 @@
 import { PresentationSummary } from '@/Components/PresentationSummary'
 import type { Presentation } from '@/Components/PresentationSummary'
-import type { AllPresentationsModel } from '@/lib/databaseModels'
-import { supabase } from '@/lib/supabaseClient'
 import type { GetStaticProps } from 'next'
 import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
+import { getPublicPresentations } from '@/lib/databaseFunctions'
 
 type AllPresentationsProps = {
   presentations: Presentation[]
 }
 
-const getPresentations = async () => {
-  const { data, error } = await supabase
-    .from<AllPresentationsModel>('all_presentations')
-    .select('*')
-    .order('scheduled_for', { ascending: true })
-  if (error) throw error
-  return data
-}
-
 export const getStaticProps: GetStaticProps<
   AllPresentationsProps
 > = async () => {
-  const dbPresentations = await getPresentations()
+  const dbPresentations = await getPublicPresentations()
   const presentations = dbPresentations.map(p => {
     const presentation: Presentation = {
       title: p.title,

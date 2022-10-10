@@ -1,18 +1,16 @@
-export type ProfileModel = {
-  id: string
-  firstname: string | null
-  lastname: string | null
-  bio: string | null
-  website: string | null
-  avatar_url: string | null
-}
+import { Database } from './sb_databaseModels'
 
-export type PresentationPresentersModel = {
-  presentation_id: string
-  presenter_id: string
-}
+export type PresentationType = Database['public']['Enums']['presentation_type']
 
-export type PresentationType = '7x7' | '15 minutes' | 'full length' | 'panel'
+// These types need to be indexed for ['Row'], in most cases.
+// The parent element is exported to allow easier use with Updates and Inserts
+export type ProfileModel = Database['public']['Tables']['profiles']
+export type PresentationPresentersModel = Database['public']['Tables']['presentation_presenters']
+
+
+// These types aren't used for insertion or updating, so export the Row directly
+export type AllPresentationsModel = Database['public']['Views']['all_presentations']['Row']
+export type MySubmissionsModel = Database['public']['Views']['my_submissions']['Row']
 
 export type PresentationSubmissionsModel = {
   id: string
@@ -23,36 +21,4 @@ export type PresentationSubmissionsModel = {
   learning_points: string | null
   is_submitted: boolean
   presentation_type: PresentationType
-}
-
-export type AllPresentationsModel = {
-  presentation_id: string
-  scheduled_for: string
-  title: string
-  abstract: string
-  presentation_type: PresentationType
-  primary_presenter: string
-  all_presenters: string[]
-  all_presenters_names: string[]
-}
-
-export type MySubmissionsModel = {
-  presentation_id: string
-  title: string
-  abstract: string
-  learning_points: string
-  presentation_type: PresentationType
-  submitter_id: string
-  is_submitted: boolean
-  all_presenters_ids: string[]
-  all_firstnames: string[]
-  all_lastnames: string[]
-  all_emails: string[]
-}
-
-export type TimezonePreferencesModel = {
-  id: string
-  timezone_db: string
-  timezone_name: string
-  use_24h_clock: boolean
 }

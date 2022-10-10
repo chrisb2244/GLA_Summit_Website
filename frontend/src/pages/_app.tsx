@@ -8,7 +8,9 @@ import createEmotionCache from '../createEmotionCache'
 import { AppFrame } from '../Components/Layout/AppFrame'
 import reportWebVitals from '../reportWebVitals'
 import { AuthProvider } from '@/lib/sessionContext'
-import { Fragment } from 'react'
+import { Fragment, useState } from 'react'
+import type { Database } from '@/lib/sb_databaseModels'
+import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs'
 
 import '../spinningLogo.css'
 import '../GLA-generic.css'
@@ -35,6 +37,7 @@ export default function MyApp(props: MyAppProps): JSX.Element {
   } = props
 
   const AppFrameElem = isMaintenancePage ? Fragment : AppFrame
+  const [supabaseClient] = useState(() => createBrowserSupabaseClient<Database>())
 
   return (
     <CacheProvider value={emotionCache}>
@@ -47,7 +50,7 @@ export default function MyApp(props: MyAppProps): JSX.Element {
           {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
           <CssBaseline />
           <MaintenanceModeProvider maintenanceMode={isMaintenancePage}>
-            <AuthProvider>
+            <AuthProvider supabase={supabaseClient}>
               <AppFrameElem>
                 <Component {...pageProps} />
               </AppFrameElem>
