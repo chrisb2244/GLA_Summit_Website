@@ -171,7 +171,11 @@ export const AuthProvider: React.FC<{supabase: SupabaseClient<Database>}> = ({su
     isLoading,
     signIn,
     signUp,
-    signOut: async () => await supabase.auth.signOut(),
+    signOut: async () => {
+      const signOutReturn = await supabase.auth.signOut()
+      runUpdates(null)
+      return signOutReturn
+    },
     timezoneInfo,
     triggerUpdate: async (user: User | null) => runUpdates(user)
   }
