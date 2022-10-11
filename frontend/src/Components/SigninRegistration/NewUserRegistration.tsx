@@ -125,6 +125,18 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = ({
       <Dialog open={props.open} onClose={setClosed}>
         <form onSubmit={handleSubmit(onSubmit, onError)}>
           <Container maxWidth='md' sx={{ p: 2 }}>
+            <SmallCenteredText sx={{ pb: 2 }}>
+              Already registered?{' '}
+              <Link
+                onClick={(ev) => {
+                  ev.preventDefault()
+                  props.switchToSignIn()
+                }}
+                component='button'
+              >
+                Sign In
+              </Link>
+            </SmallCenteredText>
             <SmallCenteredText sx={{ pb: 1 }}>
               Please fill out the information below. You will receive an email
               with a verification link - click the link to automatically sign
@@ -148,18 +160,6 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = ({
             <Button type='submit' variant='outlined' fullWidth>
               Register
             </Button>
-            <SmallCenteredText sx={{ pt: 2 }}>
-              Already registered?{' '}
-              <Link
-                onClick={(ev) => {
-                  ev.preventDefault()
-                  props.switchToSignIn()
-                }}
-                component='button'
-              >
-                Sign In
-              </Link>
-            </SmallCenteredText>
           </Container>
         </form>
       </Dialog>
