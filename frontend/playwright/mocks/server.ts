@@ -1,11 +1,9 @@
-// import { setupServer } from 'msw/node'
 import { handlers } from './handlers'
 
 const requestInterceptorFactory = (() => {
     console.log('Importing setupServer')
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { setupServer } = require('msw/node') as typeof import('msw/node')
-    console.log(setupServer)
-    console.log('req interceptor is being initialized')
     const requestInterceptor = setupServer(...handlers)
     return requestInterceptor
 })
