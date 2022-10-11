@@ -25,17 +25,6 @@ test('User can log-in', async ({page}) => {
     return res.end()
   })
 
-  await page.route('/api/auth_links/*', (route, request) => {
-    console.log('Routed auth_links via PW')
-    route.continue({
-      headers: {
-        ...request.headers(),
-        // headers are converted to lower case... write in lower case to avoid confusion
-        test_only_headers_blocked: testAddress
-      }
-    })
-  });
-
   await page.goto('/');
 
   const registerLoginButton = page.locator('role=button', {hasText: /sign in/i});
@@ -54,7 +43,7 @@ test('User can log-in', async ({page}) => {
   const randomVal = Math.floor(Math.random()*10000).toString();
   await fnameBox.fill('Test_' + randomVal);
   await lnameBox.fill('User');
-  await emailBox.fill(`test_${randomVal}.user@glasummit.org`);
+  await emailBox.fill(`test${randomVal}_${testAddress}_user@glasummit.org`);
 
   const submitButton = page.locator('role=button', { hasText: "REGISTER" })
   await expect(submitButton).toBeVisible();
@@ -63,7 +52,7 @@ test('User can log-in', async ({page}) => {
   await expect(page.locator('role=dialog', { hasText: /Thank you.*check.*email/i })).toBeVisible()
   // await page.waitForTimeout(3*1000);
   expect(requests).toHaveLength(1)
-  const bodyPlain = requests[0]['bodyPlain'] as string
+  const bodyPlain = requests[0]['text'] as string
   expect(bodyPlain).toBeDefined()
   expect(bodyPlain).toContain('thisistheactionlink')
 });

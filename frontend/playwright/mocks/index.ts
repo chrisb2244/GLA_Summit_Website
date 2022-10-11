@@ -7,9 +7,11 @@ export const initMocks = async () => {
       onUnhandledRequest: 'bypass'
     })
     server.printHandlers()
+    return server
   } else {
     console.log('Starting a worker?')
     const { worker } = await import('./browser')
     worker.start()
+    return worker
   }
 }

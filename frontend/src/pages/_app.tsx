@@ -16,6 +16,8 @@ import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs'
 import '../spinningLogo.css'
 import '../GLA-generic.css'
 import { MaintenanceModeProvider } from '@/lib/maintenanceModeContext'
+import { SetupServerApi } from 'msw/lib/node'
+import { handlers } from 'playwright/mocks/handlers'
 
 // declare module '@mui/styles/defaultTheme' {
 //   // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -30,16 +32,29 @@ interface MyAppProps extends AppProps {
   emotionCache?: EmotionCache
 }
 
-if (process.env.PLAYWRIGHT === '1') {
-  console.log('loading mocks')
-  import('../../playwright/mocks').then(({initMocks}) => {
-    initMocks()
-  })
-} else {
-  console.log('not loading mocks')
-}
+// if (process.env.PLAYWRIGHT === '1') {
+//   console.log('loading mocks')
+//   import('../../playwright/mocks').then(({initMocks}) => {
+//     initMocks()
+//   })
+// } else {
+//   console.log('not loading mocks')
+// }
 
-export default function MyApp(props: MyAppProps): JSX.Element {
+export const requestInterceptor = (process.env.PLAYWRIGHT === '1' && typeof window === 'undefined')
+  ? (() => {
+    console.log('Setting up reqHandler on server in app')
+    const { setupServer } = require('msw/node') as typeof import('msw/node')
+    const requestInterceptor: SetupServerApi = setupServer(...handlers)
+    requestInterceptor.listen({
+      onUnhandledRequest: 'bypass'
+    })
+    requestInterceptor.printHandlers()
+    return requestInterceptor
+  }) ()
+  : undefined
+
+const MyApp: React.FC<MyAppProps> = (props) => {
   const {
     Component,
     emotionCache = clientSideEmotionCache,
@@ -72,7 +87,9 @@ export default function MyApp(props: MyAppProps): JSX.Element {
   )
 }
 
+export default MyApp
+
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals()
+// reportWebVitals()
