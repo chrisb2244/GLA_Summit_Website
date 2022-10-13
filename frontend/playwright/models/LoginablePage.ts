@@ -2,20 +2,22 @@ import { expect } from '@playwright/test'
 import type { Locator, Page } from '@playwright/test'
 
 export class LoginablePage {
-  readonly page: Page;
-  readonly loginOrRegisterButton: Locator;
-  readonly dialog: Locator;
-  readonly firstnameInput: Locator;
-  readonly lastnameInput: Locator;
-  readonly emailInput: Locator;
+  readonly page: Page
+  readonly loginOrRegisterButton: Locator
+  readonly dialog: Locator
+  readonly firstnameInput: Locator
+  readonly lastnameInput: Locator
+  readonly emailInput: Locator
 
   constructor(page: Page) {
-    this.page = page;
-    this.loginOrRegisterButton = this.page.locator('role=button', { hasText: /sign in/i});
-    this.dialog = this.page.locator('role=dialog');
-    this.firstnameInput = this.dialog.locator('label:has-text("First Name")');
-    this.lastnameInput = this.dialog.locator('label:has-text("Last Name")');
-    this.emailInput = this.dialog.locator('label:has-text("Email")');
+    this.page = page
+    this.loginOrRegisterButton = this.page.locator('role=button', {
+      hasText: /sign in/i
+    })
+    this.dialog = this.page.locator('role=dialog')
+    this.firstnameInput = this.dialog.locator('label:has-text("First Name")')
+    this.lastnameInput = this.dialog.locator('label:has-text("Last Name")')
+    this.emailInput = this.dialog.locator('label:has-text("Email")')
   }
 
   async goto(url: string) {
@@ -24,11 +26,11 @@ export class LoginablePage {
 
   async openLoginOrRegisterForm(type?: 'login' | 'register') {
     // The login/register button should be visible
-    await expect(this.loginOrRegisterButton).toBeVisible();
+    await expect(this.loginOrRegisterButton).toBeVisible()
 
     // Click the button, expect a dialog to appear
-    await this.loginOrRegisterButton.click();
-    await expect(this.dialog).toBeVisible();
+    await this.loginOrRegisterButton.click()
+    await expect(this.dialog).toBeVisible()
 
     // If required, change the form type.
     if (typeof type !== undefined) {
@@ -38,12 +40,16 @@ export class LoginablePage {
           if (isRegistrationForm) {
             return
           } else {
-            await this.dialog.locator('role=button', { hasText: /sign in/i}).click()
+            await this.dialog
+              .locator('role=button', { hasText: /sign in/i })
+              .click()
             return
           }
         case 'login':
           if (isRegistrationForm) {
-            await this.dialog.locator('role=button', { hasText: /sign in/i}).click()
+            await this.dialog
+              .locator('role=button', { hasText: /sign in/i })
+              .click()
             return
           } else {
             return
@@ -58,7 +64,9 @@ export class LoginablePage {
     }
     return await this.dialog.allTextContents().then((textArray) => {
       const containsLoginText = textArray.some((textElement) => {
-        return textElement.includes('In order to sign in, enter the email address')
+        return textElement.includes(
+          'In order to sign in, enter the email address'
+        )
       })
       return containsLoginText
     })
@@ -76,10 +84,14 @@ export class LoginablePage {
     await this.emailInput.fill(email)
   }
 
-  async fillInRegistrationForm(values: {firstname?: string, lastname?: string, email?: string}) {
-    if(values.firstname) await this.firstnameInput.fill(values.firstname)
-    if(values.lastname) await this.lastnameInput.fill(values.lastname)
-    if(values.email) await this.emailInput.fill(values.email)
+  async fillInRegistrationForm(values: {
+    firstname?: string
+    lastname?: string
+    email?: string
+  }) {
+    if (values.firstname) await this.firstnameInput.fill(values.firstname)
+    if (values.lastname) await this.lastnameInput.fill(values.lastname)
+    if (values.email) await this.emailInput.fill(values.email)
   }
 
   async submitForm(method?: 'enter key' | 'button click') {
@@ -87,7 +99,9 @@ export class LoginablePage {
       await this.dialog.press('Enter')
     } else {
       const isLogin = await this.isLoginForm()
-      const submitButton = this.dialog.locator('role=button', { hasText: isLogin ? /log ?in/i : /register/i})
+      const submitButton = this.dialog.locator('role=button', {
+        hasText: isLogin ? /log ?in/i : /register/i
+      })
       await submitButton.click()
     }
   }
@@ -102,15 +116,18 @@ export class LoginablePage {
   }
 
   async closeDialogByClickingOutside() {
-    const dialogBoundingBox = await this.dialog.boundingBox() as {
-      x: number;
-      y: number;
-      width: number;
-      height: number;
+    const dialogBoundingBox = (await this.dialog.boundingBox()) as {
+      x: number
+      y: number
+      width: number
+      height: number
     } // can be null
     expect(dialogBoundingBox).not.toBeNull()
     // now isn't null
-    await this.page.mouse.click(dialogBoundingBox.x - 15, dialogBoundingBox.y - 15)
-    await this.dialog.waitFor({state:'hidden'})
+    await this.page.mouse.click(
+      dialogBoundingBox.x - 15,
+      dialogBoundingBox.y - 15
+    )
+    await this.dialog.waitFor({ state: 'hidden' })
   }
 }
