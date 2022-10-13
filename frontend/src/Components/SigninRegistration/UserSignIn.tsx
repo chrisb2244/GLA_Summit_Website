@@ -7,13 +7,13 @@ import {
   TextField,
   Typography
 } from '@mui/material'
-import type { TypographyProps } from '@mui/material'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { useCallback, useEffect, useState } from 'react'
 import type { SignInOptions, SignInReturn } from '@/lib/sessionContext'
 import { myLog } from '@/lib/utils'
 import { NotificationDialogPopup } from '../NotificationDialogPopup'
 import { WaitingIndicator } from '../WaitingIndicator'
+import { SmallCenteredText } from '@/Components/Utilities/SmallCenteredText'
 
 type SignInProps = {
   open: boolean
@@ -31,22 +31,6 @@ type SignInFormValues = {
   email: string
 }
 
-const SmallCenteredText: React.FC<TypographyProps> = ({
-  children,
-  ...typographyProps
-}) => {
-  return (
-    <Typography
-      variant='body2'
-      fontSize='small'
-      align='center'
-      {...typographyProps}
-    >
-      {children}
-    </Typography>
-  )
-}
-
 export const UserSignIn: React.FC<SignInProps> = ({
   signIn,
   setClosed,
@@ -58,7 +42,13 @@ export const UserSignIn: React.FC<SignInProps> = ({
   } | null>(null)
   const [attemptedEmail, setAttemptedEmail] = useState<string | null>(null)
 
-  const { register, handleSubmit } = useForm<SignInFormValues>()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<SignInFormValues>({
+    mode: 'onTouched'
+  })
 
   const [isWaiting, setIsWaiting] = useState(false)
   const signinCallback = useCallback(
@@ -120,48 +110,59 @@ export const UserSignIn: React.FC<SignInProps> = ({
     }
   }
 
+  const emailErrorProps = () => {
+    const error = errors.email
+    const isError = !!errors.email
+    return {
+      error: isError,
+      helperText: error?.message,
+      FormHelperTextProps: { role: isError ? ' alert' : undefined }
+    }
+  }
+
   return (
     <>
       <Dialog open={props.open} onClose={setClosed}>
-        <form onSubmit={handleSubmit(onSubmit, (e) => myLog(e))}>
-          <Container maxWidth='md' sx={{ p: 2 }}>
-            <SmallCenteredText sx={{ pb: 1 }}>
-              In order to sign in, enter the email address you used to register
-              for this website. Once completed, you will receive an email with a
-              verification link. Open this link to automatically sign into the
-              site.
-            </SmallCenteredText>
-            <SmallCenteredText sx={{ pb: 2 }}>
-              Not registered?{' '}
-              <Link
-                onClick={(ev) => {
-                  ev.preventDefault()
-                  props.switchToRegistration()
-                }}
-                component='button'
-              >
-                Join Now
-              </Link>
-            </SmallCenteredText>
+        <Container maxWidth='md' sx={{ p: 2 }}>
+          <SmallCenteredText sx={{ pb: 1 }}>
+            In order to sign in, enter the email address you used to register
+            for this website. Once completed, you will receive an email with a
+            verification link. Open this link to automatically sign into the
+            site.
+          </SmallCenteredText>
+          <SmallCenteredText sx={{ pb: 2 }}>
+            Not registered?{' '}
+            <Link
+              onClick={(ev) => {
+                ev.preventDefault()
+                props.switchToRegistration()
+              }}
+              component='button'
+            >
+              Join Now
+            </Link>
+          </SmallCenteredText>
+          <form onSubmit={handleSubmit(onSubmit, (e) => myLog(e))}>
             <Box mb={2}>
               <TextField
                 fullWidth
                 label='Email'
                 autoComplete='email'
                 {...register('email', {
-                  required: true,
+                  required: 'Required',
                   pattern: {
                     value: /^\S+@\S+$/i,
-                    message: 'Invalid email'
+                    message: "This email doesn't match the expected pattern"
                   }
                 })}
+                {...emailErrorProps()}
               />
             </Box>
             <Button type='submit' variant='outlined' fullWidth>
               Log In
             </Button>
-          </Container>
-        </form>
+          </form>
+        </Container>
       </Dialog>
 
       <NotificationDialogPopup
