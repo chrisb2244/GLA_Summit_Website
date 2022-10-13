@@ -5,6 +5,7 @@ import { devices } from '@playwright/test';
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
  */
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config({path: './.env.local'});
 
 /**
@@ -42,7 +43,7 @@ const config: PlaywrightTestConfig = {
     trace: 'on-first-retry',
   },
 
-  globalSetup: require.resolve('./playwright/global-setup.ts'),
+  // globalSetup: require.resolve('./playwright/global-setup.ts'),
 
   /* Configure projects for major browsers */
   projects: [

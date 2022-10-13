@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { localIP, reqToBody as parseRequestBody } from './utils';
 import http from 'http'
 import { createAdminClient } from '@/lib/supabaseClient';
+import { LoginablePage } from './models/LoginablePage';
 
 
 const dummyServer = http.createServer()
@@ -69,3 +70,37 @@ test('User can log-in', async ({page}) => {
   const { data: uData, error } = await adminClient.auth.admin.deleteUser(userId)
   console.log({uData, error})
 });
+
+test('Enter key triggers correct behaviour for login form', async ({page}) => {
+  const loginablePage = new LoginablePage(page)
+  await loginablePage.goto('/')
+
+  await loginablePage.openLoginOrRegisterForm('login')
+  expect(await loginablePage.isLoginForm()).toBeTruthy()
+
+  await loginablePage.fillInLoginForm('notavalidemail.com')
+  // Attempt to submit by hitting enter
+  await loginablePage.submitForm('enter key')
+  // Should not be able to login (i.e. dialog remains open)
+  expect(await loginablePage.hasOpenDialog()).toBeTruthy()
+  const errors = await loginablePage.getAllErrors()
+  expect(errors).toHaveLength(1)
+
+})
+
+test('Registration form displays errors correctly', async ({page}) => {
+  const loginablePage = new LoginablePage(page)
+  await loginablePage.goto('/')
+
+  await loginablePage.openLoginOrRegisterForm('register')
+  expect(await loginablePage.isRegistrationForm()).toBeTruthy()
+
+  await loginablePage.fillInRegistrationForm({firstname: '', lastname: '', email: 'notavalidemail.com'})
+  // Attempt to submit
+  await loginablePage.submitForm('button click')
+  // Should not be able to login (i.e. dialog remains open)
+  expect(await loginablePage.hasOpenDialog()).toBeTruthy()
+  const errors = await loginablePage.getAllErrors()
+  expect(errors).toHaveLength(3)
+
+})

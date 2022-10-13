@@ -77,8 +77,10 @@ export const handlers = [
         body,
         headers: req.headers
       })
+      return res(ctx.status(200))
+    } else {
+      return req.passthrough()
     }
-    return res(ctx.status(200))
   }),
 
   // rest.all('*', (req, res, ctx) => {
