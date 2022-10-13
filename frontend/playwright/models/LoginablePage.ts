@@ -82,7 +82,7 @@ export class LoginablePage {
     if(values.email) await this.emailInput.fill(values.email)
   }
 
-  async submitForm(method: 'enter key' | 'button click') {
+  async submitForm(method?: 'enter key' | 'button click') {
     if (method === 'enter key') {
       await this.dialog.press('Enter')
     } else {
@@ -99,5 +99,18 @@ export class LoginablePage {
   async getAllErrors() {
     const errors = await this.page.getByRole('alert').allTextContents()
     return errors
+  }
+
+  async closeDialogByClickingOutside() {
+    const dialogBoundingBox = await this.dialog.boundingBox() as {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    } // can be null
+    expect(dialogBoundingBox).not.toBeNull()
+    // now isn't null
+    await this.page.mouse.click(dialogBoundingBox.x - 15, dialogBoundingBox.y - 15)
+    await this.dialog.waitFor({state:'hidden'})
   }
 }
