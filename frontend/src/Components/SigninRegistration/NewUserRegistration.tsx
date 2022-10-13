@@ -1,5 +1,4 @@
 import { Dialog, Button, Typography, Container, Link, Box } from '@mui/material'
-import type { TypographyProps } from '@mui/material'
 import { TypedFieldPath, useForm } from 'react-hook-form'
 import type { SubmitHandler, SubmitErrorHandler } from 'react-hook-form'
 import type { ApiError, UserCredentials } from '@/lib/sessionContext'
@@ -11,6 +10,7 @@ import { NotificationDialogPopup } from '../NotificationDialogPopup'
 import type { SignUpOptions, SignUpReturn } from '@/lib/sessionContext'
 import { WaitingIndicator } from '../WaitingIndicator'
 import NextLink from 'next/link'
+import { SmallCenteredText } from '@/Components/Utilities/SmallCenteredText'
 
 type UserRegistrationProps = {
   open: boolean
@@ -27,22 +27,6 @@ export type SignUpFunction = (
 export type NewUserInformation = {
   firstname: string
   lastname: string
-}
-
-const SmallCenteredText: React.FC<TypographyProps> = ({
-  children,
-  ...typographyProps
-}) => {
-  return (
-    <Typography
-      variant='body2'
-      fontSize='small'
-      align='center'
-      {...typographyProps}
-    >
-      {children}
-    </Typography>
-  )
 }
 
 function EMPTY<T>() {
@@ -123,21 +107,44 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = ({
   return (
     <>
       <Dialog open={props.open} onClose={setClosed}>
-        <form onSubmit={handleSubmit(onSubmit, onError)}>
-          <Container maxWidth='md' sx={{ p: 2 }}>
-            <SmallCenteredText sx={{ pb: 1 }}>
-              Please fill out the information below. You will receive an email
-              with a verification link - click the link to automatically sign
-              into the site.
-            </SmallCenteredText>
-            <SmallCenteredText sx={{ pb: 1 }}>
-              In order to attend the conference, the required registration can
-              be found at {<a href={'https://hopin.com/events/gla-summit-2022'}>https://hopin.com/events/gla-summit-2022</a>}
-            </SmallCenteredText>
-            <SmallCenteredText sx={{ pb: 2 }}>
-              This site is currently mostly focused on presentation submission,
-              although last year&apos;s presentations can be found at {<NextLink href={'/presentations'}>https://glasummit.org/presentations</NextLink>}.
-            </SmallCenteredText>
+        <Container maxWidth='md' sx={{ p: 2 }}>
+          <SmallCenteredText sx={{ pb: 2 }}>
+            Already registered?{' '}
+            <Link
+              onClick={(ev) => {
+                ev.preventDefault()
+                props.switchToSignIn()
+              }}
+              component='button'
+            >
+              Sign In
+            </Link>
+          </SmallCenteredText>
+          <SmallCenteredText sx={{ pb: 1 }}>
+            Please fill out the information below. You will receive an email
+            with a verification link - click the link to automatically sign into
+            the site.
+          </SmallCenteredText>
+          <SmallCenteredText sx={{ pb: 1 }}>
+            In order to attend the conference, the required registration can be
+            found at{' '}
+            {
+              <a href={'https://hopin.com/events/gla-summit-2022'}>
+                https://hopin.com/events/gla-summit-2022
+              </a>
+            }
+          </SmallCenteredText>
+          <SmallCenteredText sx={{ pb: 2 }}>
+            This site is currently mostly focused on presentation submission,
+            although last year&apos;s presentations can be found at{' '}
+            {
+              <NextLink href={'/presentations'}>
+                https://glasummit.org/presentations
+              </NextLink>
+            }
+            .
+          </SmallCenteredText>
+          <form onSubmit={handleSubmit(onSubmit, onError)}>
             <Person<PersonProps>
               register={register}
               path={EMPTY()}
@@ -148,20 +155,8 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = ({
             <Button type='submit' variant='outlined' fullWidth>
               Register
             </Button>
-            <SmallCenteredText sx={{ pt: 2 }}>
-              Already registered?{' '}
-              <Link
-                onClick={(ev) => {
-                  ev.preventDefault()
-                  props.switchToSignIn()
-                }}
-                component='button'
-              >
-                Sign In
-              </Link>
-            </SmallCenteredText>
-          </Container>
-        </form>
+          </form>
+        </Container>
       </Dialog>
       <NotificationDialogPopup
         open={popupEmail !== null}
