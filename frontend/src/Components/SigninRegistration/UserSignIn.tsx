@@ -44,6 +44,7 @@ export const UserSignIn: React.FC<SignInProps> = ({
 
   const {
     register,
+    reset,
     handleSubmit,
     formState: { errors }
   } = useForm<SignInFormValues>({
@@ -122,7 +123,10 @@ export const UserSignIn: React.FC<SignInProps> = ({
 
   return (
     <>
-      <Dialog open={props.open} onClose={setClosed}>
+      <Dialog open={props.open} onClose={() => {
+        setClosed()
+        reset({email: ''})
+      }}>
         <Container maxWidth='md' sx={{ p: 2 }}>
           <SmallCenteredText sx={{ pb: 1 }}>
             In order to sign in, enter the email address you used to register

@@ -44,13 +44,11 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = ({
     register,
     formState: { errors }
   } = useForm<PersonProps>({
-    mode: 'onTouched'
+    mode: 'onTouched',
   })
   const [isWaiting, setIsWaiting] = useState(false)
   const [popupEmail, setPopupOpen] = useState<string | null>(null)
 
-  // State and useEffect are required to get the setIsWaiting call to work before the signin.
-  const [formData, setFormData] = useState<PersonProps | null>(null)
   const signupCallback = useCallback(
     (data: PersonProps) => {
       const newUserData: NewUserInformation = {
@@ -78,21 +76,13 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = ({
         })
       setClosed()
       reset()
-      setFormData(null)
     },
     [signUp, setClosed, reset]
   )
 
-  useEffect(() => {
-    if (formData == null) {
-      return
-    }
-    setIsWaiting(true)
-    signupCallback(formData)
-  }, [formData, signupCallback])
-
   const onSubmit: SubmitHandler<PersonProps> = async (data) => {
-    setFormData(data)
+    setIsWaiting(true)
+    signupCallback(data)
   }
 
   const onError: SubmitErrorHandler<PersonProps> = (err) => myLog(err)
@@ -106,7 +96,10 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = ({
 
   return (
     <>
-      <Dialog open={props.open} onClose={setClosed}>
+      <Dialog open={props.open} onClose={() => {
+        setClosed()
+        reset({firstName: '', lastName: '', email: ''})
+      }}>
         <Container maxWidth='md' sx={{ p: 2 }}>
           <SmallCenteredText sx={{ pb: 2 }}>
             Already registered?{' '}
