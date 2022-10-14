@@ -22,6 +22,7 @@ export type PresentationReviewInfo = {
   learning_points: string,
   presentation_id: string,
   presentation_type: Database['public']['Enums']['presentation_type'],
+  updated_at: string
 }
 
 type SubmittedPresentationReviewCardProps = {

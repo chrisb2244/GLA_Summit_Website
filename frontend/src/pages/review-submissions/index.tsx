@@ -14,14 +14,16 @@ const ReviewSubmissionsPage: NextPage = () => {
     fetch('/api/presentation_submissions').then((res) => {
       res.json().then((jsonValue) => {
         const { presentationSubmissions } = jsonValue as { presentationSubmissions: PresentationReviewInfo[]}
-        console.log(jsonValue)
-        console.log(presentationSubmissions)
         setSubmittedPresentations(presentationSubmissions)
       })
     })
   }, [])
 
-  const listElems = submittedPresentations.map(p => {
+  const listElems = submittedPresentations
+  .sort((a, b) => {
+    return (new Date(b.updated_at).getTime()) - (new Date(a.updated_at).getTime())
+  })
+  .map(p => {
     // <ListItem key={p.presentation_id}>
     //   <Typography variant = 'h4'>{p.title}</Typography>
     //   <Typography>{p.abstract}</Typography>
