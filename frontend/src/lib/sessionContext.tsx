@@ -162,7 +162,7 @@ export const AuthProvider: React.FC<{supabase: SupabaseClient<Database>}> = ({su
       }
     )
     return subscription.unsubscribe
-  }, [])
+  }, [currentSession])
 
   const value: SessionContext = {
     user,

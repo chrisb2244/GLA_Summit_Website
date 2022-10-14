@@ -6,7 +6,7 @@ import { RegistrationPopup } from '@/Components/SigninRegistration/RegistrationP
 
 const PresentationSubmissionFormPage = (): JSX.Element => {
   const [submitter, setSubmitter] = useState<PersonProps | null>(null)
-  const { profile, user } = useSession()
+  const { profile, user, signIn, signUp } = useSession()
 
   useEffect(() => {
     if (user !== null && profile !== null) {
@@ -30,8 +30,8 @@ const PresentationSubmissionFormPage = (): JSX.Element => {
         <RegistrationPopup
           open={showSignupPopup}
           setClosed={() => setShowSignupPopup(false)}
-          signIn={() => Promise.reject()}
-          signUp={() => Promise.reject()}
+          signIn={signIn}
+          signUp={signUp}
           initialState='signup'
         />
       </>

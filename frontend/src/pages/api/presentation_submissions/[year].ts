@@ -41,7 +41,7 @@ const handler: NextApiHandler<{presentationSubmissions: Array<PresentationReview
     return updatedAt > start && updatedAt < end
   }).map((d) => {
     // console.log(d)
-    const { title, abstract, presentation_type, submitter_id } = d
+    const { title, abstract, presentation_type, submitter_id, updated_at } = d
     console.log({m: 'attempt for profiles', p: d.profiles, d}) //, presenter_email_lookup (email) e: d.presenter_email_lookup
     const presenters = (d.profiles as [{ id: string, firstname: string, lastname: string }])
 
@@ -52,7 +52,8 @@ const handler: NextApiHandler<{presentationSubmissions: Array<PresentationReview
       learning_points: d.learning_points ?? '',
       presentation_id: d.id,
       submitter: presenters.filter(p => p.id === submitter_id)[0],
-      presenters
+      presenters,
+      updated_at: updated_at
     }
   })
   return res.json({presentationSubmissions})
