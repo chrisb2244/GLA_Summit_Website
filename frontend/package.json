@@ -50,7 +50,7 @@
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^12.1.0",
-    "@playwright/test": "^1.25.2",
+    "@playwright/test": "^1.27.1",
     "@testing-library/dom": "^8.11.3",
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^11.2.7",
