@@ -12,7 +12,7 @@ import { createAdminClient } from '@/lib/supabaseClient'
 import type { SupabaseClient, User } from '@supabase/supabase-js'
 import type {Database} from '@/lib/sb_databaseModels'
 import { PersonProps } from '@/Components/Form/Person'
-import { myLog } from '@/lib/utils'
+import { logErrorToDb, myLog } from '@/lib/utils'
 import { generateInviteLink } from '@/lib/generateSupabaseLinks'
 
 const handlePresentationSubmission = async (
@@ -24,7 +24,7 @@ const handlePresentationSubmission = async (
   // Need to send using e.g. fetch(..., { body: JSON.stringify({ formdata: data, submitterId: id }) })
   const formData = req.body.formdata as FormData
   const submitter_id = req.body.submitterId as string
-  const sendEmails = req.body.sendEmails as boolean | undefined
+  const sendEmails = (req.body.sendEmails as boolean | undefined) ?? true
   const presentationId = req.body.presentationId as string | undefined
 
   if (typeof formData === 'undefined' || typeof submitter_id === 'undefined') {
@@ -41,13 +41,18 @@ const handlePresentationSubmission = async (
   )
 
   // Get the IDs and necessary information to send the emails
-  const idAndInfoArray = await getEmailInfoAndIds(
-    formData,
-    adminClient,
-    submitter_id
-  )
-  const emailInfoArray = idAndInfoArray.map((v) => v.emailOptions)
-  const idArray = idAndInfoArray.map((v) => v.id)
+  const otherPresenterEmails = formData.otherPresenters.map(p => p.email)
+  const { data, error } = await adminClient
+    .from('email_lookup')
+    .select("*")
+    .in("email", otherPresenterEmails)
+  if (error) {
+    myLog(error)
+    logErrorToDb(error, "error", submitter_id)
+    throw error
+  }
+  const otherPresenterIds = data.map(p => p.id) ?? []
+  const idArray = otherPresenterIds.concat(submitter_id)
 
   // Upload presenter information
   type PresentationPresentersRow = Database['public']['Tables']['presentation_presenters']['Row']
@@ -60,7 +65,14 @@ const handlePresentationSubmission = async (
   await adminClient.from('presentation_presenters').upsert(presentationPresenterData)
 
   // Send all emails
-  if (typeof sendEmails === 'undefined' || sendEmails) {
+  if (sendEmails) {
+    const idAndInfoArray = await getEmailInfoAndIds(
+      formData,
+      adminClient,
+      submitter_id,
+      data
+    )
+    const emailInfoArray = idAndInfoArray.map((v) => v.emailOptions)
     // Default to sending, unless directed not to send via the data content
     myLog(`Sending emails to ${emailInfoArray.length} recipient(s)`)
     return Promise.all(emailInfoArray.map(sendMailApi)).then((_statusArray) => {
@@ -90,88 +102,57 @@ const handlePresentationSubmission = async (
 const getEmailInfoAndIds = async (
   formData: FormData,
   adminClient: SupabaseClient,
-  submitterId: string
+  submitterId: string,
+  otherPresentersEmailIdList: { email: string, id: string }[]
 ) => {
   // Data for the form submitter
   const formSubmitterOptions = emailOptionsForFormSubmitter(formData)
 
-  const otherPresenterEmails = formData.otherPresenters.map((p) => p.email)
-  const emailOtherPresentersChain = await adminClient.auth.admin
-    .listUsers()
-    .then(({ data: userList, error }) => {
-      if (error) throw error
-
-      // Create a map from email to existing userIds
-      const { users }: {users: Array<User>} = userList
-      return new Map(
-        users
-          .filter((u) => typeof u.email !== 'undefined')
-          .map((u) => {
-            // email is always defined after filter
-            /* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */
-            return [u.email!, u.id]
-          })
-      )
-    })
-    .then((emailMap) => {
-      return otherPresenterEmails.map((email) => {
-        return {
+  const idAndInfo = await Promise.all(
+    otherPresentersEmailIdList.map(async ({ email, id }) => {
+      if (id !== null) {
+        // Existing account, notify
+        const { data, error } = await adminClient
+          .from('profiles')
+          .select()
+          .eq('id', id)
+          .single()
+        if (error) throw error
+        const otherPresenter: PersonProps = {
           email,
-          // Must be defined if has(email) is true
-          /* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */
-          id: emailMap.has(email) ? emailMap.get(email)! : null
+          firstName: data.firstname ?? '',
+          lastName: data.lastname ?? ''
         }
-      })
+        const emailOptions = emailOptionsForExistingOtherPresenter(
+          formData,
+          otherPresenter
+        )
+        return {
+          id,
+          emailOptions
+        }
+      } else {
+        // New account, invite
+        // This also provides the action link, which we should probably use...
+        const { newUserId, confirmationLink } = await generateInviteLink(
+          email,
+          '/my-profile'
+        )
+        const emailOptions = emailOptionsForNewOtherPresenter(
+          formData,
+          email,
+          confirmationLink
+        )
+        return {
+          id: newUserId,
+          emailOptions
+        }
+      }
     })
-    .then(async (emailIdList) => {
-      const idAndInfo = await Promise.all(
-        emailIdList.map(async ({ email, id }) => {
-          if (id !== null) {
-            // Existing account, notify
-            const { data, error } = await adminClient
-              .from('profiles')
-              .select()
-              .eq('id', id)
-              .single()
-            if (error) throw error
-            const otherPresenter: PersonProps = {
-              email,
-              firstName: data.firstname ?? '',
-              lastName: data.lastname ?? ''
-            }
-            const emailOptions = emailOptionsForExistingOtherPresenter(
-              formData,
-              otherPresenter
-            )
-            return {
-              id,
-              emailOptions
-            }
-          } else {
-            // New account, invite
-            // This also provides the action link, which we should probably use...
-            const { newUserId, confirmationLink } = await generateInviteLink(
-              email,
-              '/my-profile'
-            )
-            const emailOptions = emailOptionsForNewOtherPresenter(
-              formData,
-              email,
-              confirmationLink
-            )
-            return {
-              id: newUserId,
-              emailOptions
-            }
-          }
-        })
-      )
-      return idAndInfo
-    })
-
-  return [{ id: submitterId, emailOptions: formSubmitterOptions }].concat(
-    emailOtherPresentersChain
   )
+
+  return [{ id: submitterId, emailOptions: formSubmitterOptions }]
+    .concat(idAndInfo)
 }
 
 // const saveDraft = async (formData: FormData) => {}
