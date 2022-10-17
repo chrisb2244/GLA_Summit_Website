@@ -34,6 +34,7 @@ export const handlers = [
   // }),
 
   rest.post('*/admin/generate_link', async (req, res, ctx) => {
+    console.log('Caught generate link request in handler-defined method')
     const type = await req.json().then(v => v.type)
     if (type === 'signup') {
       const originalResponse = await ctx.fetch(req)
