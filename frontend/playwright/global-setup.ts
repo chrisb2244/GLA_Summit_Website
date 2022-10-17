@@ -6,6 +6,8 @@ import { chromium, FullConfig, expect } from '@playwright/test'
 import { LoginablePage } from './models/LoginablePage';
 import { localIP, reqToBody as parseRequestBody } from './utils'
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 const shouldLog = false;
 const log = (message?: any, ...params: any[]) => {
   if (shouldLog) {
@@ -111,3 +113,5 @@ async function globalSetup(config: FullConfig) {
 }
 
 export default globalSetup;
+
+/* eslint-enable @typescript-eslint/no-explicit-any */

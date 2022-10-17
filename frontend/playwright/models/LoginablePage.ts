@@ -110,7 +110,7 @@ export class LoginablePage {
     return await this.dialog.isVisible()
   }
 
-  async waitForDialogState(open: boolean = true) {
+  async waitForDialogState(open = true) {
     return await this.dialog.waitFor({state: open ? 'visible' : 'hidden'})
   }
 

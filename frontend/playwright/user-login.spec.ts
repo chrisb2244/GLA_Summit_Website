@@ -15,6 +15,7 @@ test.afterAll(() => {
 test('User can log-in', async ({ page }) => {
   const port = 3001
   const path = 'testEndpoint'
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   const requests: any[] = []
 
   dummyServer.addListener('request', (req, res) => {
