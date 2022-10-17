@@ -38,6 +38,26 @@ export interface Database {
           bio?: string | null;
         };
       };
+      accepted_presentations: {
+        Row: {
+          id: string;
+          accepted_at: string;
+          scheduled_for: string | null;
+          year: Database["public"]["Enums"]["summit_year"];
+        };
+        Insert: {
+          id: string;
+          accepted_at: string;
+          scheduled_for?: string | null;
+          year: Database["public"]["Enums"]["summit_year"];
+        };
+        Update: {
+          id?: string;
+          accepted_at?: string;
+          scheduled_for?: string | null;
+          year?: Database["public"]["Enums"]["summit_year"];
+        };
+      };
       presentation_submissions: {
         Row: {
           id: string;
@@ -143,23 +163,6 @@ export interface Database {
           id?: string;
         };
       };
-      accepted_presentations: {
-        Row: {
-          id: string;
-          accepted_at: string;
-          scheduled_for: string | null;
-        };
-        Insert: {
-          id: string;
-          accepted_at: string;
-          scheduled_for?: string | null;
-        };
-        Update: {
-          id?: string;
-          accepted_at?: string;
-          scheduled_for?: string | null;
-        };
-      };
       timezone_preferences: {
         Row: {
           id: string;
@@ -220,6 +223,7 @@ export interface Database {
         Row: {
           presentation_id: string;
           scheduled_for: string;
+          year: Database["public"]["Enums"]["summit_year"];
           title: string;
           abstract: string;
           presentation_type: Database["public"]["Enums"]["presentation_type"];
@@ -271,19 +275,20 @@ export interface Database {
         Args: Record<PropertyKey, never>;
         Returns: Record<string, unknown>[];
       };
-      get_all_presentations: {
-        Args: Record<PropertyKey, never>;
-        Returns: Record<string, unknown>[];
-      };
       presenter_email_lookup: {
         Args: Record<string, unknown>;
         Returns: unknown;
+      };
+      get_all_presentations: {
+        Args: Record<PropertyKey, never>;
+        Returns: Record<string, unknown>[];
       };
     };
     Enums: {
       presentation_type: "7x7" | "full length" | "panel" | "15 minutes";
       mentoring_type: "mentor" | "mentee";
       log_type: "info" | "error" | "severe";
+      summit_year: "2020" | "2021" | "2022" | "2023";
     };
   };
 }
