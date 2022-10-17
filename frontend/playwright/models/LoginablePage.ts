@@ -110,6 +110,10 @@ export class LoginablePage {
     return await this.dialog.isVisible()
   }
 
+  async waitForDialogState(open: boolean = true) {
+    return await this.dialog.waitFor({state: open ? 'visible' : 'hidden'})
+  }
+
   async getAllErrors() {
     const errors = await this.page.getByRole('alert').allTextContents()
     return errors
@@ -129,5 +133,19 @@ export class LoginablePage {
       dialogBoundingBox.y - 15
     )
     await this.dialog.waitFor({ state: 'hidden' })
+  }
+
+  async switchForm() {
+    const isLogin = await this.isLoginForm()
+    await this.dialog.locator('role=button', {
+      hasText: await isLogin ? /Join Now/i : /Sign In/i
+    }).click()
+    if (isLogin) {
+      // was login, now registration
+      await this.firstnameInput.waitFor({state: 'visible'})
+    } else {
+      // was registration, now login
+      await this.dialog.locator('text="In order to sign in,"').waitFor({state: 'visible'})
+    }
   }
 }
