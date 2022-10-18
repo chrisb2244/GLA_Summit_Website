@@ -222,7 +222,7 @@ export interface Database {
       all_presentations: {
         Row: {
           presentation_id: string;
-          scheduled_for: string;
+          scheduled_for: string | null;
           year: Database["public"]["Enums"]["summit_year"];
           title: string;
           abstract: string;
