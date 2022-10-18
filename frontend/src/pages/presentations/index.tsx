@@ -1,6 +1,7 @@
 import type {
   Presentation,
-  PresentationYear
+  PresentationYear,
+  Presenter
 } from '@/Components/PresentationSummary'
 import type { GetStaticProps } from 'next'
 import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
@@ -19,12 +20,21 @@ export const getStaticProps: GetStaticProps<
   const dbPresentations = await getPublicPresentations()
   const presentations = dbPresentations
     .map((p) => {
+      const presenters = p.all_presenters_names.map((_, idx) => {
+        const presenter: Presenter = {
+          firstname: p.all_presenter_firstnames[idx],
+          lastname: p.all_presenter_lastnames[idx]
+        }
+        return presenter
+      })
       const presentation: Presentation = {
         title: p.title,
         abstract: p.abstract,
-        speakers: p.all_presenters_names,
+        speakers: presenters,
+        speakerNames: p.all_presenters_names,
         presentationId: p.presentation_id,
-        year: p.year
+        year: p.year,
+        scheduledFor: p.scheduled_for
       }
       return presentation
     })

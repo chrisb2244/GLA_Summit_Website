@@ -47,7 +47,7 @@ export interface Database {
         };
         Insert: {
           id: string;
-          accepted_at: string;
+          accepted_at?: string;
           scheduled_for?: string | null;
           year: Database["public"]["Enums"]["summit_year"];
         };
@@ -230,6 +230,8 @@ export interface Database {
           primary_presenter: string;
           all_presenters: string[];
           all_presenters_names: string[];
+          all_presenter_firstnames: string[];
+          all_presenter_lastnames: string[];
         };
       };
       my_submissions: {

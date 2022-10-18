@@ -3,13 +3,19 @@ import { Link } from '@/lib/link'
 import type { LinkProps } from '@/lib/link'
 import { Database } from '@/lib/sb_databaseModels'
 
+export type Presenter = {
+  firstname: string
+  lastname: string
+}
 export type PresentationYear = Database['public']['Enums']['summit_year']
 export type Presentation = {
   title: string
   abstract: string
-  speakers: string | string[]
+  speakers: Presenter | Presenter[]
+  speakerNames: string | string[],
   presentationId: string
   year: PresentationYear
+  scheduledFor: string | null
 }
 
 export type PresentationProps = {
@@ -23,9 +29,28 @@ export const PresentationSummary: React.FC<PresentationProps> = ({
   pageLink,
   paperProps
 }) => {
-  const speakerLine = Array.isArray(pres.speakers)
-    ? pres.speakers.join(', ')
-    : pres.speakers
+  const speakerLine = Array.isArray(pres.speakerNames)
+    ? pres.speakerNames.join(', ')
+    : pres.speakerNames
+  // const {
+  //     timezoneInfo: { timeZone, timeZoneName, use24HourClock }
+  // } = useSession()
+  const dateToString = (utcDateString: string) => {
+    const date = new Date(utcDateString)
+    const formatter = new Intl.DateTimeFormat(undefined, {
+      timeZone: 'GMT',
+      hour: 'numeric',
+      minute: '2-digit',
+      second: undefined,
+      dateStyle: undefined,
+      hour12: false
+    })
+    return formatter.format(date)
+  }
+
+  const scheduleLine = pres.scheduledFor !== null ? (
+    dateToString(pres.scheduledFor) + ' UTC'
+  ) : null
 
   const TitleComponent: React.FC<LinkProps> = ({ children, ...props }) => {
     if (typeof pageLink !== 'undefined') {
@@ -45,6 +70,9 @@ export const PresentationSummary: React.FC<PresentationProps> = ({
         <TitleComponent variant='h6'>{pres.title}</TitleComponent>
         <Typography variant='subtitle1' fontStyle='italic'>
           {speakerLine}
+        </Typography>
+        <Typography variant='subtitle2' fontStyle='italic'>
+          {scheduleLine}
         </Typography>
         <Box
           sx={{
