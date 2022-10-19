@@ -2,6 +2,7 @@ import { Box, Paper, PaperProps, Typography } from '@mui/material'
 import { Link } from '@/lib/link'
 import type { LinkProps } from '@/lib/link'
 import { Database } from '@/lib/sb_databaseModels'
+import { PresentationType } from '@/lib/databaseModels'
 
 export type Presenter = {
   firstname: string
@@ -16,6 +17,7 @@ export type Presentation = {
   presentationId: string
   year: PresentationYear
   scheduledFor: string | null
+  presentationType: PresentationType
 }
 
 export type PresentationProps = {
@@ -52,6 +54,17 @@ export const PresentationSummary: React.FC<PresentationProps> = ({
     dateToString(pres.scheduledFor) + ' UTC'
   ) : null
 
+  const durationElem = (
+    <Typography variant='subtitle2' fontStyle='italic'>
+      {
+        pres.presentationType === "full length" ? '45 minutes' :
+        pres.presentationType === "15 minutes" ? '15 minutes' :
+        pres.presentationType === "7x7" ? '7 minutes' :
+        'panel'
+      }
+    </Typography>
+  )
+
   const TitleComponent: React.FC<LinkProps> = ({ children, ...props }) => {
     if (typeof pageLink !== 'undefined') {
       return (
@@ -74,6 +87,7 @@ export const PresentationSummary: React.FC<PresentationProps> = ({
         <Typography variant='subtitle2' fontStyle='italic'>
           {scheduleLine}
         </Typography>
+        {durationElem}
         <Box
           sx={{
             display: '-webkit-box',

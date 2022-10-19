@@ -11,7 +11,8 @@ const dummyPresentation: Presentation = {
   presentationId: 'not-a-presentation-id',
   speakerNames: speakerName,
   scheduledFor: null,
-  year: '2021'
+  year: '2021',
+  presentationType: 'full length'
 } as const
 
 describe('PresentationSummary', () => {

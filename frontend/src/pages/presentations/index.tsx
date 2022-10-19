@@ -7,6 +7,7 @@ import type { GetStaticProps } from 'next'
 import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
 import { getPublicPresentations } from '@/lib/databaseFunctions'
 import { YearGroupedPresentations } from '@/Components/Layout/YearGroupedPresentations'
+import { Typography } from '@mui/material'
 
 type AllPresentationsProps = {
   presentations: Presentation[]
@@ -34,7 +35,8 @@ export const getStaticProps: GetStaticProps<
         speakerNames: p.all_presenters_names,
         presentationId: p.presentation_id,
         year: p.year,
-        scheduledFor: p.scheduled_for
+        scheduledFor: p.scheduled_for,
+        presentationType: p.presentation_type
       }
       return presentation
     })
@@ -73,7 +75,14 @@ const AllPresentations: React.FC<AllPresentationsProps> = ({
     ))
 
   // The Box here prevents going to the very edge on smaller screens
-  return <StackedBoxes>{elems}</StackedBoxes>
+  return (
+    <StackedBoxes>
+      <Typography variant='h6' pl={1.5}>
+        The list of confirmed presentations for 2022 is still growing - come back soon to see more sessions!
+      </Typography>
+      {elems}
+    </StackedBoxes>
+  )
 }
 
 export default AllPresentations
