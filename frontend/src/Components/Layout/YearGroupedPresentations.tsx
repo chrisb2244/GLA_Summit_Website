@@ -67,6 +67,7 @@ export const YearGroupedPresentations: React.FC<
       TransitionProps={{
         timeout: 150
       }}
+      elevation={3}
     >
       <AccordionSummary
         aria-controls={`presentations-${year}-content`}
@@ -78,6 +79,10 @@ export const YearGroupedPresentations: React.FC<
             transform: 'rotate(90deg)', // rotate when expanded
           },
           '& .MuiAccordionSummary-content': {
+            marginLeft: 2, // spacing between arrow and year
+          },
+          '& .MuiAccordionSummary-content.Mui-expanded': {
+            // Repeated because otherwise the default margin applies, moving this to the left.
             marginLeft: 2, // spacing between arrow and year
           },
         }}
