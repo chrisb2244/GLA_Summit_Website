@@ -71,18 +71,18 @@ export const YearGroupedPresentations: React.FC<
       <AccordionSummary
         aria-controls={`presentations-${year}-content`}
         id={`presentations-${year}-header`}
-        expandIcon={<ArrowForwardIosSharp sx={{fontSize: '0.9rem'}} />}
+        expandIcon={<ArrowForwardIosSharp sx={{fontSize: '1.5rem'}} />}
         sx={{
           flexDirection: 'row-reverse', // arrow on left
           '& .MuiAccordionSummary-expandIconWrapper.Mui-expanded': {
-            transform: 'rotate(90deg)' // rotate when expanded
+            transform: 'rotate(90deg)', // rotate when expanded
           },
           '& .MuiAccordionSummary-content': {
-            marginLeft: 1, // spacing between arrow and year
+            marginLeft: 2, // spacing between arrow and year
           },
         }}
       >
-        <Typography>{year}</Typography>
+        <Typography variant='h4'>{year} Presentations</Typography>
       </AccordionSummary>
       <AccordionDetails sx={{px: 1.5}}>{renderedPresentations}</AccordionDetails>
     </Accordion>
