@@ -15,10 +15,10 @@ import type { BoxProps } from '@mui/system'
 export const MenuBar: React.FC<BoxProps> = ({ ...extraBoxProps }) => {
   const menuElements = [
     { title: 'Home', link: '/' },
-    { title: 'Our Team', link: '/our-team' },
+    { title: 'Presentations', link: '/presentations' },
     { title: 'Submit a Presentation', link: '/submit-presentation' },
-    { title: 'Media and Banners', link: '/media' }
-    // { title: 'Presentations', link: '/presentations' },
+    { title: 'Media and Banners', link: '/media' },
+    { title: 'Our Team', link: '/our-team' },
     // { title: 'Presenters', link: '/presenters' }
   ]
 
@@ -73,7 +73,7 @@ export const MenuBar: React.FC<BoxProps> = ({ ...extraBoxProps }) => {
       <Box id='desktop-menu' display={{ xs: 'none', md: 'flex' }} {...boxProps}>
         {menuElements.map(({ title, link }) => {
           return (
-            <Box sx={{ mx: 1 }} key={title}>
+            <Box display='flex' mx={1} alignSelf='center' key={title}>
               <Link href={link} passHref>
                 <Button
                   onClick={() => handleCloseNavMenu()}

@@ -1,7 +1,7 @@
 import type { GetStaticPaths, GetStaticProps } from 'next'
 import type { PersonDisplayProps } from '@/Components/PersonDisplay'
 import { useSession } from '@/lib/sessionContext'
-import type { Presentation } from '@/Components/Layout/PresentationDisplay'
+import type { Presentation, Schedule } from '@/Components/Layout/PresentationDisplay'
 import { PresentationDisplay } from '@/Components/Layout/PresentationDisplay'
 import {
   getAcceptedPresentationIds,
@@ -38,11 +38,22 @@ export const getStaticProps: GetStaticProps<PresentationProps> = async ({
       const type = data.presentation_type
       // Panels, 7x7 for 1h, 'full length' for 45m?
       const sessionDuration = type === 'full length' ? 45 * 60 : 60 * 60 // duration in seconds
-      const startDate = new Date(data.scheduled_for)
-      const sessionStart = startDate.toUTCString()
-      const sessionEnd = new Date(
-        startDate.getTime() + sessionDuration * 1000
-      ).toUTCString()
+
+      let schedule: Schedule = {
+        sessionStart: null,
+        sessionEnd: null
+      }
+
+      if (data.scheduled_for !== null) {
+        const startDate = new Date(data.scheduled_for)
+        const endDate = new Date(
+          startDate.getTime() + sessionDuration * 1000
+        )
+        schedule = {
+          sessionStart: startDate.toUTCString(),
+          sessionEnd: endDate.toUTCString()
+        }
+      }
 
       return {
         props: {
@@ -51,8 +62,7 @@ export const getStaticProps: GetStaticProps<PresentationProps> = async ({
             abstract: data.abstract,
             speakers: presenters,
             speakerNames: data.all_presenters_names,
-            sessionStart,
-            sessionEnd
+            ...schedule
           }
         }
       }
@@ -90,13 +100,9 @@ const PresentationPage = ({ presentation }: PresentationProps) => {
     return formatter.format(date)
   }
 
-  const startTime = dateToString(presentation.sessionStart)
-  const endTime = dateToString(presentation.sessionEnd)
-
   return (
     <PresentationDisplay
-      startTime={startTime}
-      endTime={endTime}
+      dateToStringFn={dateToString}
       presentation={presentation}
       timeZoneName={timeZoneName}
     />

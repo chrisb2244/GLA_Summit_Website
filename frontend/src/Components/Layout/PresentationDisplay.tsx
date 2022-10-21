@@ -7,21 +7,36 @@ export type Presentation = {
   abstract: string
   speakerNames: string[]
   speakers: PersonDisplayProps[]
+} & Schedule 
+
+export type Schedule = ({
   sessionStart: string
   sessionEnd: string
-}
+} | {
+  sessionStart: null
+  sessionEnd: null
+})
 
 type PresentationDisplayProps = {
   presentation: Presentation
-  startTime: string
-  endTime: string
   timeZoneName: string
+  dateToStringFn: (datetime: string) => string
 }
 
 export const PresentationDisplay: React.FC<PresentationDisplayProps> = (
   props
 ) => {
-  const { presentation, startTime, endTime, timeZoneName } = props
+  const { presentation, timeZoneName, dateToStringFn } = props
+  let scheduleInfo = <></>
+  if (presentation.sessionStart !== null) {
+    const startTime = dateToStringFn(presentation.sessionStart)
+    const endTime = dateToStringFn(presentation.sessionEnd)
+    scheduleInfo = (
+      <Typography variant='subtitle1' fontStyle='italic'>
+        {`${startTime} - ${endTime} (${timeZoneName})`}
+      </Typography>
+    )
+  }
   return (
     <Paper>
       <StackedBoxes>
@@ -29,9 +44,7 @@ export const PresentationDisplay: React.FC<PresentationDisplayProps> = (
           <Typography variant='h3' gutterBottom>
             {presentation.title}
           </Typography>
-          <Typography variant='subtitle1' fontStyle='italic'>
-            {`${startTime} - ${endTime} (${timeZoneName})`}
-          </Typography>
+          {scheduleInfo}
           <Box>
             {presentation.abstract.split('\r\n').map((p, idx) => {
               return <Typography key={`p${idx}`}>{p}</Typography>
