@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { PresentationSubmissionForm } from '@/Components/Forms/PresentationSubmissionForm'
 import type { PersonProps } from '@/Components/Form/Person'
 import { RegistrationPopup } from '@/Components/SigninRegistration/RegistrationPopup'
+import { Alert, Box, Typography } from '@mui/material'
 
 const PresentationSubmissionFormPage = (): JSX.Element => {
   const [submitter, setSubmitter] = useState<PersonProps | null>(null)
@@ -42,6 +43,20 @@ const PresentationSubmissionFormPage = (): JSX.Element => {
 
   return (
     <>
+      <Alert
+        severity='warning'
+        sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      >
+        <Box display='flex' flexDirection='column' alignContent='center'>
+          <Typography textAlign='center' width='100%'>
+            Our presentation submission process will close on Friday 27th
+            October.
+            <br />
+            If you are considering submitting a presentation, please do so this
+            week!
+          </Typography>
+        </Box>
+      </Alert>
       <PresentationSubmissionForm submitter={submitter} />
     </>
   )

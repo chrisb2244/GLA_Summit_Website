@@ -1,20 +1,10 @@
-import {
-  Box,
-  Button,
-  Typography,
-  TypographyProps,
-  // useMediaQuery,
-  // useTheme,
-  // Snackbar,
-  // IconButton,
-  // SnackbarProps
-} from '@mui/material'
+import { Box, Button, Typography } from '@mui/material'
+import type { SnackbarOrigin, TypographyProps } from '@mui/material'
 import { Countdown } from './Countdown'
 import { SponsorBar } from './SponsorBar'
 import { StackedBoxes } from './Layout/StackedBoxes'
 import { Link } from '@/lib/link'
-// import { useState } from 'react'
-// import CloseIcon from '@mui/icons-material/Close'
+import { SnackbarNotification } from './Utilities/SnackbarNotification'
 
 export const HomePage: React.FC = () => {
   // The month value is 0-based (so 10 -> November)
@@ -28,12 +18,15 @@ export const HomePage: React.FC = () => {
     )
   }
 
-  // const [snackbarOpen, setSnackbarOpen] = useState(true)
   // const theme = useTheme()
   // const isLargerScreen = useMediaQuery(theme.breakpoints.up('md'))
-  // const anchorPosition: SnackbarProps['anchorOrigin'] = isLargerScreen
+  // const anchorPosition: SnackbarOrigin | undefined = isLargerScreen
   //   ? { vertical: 'top', horizontal: 'right' }
   //   : undefined
+  const anchorPosition: SnackbarOrigin = {
+    horizontal: 'center',
+    vertical: 'bottom'
+  }
 
   return (
     <>
@@ -72,29 +65,14 @@ export const HomePage: React.FC = () => {
           </Link>
         </Box>
       </StackedBoxes>
-      {/* <Snackbar
-        sx={{ maxWidth: { md: '20%' } }}
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        anchorOrigin={anchorPosition}
-        action={
-          <>
-            <P textAlign='center' mb={2}>
-              The service we use to send emails is currently having technical
-              difficulties - if you are unable to signin or register, please try
-              again later
-            </P>
-            <IconButton
-              size='small'
-              aria-label='close'
-              color='inherit'
-              onClick={() => setSnackbarOpen(false)}
-            >
-              <CloseIcon fontSize='small' />
-            </IconButton>
-          </>
-        }
-      /> */}
+      <SnackbarNotification open anchorOrigin={anchorPosition}>
+        <P textAlign='center'>
+          Our presentation submission process will close on Friday 27th October.
+        </P>
+        <P textAlign='center'>
+          If you are considering submitting a presentation, please do so this week!
+        </P>
+      </SnackbarNotification>
       <Box my='auto' pb={2}>
         <Box>
           <SponsorBar />
