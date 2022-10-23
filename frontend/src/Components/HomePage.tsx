@@ -67,7 +67,7 @@ export const HomePage: React.FC = () => {
       </StackedBoxes>
       <SnackbarNotification open anchorOrigin={anchorPosition}>
         <P textAlign='center'>
-          Our presentation submission process will close on Friday 27th October.
+          Our presentation submission process will close on Friday 28th October.
         </P>
         <P textAlign='center'>
           If you are considering submitting a presentation, please do so this week!

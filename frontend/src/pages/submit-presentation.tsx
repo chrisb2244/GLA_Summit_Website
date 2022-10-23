@@ -49,7 +49,7 @@ const PresentationSubmissionFormPage = (): JSX.Element => {
       >
         <Box display='flex' flexDirection='column' alignContent='center'>
           <Typography textAlign='center' width='100%'>
-            Our presentation submission process will close on Friday 27th
+            Our presentation submission process will close on Friday 28th
             October.
             <br />
             If you are considering submitting a presentation, please do so this
