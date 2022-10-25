@@ -43,6 +43,7 @@ export const WaitingIndicator: React.FC<WaitingIndicatorProps> = ({
           style={{
             animation: 'rotation 10s infinite linear'
           }}
+          alt='loading indicator'
         />
         {children}
       </Box>

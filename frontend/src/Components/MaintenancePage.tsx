@@ -40,6 +40,7 @@ export const MaintenancePage: React.FC = () => {
           {...imageProps}
           height={200}
           style={{ pointerEvents: 'none' }}
+          alt='GLA Logo'
         />
       </Box>
     </>
