@@ -1,4 +1,4 @@
-import { Stack, Button } from '@mui/material'
+import { Stack, Button, Box } from '@mui/material'
 import PersonIcon from '@mui/icons-material/Person'
 import Image from 'next/image'
 import { uploadProfileImage, useProfileImage } from '@/lib/profileImage'
@@ -17,7 +17,14 @@ export const UserProfileImage: React.FC<UserProfileImageProps> = (props) => {
 
   const imageComponent = !!profileImageSrc ? (
     // See https://nextjs.org/docs/api-reference/next/image for sizing
-    <Image src={profileImageSrc} alt='profile image' {...sizeInfo} />
+    <Box position='relative' {...sizeInfo} mx='auto'>
+      <Image
+        src={profileImageSrc}
+        alt='profile image'
+        fill
+        style={{ objectFit: 'contain' }}
+      />
+    </Box>
   ) : !loading ? (
     <PersonIcon
       sx={{
@@ -35,7 +42,7 @@ export const UserProfileImage: React.FC<UserProfileImageProps> = (props) => {
   return (
     <Stack>
       {imageComponent}
-      <Button component='label'>
+      <Button component='label' sx={{mx: 'auto' }} >
         {uploading ? 'Uploading...' : 'Change Image'}
         <input
           type='file'

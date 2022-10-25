@@ -40,7 +40,7 @@ export const PersonDisplay: React.FC<PersonDisplayProps> = ({pageLink, ...props}
       <Image
         src={props.image}
         alt={`Image of ${props.firstName} ${props.lastName}`}
-        objectFit='contain'
+        style={{maxWidth: '100%', maxHeight: '100%', height: 'auto', width: '100%', objectFit: 'contain'}}
         {...position}
       />
     )
@@ -48,10 +48,10 @@ export const PersonDisplay: React.FC<PersonDisplayProps> = ({pageLink, ...props}
     // Image by URL
     imageElem = (
       <Image
-        layout='fill'
+        fill
         src={props.image}
-        objectFit='contain'
         alt={`Image of ${props.firstName} ${props.lastName}`}
+        style={{objectFit: 'contain'}}
         {...position}
       />
     )
@@ -59,7 +59,7 @@ export const PersonDisplay: React.FC<PersonDisplayProps> = ({pageLink, ...props}
     // No image
     if (props.useDefaultIconImage) {
       isDefaultImage = true
-      imageElem = <PersonIcon sx={{ width: '100%', height: '100%' }} />
+      imageElem = <PersonIcon sx={{ maxWidth: '100%', maxHeight: '100%', height: 'auto', width: '100%' }} />
     }
   }
 

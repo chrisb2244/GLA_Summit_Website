@@ -56,6 +56,7 @@ export const PresentationDisplay: React.FC<PresentationDisplayProps> = (
             <PersonDisplay
               {...personProps}
               stripContainer
+              useDefaultIconImage
               key={`${personProps.lastName}_${personProps.firstName}`}
             />
           )
