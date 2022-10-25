@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { createServerSupabaseClient } from '@supabase/auth-helpers-shared'
 import type { Database } from './sb_databaseModels'
-// eslint-disable-next-line @next/next/no-server-import-in-page
+
 import type { NextRequest, NextResponse } from 'next/server'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
