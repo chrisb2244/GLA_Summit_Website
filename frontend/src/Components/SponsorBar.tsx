@@ -13,7 +13,7 @@ export const SponsorBar: React.FC = () => {
           justifyContent='center'
           width='fit-content'
         >
-          <NextImage src={NI_Logo} width='180px' height='180px' />
+          <NextImage src={NI_Logo} width={180} height={180} alt='NI Logo' />
           <Typography variant='h5' sx={{ fontSize: { md: '2.5rem' } }} px={2}>
             Sponsored by NI
           </Typography>

@@ -13,23 +13,22 @@ export const Header: React.FC = () => {
   const logo = (
     <Box gridColumn={{ xs: '1/-1', md: '1' }} height='100%' >
       <NextLink href='/'>
-        <a>
           <Box display={{ xs: 'none', md: 'flex' }} pt={2} pb={1} justifyContent='center' height='100%'>
             <NextImage
+              alt='GLA Logo'
               src={GLA_Logo}
               {...imageProps}
-              height='100%'
-              style={{ pointerEvents: 'none' }}
+              style={{ pointerEvents: 'none', maxHeight: '16vh' }}
             />
           </Box>
           <Box display={{ xs: 'flex', md: 'none' }}>
             <NextImage
+              alt='GLA Logo'
               src={GLA_Logo_Mobile}
               {...imageProps}
-              style={{ pointerEvents: 'none' }}
+              style={{ pointerEvents: 'none', maxWidth: '100%', height: 'auto' }}
             />
           </Box>
-        </a>
       </NextLink>
     </Box>
   )
@@ -46,7 +45,8 @@ export const Header: React.FC = () => {
             justifyContent: { xs: 'center', md: undefined },
             gridTemplateColumns: '1fr 5fr 1fr',
             gridTemplateRows: '1fr',
-            display: 'grid'
+            display: 'grid',
+            // height: '200px'
           }}
         >
           {logo}

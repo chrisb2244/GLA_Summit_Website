@@ -18,7 +18,7 @@ export const MenuBar: React.FC<BoxProps> = ({ ...extraBoxProps }) => {
     { title: 'Presentations', link: '/presentations' },
     { title: 'Submit a Presentation', link: '/submit-presentation' },
     { title: 'Media and Banners', link: '/media' },
-    { title: 'Our Team', link: '/our-team' },
+    { title: 'Our Team', link: '/our-team' }
     // { title: 'Presenters', link: '/presenters' }
   ]
 
@@ -61,7 +61,7 @@ export const MenuBar: React.FC<BoxProps> = ({ ...extraBoxProps }) => {
         >
           {menuElements.map(({ title, link }) => {
             return (
-              <Link href={link} passHref key={title}>
+              <Link href={link} passHref key={title} legacyBehavior>
                 <MenuItem onClick={() => handleCloseNavMenu()}>
                   <Typography textAlign='center'>{title}</Typography>
                 </MenuItem>
@@ -74,7 +74,7 @@ export const MenuBar: React.FC<BoxProps> = ({ ...extraBoxProps }) => {
         {menuElements.map(({ title, link }) => {
           return (
             <Box display='flex' mx={1} alignSelf='center' key={title}>
-              <Link href={link} passHref>
+              <Link href={link} passHref legacyBehavior>
                 <Button
                   onClick={() => handleCloseNavMenu()}
                   role='menuitem'
