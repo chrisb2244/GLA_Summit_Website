@@ -18,7 +18,7 @@ export const Header: React.FC = () => {
               alt='GLA Logo'
               src={GLA_Logo}
               {...imageProps}
-              style={{ pointerEvents: 'none', maxHeight: '16vh' }}
+              style={{ pointerEvents: 'none', maxHeight: '16vh', width: 'auto'}}
             />
           </Box>
           <Box display={{ xs: 'flex', md: 'none' }}>
