@@ -11,22 +11,21 @@ export interface PersonDisplayProps {
   description: string | ReactElement
   image?: StaticImageData | string | null
   imageSide?: 'left' | 'right'
-  imagePosition?: string
   useDefaultIconImage?: boolean
   stripContainer?: boolean
   pageLink?: string
 }
 
-export const PersonDisplay: React.FC<PersonDisplayProps> = ({pageLink, ...props}) => {
+export const PersonDisplay: React.FC<PersonDisplayProps> = ({
+  pageLink,
+  ...props
+}) => {
   const direction =
     typeof props.imageSide !== 'undefined'
       ? props.imageSide === 'right'
         ? 'row'
         : 'row-reverse'
       : 'row'
-  const position = props.imagePosition
-    ? { objectPosition: props.imagePosition }
-    : {}
 
   let isDefaultImage = false
   let imageElem = null
@@ -40,8 +39,13 @@ export const PersonDisplay: React.FC<PersonDisplayProps> = ({pageLink, ...props}
       <Image
         src={props.image}
         alt={`Image of ${props.firstName} ${props.lastName}`}
-        style={{maxWidth: '100%', maxHeight: '100%', height: 'auto', width: '100%', objectFit: 'contain'}}
-        {...position}
+        style={{
+          maxWidth: '100%',
+          maxHeight: '100%',
+          height: 'auto',
+          width: '100%',
+          objectFit: 'contain'
+        }}
       />
     )
   } else if (typeof props.image !== 'undefined' && props.image !== null) {
@@ -51,15 +55,23 @@ export const PersonDisplay: React.FC<PersonDisplayProps> = ({pageLink, ...props}
         fill
         src={props.image}
         alt={`Image of ${props.firstName} ${props.lastName}`}
-        style={{objectFit: 'contain'}}
-        {...position}
+        style={{ objectFit: 'contain' }}
       />
     )
   } else {
     // No image
     if (props.useDefaultIconImage) {
       isDefaultImage = true
-      imageElem = <PersonIcon sx={{ maxWidth: '100%', maxHeight: '100%', height: 'auto', width: '100%' }} />
+      imageElem = (
+        <PersonIcon
+          sx={{
+            maxWidth: '100%',
+            maxHeight: '100%',
+            height: 'auto',
+            width: '100%'
+          }}
+        />
+      )
     }
   }
 
@@ -78,9 +90,13 @@ export const PersonDisplay: React.FC<PersonDisplayProps> = ({pageLink, ...props}
 
   const OuterElem = props.stripContainer ? Fragment : Paper
 
-  const TitleComponent: React.FC<LinkProps> = ({children, ...props}) => {
+  const TitleComponent: React.FC<LinkProps> = ({ children, ...props }) => {
     if (typeof pageLink !== 'undefined') {
-      return <Link href={pageLink} {...props}>{children}</Link>
+      return (
+        <Link href={pageLink} {...props}>
+          {children}
+        </Link>
+      )
     } else {
       return <Typography {...props}>{children}</Typography>
     }
@@ -98,7 +114,9 @@ export const PersonDisplay: React.FC<PersonDisplayProps> = ({pageLink, ...props}
           padding={props.stripContainer ? 0 : 2}
           alignItems='center'
         >
-          <TitleComponent variant='h4'>{props.firstName} {props.lastName}</TitleComponent>
+          <TitleComponent variant='h4'>
+            {props.firstName} {props.lastName}
+          </TitleComponent>
           <Typography
             component='div'
             variant='body1'
