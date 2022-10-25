@@ -59,7 +59,7 @@ const MediaPage: NextPage = () => {
             </Typography>
           </TableCell>
           <TableCell>
-            <Typography>{`${sizeInfo}`}</Typography>
+            <Typography whiteSpace={{xs: 'break-spaces', sm: 'nowrap'}}>{`${sizeInfo}`}</Typography>
           </TableCell>
         </TableRow>
       )
@@ -96,7 +96,7 @@ const MediaPage: NextPage = () => {
     <StackedBoxes>
       <SidewaysBox paddingX={4}>
         <a href={"https://jki.net"}>
-          <NextImage src={JKI_Logo} />
+          <NextImage src={JKI_Logo} alt='JKI logo' style={{ width: 'auto', maxHeight: '200px'}}/>
         </a>
         <Typography marginX={2}>
           The GLA Summit Organizers would like to thank JKI for providing us
@@ -121,7 +121,9 @@ const MediaPage: NextPage = () => {
       </Paragraph>
 
       <SidewaysBox>
-        <NextImage src={SignatureImage} />
+        <Box maxWidth={{xs: undefined, sm: '40%'}} flexWrap='wrap'>
+          <NextImage src={SignatureImage} alt='GLA signature image' style={{ height: 'auto', width: '100%' }} />
+        </Box>
         <CopyableTextBox
           fill='lightgrey'
           variant='body2'
@@ -144,7 +146,7 @@ const MediaPage: NextPage = () => {
       >
         <TableBody>{bannerImagesAttendee}</TableBody>
       </Table>
-      <NextImage key='bannerimage-attendee' src={TW_Attendee} />
+      <NextImage key='bannerimage-attendee' src={TW_Attendee} alt='attendee banner' style={{height: 'auto', maxWidth: '100%'}}/>
 
       <Subtitle>Speakers</Subtitle>
       <Table
@@ -155,7 +157,7 @@ const MediaPage: NextPage = () => {
       >
         <TableBody>{bannerImagesSpeaker}</TableBody>
       </Table>
-      <NextImage key='bannerimage-speaker' src={TW_Speaker} />
+      <NextImage key='bannerimage-speaker' src={TW_Speaker} alt='speaker banner' style={{height: 'auto', maxWidth: '100%'}}/>
     </StackedBoxes>
   )
 }
