@@ -13,12 +13,13 @@ export const Header: React.FC = () => {
   const logo = (
     <Box gridColumn={{ xs: '1/-1', md: '1' }} height='100%' >
       <NextLink href='/'>
-          <Box display={{ xs: 'none', md: 'flex' }} pt={2} pb={1} justifyContent='center' height='100%'>
+          <Box display={{ xs: 'none', md: 'flex' }} justifyContent='center' height='100%' position='relative'>
             <NextImage
               alt='GLA Logo'
               src={GLA_Logo}
               {...imageProps}
-              style={{ pointerEvents: 'none', maxHeight: '16vh', width: 'auto'}}
+              fill
+              style={{ pointerEvents: 'none', paddingTop: '16px', paddingBottom: '8px', paddingLeft: '8px'}}
             />
           </Box>
           <Box display={{ xs: 'flex', md: 'none' }}>
