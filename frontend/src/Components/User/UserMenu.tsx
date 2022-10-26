@@ -10,8 +10,8 @@ import {
   Logout as LogoutIcon,
   CoPresentOutlined as PresentationsIcon
 } from '@mui/icons-material'
-import { useState } from 'react'
-import Link from 'next/link'
+import React, { useState } from 'react'
+import NextLink from 'next/link'
 import { useSession } from '@/lib/sessionContext'
 import { useProfileImage } from '@/lib/profileImage'
 import type { User } from '@/lib/databaseFunctions'
@@ -38,6 +38,17 @@ export const UserMenu: React.FC<UserMenuProps> = (props) => {
       {profile ? profile.firstname + ' ' + profile.lastname : props.user?.email}
     </Avatar>
   )
+
+  const MenuItemLink = (props: {
+    href: string
+    children?: React.ReactNode
+  }) => {
+    return (
+      <MenuItem component={NextLink} href={props.href}>
+        {props.children}
+      </MenuItem>
+    )
+  }
 
   return (
     <>
@@ -88,52 +99,29 @@ export const UserMenu: React.FC<UserMenuProps> = (props) => {
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
-        <Link href='/my-profile' passHref>
-          <MenuItem>
-            <>
-              {userAvatar}
-              My Profile
-            </>
-          </MenuItem>
-        </Link>
+        <MenuItemLink href='/my-profile'>
+          {userAvatar}
+          My Profile
+        </MenuItemLink>
         {isOrganizer && (
-          <Link href='' passHref>
-            <MenuItem>Yay, I&apos;m an organizer...</MenuItem>
-          </Link>
+          <MenuItemLink href=''>
+            Yay, I&apos;m an organizer...
+          </MenuItemLink>
         )}
-        <Link href='/my-presentations' passHref>
-          <MenuItem>
-            <>
-              <ListItemIcon>
-                <PresentationsIcon />
-              </ListItemIcon>
-              My Presentations
-            </>
-          </MenuItem>
-        </Link>
-        {/* <Link href='/my-presentations' passHref>
-          <MenuItem>
-            <>
-              <ListItemIcon>
-                <Icon sx={{ textAlign: 'center' }}>
-                  <img
-                    style={{
-                      display: 'flex',
-                      height: 'inherit',
-                      width: 'inherit'
-                    }}
-                    src={Pres1.src}
-                  />
-                </Icon>
-              </ListItemIcon>
-              My Presentations
-            </>
-          </MenuItem>
-        </Link> */}
+        <MenuItemLink href='/my-presentations'>
+          <>
+            <ListItemIcon>
+              <PresentationsIcon />
+            </ListItemIcon>
+            My Presentations
+          </>
+        </MenuItemLink>
         <MenuItem
           onClick={() => {
             void signOut()
           }}
+          component={NextLink}
+          href='/'
         >
           <ListItemIcon>
             <LogoutIcon fontSize='small' />
