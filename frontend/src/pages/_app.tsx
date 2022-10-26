@@ -11,6 +11,7 @@ import { AuthProvider } from '@/lib/sessionContext'
 import { Fragment, useState } from 'react'
 import type { Database } from '@/lib/sb_databaseModels'
 import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs'
+// import { setupServer } from 'msw/node'
 
 import '../spinningLogo.css'
 import '../GLA-generic.css'
@@ -29,7 +30,27 @@ interface MyAppProps extends AppProps {
   emotionCache?: EmotionCache
 }
 
-export default function MyApp(props: MyAppProps): JSX.Element {
+if (process.env.PLAYWRIGHT === '1') {
+  console.log('loading mocks')
+  import('../../playwright/mocks').then(({initMocks}) => {
+    initMocks().then(mock => mock.resetHandlers())
+  })
+}
+
+// export const requestInterceptor = (process.env.PLAYWRIGHT === '1' && typeof window === 'undefined')
+//   ? (() => {
+//     console.log('Setting up reqHandler on server in app')
+//     const { setupServer } = require('msw/node') as typeof import('msw/node')
+//     const requestInterceptor: SetupServerApi = setupServer(...handlers)
+//     requestInterceptor.listen({
+//       onUnhandledRequest: 'bypass'
+//     })
+//     requestInterceptor.printHandlers()
+//     return requestInterceptor
+//   }) ()
+//   : undefined
+
+const MyApp: React.FC<MyAppProps> = (props) => {
   const {
     Component,
     emotionCache = clientSideEmotionCache,
@@ -61,6 +82,8 @@ export default function MyApp(props: MyAppProps): JSX.Element {
     </CacheProvider>
   )
 }
+
+export default MyApp
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
