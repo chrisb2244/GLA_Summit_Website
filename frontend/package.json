@@ -28,6 +28,7 @@
     "start": "next start",
     "build": "next build",
     "dev": "next dev",
+    "dev-turbo": "next dev --turbo",
     "test": "jest && npx playwright test",
     "test-w": "jest --watch",
     "playwright": "playwright test",
