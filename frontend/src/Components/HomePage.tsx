@@ -57,22 +57,22 @@ export const HomePage: React.FC = () => {
             </Button>
           </Link>
         </Box>
-        <Box>
+        {/* <Box>
           <Link href={'/submit-presentation'}>
             <Button fullWidth variant='contained'>
               Submit a Presentation Now!
             </Button>
           </Link>
-        </Box>
+        </Box> */}
       </StackedBoxes>
-      <SnackbarNotification open anchorOrigin={anchorPosition}>
+      {/* <SnackbarNotification open anchorOrigin={anchorPosition}>
         <P textAlign='center'>
-          Our presentation submission process will close on Friday 28th October.
+          Our presentation submission process is closing today.
         </P>
         <P textAlign='center'>
-          If you are considering submitting a presentation, please do so this week!
+          If you are considering submitting a presentation, please do so now!
         </P>
-      </SnackbarNotification>
+      </SnackbarNotification> */}
       <Box my='auto' pb={2}>
         <Box>
           <SponsorBar />
