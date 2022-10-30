@@ -1,31 +1,28 @@
-import { Box } from '@mui/material'
-import { Twitter, Facebook, YouTube, Instagram, LinkedIn } from '@mui/icons-material'
+import { mdiTwitter, mdiFacebook, mdiYoutube, mdiInstagram, mdiLinkedin } from '@mdi/js'
+import Icon from '@mdi/react'
 
 export const SocialMediaIcons: React.FC = () => {
+  const icons = [
+    {path: mdiTwitter, title: 'Twitter link', href: 'https://twitter.com/glasummit'},
+    {path: mdiFacebook, title: 'FaceBook link', href: 'https://www.facebook.com/GLASummit/'},
+    {path: mdiYoutube, title: 'YouTube link', href: 'https://www.youtube.com/channel/UCtQvJ5rMGYoq8n7ExvITVNA'},
+    {path: mdiInstagram, title: 'Instagram link', href: 'https://www.instagram.com/glasummit/'},
+    {path: mdiLinkedin, title: 'LinkedIn link', href: 'https://www.linkedin.com/company/glasummit/'},
+  ].map(({path, title, href}) => {
+    return (
+      <a aria-label={title} href={href} key={title}>
+        <Icon path={path} title={title} size={0.8} />
+      </a>
+    )
+  })
+
   return (
-    <Box
+    <div
+      className="flex justify-around md:self-center [&_a]:px-1"
       role='grid'
       aria-label='Social Media Links'
-      display='flex'
-      justifyContent='space-around'
-      alignSelf={{md: 'center'}}
-      sx={{ '& a': { px: 0.4 }, '.MuiSvgIcon-root': { color: (t) => t.palette.primary.contrastText, fontSize: '18px' } }}
     >
-      <a aria-label='Twitter link' href='https://twitter.com/glasummit'>
-        <Twitter />
-      </a>
-      <a aria-label='FaceBook link' href='https://www.facebook.com/GLASummit/'>
-        <Facebook />
-      </a>
-      <a aria-label='YouTube link' href='https://www.youtube.com/channel/UCtQvJ5rMGYoq8n7ExvITVNA'>
-        <YouTube />
-      </a>
-      <a aria-label='Instagram link' href='https://www.instagram.com/glasummit/'>
-        <Instagram />
-      </a>
-      <a aria-label='LinkedIn link' href='https://www.linkedin.com/company/glasummit/'>
-        <LinkedIn />
-      </a>
-    </Box>
+      {icons}
+    </div>
   )
 }
