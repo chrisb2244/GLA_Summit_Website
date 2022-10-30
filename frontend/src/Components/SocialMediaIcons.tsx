@@ -11,14 +11,14 @@ export const SocialMediaIcons: React.FC = () => {
   ].map(({path, title, href}) => {
     return (
       <a aria-label={title} href={href} key={title}>
-        <Icon path={path} title={title} size={0.8} />
+        <Icon path={path} size={0.8} />
       </a>
     )
   })
 
   return (
     <div
-      className="flex justify-around md:self-center [&_a]:px-1"
+      className='flex justify-around md:self-center [&_a]:px-1'
       role='grid'
       aria-label='Social Media Links'
     >
