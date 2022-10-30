@@ -11,6 +11,7 @@ services:
             - ./frontend/src:/usr/app/src
             - ./frontend/public:/usr/app/public
             - ./frontend/playwright:/usr/app/playwright
+            - ./frontend/tailwind.config.js:/usr/app/tailwind.config.js
         networks:
             - gla-react-network
     # db:

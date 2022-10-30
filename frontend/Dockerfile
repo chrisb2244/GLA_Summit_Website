@@ -13,5 +13,6 @@ RUN npm install
 ENV PATH /usr/app/node_modules/.bin:$PATH
 
 COPY --chown=node:node next.config.js next-env.d.ts .env.local .env ./
+COPY --chown=node:node postcss.config.js ./
 # ENV PLAYWRIGHT 1
 CMD ["npm", "run", "dev"]
