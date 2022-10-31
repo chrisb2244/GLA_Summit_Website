@@ -64,6 +64,7 @@ export const CopyableTextBox: React.FC<React.PropsWithChildren<CopyableTextBoxPr
         title='Copy'
         PopperProps={{
           anchorEl: {
+            /* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */
             getBoundingClientRect: () => domRect!
           }
         }}

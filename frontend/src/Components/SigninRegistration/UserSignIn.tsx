@@ -124,9 +124,10 @@ export const UserSignIn: React.FC<React.PropsWithChildren<SignInProps>> = ({
   return (
     <>
       <Dialog open={props.open} onClose={() => {
-        setClosed()
-        reset({email: ''})
-      }}>
+          setClosed()
+          reset({ email: '' })
+        }}
+      >
         <Container maxWidth='md' sx={{ p: 2 }}>
           <SmallCenteredText sx={{ pb: 1 }}>
             In order to sign in, enter the email address you used to register
