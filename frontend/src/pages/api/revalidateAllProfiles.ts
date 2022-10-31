@@ -10,6 +10,7 @@ export default async function handler(
 
   try {
     await res.revalidate('/presenters')
+    await res.revalidate('/presentations')
     return res.json({ revalidated: true })
   } catch (error) {
     return res.status(500).send('Error revalidating')

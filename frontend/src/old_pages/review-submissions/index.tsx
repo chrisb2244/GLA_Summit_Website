@@ -7,7 +7,7 @@ import { PresentationReviewInfo, SubmittedPresentationReviewCard } from '@/Compo
 import { Box } from '@mui/system';
 
 const ReviewSubmissionsPage: NextPage = () => {
-  const T: React.FC = ({children}) => <Typography textAlign='center'>{children}</Typography>
+  const T: React.FC<React.PropsWithChildren<unknown>> = ({children}) => <Typography textAlign='center'>{children}</Typography>
 
   const [submittedPresentations, setSubmittedPresentations] = useState<PresentationReviewInfo[]>([])
   useEffect(() => {

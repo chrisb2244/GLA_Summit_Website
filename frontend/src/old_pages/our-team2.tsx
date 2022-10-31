@@ -12,7 +12,7 @@ import Image_ML from '@/media/MartinLentz.jpg'
 import Image_QA from '@/media/QuentinAlldredge.webp'
 import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
 
-const OurTeam: React.FC = () => {
+const OurTeam: React.FC<React.PropsWithChildren<unknown>> = () => {
   return (
     <StackedBoxes>
       <PersonDisplay

@@ -3,7 +3,7 @@ import { MaintenancePage } from '@/Components/MaintenancePage'
 import { useMaintenanceMode } from '@/lib/maintenanceModeContext'
 import { useRouter } from 'next/router'
 
-const HomePage: React.FC = () => {
+const HomePage: React.FC<React.PropsWithChildren<unknown>> = () => {
   const maintenanceMode = useMaintenanceMode()
   const { replace } = useRouter()
   

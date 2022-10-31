@@ -46,7 +46,7 @@ export const getStaticProps: GetStaticProps<
   return { props, revalidate: 3600 }
 }
 
-const AllPresentations: React.FC<AllPresentationsProps> = ({
+const AllPresentations: React.FC<React.PropsWithChildren<AllPresentationsProps>> = ({
   presentations
 }) => {
   const groupedPresentationProps: {

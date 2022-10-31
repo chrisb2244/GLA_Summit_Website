@@ -9,7 +9,7 @@ import {
 } from '@/lib/presentationSubmissionHelpers'
 import { generateBody } from '@/lib/emailGeneration'
 import { createAdminClient } from '@/lib/supabaseClient'
-import type { SupabaseClient, User } from '@supabase/supabase-js'
+import type { SupabaseClient } from '@supabase/supabase-js'
 import type {Database} from '@/lib/sb_databaseModels'
 import { PersonProps } from '@/Components/Form/Person'
 import { logErrorToDb, myLog } from '@/lib/utils'
@@ -75,7 +75,9 @@ const handlePresentationSubmission = async (
     const emailInfoArray = idAndInfoArray.map((v) => v.emailOptions)
     // Default to sending, unless directed not to send via the data content
     myLog(`Sending emails to ${emailInfoArray.length} recipient(s)`)
-    return Promise.all(emailInfoArray.map(sendMailApi)).then((_statusArray) => {
+    return Promise.all(emailInfoArray.map(sendMailApi))
+      // .then((_statusArray) => {
+      .then(() => {
       // const failedEmails = statusArray
       //   .filter((s) => {
       //     return s.rejected.length > 0

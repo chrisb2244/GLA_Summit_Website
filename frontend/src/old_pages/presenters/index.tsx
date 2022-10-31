@@ -22,9 +22,9 @@ export const getStaticProps: GetStaticProps = async () => {
   }
 }
 
-const AllProfiles: React.FC<{
+const AllProfiles: React.FC<React.PropsWithChildren<{
   peopleProps: { id: string; person: PersonDisplayProps }[]
-}> = (props) => {
+}>> = (props) => {
   const renderedProfiles = props.peopleProps.map(({ id, person }) => {
     return (
       <PersonDisplay

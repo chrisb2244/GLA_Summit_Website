@@ -69,17 +69,17 @@ const MediaPage: NextPage = () => {
   const bannerImagesAttendee = buildImageTableRows(images, 'Attendee')
   const bannerImagesSpeaker = buildImageTableRows(images, 'Speaker')
 
-  const Subtitle: React.FC<TypographyProps> = ({ children, ...other }) => (
+  const Subtitle: React.FC<React.PropsWithChildren<TypographyProps>> = ({ children, ...other }) => (
     <Typography variant='h4' {...other}>
       {children}
     </Typography>
   )
-  const Paragraph: React.FC<TypographyProps> = ({ children, ...other }) => (
+  const Paragraph: React.FC<React.PropsWithChildren<TypographyProps>> = ({ children, ...other }) => (
     <Typography variant='body1' {...other}>
       {children}
     </Typography>
   )
-  const SidewaysBox: React.FC<BoxProps> = ({ children, ...other }) => {
+  const SidewaysBox: React.FC<React.PropsWithChildren<BoxProps>> = ({ children, ...other }) => {
     return (
       <Box
         display='flex'

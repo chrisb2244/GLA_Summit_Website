@@ -61,7 +61,7 @@ const MentorshipPage: NextPage = () => {
 
   const [open, setOpenState] = useState(!user)
 
-  const P: React.FC<TypographyProps> = ({children, ...rest}) => {
+  const P: React.FC<React.PropsWithChildren<TypographyProps>> = ({children, ...rest}) => {
     return <Typography {...rest}>{children}</Typography>
   }
 

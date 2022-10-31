@@ -44,6 +44,7 @@
   ],
   "exclude": [
     "node_modules",
-    "src/tsconfig.json"
+    "src/tsconfig.json",
+    "src/old_pages"
   ]
 }

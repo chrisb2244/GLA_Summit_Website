@@ -4,7 +4,7 @@ import ErrorIcon from '@mui/icons-material/NoEncryptionGmailerrorredTwoTone'
 import type { NextPage } from 'next'
 
 const AccessDeniedPage: NextPage = () => {
-  const T: React.FC = ({ children }) => (
+  const T: React.FC<React.PropsWithChildren<unknown>> = ({ children }) => (
     <Typography textAlign='center'>{children}</Typography>
   )
 

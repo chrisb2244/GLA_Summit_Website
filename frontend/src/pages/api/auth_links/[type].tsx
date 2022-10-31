@@ -90,7 +90,8 @@ const handler: NextApiHandler = async (req, res) => {
         user
       }
     })
-    .then(({ status, user }) => {
+    // .then(({ status, user }) => {
+    .then(({ user }) => {
       // console.log({ status, user })
       // if (status.accepted.includes(bodyData.email)) {
       return res.status(201).json({ user, session: null, error: null })

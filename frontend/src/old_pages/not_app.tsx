@@ -50,7 +50,7 @@ if (process.env.PLAYWRIGHT === '1') {
 //   }) ()
 //   : undefined
 
-const MyApp: React.FC<MyAppProps> = (props) => {
+const MyApp: React.FC<React.PropsWithChildren<MyAppProps>> = (props) => {
   const {
     Component,
     emotionCache = clientSideEmotionCache,
