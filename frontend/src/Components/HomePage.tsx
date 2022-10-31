@@ -3,7 +3,7 @@ import type { SnackbarOrigin, TypographyProps } from '@mui/material'
 import { Countdown } from './Countdown'
 import { SponsorBar } from './SponsorBar'
 import { StackedBoxes } from './Layout/StackedBoxes'
-import { Link } from '@/lib/link'
+import NextLink from 'next/link'
 import { SnackbarNotification } from './Utilities/SnackbarNotification'
 
 export const HomePage: React.FC<React.PropsWithChildren<unknown>> = () => {
@@ -51,18 +51,18 @@ export const HomePage: React.FC<React.PropsWithChildren<unknown>> = () => {
           Attendees will also be able to receive 20 points.
         </P>
         <Box>
-          <Link href={'https://hopin.com/events/gla-summit-2022'}>
+          <NextLink href={'https://hopin.com/events/gla-summit-2022'} legacyBehavior passHref>
             <Button fullWidth variant='contained'>
               Register for a ticket at Hopin
             </Button>
-          </Link>
+          </NextLink>
         </Box>
         <Box>
-          <Link href={'/submit-presentation'}>
+          <NextLink href={'/submit-presentation'} legacyBehavior passHref>
             <Button fullWidth variant='contained'>
               Submit a Presentation Now!
             </Button>
-          </Link>
+          </NextLink>
         </Box>
       </StackedBoxes>
       <SnackbarNotification open anchorOrigin={anchorPosition}>
