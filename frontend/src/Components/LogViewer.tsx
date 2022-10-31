@@ -7,7 +7,7 @@ type LogProps = {
 
 export type LogEntry = Database['public']['Tables']['log']['Row']
 
-export const LogViewer: React.FC<LogProps> = ({entries}) => {
+export const LogViewer: React.FC<React.PropsWithChildren<LogProps>> = ({entries}) => {
 
   const severityColorMap = {
     'severe': 'red',

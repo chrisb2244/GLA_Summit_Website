@@ -26,7 +26,7 @@ export type PresentationProps = {
   paperProps?: PaperProps
 }
 
-export const PresentationSummary: React.FC<PresentationProps> = ({
+export const PresentationSummary: React.FC<React.PropsWithChildren<PresentationProps>> = ({
   presentation: pres,
   pageLink,
   paperProps
@@ -65,7 +65,7 @@ export const PresentationSummary: React.FC<PresentationProps> = ({
     </Typography>
   )
 
-  const TitleComponent: React.FC<LinkProps> = ({ children, ...props }) => {
+  const TitleComponent: React.FC<React.PropsWithChildren<LinkProps>> = ({ children, ...props }) => {
     if (typeof pageLink !== 'undefined') {
       return (
         <Link href={pageLink} {...props}>

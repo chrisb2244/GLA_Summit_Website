@@ -10,7 +10,7 @@ export type RegistrationProps = {
   initialState?: 'signup' | 'signin'
 }
 
-export const RegistrationPopup: React.FC<RegistrationProps> = (props) => {
+export const RegistrationPopup: React.FC<React.PropsWithChildren<RegistrationProps>> = (props) => {
   const {
     open = false,
     setClosed = () => {

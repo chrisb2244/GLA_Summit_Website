@@ -4,9 +4,10 @@ export type PopupProps = {
   open: boolean
   setClosed: () => void
   onResolve: (response: boolean) => void
+  children?: React.ReactNode
 }
 
-export const ConfirmationPopup: React.FC<PopupProps> = (props) => {
+export const ConfirmationPopup: React.FC<React.PropsWithChildren<PopupProps>> = (props) => {
   const buttonDisplayProps = {
     mb: { xs: 1, md: 0 },
     mx: 1,

@@ -9,7 +9,7 @@ type WaitingIndicatorProps = {
   maxLength?: number
 }
 
-export const WaitingIndicator: React.FC<WaitingIndicatorProps> = ({
+export const WaitingIndicator: React.FC<React.PropsWithChildren<WaitingIndicatorProps>> = ({
   open,
   onClose,
   scale = 0.3,

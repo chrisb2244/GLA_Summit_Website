@@ -2,9 +2,9 @@ import { createContext, useContext } from 'react'
 
 const MaintenanceModeContext = createContext<boolean>(false)
 
-export const MaintenanceModeProvider: React.FC<{
+export const MaintenanceModeProvider: React.FC<React.PropsWithChildren<{
   maintenanceMode: boolean
-}> = ({ maintenanceMode, children }) => {
+}>> = ({ maintenanceMode, children }) => {
   return (
     <MaintenanceModeContext.Provider value={maintenanceMode}>
       {children}

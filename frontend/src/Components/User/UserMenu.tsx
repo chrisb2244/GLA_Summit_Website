@@ -20,7 +20,7 @@ type UserMenuProps = {
   user: User
 }
 
-export const UserMenu: React.FC<UserMenuProps> = (props) => {
+export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (props) => {
   // Tools to handle clicking on and off the Avatar
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   const open = Boolean(anchorEl)

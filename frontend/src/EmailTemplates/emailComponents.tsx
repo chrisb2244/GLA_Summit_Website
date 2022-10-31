@@ -35,7 +35,7 @@ export const HorizontalDivider: React.FC = () => {
   )
 }
 
-export const P: React.FC<TypographyProps> = ({ children, ...props }) => (
+export const P: React.FC<React.PropsWithChildren<TypographyProps>> = ({ children, ...props }) => (
   <Typography {...props}>{children}</Typography>
 )
 

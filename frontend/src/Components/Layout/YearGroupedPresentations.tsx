@@ -20,9 +20,7 @@ type YearGroupedPresentationsProps = {
   disableAccordion?: boolean
 }
 
-export const YearGroupedPresentations: React.FC<
-  YearGroupedPresentationsProps
-> = ({ year, presentations, initiallyOpen, disableAccordion }) => {
+export const YearGroupedPresentations: React.FC<React.PropsWithChildren<YearGroupedPresentationsProps>> = ({ year, presentations, initiallyOpen, disableAccordion }) => {
   const [open, setOpen] = useState(initiallyOpen ?? false)
 
   const renderedPresentations = presentations

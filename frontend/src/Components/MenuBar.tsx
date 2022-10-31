@@ -12,7 +12,7 @@ import { useState } from 'react'
 import type { MouseEvent } from 'react'
 import type { BoxProps } from '@mui/system'
 
-export const MenuBar: React.FC<BoxProps> = ({ ...extraBoxProps }) => {
+export const MenuBar: React.FC<React.PropsWithChildren<BoxProps>> = ({ ...extraBoxProps }) => {
   const menuElements = [
     { title: 'Home', link: '/' },
     { title: 'Presentations', link: '/presentations' },

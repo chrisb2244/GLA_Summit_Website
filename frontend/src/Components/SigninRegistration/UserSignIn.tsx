@@ -31,7 +31,7 @@ type SignInFormValues = {
   email: string
 }
 
-export const UserSignIn: React.FC<SignInProps> = ({
+export const UserSignIn: React.FC<React.PropsWithChildren<SignInProps>> = ({
   signIn,
   setClosed,
   ...props

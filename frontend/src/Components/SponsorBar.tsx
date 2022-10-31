@@ -2,7 +2,7 @@ import NI_Logo from '@/media/NI-Logo.png'
 import { Box, Link, Typography } from '@mui/material'
 import NextImage from 'next/image'
 
-export const SponsorBar: React.FC = () => {
+export const SponsorBar: React.FC<React.PropsWithChildren<unknown>> = () => {
   return (
     <Box display='flex' justifyContent='center'>
       <Link href='https://www.ni.com'>

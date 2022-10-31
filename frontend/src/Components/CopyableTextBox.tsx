@@ -7,9 +7,10 @@ import React, { useState } from 'react'
 type CopyableTextBoxProps = {
   role?: string
   fill?: Property.Color
+  children?: React.ReactNode
 } & TypographyProps
 
-export const CopyableTextBox: React.FC<CopyableTextBoxProps> = ({
+export const CopyableTextBox: React.FC<React.PropsWithChildren<CopyableTextBoxProps>> = ({
   role,
   fill,
   children,

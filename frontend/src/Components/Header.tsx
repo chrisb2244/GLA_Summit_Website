@@ -6,7 +6,7 @@ import { User } from './User/User'
 import GLA_Logo from '@/media/GLA-logo.svg'
 import GLA_Logo_Mobile from '@/media/GLA-logo-mobile.svg'
 
-export const Header: React.FC = () => {
+export const Header: React.FC<React.PropsWithChildren<unknown>> = () => {
   const imageProps = {
     'aria-label': 'logo'
   }

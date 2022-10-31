@@ -11,7 +11,7 @@ type UserProfileImageProps = {
   size: number
 }
 
-export const UserProfileImage: React.FC<UserProfileImageProps> = (props) => {
+export const UserProfileImage: React.FC<React.PropsWithChildren<UserProfileImageProps>> = (props) => {
   const { src: profileImageSrc, loading } = useProfileImage(props.userId) || {}
   const sizeInfo = { width: props.size, height: props.size }
 

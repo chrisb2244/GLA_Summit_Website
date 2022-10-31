@@ -7,7 +7,7 @@ type FormFieldProps = {
 } & TextFieldProps
 
 // This provides a wrapper for the TextField, providing the error behaviour.
-export const FormField: React.FC<FormFieldProps> = (props) => {
+export const FormField: React.FC<React.PropsWithChildren<FormFieldProps>> = (props) => {
   const { registerReturn, fieldError, children, ...textFieldProps } = props
   const isError = typeof fieldError !== 'undefined'
   return (

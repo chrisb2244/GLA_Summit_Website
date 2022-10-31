@@ -1,7 +1,7 @@
 import type { TypographyProps } from "@mui/material"
 import { Typography } from "@mui/material"
 
-export const SmallCenteredText: React.FC<TypographyProps> = ({
+export const SmallCenteredText: React.FC<React.PropsWithChildren<TypographyProps>> = ({
   children,
   ...typographyProps
 }) => {

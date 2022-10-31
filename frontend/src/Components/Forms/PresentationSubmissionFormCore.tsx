@@ -45,9 +45,7 @@ type PresentationFormCoreProps = {
   lockStatuses?: PresentationLockedStatus
 }
 
-export const PresentationSubmissionFormCore: React.FC<
-  PresentationFormCoreProps
-> = ({
+export const PresentationSubmissionFormCore: React.FC<React.PropsWithChildren<PresentationFormCoreProps>> = ({
   register,
   errors,
   addPresenter,

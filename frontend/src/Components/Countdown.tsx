@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import type { ReactNode } from 'react'
 import { Box, Container, Typography } from '@mui/material'
 
 export interface CountdownProps {
@@ -21,7 +22,7 @@ const zeroTimerVals: TimerValues = {
 
 type EventStatus = 'Upcoming' | 'Live' | 'Finished'
 
-export const Countdown: React.FC<CountdownProps> = (props) => {
+export const Countdown: React.FC<React.PropsWithChildren<CountdownProps>> = (props) => {
   const [timerVals, setTimerVals] = useState<TimerValues>(zeroTimerVals)
   const [status, setStatus] = useState<EventStatus>()
 
@@ -96,9 +97,10 @@ export const Countdown: React.FC<CountdownProps> = (props) => {
   )
 }
 
-const CounterElem: React.FC<{
-  unit: 'Days' | 'Hours' | 'Minutes' | 'Seconds'
-}> = (props) => {
+const CounterElem: React.FC<React.PropsWithChildren<{
+  unit: 'Days' | 'Hours' | 'Minutes' | 'Seconds',
+  children?: ReactNode
+}>> = (props) => {
   return (
     <Box
       sx={{

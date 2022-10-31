@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { useSession } from '@/lib/sessionContext'
 import { RegistrationPopup } from '../SigninRegistration/RegistrationPopup'
 
-export const User: React.FC<BoxProps> = ({...extraBoxProps}) => {
+export const User: React.FC<React.PropsWithChildren<BoxProps>> = ({...extraBoxProps}) => {
   const [dialogOpen, setDialogOpen] = useState(false)
 
   const { user, signUp, signIn } = useSession()

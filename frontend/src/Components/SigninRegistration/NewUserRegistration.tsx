@@ -33,7 +33,7 @@ function EMPTY<T>() {
   return '' as TypedFieldPath<T, T>
 }
 
-export const NewUserRegistration: React.FC<UserRegistrationProps> = ({
+export const NewUserRegistration: React.FC<React.PropsWithChildren<UserRegistrationProps>> = ({
   signUp,
   setClosed,
   ...props

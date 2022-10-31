@@ -2,7 +2,7 @@ import { Box, Toolbar, Typography, Link } from '@mui/material'
 import type { TypographyProps } from '@mui/material'
 import { SocialMediaIcons } from './SocialMediaIcons'
 
-export const Footer: React.FC = () => {
+export const Footer: React.FC<React.PropsWithChildren<unknown>> = () => {
   // The 'Toolbar' component appears to make the flow
   // direction a row, rather than a column otherwise...
   return (
@@ -41,7 +41,7 @@ export const Footer: React.FC = () => {
   )
 }
 
-const SmallFont: React.FC<TypographyProps> = ({ children, ...otherProps }) => {
+const SmallFont: React.FC<React.PropsWithChildren<TypographyProps>> = ({ children, ...otherProps }) => {
   return (
     <Typography variant='body2' fontSize='small' {...otherProps}>
       {children}

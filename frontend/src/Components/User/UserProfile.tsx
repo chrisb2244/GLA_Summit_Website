@@ -29,7 +29,7 @@ type UserProfileProps = {
   mutate: KeyedMutator<ProfileData>
 }
 
-export const UserProfile: React.FC<UserProfileProps> = ({profile, mutate, userEmail }) => {
+export const UserProfile: React.FC<React.PropsWithChildren<UserProfileProps>> = ({profile, mutate, userEmail }) => {
   const [valuesChanged, setValuesChanged] = useState(false)
   const [updating, setUpdating] = useState(false)
 

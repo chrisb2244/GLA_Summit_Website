@@ -23,7 +23,7 @@ type PresentationDisplayProps = {
   dateToStringFn: (datetime: string) => string
 }
 
-export const PresentationDisplay: React.FC<PresentationDisplayProps> = (
+export const PresentationDisplay: React.FC<React.PropsWithChildren<PresentationDisplayProps>> = (
   props
 ) => {
   const { presentation, timeZoneName, dateToStringFn } = props

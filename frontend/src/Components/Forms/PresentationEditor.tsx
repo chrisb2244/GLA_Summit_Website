@@ -25,7 +25,7 @@ type PresentationEditorProps = {
   updateCallback: (formData: FormData) => Promise<void>
 }
 
-export const PresentationEditor: React.FC<PresentationEditorProps> = ({
+export const PresentationEditor: React.FC<React.PropsWithChildren<PresentationEditorProps>> = ({
   presentation,
   submitter,
   lockStatuses = {isCopresenter: false, isSubmitted: false},

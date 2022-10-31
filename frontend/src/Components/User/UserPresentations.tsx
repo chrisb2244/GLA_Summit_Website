@@ -15,7 +15,7 @@ type UserPresentationsProps = {
   mutate: KeyedMutator<MySubmissionsModel[]>
 }
 
-export const UserPresentations: React.FC<UserPresentationsProps> = ({
+export const UserPresentations: React.FC<React.PropsWithChildren<UserPresentationsProps>> = ({
   presentations,
   userId,
   mutate

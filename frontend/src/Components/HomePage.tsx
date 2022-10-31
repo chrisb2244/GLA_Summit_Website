@@ -6,11 +6,11 @@ import { StackedBoxes } from './Layout/StackedBoxes'
 import { Link } from '@/lib/link'
 import { SnackbarNotification } from './Utilities/SnackbarNotification'
 
-export const HomePage: React.FC = () => {
+export const HomePage: React.FC<React.PropsWithChildren<unknown>> = () => {
   // The month value is 0-based (so 10 -> November)
   const eventStart = new Date(Date.UTC(2022, 10, 14, 12, 0, 0))
   const eventEnd = new Date(Date.UTC(2022, 10, 15, 12, 0, 0))
-  const P: React.FC<TypographyProps> = ({ children, ...props }) => {
+  const P: React.FC<React.PropsWithChildren<TypographyProps>> = ({ children, ...props }) => {
     return (
       <Typography textAlign='center' {...props}>
         {children}
