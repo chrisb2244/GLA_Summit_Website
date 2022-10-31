@@ -322,6 +322,7 @@ export const getMyPresentations = async () => {
       error: errorPresData,
       desc: 'Failed to fetch presentation details for this user'
     })
+    throw errorPresData
   }
   return data
 }
