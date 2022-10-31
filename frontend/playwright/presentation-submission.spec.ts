@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 import { PresentationSubmissionPage } from './models/PresentationSubmissionPage'
 
-test.describe.only('logged-in tests for presentation submission', () => {
+test.describe('logged-in tests for presentation submission', () => {
   test.use({
     storageState: async ({}, use) =>
       use('./session-states/signedInNormalUserState.json')
@@ -33,31 +33,31 @@ test.describe.only('logged-in tests for presentation submission', () => {
     expect(await formPage.isFinalInput.isChecked()).toEqual(false)
   })
 
-  test.only('Switching tabs does not change form content', async ({ page, context }) => {
-    const formPage = new PresentationSubmissionPage(page)
-    await formPage.goto('/submit-presentation')
-    // Wait for the login dialog to disappear (have saved session state)
-    await formPage.waitForFormLoad()
+  // test('Switching tabs does not change form content', async ({ page, context }) => {
+  //   const formPage = new PresentationSubmissionPage(page)
+  //   await formPage.goto('/submit-presentation')
+  //   // Wait for the login dialog to disappear (have saved session state)
+  //   await formPage.waitForFormLoad()
 
-    // Expect a clean form
-    expect(await formPage.titleInput.inputValue()).toEqual("")
+  //   // Expect a clean form
+  //   expect(await formPage.titleInput.inputValue()).toEqual("")
 
-    const testTitle = 'Form title for checking values dont change';
-    const abstract = new Array(10).fill(testTitle).join(" ")
-    await formPage.fillFormData({
-      title: testTitle,
-      abstract
-    })
+  //   const testTitle = 'Form title for checking values dont change';
+  //   const abstract = new Array(10).fill(testTitle).join(" ")
+  //   await formPage.fillFormData({
+  //     title: testTitle,
+  //     abstract
+  //   })
 
-    expect(await formPage.titleInput.inputValue()).toEqual(testTitle)
+  //   expect(await formPage.titleInput.inputValue()).toEqual(testTitle)
     
 
-    const otherPage = await context.newPage();
-    await otherPage.goto("https://google.com");
-    await otherPage.bringToFront();
+  //   const otherPage = await context.newPage();
+  //   await otherPage.goto("https://google.com");
+  //   await otherPage.bringToFront();
     
-    await page.bringToFront();
-    expect(await formPage.titleInput.inputValue()).toEqual(testTitle)
-    expect(await formPage.abstractInput.textContent()).not.toEqual("")
-  })
+  //   await page.bringToFront();
+  //   expect(await formPage.titleInput.inputValue()).toEqual(testTitle)
+  //   expect(await formPage.abstractInput.textContent()).not.toEqual("")
+  // })
 })
