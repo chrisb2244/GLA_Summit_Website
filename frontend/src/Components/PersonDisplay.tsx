@@ -1,9 +1,22 @@
-import { Fragment, ReactElement } from 'react'
-import { Typography, Paper, Box, Stack } from '@mui/material'
+import { ReactNode, Fragment, ReactElement } from 'react'
 import Image, { StaticImageData } from 'next/image'
-import { Person as PersonIcon } from '@mui/icons-material'
-import { Link } from '@/lib/link'
-import type { LinkProps } from '@/lib/link'
+import { mdiAccount } from '@mdi/js'
+import Icon from '@mdi/react'
+import NextLink from 'next/link'
+
+const MyPaper = ({ children }: { children?: ReactNode }) => {
+  return (
+    <div
+      className='rounded'
+      style={{
+        boxShadow:
+          'rgb(0 0 0 / 20%) 0px 3px 5px -1px, rgb(0 0 0 / 14%) 0px 5px 8px 0px, rgb(0 0 0 / 12%) 0px 1px 14px 0px'
+      }}
+    >
+      {children}
+    </div>
+  )
+}
 
 export interface PersonDisplayProps {
   firstName: string
@@ -16,16 +29,15 @@ export interface PersonDisplayProps {
   pageLink?: string
 }
 
-export const PersonDisplay: React.FC<PersonDisplayProps> = ({
-  pageLink,
-  ...props
-}) => {
-  const direction =
+export const PersonDisplay: React.FC<
+  PersonDisplayProps & { children?: ReactNode }
+> = ({ pageLink, ...props }) => {
+  const md_direction =
     typeof props.imageSide !== 'undefined'
       ? props.imageSide === 'right'
-        ? 'row'
-        : 'row-reverse'
-      : 'row'
+        ? 'md:flex-row'
+        : 'md:flex-row-reverse'
+      : 'md:flex-row'
 
   let isDefaultImage = false
   let imageElem = null
@@ -62,16 +74,7 @@ export const PersonDisplay: React.FC<PersonDisplayProps> = ({
     // No image
     if (props.useDefaultIconImage) {
       isDefaultImage = true
-      imageElem = (
-        <PersonIcon
-          sx={{
-            maxWidth: '100%',
-            maxHeight: '100%',
-            height: 'auto',
-            width: '100%'
-          }}
-        />
-      )
+      imageElem = <Icon path={mdiAccount} />
     }
   }
 
@@ -88,57 +91,41 @@ export const PersonDisplay: React.FC<PersonDisplayProps> = ({
     descriptionElem = props.description
   }
 
-  const OuterElem = props.stripContainer ? Fragment : Paper
+  const OuterElem = props.stripContainer ? Fragment : MyPaper
 
-  const TitleComponent: React.FC<LinkProps> = ({ children, ...props }) => {
+  const TitleComponent = ({ children }: { children?: ReactNode }) => {
     if (typeof pageLink !== 'undefined') {
       return (
-        <Link href={pageLink} {...props}>
-          {children}
-        </Link>
+        <NextLink href={pageLink}>
+          <h4>{children}</h4>
+        </NextLink>
       )
     } else {
-      return <Typography {...props}>{children}</Typography>
+      return <h4 className='text-4xl'>{children}</h4>
     }
   }
+  const paddingCName = props.stripContainer ? 'p-0' : 'p-4'
+  const imgDispCName = isDefaultImage ? 'max-sm:hidden' : ''
 
   return (
     <OuterElem>
-      <Stack
-        direction={{ xs: 'column', md: direction }}
-        justifyContent='space-around'
-        alignContent='center'
+      <div
+        className={`flex flex-col ${md_direction} justify-around content-center`}
       >
-        <Box
-          width={{ xs: '100%', md: '60%' }}
-          padding={props.stripContainer ? 0 : 2}
-          alignItems='center'
-        >
-          <TitleComponent variant='h4'>
+        <div className={`w-full md:w-3/5 ${paddingCName} items-center`}>
+          <TitleComponent>
             {props.firstName} {props.lastName}
           </TitleComponent>
-          <Typography
-            component='div'
-            variant='body1'
-            align='justify'
-            style={{ whiteSpace: 'pre-wrap' }}
-          >
+          <div className='text-justify whitespace-pre-wrap text-lg my-4 space-y-4'>
             {descriptionElem}
-          </Typography>
-        </Box>
-        <Box
-          width={{ xs: '100%', md: '30%' }}
-          minHeight='200px'
-          padding={props.stripContainer ? 0 : 2}
-          marginY={2}
-          display={{ xs: isDefaultImage ? 'none' : 'flex', md: 'flex' }}
-          flexDirection='row'
-          justifyContent='center'
-          position='relative'
+          </div>
+        </div>
+        <div
+          className={`w-full md:w-[30%] min-h-[200px] ${paddingCName}  my-4 ${imgDispCName} flex flex-row justify-center `}
         >
           {imageElem}
-        </Box>
-      </Stack>
+        </div>
+      </div>
     </OuterElem>
   )
 }
