@@ -11,6 +11,10 @@ export async function middleware(req: NextRequest, event: NextFetchEvent) {
     '/logs'
   ]
 
+  if (process.env.NEXT_PUBLIC_MAINTENANCE_MODE === "true") {
+    return NextResponse.redirect('/');
+  }
+
   if (!pathsToFilter.includes(targetPath)) {
     return NextResponse.next()
   }
