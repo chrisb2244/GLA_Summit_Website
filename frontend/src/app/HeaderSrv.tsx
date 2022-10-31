@@ -72,7 +72,7 @@ export const Header = () => {
               'rgb(0 0 0 / 20%) 0px 4px 6px 0px, rgb(0 0 0 / 14%) 0px 4px 5px 0px'
           }}
         >
-          <MenuBar flexGrow='1' />
+          <MenuBar/>
           {/* <User flexGrow='0' pr={1} /> */}
         </div>
       </div>
