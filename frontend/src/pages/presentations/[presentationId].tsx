@@ -64,7 +64,8 @@ export const getStaticProps: GetStaticProps<PresentationProps> = async ({
             speakerNames: data.all_presenters_names,
             ...schedule
           }
-        }
+        },
+        revalidate: 3600
       }
     })
     .catch(() => {
