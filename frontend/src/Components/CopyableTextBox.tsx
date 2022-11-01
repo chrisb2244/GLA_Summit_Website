@@ -1,21 +1,14 @@
-import { Box, IconButton, Tooltip, Typography } from '@mui/material'
-import type { TypographyProps } from '@mui/material'
+'use client'
+
+import { IconButton, Tooltip } from '@mui/material'
 import CopyIcon from '@mui/icons-material/ContentCopy'
-import type { Property } from 'csstype'
-import React, { useState } from 'react'
+import { useState, ReactNode } from 'react'
 
-type CopyableTextBoxProps = {
-  role?: string
-  fill?: Property.Color
-  children?: React.ReactNode
-} & TypographyProps
-
-export const CopyableTextBox: React.FC<React.PropsWithChildren<CopyableTextBoxProps>> = ({
-  role,
-  fill,
-  children,
-  ...others
+export const CopyableTextBox = (props: {
+  children: ReactNode
+  copyString: string
 }) => {
+  const { children, copyString } = props
   const [displayCopy, setDisplayCopy] = useState(false)
   const [domRect, setDomRect] = useState<DOMRect | null>(null)
 
@@ -25,18 +18,6 @@ export const CopyableTextBox: React.FC<React.PropsWithChildren<CopyableTextBoxPr
     } else {
       // Workaround for IE
       return document.execCommand('copy', true, text)
-    }
-  }
-
-  const onCopyClick = () => {
-    let textString: string | undefined = undefined
-    if (Array.isArray(children)) {
-      textString = children.join('')
-    } else {
-      textString = children?.valueOf().toString()
-    }
-    if (typeof textString !== 'undefined') {
-      copyToClipboard(textString)
     }
   }
 
@@ -54,39 +35,43 @@ export const CopyableTextBox: React.FC<React.PropsWithChildren<CopyableTextBoxPr
     }
   }
 
-  return (
-    <Box
-      onMouseEnter={() => setDisplayCopy(true)}
-      onMouseLeave={() => setDisplayCopy(false)}
-      position='relative'
+  const tooltip = (
+    <Tooltip
+      title='Copy'
+      PopperProps={{
+        anchorEl: {
+          /* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */
+          getBoundingClientRect: () => domRect!
+        }
+      }}
     >
-      <Tooltip
-        title='Copy'
-        PopperProps={{
-          anchorEl: {
-            /* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */
-            getBoundingClientRect: () => domRect!
-          }
+      <IconButton
+        ref={onRefLoad}
+        sx={{
+          display: displayCopy ? 'block' : 'none',
+          position: 'absolute',
+          right: 0,
+          top: 0
+        }}
+        aria-label='copy'
+        aria-hidden={!displayCopy}
+        onClick={() => {
+          copyToClipboard(copyString)
         }}
       >
-        <IconButton
-          ref={onRefLoad}
-          sx={{
-            display: displayCopy ? 'block' : 'none',
-            position: 'absolute',
-            right: 0,
-            top: 0
-          }}
-          aria-label='copy'
-          aria-hidden={!displayCopy}
-          onClick={onCopyClick}
-        >
-          <CopyIcon fontSize='small' />
-        </IconButton>
-      </Tooltip>
-      <Typography {...others} role={role} bgcolor={fill} padding={2.5}>
-        {children}
-      </Typography>
-    </Box>
+        <CopyIcon fontSize='small' />
+      </IconButton>
+    </Tooltip>
+  )
+
+  return (
+    <div
+      onMouseEnter={() => setDisplayCopy(true)}
+      onMouseLeave={() => setDisplayCopy(false)}
+      className='relative'
+    >
+      {tooltip}
+      {children}
+    </div>
   )
 }

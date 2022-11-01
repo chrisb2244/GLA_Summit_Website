@@ -7,7 +7,7 @@ export const MenuBar = () => {
     { title: 'Home', link: '/' },
     // { title: 'Presentations', link: '/presentations' },
     // { title: 'Submit a Presentation', link: '/submit-presentation' },
-    // { title: 'Media and Banners', link: '/media' },
+    { title: 'Media and Banners', link: '/media' },
     { title: 'Our Team', link: '/our-team' }
     // { title: 'Presenters', link: '/presenters' }
   ]
