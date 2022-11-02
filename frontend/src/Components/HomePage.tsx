@@ -1,10 +1,10 @@
 import { Box, Button, Typography } from '@mui/material'
-import type { SnackbarOrigin, TypographyProps } from '@mui/material'
+import type { TypographyProps } from '@mui/material'
 import { Countdown } from './Countdown'
 import { SponsorBar } from './SponsorBar'
 import { StackedBoxes } from './Layout/StackedBoxes'
 import { Link } from '@/lib/link'
-import { SnackbarNotification } from './Utilities/SnackbarNotification'
+// import { SnackbarNotification } from './Utilities/SnackbarNotification'
 
 export const HomePage: React.FC = () => {
   // The month value is 0-based (so 10 -> November)
@@ -18,15 +18,10 @@ export const HomePage: React.FC = () => {
     )
   }
 
-  // const theme = useTheme()
-  // const isLargerScreen = useMediaQuery(theme.breakpoints.up('md'))
-  // const anchorPosition: SnackbarOrigin | undefined = isLargerScreen
-  //   ? { vertical: 'top', horizontal: 'right' }
-  //   : undefined
-  const anchorPosition: SnackbarOrigin = {
-    horizontal: 'center',
-    vertical: 'bottom'
-  }
+  // const anchorPosition: SnackbarOrigin = {
+  //   horizontal: 'center',
+  //   vertical: 'bottom'
+  // }
 
   return (
     <>

@@ -1,7 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
 import type { Database } from './sb_databaseModels'
-import type { NextRequest, NextResponse } from 'next/server'
-import type { NextApiRequest, NextApiResponse } from 'next'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
