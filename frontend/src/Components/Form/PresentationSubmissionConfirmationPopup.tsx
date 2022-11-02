@@ -1,17 +1,18 @@
 import { Typography } from '@mui/material'
 import { PopupProps, ConfirmationPopup } from '@/Components/ConfirmationPopup'
+import { ReactNode } from 'react'
 
-export const PresentationSubmissionConfirmationPopup: React.FC<PopupProps> = ({children: unusedChildren , ...other}) => {
-  const P: React.FC = ({ children }) => {
+export const PresentationSubmissionConfirmationPopup: React.FC<PopupProps> = (props) => {
+  const P = (props: { children: ReactNode }) => {
     return (
       <Typography align='justify' pb={2}>
-        {children}
+        {props.children}
       </Typography>
     )
   }
 
   return (
-    <ConfirmationPopup {...other}>
+    <ConfirmationPopup {...props}>
       <P>
         If you submit this presentation, then it will be locked and you will
         be unable to continue to edit it.

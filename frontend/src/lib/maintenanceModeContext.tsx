@@ -4,6 +4,7 @@ const MaintenanceModeContext = createContext<boolean>(false)
 
 export const MaintenanceModeProvider: React.FC<{
   maintenanceMode: boolean
+  children?: React.ReactNode
 }> = ({ maintenanceMode, children }) => {
   return (
     <MaintenanceModeContext.Provider value={maintenanceMode}>

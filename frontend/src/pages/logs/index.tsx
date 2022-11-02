@@ -3,29 +3,18 @@ import { supabase } from "@/lib/supabaseClient"
 import { useEffect, useReducer } from "react"
 import { LogEntry, LogViewer } from "@/Components/LogViewer"
 import { myLog } from "@/lib/utils"
+import { RealtimePostgresChangesPayload } from "@supabase/supabase-js"
+import { Database } from "@/lib/sb_databaseModels"
 
-type UpdatePartialType = {
-  commit_timestamp: string,
-  errors: null | object,
-  new: LogEntry,
-  old: Record<string, never>,
-  eventType: 'INSERT'
-} | {
-  commit_timestamp: string,
-  errors: null | object,
-  new: LogEntry,
-  old: {id: number},
-  eventType: 'UPDATE'
-} | {
-  commit_timestamp: string,
-  errors: null | object,
-  new: Record<string, never>,
-  old: { id: number },
-  eventType: 'DELETE'
-} | {
-  eventType: 'INITIALIZE',
-  data: LogEntry[]
-}
+type DB_SubscriptionEvent = RealtimePostgresChangesPayload<
+  Database['public']['Tables']['log']['Row']
+>
+type SubscriptionEvent =
+  | DB_SubscriptionEvent
+  | {
+      eventType: 'INITIALIZE'
+      data: LogEntry[]
+    }
 
 const LogsPage: NextPage = () => {
   const getInitialLogs = async () => {
@@ -35,7 +24,7 @@ const LogsPage: NextPage = () => {
   }
 
   
-  const logEntryReducer = (cachedEntries: LogEntry[], payload: UpdatePartialType) => {
+  const logEntryReducer = (cachedEntries: LogEntry[], payload: SubscriptionEvent) => {
     switch(payload.eventType) {
       case 'INSERT':
         return cachedEntries.concat(payload.new)
@@ -70,7 +59,7 @@ const LogsPage: NextPage = () => {
         schema: 'public',
         table: 'log'
       },
-      (payload: UpdatePartialType) => { updateLogEntries(payload) }
+      (payload: DB_SubscriptionEvent) => { updateLogEntries(payload) }
     ).subscribe()
 
     return () => {

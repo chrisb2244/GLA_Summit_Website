@@ -2,7 +2,7 @@ import { Box } from '@mui/material'
 import { Header } from '../Header'
 import { Footer } from '../Footer'
 
-export const AppFrame: React.FC = (props) => {
+export const AppFrame = (props: {children: React.ReactNode}) => {
   return (
     <Box flexDirection='column' display='flex' minHeight='100vh'>
       <Header />

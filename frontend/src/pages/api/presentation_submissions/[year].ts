@@ -1,5 +1,6 @@
 import { PresentationReviewInfo } from "@/Components/SubmittedPresentationReviewCard"
-import { createServerClient_UserRLS } from "@/lib/supabaseClient"
+import { Database } from "@/lib/sb_databaseModels"
+import { createServerSupabaseClient } from "@supabase/auth-helpers-nextjs"
 import type { NextApiHandler } from "next"
 
 const handler: NextApiHandler<{presentationSubmissions: Array<PresentationReviewInfo>}> = async (req, res) => {
@@ -27,7 +28,7 @@ const handler: NextApiHandler<{presentationSubmissions: Array<PresentationReview
   }
   const { start, end } = availableYears[targetYear]
 
-  const supabase = createServerClient_UserRLS(req, res)
+  const supabase = createServerSupabaseClient<Database>({req, res})
   const { data, error } = await supabase
     .from('presentation_submissions')
     .select('*, profiles!presentation_presenters (id, firstname, lastname)')
