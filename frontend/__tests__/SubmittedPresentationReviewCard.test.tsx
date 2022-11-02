@@ -15,7 +15,8 @@ describe('SubmittedPresentationReviewCard', () => {
     presentation_id: 'randomstuffhere',
     presentation_type: 'full length',
     submitter: submitter,
-    presenters: [submitter]
+    presenters: [submitter],
+    updated_at: ''
   }
 
   const testObject = <SubmittedPresentationReviewCard presentationInfo={info}/>
