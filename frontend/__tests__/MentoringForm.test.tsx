@@ -29,15 +29,15 @@ describe('MentoringForm', () => {
     />)
   }
 
-  it('contains an empty Person form when the passed user is undefined', () => {
-    renderForm(undefined, null)
-    const textboxes = screen.getAllByRole('textbox')
-    expect(textboxes).toHaveLength(3)
-    textboxes.forEach(tbox => {
-      expect(tbox).toHaveValue('')
-      expect(tbox).not.toHaveAttribute('readonly')
-    })
-  })
+  // it('contains an empty Person form when the passed user is undefined', () => {
+  //   renderForm(undefined, null)
+  //   const textboxes = screen.getAllByRole('textbox')
+  //   expect(textboxes).toHaveLength(3)
+  //   textboxes.forEach(tbox => {
+  //     expect(tbox).toHaveValue('')
+  //     expect(tbox).not.toHaveAttribute('readonly')
+  //   })
+  // })
 
   it('contains a prefilled Person form when the passed user is defined', () => {
     renderForm(existingPerson, null)
@@ -90,54 +90,54 @@ describe('MentoringForm', () => {
     })
   })
 
-  it('allows a non-logged-in user to submit as a mentor', async () => {
-    renderForm(undefined, null)
-    userEvent.type(getInput('First Name'), existingPerson.firstName)
-    userEvent.type(getInput('Last Name'), existingPerson.lastName)
-    userEvent.type(getInput('Email'), existingPerson.email)
-    const submitButton = screen.getByRole('button')
-    userEvent.click(submitButton)
-    await waitFor(() => {
-      return expect(submitFn).toBeCalledWith({
-        person: existingPerson,
-        type: 'mentor'
-      })
-    })
-  })
+  // it('allows a non-logged-in user to submit as a mentor', async () => {
+  //   renderForm(undefined, null)
+  //   userEvent.type(getInput('First Name'), existingPerson.firstName)
+  //   userEvent.type(getInput('Last Name'), existingPerson.lastName)
+  //   userEvent.type(getInput('Email'), existingPerson.email)
+  //   const submitButton = screen.getByRole('button')
+  //   userEvent.click(submitButton)
+  //   await waitFor(() => {
+  //     return expect(submitFn).toBeCalledWith({
+  //       person: existingPerson,
+  //       type: 'mentor'
+  //     })
+  //   })
+  // })
 
-  it('allows a non-logged-in user to submit as a mentee (click first)', async () => {
-    renderForm(undefined, null)
-    const menteeButton = screen.getByRole('tab', { name: /Receive Mentorship/i})
-    userEvent.click(menteeButton)
-    userEvent.type(getInput('First Name'), existingPerson.firstName)
-    userEvent.type(getInput('Last Name'), existingPerson.lastName)
-    userEvent.type(getInput('Email'), existingPerson.email)
-    const submitButton = screen.getByRole('button')
-    userEvent.click(submitButton)
-    await waitFor(() => {
-      return expect(submitFn).toBeCalledWith({
-        person: existingPerson,
-        type: 'mentee'
-      })
-    })
-  })
+  // it('allows a non-logged-in user to submit as a mentee (click first)', async () => {
+  //   renderForm(undefined, null)
+  //   const menteeButton = screen.getByRole('tab', { name: /Receive Mentorship/i})
+  //   userEvent.click(menteeButton)
+  //   userEvent.type(getInput('First Name'), existingPerson.firstName)
+  //   userEvent.type(getInput('Last Name'), existingPerson.lastName)
+  //   userEvent.type(getInput('Email'), existingPerson.email)
+  //   const submitButton = screen.getByRole('button')
+  //   userEvent.click(submitButton)
+  //   await waitFor(() => {
+  //     return expect(submitFn).toBeCalledWith({
+  //       person: existingPerson,
+  //       type: 'mentee'
+  //     })
+  //   })
+  // })
 
-  it('allows a non-logged-in user to submit as a mentee (click after)', async () => {
-    renderForm(undefined, null)
-    const menteeButton = screen.getByRole('tab', { name: /Receive Mentorship/i})
-    userEvent.type(getInput('First Name'), existingPerson.firstName)
-    userEvent.type(getInput('Last Name'), existingPerson.lastName)
-    userEvent.type(getInput('Email'), existingPerson.email)
-    userEvent.click(menteeButton)
-    const submitButton = screen.getByRole('button')
-    userEvent.click(submitButton)
-    await waitFor(() => {
-      return expect(submitFn).toBeCalledWith({
-        person: existingPerson,
-        type: 'mentee'
-      })
-    })
-  })
+  // it('allows a non-logged-in user to submit as a mentee (click after)', async () => {
+  //   renderForm(undefined, null)
+  //   const menteeButton = screen.getByRole('tab', { name: /Receive Mentorship/i})
+  //   userEvent.type(getInput('First Name'), existingPerson.firstName)
+  //   userEvent.type(getInput('Last Name'), existingPerson.lastName)
+  //   userEvent.type(getInput('Email'), existingPerson.email)
+  //   userEvent.click(menteeButton)
+  //   const submitButton = screen.getByRole('button')
+  //   userEvent.click(submitButton)
+  //   await waitFor(() => {
+  //     return expect(submitFn).toBeCalledWith({
+  //       person: existingPerson,
+  //       type: 'mentee'
+  //     })
+  //   })
+  // })
 
   // Just one check on validation...
   // Uncommenting the line that sets last name causes this test to fail
