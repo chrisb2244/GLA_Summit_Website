@@ -323,7 +323,7 @@ export const getMyPresentations = async () => {
       desc: 'Failed to fetch presentation details for this user'
     })
   }
-  return data
+  return data ?? []
 }
 
 export const deletePresentation = async (presentationId: string) => {
