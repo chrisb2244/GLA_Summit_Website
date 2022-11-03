@@ -56,12 +56,16 @@ const AgendaTestPage = () => {
   } = useSWR(thisYear, agendaFetcher)
   // const { data: personalizedAgenda, error: myAgendaError, isValidating, mutate } = useSWR(key, myAgendaFetcher)
 
-  const [tableArea, setTableArea] = useState<DOMRect | undefined>(undefined)
-  const tableRef = useRef<HTMLDivElement | null>(null)
+  const [agendaArea, setAgendaArea] = useState<DOMRect | undefined>(undefined)
+  const dataColumnRef = useRef<HTMLDivElement | null>(null)
+
   const handleResize = () => {
-    const rect = tableRef.current?.getBoundingClientRect()
-    if (rect?.height !== tableArea?.height) {
-      setTableArea(rect)
+    const rect = dataColumnRef.current?.getBoundingClientRect()
+    if (
+      rect?.height !== agendaArea?.height ||
+      rect?.width !== agendaArea?.width
+    ) {
+      setAgendaArea(rect)
     }
   }
 
@@ -77,7 +81,7 @@ const AgendaTestPage = () => {
 
   useEffect(() => {
     handleResize()
-  }, [tableRef.current])
+  }, [dataColumnRef.current])
 
   const unableToRenderElem = (
     <p>Unable to load this year's agenda. Please try again later.</p>
@@ -142,10 +146,10 @@ const AgendaTestPage = () => {
       return new Date(conferenceStart.getTime() + tOffset)
     })
     .map((t) => {
-      if (typeof tableArea === 'undefined') {
+      if (typeof agendaArea === 'undefined') {
         return null
       }
-      const tableHeight = tableArea.height
+      const tableHeight = agendaArea.height
 
       const timeUntil = calcTimeUntil(t)
       if (timeUntil < -currentExtent / 12) {
@@ -169,7 +173,7 @@ const AgendaTestPage = () => {
             position: 'absolute',
             display: 'inline',
             top: `calc(${tMark?.position}px - 0.75em)`,
-            left: 0
+            left: '0.5ch'
           }}
           key={tMark.timeString}
         >
@@ -181,11 +185,11 @@ const AgendaTestPage = () => {
 
   const itemsToRender = presentationSlots
     .map((p, idx, arr) => {
-      if (typeof tableArea === 'undefined') {
+      if (typeof agendaArea === 'undefined') {
         return null
       }
-      const tableHeight = tableArea.height
-      const tableWidth = tableArea.width * 0.85
+      const tableHeight = agendaArea.height
+      const tableWidth = agendaArea.width // * 0.85
 
       const timeUntil = calcTimeUntil(p.startTime)
       const timeSince = timeNow.getTime() - p.endTime.getTime()
@@ -235,11 +239,17 @@ const AgendaTestPage = () => {
               overflow: 'clip'
             }}
           >
-            <span style={{ margin: 'auto' }}>
-              {`${p.title} (${dateToString(
+            <span
+              style={{
+                margin: 'auto',
+                paddingLeft: '1.5ch',
+                paddingRight: '1.5ch'
+              }}
+            >
+              {/* {`${p.title} (${dateToString(
                 p.startTime.toUTCString()
-              )} - ${dateToString(p.endTime.toUTCString())})`}
-              {/* {p.title} */}
+              )} - ${dateToString(p.endTime.toUTCString())})`} */}
+              {p.title}
             </span>
           </div>
         </a>
@@ -257,18 +267,18 @@ const AgendaTestPage = () => {
           width: '100%',
           height: '90%',
           overflow: 'hidden',
-          border: '1px #5837b9 solid',
-          marginBottom: '20px'
+          border: '2px #5837b9 solid',
+          marginBottom: '20px',
+          boxSizing: 'content-box'
         }}
-        ref={tableRef}
+        // ref={tableRef}
       >
         <div
           id='time-bar'
           style={{
-            width: '15%',
+            width: '6ch',
             border: '1px #5837b9 solid',
-            position: 'relative',
-            flexShrink: 0
+            position: 'relative'
           }}
         >
           {timeMarkers}
@@ -276,25 +286,27 @@ const AgendaTestPage = () => {
         <div
           id='presentations'
           style={{
-            // width: '85%',
             flexGrow: 1,
             // border: '1px blue dashed',
-            position: 'relative'
+            position: 'relative',
+            boxSizing: 'border-box'
           }}
+          ref={dataColumnRef}
         >
           {itemsToRender}
+          <div
+            style={{
+              height: '1px',
+              border: '0.2px dashed red',
+              opacity: '50%',
+              position: 'absolute',
+              left: '-0.5ch',
+              width: 'calc(100% + 0.5ch)',
+              boxSizing: 'border-box',
+              top: (agendaArea?.height ?? 0) * (1 / 12)
+            }}
+          />
         </div>
-        <div
-          style={{
-            height: '2px',
-            border: '0.2px dashed red',
-            opacity: '50%',
-            position: 'absolute',
-            left: '8%',
-            width: '92%',
-            top: (tableArea?.height ?? 0) * (1 / 12)
-          }}
-        />
       </div>
     </>
   )
