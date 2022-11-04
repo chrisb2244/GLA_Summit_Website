@@ -37,7 +37,7 @@ type State = {
 type Action =
   | {
       type: 'toggleSmoothScroll'
-      payload: any
+      payload?: boolean
     }
   | {
       type: 'bar-grab'
@@ -125,20 +125,24 @@ const reducer = (state: State, action: Action): State => {
     case 'toggleSmoothScroll':
       return {
         ...state,
-        smoothScroll: !state.smoothScroll
+        smoothScroll: action.payload ?? !state.smoothScroll
       }
   }
 }
 
 export const FakeScrollbar = (props: ScrollbarProps) => {
+  const initPos = props.initialPosition ?? 0
   const initialState: State = {
     trackBounds: null,
     isDragging: false,
-    fractionalPosition: props.initialPosition ?? 0,
-    startFractionalPosition: props.initialPosition ?? 0,
+    fractionalPosition: initPos,
+    startFractionalPosition: initPos,
     lastPageY: null,
     smoothScroll: false,
-    barStyle: undefined,
+    barStyle: {
+      height: 32,
+      top: 0
+    },
     mouse: undefined
   }
   // For debouncing?
@@ -165,7 +169,7 @@ export const FakeScrollbar = (props: ScrollbarProps) => {
     (e: globalThis.MouseEvent) => {
       raf(() => dispatch({ type: 'mouseEvent', event: e }))
     },
-    [dispatch]
+    [dispatch, raf]
   )
 
   const onScrollResize = useCallback(() => {
@@ -192,13 +196,14 @@ export const FakeScrollbar = (props: ScrollbarProps) => {
     if (type == 'mousemove') {
       onDrag(state.mouse)
     } else if (type == 'mouseup') {
-      onStopDrag(state.mouse)
+      onStopDrag()
     }
   }, [state.mouse])
 
+  const { onScroll } = props
   useEffect(() => {
-    props.onScroll(state.fractionalPosition)
-  }, [state.fractionalPosition])
+    onScroll(state.fractionalPosition)
+  }, [onScroll, state.fractionalPosition])
 
   const toggleDragEvents = (toggle = true) => {
     try {
@@ -240,7 +245,7 @@ export const FakeScrollbar = (props: ScrollbarProps) => {
     })
   }
 
-  const onStopDrag = (ev: MyMouseEvent) => {
+  const onStopDrag = () => {
     toggleDragEvents(false)
     setTimeout(dispatch, 0, { type: 'drag-release' })
   }
@@ -271,7 +276,7 @@ export const FakeScrollbar = (props: ScrollbarProps) => {
 
     dispatch({ type: 'trackBounds', payload: boundsExp })
     return boundsExp
-  }, [])
+  }, [refs.track])
 
   // Move the 'scroll' element
   const setBarGeometry = () => {
@@ -287,6 +292,7 @@ export const FakeScrollbar = (props: ScrollbarProps) => {
   }
 
   const onTrackClick: MouseEventHandler<HTMLDivElement> = (ev) => {
+    console.log(ev)
     // had a !track, for a prop 'track', guess toggle?
     if (state.isDragging) {
       return
