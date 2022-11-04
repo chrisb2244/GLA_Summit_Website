@@ -5,6 +5,7 @@ import { useSession } from '@/lib/sessionContext'
 import { PresentationYear } from '@/Components/PresentationSummary'
 import { logErrorToDb } from '@/lib/utils'
 import { useEffect, useRef, useState } from 'react'
+import { FakeScrollbar } from '@/Components/Utilities/FakeScrollbar'
 
 type AgendaEntry = Database['public']['Views']['all_presentations']['Row']
 type ScheduledAgendaEntry = {
@@ -132,7 +133,8 @@ const AgendaTestPage = () => {
     return formatter.format(date)
   }
 
-  const currentExtent = 4.5 * 60 * 60 * 1000 // Viewable height in milliseconds (6 hours)
+  const hoursToShow = 4.5
+  const currentExtent = hoursToShow * 60 * 60 * 1000 // Viewable height in milliseconds (6 hours)
   const conferenceStart = new Date(Date.UTC(2021, 10, 15, 12, 0, 0))
   const timeNow = new Date(2021, 10, 16, 16, 3)
   const calcTimeUntil = (event: Date) => {
@@ -259,6 +261,9 @@ const AgendaTestPage = () => {
             }}
           />
         </div>
+        <FakeScrollbar visibleFraction={hoursToShow / 24} onScroll={(num) => {
+          console.log(num)
+        }}/>
       </div>
     </>
   )
