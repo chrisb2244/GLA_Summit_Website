@@ -225,10 +225,9 @@ export const FakeScrollbar = (props: ScrollbarProps) => {
 
     raf(() => {
       const isDragWithinTrackBounds =
-        ev.pageY >= trackBounds.top + 16 && // + sTop &&
-        ev.pageY <= trackBounds.bottom - 16 // + sTop
+        ev.pageY >= trackBounds.top + 16 && ev.pageY <= trackBounds.bottom - 16
       if (isDragWithinTrackBounds) {
-        const to = newFracHeight // (deltaY / availableHeight) + state.startFractionalPosition
+        const to = (newFracHeight * availableHeight) / (availableHeight - 16)
         dispatch({
           type: 'scrollTo',
           to,
