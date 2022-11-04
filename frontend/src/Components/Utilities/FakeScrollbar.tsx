@@ -12,7 +12,6 @@ import {
 export type ScrollbarProps = {
   initialPosition?: number
   onScroll: (relativePosition: number) => void
-  visibleFraction: number
 }
 type MyMouseEvent = { type: string; pageY: number }
 

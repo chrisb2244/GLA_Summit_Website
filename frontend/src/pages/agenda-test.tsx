@@ -84,6 +84,9 @@ const AgendaTestPage = () => {
     handleResize()
   }, [dataColumnRef.current])
 
+  const timeNow = new Date(2021, 10, 16, 16, 3)
+  const [refTime, setRefTime] = useState(timeNow)
+
   const unableToRenderElem = (
     <p>Unable to load this year's agenda. Please try again later.</p>
   )
@@ -136,9 +139,11 @@ const AgendaTestPage = () => {
   const hoursToShow = 4.5
   const currentExtent = hoursToShow * 60 * 60 * 1000 // Viewable height in milliseconds (6 hours)
   const conferenceStart = new Date(Date.UTC(2021, 10, 15, 12, 0, 0))
-  const timeNow = new Date(2021, 10, 16, 16, 3)
+  const totalDuration = (24 * 60 * 60 * 1000)
+  const fractionalTime = (timeNow.getTime() - conferenceStart.getTime()) / totalDuration
+
   const calcTimeUntil = (event: Date) => {
-    return event.getTime() - timeNow.getTime()
+    return event.getTime() - refTime.getTime()
   }
 
   const timeMarkers = new Array(24)
@@ -194,7 +199,7 @@ const AgendaTestPage = () => {
       const tableWidth = agendaArea.width // * 0.85
 
       const timeUntil = calcTimeUntil(p.startTime)
-      const timeSince = timeNow.getTime() - p.endTime.getTime()
+      const timeSince = refTime.getTime() - p.endTime.getTime()
       if (
         timeUntil > (currentExtent * 11) / 12 ||
         timeSince > (currentExtent * 1) / 12
@@ -242,6 +247,7 @@ const AgendaTestPage = () => {
   return (
     <>
       <p>{`Time now: ${dateToString(timeNow.toUTCString())}`}</p>
+      <p>{`Offset time now: ${dateToString(refTime.toUTCString())}`}</p>
       <div className='relative flex w-full h-[90%] overflow-hidden mb-5 box-content border-primaryc border-2'>
         <div className='relative w-[6ch] border-1 border-primaryc'>
           {timeMarkers}
@@ -261,8 +267,9 @@ const AgendaTestPage = () => {
             }}
           />
         </div>
-        <FakeScrollbar visibleFraction={hoursToShow / 24} onScroll={(num) => {
-          console.log(num)
+        <FakeScrollbar initialPosition={fractionalTime} onScroll={(num) => {
+          const offsetTime = totalDuration * num
+          setRefTime(new Date(conferenceStart.getTime() + offsetTime))
         }}/>
       </div>
     </>
