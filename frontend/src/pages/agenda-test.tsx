@@ -84,7 +84,7 @@ const AgendaTestPage = () => {
     handleResize()
   }, [dataColumnRef.current])
 
-  const timeNow = new Date(2021, 10, 16, 16, 3)
+  const timeNow = new Date(2021, 10, 15, 17, 30)
   const [refTime, setRefTime] = useState(timeNow)
 
   const unableToRenderElem = (
@@ -139,9 +139,13 @@ const AgendaTestPage = () => {
   const hoursToShow = 4.5
   const currentExtent = hoursToShow * 60 * 60 * 1000 // Viewable height in milliseconds (6 hours)
   const conferenceStart = new Date(Date.UTC(2021, 10, 15, 12, 0, 0))
-  const totalDuration = (24 * 60 * 60 * 1000)
-  const fractionalTime = (timeNow.getTime() - conferenceStart.getTime()) / totalDuration
-
+  const totalDuration = 24 * 60 * 60 * 1000
+  // Adjust fractionalTime for the reformatting necessary to have some overlap (i.e. a total window > 24h)
+  const uncappedFractionalTime = 
+    (timeNow.getTime() - conferenceStart.getTime() + currentExtent / 6) /
+    (totalDuration - (2 * currentExtent) / 3)
+  const fractionalTime = Math.min(1, Math.max(0, uncappedFractionalTime))
+  
   const calcTimeUntil = (event: Date) => {
     return event.getTime() - refTime.getTime()
   }
@@ -244,6 +248,12 @@ const AgendaTestPage = () => {
     })
     .filter((e) => e !== null)
 
+  const timeNowOffsetTop =
+    (calcTimeUntil(timeNow) / currentExtent + 1 / 12) *
+    (agendaArea?.height ?? 0)
+  const showTimeNowLine =
+    timeNowOffsetTop > 0 && timeNowOffsetTop < (agendaArea?.height ?? 0)
+
   return (
     <>
       <p>{`Time now: ${dateToString(timeNow.toUTCString())}`}</p>
@@ -263,14 +273,20 @@ const AgendaTestPage = () => {
             style={{
               left: '-0.5ch',
               width: 'calc(100% + 0.5ch)',
-              top: (agendaArea?.height ?? 0) * (1 / 12) // will need changing for scroll
+              top: timeNowOffsetTop, // (agendaArea?.height ?? 0) * (1 / 12), // will need changing for scroll
+              display: showTimeNowLine ? 'block' : 'none'
             }}
           />
         </div>
-        <FakeScrollbar initialPosition={fractionalTime} onScroll={(num) => {
-          const offsetTime = totalDuration * num
-          setRefTime(new Date(conferenceStart.getTime() + offsetTime))
-        }}/>
+        <FakeScrollbar
+          initialPosition={fractionalTime}
+          onScroll={(num) => {
+            const offsetTime =
+              (totalDuration - (2 / 3) * currentExtent) * num -
+              currentExtent / 6
+            setRefTime(new Date(conferenceStart.getTime() + offsetTime))
+          }}
+        />
       </div>
     </>
   )

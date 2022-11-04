@@ -122,9 +122,11 @@ const reducer = (state: State, action: Action): State => {
           overflow: 'auto'
         }
       }
-    default:
-      console.log('not handled: ', action.type)
-      return state
+    case 'toggleSmoothScroll':
+      return {
+        ...state,
+        smoothScroll: !state.smoothScroll
+      }
   }
 }
 
@@ -171,7 +173,7 @@ export const FakeScrollbar = (props: ScrollbarProps) => {
     // debounce - get track bounds
     clearTimeout(resizeListener.current)
     resizeListener.current = setTimeout(getTrackBounds, 200)
-  }, [])
+  }, [availableHeight])
 
   useLayoutEffect(() => {
     onScrollResize()
@@ -201,18 +203,15 @@ export const FakeScrollbar = (props: ScrollbarProps) => {
   const toggleDragEvents = (toggle = true) => {
     try {
       if (toggle) {
-        console.log('Adding events')
         document.addEventListener('mousemove', onMouseEvent)
         document.addEventListener('mouseup', onMouseEvent)
       } else {
-        console.log('Removing events')
         document.removeEventListener('mousemove', onMouseEvent)
         document.removeEventListener('mouseup', onMouseEvent)
       }
     } catch (e) {
       console.error(e)
     }
-    console.log('Done re event toggle')
   }
 
   // click-holding the bar and moving it
@@ -276,14 +275,12 @@ export const FakeScrollbar = (props: ScrollbarProps) => {
 
   // Move the 'scroll' element
   const setBarGeometry = () => {
-    const newTop = (state.lastPageY ?? sTop) - sTop
-    console.log({ newTop })
     raf(() => {
       dispatch({
         type: 'barProps',
         payload: {
           height: 32,
-          top: state.fractionalPosition * 100
+          top: Math.min(state.fractionalPosition, ((availableHeight - 32) / availableHeight)) * 100
         }
       })
     })
