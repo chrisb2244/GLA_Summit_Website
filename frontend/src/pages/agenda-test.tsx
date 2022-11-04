@@ -193,9 +193,6 @@ const AgendaTestPage = () => {
 
       const timeUntil = calcTimeUntil(p.startTime)
       const timeSince = timeNow.getTime() - p.endTime.getTime()
-      // if (p.title === 'Open Source ViPER') {
-      //   console.log({timeToPresentation, timeSincePresentation})
-      // }
       if (
         timeUntil > (currentExtent * 11) / 12 ||
         timeSince > (currentExtent * 1) / 12
@@ -213,39 +210,22 @@ const AgendaTestPage = () => {
           a.endTime.getTime() > p.startTime.getTime()
       )
       const width = tableWidth / overlappingPresentations.length
-      const left =
-        overlappingPresentations.findIndex((a) => a.link === p.link) * width
-      // console.log(overlappingPresentations)
-      // console.log({ title: p.title, relStartPosition, relEndPosition, nOver: overlappingPresentations.length })
+      const thisIndex = overlappingPresentations.findIndex(
+        (a) => a.link === p.link
+      )
+      const left = thisIndex * width
       return (
         <a href={p.link} key={p.link}>
           <div
+            className='absolute flex justify-center text-center items-center bg-secondaryc bg-clip-content p-[1px] text-white overflow-ellipsis'
             style={{
-              position: 'absolute',
-              display: 'flex',
-              justifyContent: 'center',
-              textAlign: 'center',
-              alignItems: 'center',
               top: relStart * tableHeight,
               left: left,
               width: width,
-              height: presentationHeight,
-              // border: '1px red dashed'
-              backgroundColor: '#a25bcd',
-              backgroundClip: 'content-box',
-              padding: '1px',
-              color: 'white',
-              textOverflow: 'ellipsis',
-              overflow: 'clip'
+              height: presentationHeight
             }}
           >
-            <span
-              style={{
-                margin: 'auto',
-                paddingLeft: '1.5ch',
-                paddingRight: '1.5ch'
-              }}
-            >
+            <span className='m-auto px-[1.5ch]'>
               {/* {`${p.title} (${dateToString(
                 p.startTime.toUTCString()
               )} - ${dateToString(p.endTime.toUTCString())})`} */}
@@ -260,50 +240,22 @@ const AgendaTestPage = () => {
   return (
     <>
       <p>{`Time now: ${dateToString(timeNow.toUTCString())}`}</p>
-      <div
-        style={{
-          position: 'relative',
-          display: 'flex',
-          width: '100%',
-          height: '90%',
-          overflow: 'hidden',
-          border: '2px #5837b9 solid',
-          marginBottom: '20px',
-          boxSizing: 'content-box'
-        }}
-        // ref={tableRef}
-      >
-        <div
-          id='time-bar'
-          style={{
-            width: '6ch',
-            border: '1px #5837b9 solid',
-            position: 'relative'
-          }}
-        >
+      <div className='relative flex w-full h-[90%] overflow-hidden mb-5 box-content border-primaryc border-2'>
+        <div className='relative w-[6ch] border-1 border-primaryc'>
           {timeMarkers}
         </div>
         <div
           id='presentations'
-          style={{
-            flexGrow: 1,
-            // border: '1px blue dashed',
-            position: 'relative',
-            boxSizing: 'border-box'
-          }}
+          className='flex-grow relative box-border'
           ref={dataColumnRef}
         >
           {itemsToRender}
           <div
+            className='h-px border-[0.2px] border-red-600 absolute box-border border-dashed border-opacity-50'
             style={{
-              height: '1px',
-              border: '0.2px dashed red',
-              opacity: '50%',
-              position: 'absolute',
               left: '-0.5ch',
               width: 'calc(100% + 0.5ch)',
-              boxSizing: 'border-box',
-              top: (agendaArea?.height ?? 0) * (1 / 12)
+              top: (agendaArea?.height ?? 0) * (1 / 12) // will need changing for scroll
             }}
           />
         </div>
