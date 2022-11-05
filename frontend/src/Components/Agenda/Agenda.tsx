@@ -1,5 +1,13 @@
 import { Database } from '@/lib/sb_databaseModels'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { FormControlLabel, FormGroup, Slider, Switch } from '@mui/material'
+import {
+  startTransition,
+  useCallback,
+  useEffect,
+  useReducer,
+  useRef,
+  useState
+} from 'react'
 import { FakeScrollbar } from '../Utilities/FakeScrollbar'
 import { AgendaPresentations } from './AgendaPresentations'
 import { TimeMarkers } from './TimeMarkers'
@@ -23,13 +31,32 @@ export const Agenda = (props: AgendaProps) => {
     60 *
     60 *
     1000
-  const timeNow = new Date(2021, 10, 16, 6, 30)
-  // const [timeNow, setTimeNow] = useState(new Date(2021, 10, 16, 6, 30))
-  // setTimeout(() => {
-  //   startTransition(() => {
-  //     setTimeNow(new Date(timeNow.getTime() + 60 * 1000))
-  //   })
-  // }, 100)
+  // const timeNow = new Date(Date.UTC(2021, 10, 15, 18, 30))
+
+  const [advanceTime, toggleAdvanceTime] = useState(false)
+  const [timeoutRef, setTimeoutRef] = useState<NodeJS.Timeout | null>(null)
+  const [timeNow, incrementTime] = useReducer((cur) => {
+    return new Date(cur.getTime() + 60 * 1000)
+  }, new Date(Date.UTC(2021, 10, 15, 18, 30)))
+
+  useEffect(() => {
+    if (advanceTime) {
+      setTimeoutRef(
+        setInterval(() => {
+          startTransition(() => {
+            incrementTime()
+          })
+        }, 200)
+      )
+    } else if (timeoutRef !== null) {
+      clearInterval(timeoutRef)
+    }
+    return () => {
+      if (timeoutRef !== null) {
+        clearInterval(timeoutRef)
+      }
+    }
+  }, [advanceTime])
 
   const [timeOffset, setScrollTimeOffset] = useState(0)
   const [agendaArea, setAgendaArea] = useState<DOMRect | undefined>(undefined)
@@ -110,10 +137,11 @@ export const Agenda = (props: AgendaProps) => {
 
   return (
     <>
+      <FormControlLabel
+        control={<Switch onChange={() => toggleAdvanceTime(!advanceTime)} />}
+        label='Advance Time'
+      />
       <p>{`Time now: ${dateToString(timeNow)}`}</p>
-      <p>{`Offset time now: ${dateToString(
-        new Date(timeNow.getTime() + timeOffset)
-      )}`}</p>
       <div className='relative flex w-full h-[90%] overflow-hidden mb-5 box-content border-primaryc border-2 select-none'>
         <div className='relative w-[6ch] border-1 border-primaryc'>
           {agendaArea && (
