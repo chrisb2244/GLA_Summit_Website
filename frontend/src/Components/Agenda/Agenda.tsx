@@ -1,5 +1,5 @@
 import { Database } from '@/lib/sb_databaseModels'
-import { FormControlLabel, FormGroup, Slider, Switch } from '@mui/material'
+import { FormControlLabel, Switch } from '@mui/material'
 import {
   startTransition,
   useCallback,
@@ -56,7 +56,8 @@ export const Agenda = (props: AgendaProps) => {
         clearInterval(timeoutRef)
       }
     }
-  }, [advanceTime])
+  /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [advanceTime]) // Don't include 'timeoutRef'
 
   const [timeOffset, setScrollTimeOffset] = useState(0)
   const [agendaArea, setAgendaArea] = useState<DOMRect | undefined>(undefined)

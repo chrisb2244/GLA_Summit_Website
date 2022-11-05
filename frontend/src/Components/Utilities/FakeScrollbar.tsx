@@ -30,7 +30,7 @@ type State = {
   fractionalPosition: number
   lastPageY: number
   smoothScroll: boolean
-  barStyle?: {}
+  barStyle?: Record<string, unknown>
   mouse?: MyMouseEvent
 }
 
@@ -146,9 +146,12 @@ export const FakeScrollbar = (props: ScrollbarProps) => {
     mouse: undefined
   }
   // For debouncing?
-  const raf =
-    (typeof window !== undefined && window.requestAnimationFrame) ||
-    ((cb) => window.setTimeout(cb, 1000 / 60))
+  const raf = useMemo(() => {
+    if (typeof window !== 'undefined') {
+      return window.requestAnimationFrame
+    }
+    return (cb: () => void) => window.setTimeout(cb, 1000/60)
+  }, [])
 
   const [state, dispatch] = useReducer(reducer, initialState)
   const refs = useMemo(
@@ -242,7 +245,6 @@ export const FakeScrollbar = (props: ScrollbarProps) => {
           pageY: ev.pageY,
           top: newFracHeight * availableHeight - 16
         })
-        // setBarGeometry()
       } else {
         dispatch({ type: 'drag', pageY: ev.pageY })
       }

@@ -22,26 +22,26 @@ const agendaFetcher: Fetcher<ScheduledAgendaEntry[], PresentationYear> = async (
 }
 
 // This requires a user
-const keyPrefix = 'agenda-'
-const myAgendaFetcher: Fetcher<{}> = async (key: string | null) => {
-  if (key === null) {
-    throw new Error('Cannot load personalized agenda without user')
-  }
-  const userId = key.slice(keyPrefix.length)
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
-    .single()
-  if (error) {
-    throw error
-  }
-  return data
-}
+// const keyPrefix = 'agenda-'
+// const myAgendaFetcher: Fetcher<{}> = async (key: string | null) => {
+//   if (key === null) {
+//     throw new Error('Cannot load personalized agenda without user')
+//   }
+//   const userId = key.slice(keyPrefix.length)
+//   const { data, error } = await supabase
+//     .from('profiles')
+//     .select('*')
+//     .eq('id', userId)
+//     .single()
+//   if (error) {
+//     throw error
+//   }
+//   return data
+// }
 
 const AgendaTestPage = () => {
   const { user } = useSession()
-  const key = user ? keyPrefix + user.id : null
+  // const key = user ? keyPrefix + user.id : null
 
   const thisYear = '2021'
   const {
