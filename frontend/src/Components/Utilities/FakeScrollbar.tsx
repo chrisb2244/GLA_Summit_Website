@@ -28,7 +28,7 @@ type State = {
   isDragging: boolean
   startFractionalPosition: number
   fractionalPosition: number
-  lastPageY: number | null
+  lastPageY: number
   smoothScroll: boolean
   barStyle?: {}
   mouse?: MyMouseEvent
@@ -137,7 +137,7 @@ export const FakeScrollbar = (props: ScrollbarProps) => {
     isDragging: false,
     fractionalPosition: initPos,
     startFractionalPosition: initPos,
-    lastPageY: null,
+    lastPageY: 0,
     smoothScroll: false,
     barStyle: {
       height: 32,
