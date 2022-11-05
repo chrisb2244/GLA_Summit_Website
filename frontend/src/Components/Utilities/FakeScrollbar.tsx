@@ -292,14 +292,18 @@ export const FakeScrollbar = (props: ScrollbarProps) => {
   }
 
   const onTrackClick: MouseEventHandler<HTMLDivElement> = (ev) => {
-    console.log(ev)
-    // had a !track, for a prop 'track', guess toggle?
     if (state.isDragging) {
       return
     }
 
-    // const { trackBounds: _TB } = state,
-    //   perc = (ev.clientY - _TB.top) / (_TB.height - _TB.topPad - _TB.bottomPad)
+    const newFracHeight = (ev.pageY - sTop) / availableHeight
+    const to = (newFracHeight * availableHeight) / (availableHeight - 16)
+    dispatch({
+      type: 'scrollTo',
+      to,
+      pageY: ev.pageY,
+      top: newFracHeight * availableHeight - 16
+    })
   }
 
   return (
