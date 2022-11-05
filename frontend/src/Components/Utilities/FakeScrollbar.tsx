@@ -167,7 +167,11 @@ export const FakeScrollbar = (props: ScrollbarProps) => {
   // Forwards debounced mouse events
   const onMouseEvent = useCallback(
     (e: globalThis.MouseEvent) => {
-      raf(() => dispatch({ type: 'mouseEvent', event: e }))
+      if (e.type === 'mouseup') {
+        dispatch({type: 'mouseEvent', event: e})
+      } else {
+        raf(() => dispatch({ type: 'mouseEvent', event: e }))
+      }
     },
     [dispatch, raf]
   )
