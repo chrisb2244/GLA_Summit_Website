@@ -114,7 +114,7 @@ export const Agenda = (props: AgendaProps) => {
       <p>{`Offset time now: ${dateToString(
         new Date(timeNow.getTime() + timeOffset)
       )}`}</p>
-      <div className='relative flex w-full h-[90%] overflow-hidden mb-5 box-content border-primaryc border-2'>
+      <div className='relative flex w-full h-[90%] overflow-hidden mb-5 box-content border-primaryc border-2 select-none'>
         <div className='relative w-[6ch] border-1 border-primaryc'>
           {agendaArea && (
             <TimeMarkers
