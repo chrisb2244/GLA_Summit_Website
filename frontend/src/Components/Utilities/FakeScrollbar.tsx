@@ -13,7 +13,7 @@ export type ScrollbarProps = {
   initialPosition?: number
   onScroll: (relativePosition: number) => void
 }
-type MyMouseEvent = { type: string; pageY: number }
+type MyMouseEvent = { type: string; pageY: number; clientY: number }
 
 type TrackBounds = {
   top: number
@@ -105,7 +105,11 @@ const reducer = (state: State, action: Action): State => {
     case 'mouseEvent':
       return {
         ...state,
-        mouse: { type: action.event.type, pageY: action.event.pageY }
+        mouse: {
+          type: action.event.type,
+          pageY: action.event.pageY,
+          clientY: action.event.clientY
+        }
       }
 
     case 'trackBounds':
@@ -150,7 +154,7 @@ export const FakeScrollbar = (props: ScrollbarProps) => {
     if (typeof window !== 'undefined') {
       return window.requestAnimationFrame
     }
-    return (cb: () => void) => window.setTimeout(cb, 1000/60)
+    return (cb: () => void) => window.setTimeout(cb, 1000 / 60)
   }, [])
 
   const [state, dispatch] = useReducer(reducer, initialState)
@@ -171,7 +175,7 @@ export const FakeScrollbar = (props: ScrollbarProps) => {
   const onMouseEvent = useCallback(
     (e: globalThis.MouseEvent) => {
       if (e.type === 'mouseup') {
-        dispatch({type: 'mouseEvent', event: e})
+        dispatch({ type: 'mouseEvent', event: e })
       } else {
         raf(() => dispatch({ type: 'mouseEvent', event: e }))
       }
@@ -232,7 +236,7 @@ export const FakeScrollbar = (props: ScrollbarProps) => {
     if (trackBounds === null || typeof availableHeight === 'undefined') {
       return
     }
-    const newFracHeight = (ev.pageY - sTop) / availableHeight
+    const newFracHeight = (ev.clientY - sTop) / availableHeight
 
     raf(() => {
       const isDragWithinTrackBounds =
@@ -242,11 +246,11 @@ export const FakeScrollbar = (props: ScrollbarProps) => {
         dispatch({
           type: 'scrollTo',
           to,
-          pageY: ev.pageY,
+          pageY: ev.clientY,
           top: newFracHeight * availableHeight - 16
         })
       } else {
-        dispatch({ type: 'drag', pageY: ev.pageY })
+        dispatch({ type: 'drag', pageY: ev.clientY })
       }
     })
   }
@@ -291,7 +295,11 @@ export const FakeScrollbar = (props: ScrollbarProps) => {
         type: 'barProps',
         payload: {
           height: 32,
-          top: Math.min(state.fractionalPosition, ((availableHeight - 32) / availableHeight)) * 100
+          top:
+            Math.min(
+              state.fractionalPosition,
+              (availableHeight - 32) / availableHeight
+            ) * 100
         }
       })
     })
@@ -302,12 +310,12 @@ export const FakeScrollbar = (props: ScrollbarProps) => {
       return
     }
 
-    const newFracHeight = (ev.pageY - sTop) / availableHeight
+    const newFracHeight = (ev.clientY - sTop) / availableHeight
     const to = (newFracHeight * availableHeight) / (availableHeight - 16)
     dispatch({
       type: 'scrollTo',
       to,
-      pageY: ev.pageY,
+      pageY: ev.clientY,
       top: newFracHeight * availableHeight - 16
     })
   }
