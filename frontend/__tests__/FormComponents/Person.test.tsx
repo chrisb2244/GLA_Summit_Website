@@ -47,7 +47,7 @@ describe('Person', () => {
 
   it('produces 3 errors for an empty form', async () => {
     render(<Form />)
-    userEvent.click(screen.getByRole('button'))
+    await userEvent.click(screen.getByRole('button'))
 
     const errors = await screen.findAllByRole('alert')
     expect(errors).toHaveLength(3)
@@ -59,7 +59,7 @@ describe('Person', () => {
     expect(emailInput).toBeVisible()
     
     const emailString = 'invalidemail.blah.com'
-    userEvent.type(emailInput, emailString)
+    await userEvent.type(emailInput, emailString)
     expect(emailInput).toHaveValue(emailString)
 
     fireEvent.blur(emailInput)
@@ -72,7 +72,7 @@ describe('Person', () => {
   it('accepts an email with the @ symbol and suitable pattern', async () => {
     render(<Form />)
     const emailInput = getEmailInput()
-    userEvent.type(emailInput, 'a.b@c.d')
+    await userEvent.type(emailInput, 'a.b@c.d')
 
     fireEvent.blur(emailInput)
 
@@ -92,11 +92,10 @@ describe('Person', () => {
     const lname = 'User'
     const email = 'test.user@test.com'
     
-    userEvent.type(screen.getByRole('textbox', {name: 'First Name'}), fname)
-    userEvent.type(screen.getByRole('textbox', {name: 'Last Name'}), lname)
-    userEvent.type(getEmailInput(), email)
-    
-    userEvent.click(screen.getByRole('button'))
+    await userEvent.type(screen.getByRole('textbox', {name: 'First Name'}), fname)
+    await userEvent.type(screen.getByRole('textbox', {name: 'Last Name'}), lname)
+    await userEvent.type(getEmailInput(), email)
+    await userEvent.click(screen.getByRole('button'))
 
     const expectedData: FormData = {
       personA: {

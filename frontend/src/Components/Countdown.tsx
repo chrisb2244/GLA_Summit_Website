@@ -97,7 +97,8 @@ export const Countdown: React.FC<CountdownProps> = (props) => {
 }
 
 const CounterElem: React.FC<{
-  unit: 'Days' | 'Hours' | 'Minutes' | 'Seconds'
+  unit: 'Days' | 'Hours' | 'Minutes' | 'Seconds',
+  children?: React.ReactNode
 }> = (props) => {
   return (
     <Box

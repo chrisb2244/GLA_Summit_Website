@@ -19,11 +19,14 @@ const MyPresentations = (): JSX.Element => {
   }
 
   const key = user ? keyPrefix + user.id : null
-
   const { data, error, isValidating, mutate } = useSWR(key, presentationFetcher)
+  
+  if (user === null) {
+    return <p>You are not signed in</p>
+  }
 
   if (typeof data !== 'undefined') {
-    return <UserPresentations presentations={data} userId={user!.id} mutate={mutate}/>
+    return <UserPresentations presentations={data} userId={user.id} mutate={mutate}/>
   } else if (isValidating) {
     return <p>Loading...</p>
   } else {

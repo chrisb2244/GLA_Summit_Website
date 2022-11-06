@@ -15,7 +15,8 @@ describe('SubmittedPresentationReviewCard', () => {
     presentation_id: 'randomstuffhere',
     presentation_type: 'full length',
     submitter: submitter,
-    presenters: [submitter]
+    presenters: [submitter],
+    updated_at: ''
   }
 
   const testObject = <SubmittedPresentationReviewCard presentationInfo={info}/>
@@ -25,14 +26,14 @@ describe('SubmittedPresentationReviewCard', () => {
     expect(screen.getByText('Test title')).toBeVisible()
   })
 
-  it('has a primary action to expand for abstract', () => {
+  it('has a primary action to expand for abstract', async () => {
     render(testObject)
     const title = screen.getByText('Test title')
     const abstractSection = screen.getByText('Blah blah abstract')
     expect(abstractSection).not.toBeVisible()
-    userEvent.click(title)
+    await userEvent.click(title)
     expect(abstractSection).toBeVisible()
-    userEvent.click(title)
+    await userEvent.click(title)
     return waitFor(() => {
       expect(abstractSection).not.toBeVisible()
     })

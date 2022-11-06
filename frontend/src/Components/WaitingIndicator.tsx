@@ -7,6 +7,7 @@ type WaitingIndicatorProps = {
   onClose: () => void
   scale?: number
   maxLength?: number
+  children?: React.ReactNode
 }
 
 export const WaitingIndicator: React.FC<WaitingIndicatorProps> = ({

@@ -66,8 +66,8 @@ describe('UserProfile', () => {
     const firstNameInput = await screen.findByRole('textbox', {
       name: /first name/i
     })
-    userEvent.clear(firstNameInput)
-    userEvent.type(firstNameInput, 'different first name')
+    await userEvent.clear(firstNameInput)
+    await userEvent.type(firstNameInput, 'different first name')
     expect(await screen.findByRole('button', { name: /update/i })).toBeEnabled()
   })
 
@@ -77,10 +77,10 @@ describe('UserProfile', () => {
       name: /first name/i
     })
 
-    userEvent.clear(firstNameInput)
-    userEvent.type(firstNameInput, 'different first name')
-    userEvent.clear(firstNameInput)
-    userEvent.type(firstNameInput, 'Test')
+    await userEvent.clear(firstNameInput)
+    await userEvent.type(firstNameInput, 'different first name')
+    await userEvent.clear(firstNameInput)
+    await userEvent.type(firstNameInput, 'Test')
 
     await waitFor(async () => {
       expect(
@@ -95,7 +95,7 @@ describe('UserProfile', () => {
       name: /first name/i
     })
 
-    userEvent.clear(firstNameInput)
+    await userEvent.clear(firstNameInput)
 
     expect(
       await screen.findByRole('button', { name: /update/i })
@@ -108,7 +108,7 @@ describe('UserProfile', () => {
       name: /last name/i
     })
 
-    userEvent.clear(lastNameInput)
+    await userEvent.clear(lastNameInput)
 
     expect(
       await screen.findByRole('button', { name: /update/i })

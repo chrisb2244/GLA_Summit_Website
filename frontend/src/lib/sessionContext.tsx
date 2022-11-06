@@ -1,4 +1,4 @@
-import React, { useContext, useState, createContext, useEffect } from 'react'
+import React, { useContext, useState, createContext, useEffect, ReactNode } from 'react'
 import type { Session, SupabaseClient, User } from '@supabase/supabase-js'
 import type { AuthError } from '@supabase/supabase-js'
 import { ProfileModel } from './databaseModels'
@@ -66,7 +66,7 @@ type SessionContext = {
 
 const AuthContext = createContext<SessionContext | undefined>(undefined)
 
-export const AuthProvider: React.FC<{supabase: SupabaseClient<Database>}> = ({supabase, children}) => {
+export const AuthProvider: React.FC<{supabase: SupabaseClient<Database>, children?: ReactNode}> = ({supabase, children}) => {
   const [isLoading, setLoading] = useState(true)
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<ProfileModel['Insert'] | null>(null)

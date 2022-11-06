@@ -9,8 +9,8 @@ export default async function handler(
   }
 
   try {
-    await res.unstable_revalidate('/presenters')
-    await res.unstable_revalidate('/presentations')
+    await res.revalidate('/presenters')
+    await res.revalidate('/presentations')
     return res.json({ revalidated: true })
   } catch (error) {
     return res.status(500).send('Error revalidating')
