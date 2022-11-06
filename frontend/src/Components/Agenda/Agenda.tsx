@@ -171,12 +171,13 @@ export const Agenda = (props: AgendaProps) => {
             />
           )}
           <div
-            className='h-px border-[0.2px] border-red-600 absolute box-border border-dashed border-opacity-50'
+            className='h-px border-2 border-primaryc absolute box-border border-dashed'
             style={{
               left: '-0.5ch',
-              width: 'calc(100% + 0.5ch)',
+              width: 'calc(100% + 1.5ch)',
               top: timeNowOffsetTop, // (agendaArea?.height ?? 0) * (1 / 12), // will need changing for scroll
-              display: showTimeNowLine ? 'block' : 'none'
+              display: showTimeNowLine ? 'block' : 'none',
+              zIndex: '5'
             }}
           />
         </div>

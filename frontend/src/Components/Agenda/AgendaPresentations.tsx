@@ -55,7 +55,7 @@ export const AgendaPresentations = (props: AgendaPresentationProps) => {
               height: presentationHeight
             }}
           >
-            <span className='m-auto px-[1.5ch]'>
+            <span className='m-auto px-[1.5ch] z-10'>
               {p.title}
             </span>
           </div>
