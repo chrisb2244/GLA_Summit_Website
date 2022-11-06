@@ -47,7 +47,7 @@ export const AgendaPresentations = (props: AgendaPresentationProps) => {
       return (
         <a href={p.link} key={p.link}>
           <div
-            className='absolute flex justify-center text-center items-center bg-secondaryc bg-clip-content p-[1px] text-white overflow-ellipsis'
+            className='absolute flex justify-center text-center items-center bg-secondaryc bg-clip-content p-[1px] text-white overflow-clip'
             style={{
               top: relStart * tableHeight,
               left: left,
