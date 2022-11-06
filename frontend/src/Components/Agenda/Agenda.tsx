@@ -143,7 +143,8 @@ export const Agenda = (props: AgendaProps) => {
         label='Advance Time'
       />
       <p>{`Time now: ${dateToString(timeNow)}`}</p>
-      <div className='relative flex w-full h-[90%] overflow-hidden mb-5 box-content border-primaryc border-2 select-none'>
+      { /* min-h-[80vh] ? */ }
+      <div className='relative flex w-full h-[100%] overflow-hidden mb-5 box-content border-primaryc border-2 select-none'>
         <div className='relative w-[6ch] border-1 border-primaryc'>
           {agendaArea && (
             <TimeMarkers
