@@ -9,21 +9,14 @@ import TW_Speaker from '@/media/banners/speaker_twitter_2022-01.jpg'
 import SignatureImage from '@/media/banners/GLASummit2022WikiBanner.png'
 import JKI_Logo from '@/media/JKI-Logo.webp'
 import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
-import { NextPage } from 'next'
-import NextImage, { StaticImageData } from 'next/image'
-import {
-  Box,
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-  Typography
-} from '@mui/material'
-import type { TypographyProps, BoxProps } from '@mui/material'
-import { CopyableTextBox } from '@/Components/CopyableTextBox'
-import { estimateAspectRatio } from '@/lib/utils'
+import NextImage, { StaticImageData } from 'next/future/image'
 
-const MediaPage: NextPage = () => {
+// import { CopyableTextBox } from '@/Components/CopyableTextBox'
+import { estimateAspectRatio } from '@/lib/utils'
+import { ReactNode } from 'react'
+import { CopyableTextBox } from '@/Components/CopyableTextBox'
+
+const MediaPage = () => {
   const hostname =
     typeof window !== 'undefined'
       ? window.location.protocol + '//' + window.location.host
@@ -52,110 +45,105 @@ const MediaPage: NextPage = () => {
       const sizeInfo = `(${closeAspectRatio}, ${img.width}x${img.height}px)`
       const key = `bannerimage-link-${listType.toLowerCase()}-${elem.label}`
       return (
-        <TableRow key={key}>
-          <TableCell>
-            <Typography>
-              <a href={url}>{`${listType} - ${elem.label}`}</a>
-            </Typography>
-          </TableCell>
-          <TableCell>
-            <Typography>{`${sizeInfo}`}</Typography>
-          </TableCell>
-        </TableRow>
+        <tr key={key} className='prose text-lg'>
+          <td>
+            <a href={url}>{`${listType} - ${elem.label}`}</a>
+          </td>
+          <td>
+            <span className='break-spaces sm:whitespace-nowrap'>{`${sizeInfo}`}</span>
+          </td>
+        </tr>
       )
     })
   }
 
-  const bannerImagesAttendee = buildImageTableRows(images, 'Attendee')
-  const bannerImagesSpeaker = buildImageTableRows(images, 'Speaker')
-
-  const Subtitle: React.FC<TypographyProps> = ({ children, ...other }) => (
-    <Typography variant='h4' {...other}>
-      {children}
-    </Typography>
-  )
-  const Paragraph: React.FC<TypographyProps> = ({ children, ...other }) => (
-    <Typography variant='body1' {...other}>
-      {children}
-    </Typography>
-  )
-  const SidewaysBox: React.FC<BoxProps> = ({ children, ...other }) => {
+  const SidewaysBox = (props: { children?: ReactNode }) => {
     return (
-      <Box
-        display='flex'
-        flexDirection={{ xs: 'column', sm: 'row' }}
-        alignItems='center'
-        {...other}
-      >
-        {children}
-      </Box>
+      <div className='flex items-center flex-col md:flex-row px-8 max-md:space-y-2 md:space-x-2'>
+        {props.children}
+      </div>
     )
   }
 
+  const jkiDiv = (
+    <SidewaysBox>
+      <div className='max-h-[250px] h-full max-sm:w-full sm:w-2/5 sm:max-w-2/5 max-sm:min-h-[40vw] sm:min-h-[min(15vw,200px)] relative flex-grow-0 inline-block'>
+        <a href='https://jki.net'>
+          <NextImage
+            src={JKI_Logo}
+            alt='JKI logo'
+            fill
+            className='object-contain'
+          />
+        </a>
+      </div>
+      <p className='mx-2 w-full flex-grow prose max-w-none text-xl'>
+        The GLA Summit Organizers would like to thank JKI for providing us with
+        the images and banners available below, along with other graphics
+        support.
+      </p>
+    </SidewaysBox>
+  )
+
+  const signatureDiv = (
+    <SidewaysBox>
+      <div className='relative h-[10vw] w-full min-h-[8vh] max-h-[200px]'>
+        <NextImage
+          src={SignatureImage}
+          alt='GLA signature image'
+          fill
+          className='object-contain'
+        />
+      </div>
+      <CopyableTextBox copyString={`<a href="https://glasummit.org"> <img src="${hostname + SignatureImage.src}" height="100" width="300" alt="I'm attending the GLA Summit!"> </a>`}>
+      <div className='p-6 bg-gray-200'>
+          <code className='break-all font-mono'>
+            &lt;a href=&quot;https://glasummit.org&quot;&gt; &lt;img src=&quot;
+            {hostname + SignatureImage.src}&quot; height=&quot;100&quot;
+            width=&quot;300&quot; alt=&quot;I&apos;m attending the GLA
+            Summit!&quot;&gt; &lt;/a&gt;
+            </code>
+        </div>
+      </CopyableTextBox>
+    </SidewaysBox>
+  )
+
+  const bannerImagesAttendee = buildImageTableRows(images, 'Attendee')
+  const bannerImagesSpeaker = buildImageTableRows(images, 'Speaker')
+
   return (
     <StackedBoxes>
-      <SidewaysBox paddingX={4}>
-        <a href={"https://jki.net"}>
-          <NextImage src={JKI_Logo} />
-        </a>
-        <Typography marginX={2}>
-          The GLA Summit Organizers would like to thank JKI for providing us
-          with the images and banners available below, along with other graphics
-          support.
-        </Typography>
-      </SidewaysBox>
-      <Paragraph>
+      {jkiDiv}
+      <div className='prose text-lg w-full max-w-none'>
+      <p>
         Please feel free to use the images on this page on your social media or
         website (including your NI forum signature). Links to the images can be
         found in the &lsquo;href&rsquo; attributes of the HTML samples, or by
         right-clicking and choosing an option like &ldquo;Copy image
         address&rdquo;.
-      </Paragraph>
-      <Paragraph>
+      </p>
+      <p>
         To access your signature on the NI Community pages, go to your community
         account &ldquo;My Profile&rdquo; settings and then Personal &gt;
         Personal Information.
-      </Paragraph>
-      <Paragraph>
+      </p>
+      <p>
         Examples of HTML that could be copied into the signature line are below:
-      </Paragraph>
+      </p>
+      </div>
+      {signatureDiv}
 
-      <SidewaysBox>
-        <NextImage src={SignatureImage} />
-        <CopyableTextBox
-          fill='lightgrey'
-          variant='body2'
-          fontFamily='monospace'
-          sx={{ wordBreak: 'break-all' }}
-        >
-          &lt;a href=&quot;https://glasummit.org&quot;&gt; &lt;img src=&quot;
-          {hostname + SignatureImage.src}&quot; height=&quot;100&quot;
-          width=&quot;300&quot; alt=&quot;I&apos;m attending the GLA
-          Summit!&quot;&gt; &lt;/a&gt;
-        </CopyableTextBox>
-      </SidewaysBox>
+      <h3 className='text-3xl'>Attendees</h3>
+      <table className='w-min [&_td]:px-4 [&_td]:whitespace-nowrap [&_td]:py-0 [&_td]:border-none'>
+        <tbody>{bannerImagesAttendee}</tbody>
+      </table>
+      <NextImage key='bannerimage-attendee' alt='attendee banner' src={TW_Attendee} className='mx-auto'/>
 
-      <Subtitle>Attendees</Subtitle>
-      <Table
-        sx={{
-          width: 'min-content',
-          ' td': { whiteSpace: 'nowrap', paddingY: 0, border: 'none' }
-        }}
-      >
-        <TableBody>{bannerImagesAttendee}</TableBody>
-      </Table>
-      <NextImage key='bannerimage-attendee' src={TW_Attendee} />
-
-      <Subtitle>Speakers</Subtitle>
-      <Table
-        sx={{
-          width: 'min-content',
-          ' td': { whiteSpace: 'nowrap', paddingY: 0, border: 'none' }
-        }}
-      >
-        <TableBody>{bannerImagesSpeaker}</TableBody>
-      </Table>
-      <NextImage key='bannerimage-speaker' src={TW_Speaker} />
+      <h3 className='text-3xl'>Speakers</h3>
+      <table className='w-min [&_td]:px-4 [&_td]:whitespace-nowrap [&_td]:py-0 [&_td]:border-none'>
+        <tbody>{bannerImagesSpeaker}</tbody>
+      </table>
+      <NextImage key='bannerimage-speaker' alt='speaker banner' src={TW_Speaker} className='mx-auto'/>
     </StackedBoxes>
   )
 }
