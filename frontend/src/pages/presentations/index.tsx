@@ -62,8 +62,10 @@ const AllPresentations: React.FC<AllPresentationsProps> = ({
   return (
     <StackedBoxes>
       <Typography variant='h6' pl={1.5}>
-        The list of confirmed presentations for 2022 is still growing - come
-        back soon to see more sessions!
+        We&apos;re almost done confirming presentations. An agenda will be available soon!
+      </Typography>
+      <Typography>
+        Presentations below are listed by schedule where available and by name otherwise.
       </Typography>
       {elems}
     </StackedBoxes>

@@ -24,9 +24,7 @@ export const YearGroupedPresentations: React.FC<
   YearGroupedPresentationsProps
 > = ({ year, presentations, initiallyOpen, disableAccordion }) => {
   const [open, setOpen] = useState(initiallyOpen ?? false)
-
-  const renderedPresentations = presentations
-  .sort((a, b) => {
+  const sortBySchedule = (a: Presentation, b: Presentation) => {
     // negative if a < b
     // Returns "smallest" first
     if (b.scheduledFor !== null && a.scheduledFor !== null) {
@@ -36,10 +34,21 @@ export const YearGroupedPresentations: React.FC<
     } else if (a.scheduledFor !== null) {
       return -1 // a has a scheduled time, b does not. a first.
     } else {
-      const bPrimarySpeaker = Array.isArray(b.speakers) ? b.speakers[0] : b.speakers
-      const aPrimarySpeaker = Array.isArray(a.speakers) ? a.speakers[0] : a.speakers
-      return -1 * ('' + bPrimarySpeaker.lastname).localeCompare(aPrimarySpeaker.lastname)
+      return 0
     }
+  }
+
+  const sortByName = (a:Presentation, b: Presentation) => {
+    const bPrimarySpeaker = Array.isArray(b.speakers) ? b.speakers[0] : b.speakers
+    const aPrimarySpeaker = Array.isArray(a.speakers) ? a.speakers[0] : a.speakers
+    return -1 * ('' + bPrimarySpeaker.lastname).localeCompare(aPrimarySpeaker.lastname)
+  }
+
+  const renderedPresentations = presentations
+  .sort((a, b) => {
+    const bySchedule = sortBySchedule(a, b)
+    const byName = sortByName(a,b)
+    return bySchedule !== 0 ? bySchedule : byName
   })
   .map((p) => (
     <Box pb={1} key={p.title}>
