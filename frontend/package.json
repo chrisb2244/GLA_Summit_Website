@@ -6,6 +6,8 @@
     "@emotion/react": "^11.10.5",
     "@emotion/server": "^11.10.0",
     "@emotion/styled": "^11.10.5",
+    "@mdi/js": "^7.0.96",
+    "@mdi/react": "^1.6.1",
     "@mui/icons-material": "^5.10.9",
     "@mui/material": "^5.10.12",
     "@supabase/auth-helpers-nextjs": "^0.4.4",

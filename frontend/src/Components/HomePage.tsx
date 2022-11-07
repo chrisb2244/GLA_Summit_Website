@@ -47,7 +47,7 @@ export const HomePage: React.FC = () => {
         </P>
         <Box>
           <Link href={'https://hopin.com/events/gla-summit-2022'}>
-            <Button fullWidth variant='contained'>
+            <Button fullWidth variant='contained' className='bg-primaryc'>
               Register for a ticket at Hopin
             </Button>
           </Link>
