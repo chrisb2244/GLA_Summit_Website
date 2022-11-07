@@ -95,7 +95,7 @@ const MediaPage = () => {
           className='object-contain'
         />
       </div>
-      <CopyableTextBox copyString={`<a href="https://glasummit.org"> <img src="/_next/static/media/GLASummit2022WikiBanner.ded7a1c0.png" height="100" width="300" alt="I'm attending the GLA Summit!"> </a>`}>
+      <CopyableTextBox copyString={`<a href="https://glasummit.org"> <img src="${hostname + SignatureImage.src}" height="100" width="300" alt="I'm attending the GLA Summit!"> </a>`}>
       <div className='p-6 bg-gray-200'>
           <code className='break-all font-mono'>
             &lt;a href=&quot;https://glasummit.org&quot;&gt; &lt;img src=&quot;
