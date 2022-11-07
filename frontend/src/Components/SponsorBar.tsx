@@ -1,5 +1,5 @@
 import NI_Logo from '@/media/NI-Logo.png'
-import GCentral_Logo from '@/media/GCentral Logo Color.svg'
+import GCentral_Logo from '@/media/GCentral-logo-color.svg'
 import { Box, Link, Typography } from '@mui/material'
 import NextImage from 'next/image'
 
