@@ -73,7 +73,6 @@ const OurTeam: React.FC = () => {
         description={descriptions.MartinLentz}
         image={Image_ML}
         imageSide='left'
-        imagePosition='70% 50%'
       />
       <PersonDisplay
         firstName='Quentin'

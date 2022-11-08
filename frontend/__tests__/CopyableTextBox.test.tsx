@@ -2,14 +2,9 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { CopyableTextBox } from '@/Components/CopyableTextBox'
 
 describe('CopyableTextBox', () => {
-  it('has note role', () => {
-    render(<CopyableTextBox role='note' fill='lightgrey'/>)
-    expect(screen.getByRole('note')).toBeDefined()
-  })
-
   it('contains child text', () => {
     render(
-      <CopyableTextBox>
+      <CopyableTextBox copyString='This is test text'>
         This is test text
       </CopyableTextBox>
     )
@@ -17,19 +12,19 @@ describe('CopyableTextBox', () => {
   })
 
   it('provides a copy overlay on hover', () => {
-    render(<CopyableTextBox>Blah blah</CopyableTextBox>)
+    render(<CopyableTextBox copyString='Blah blah'>Blah blah</CopyableTextBox>)
     fireEvent.mouseOver(screen.getByText('Blah blah'))
 
     expect(screen.getByLabelText('copy')).toBeVisible()
   })
 
   it('does not have overlay without hover', () => {
-    render(<CopyableTextBox>Blah blah</CopyableTextBox>)
+    render(<CopyableTextBox copyString='Blah blah'>Blah blah</CopyableTextBox>)
     expect(screen.queryByLabelText('copy')).not.toBeVisible()
   })
 
   it('hides the hover when mouse leaves', () => {
-    render(<CopyableTextBox>Blah blah</CopyableTextBox>)
+    render(<CopyableTextBox copyString='Blah blah'>Blah blah</CopyableTextBox>)
     const box = screen.getByText('Blah blah')
     fireEvent.mouseOver(box)
     expect(screen.getByLabelText('copy')).toBeVisible()
@@ -46,7 +41,7 @@ describe('CopyableTextBox', () => {
     })
     const copyFunction = jest.spyOn(navigator.clipboard, 'writeText')
 
-    render(<CopyableTextBox>Blah blah</CopyableTextBox>)
+    render(<CopyableTextBox copyString='Blah blah'>Blah blah</CopyableTextBox>)
     const box = screen.getByText('Blah blah')
     fireEvent.mouseOver(box)
 
@@ -69,7 +64,7 @@ describe('CopyableTextBox', () => {
     const SignatureImage = {
       src: '/my/file/image.png'
     }
-    const textBox = <CopyableTextBox role='note'>
+    const textBox = <CopyableTextBox copyString={`<a href="https://glasummit.org"> <img src="http://localhost:3000/my/file/image.png" height="100" width="300" alt="I\'m attending the GLA Summit!"> </a>`}>
       &lt;a href=&quot;https://glasummit.org&quot;&gt;
       &lt;img src=&quot;{hostname + SignatureImage.src}&quot;
       height=&quot;100&quot;
@@ -79,7 +74,7 @@ describe('CopyableTextBox', () => {
     </CopyableTextBox>
 
     render(textBox)
-    const box = screen.getByRole('note')
+    const box = screen.getByText(/attending/)
     fireEvent.mouseOver(box)
 
     const button = screen.getByLabelText('copy')
