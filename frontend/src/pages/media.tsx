@@ -46,11 +46,14 @@ const MediaPage = () => {
       const key = `bannerimage-link-${listType.toLowerCase()}-${elem.label}`
       return (
         <tr key={key} className='prose text-lg'>
-          <td>
+          <td className='align-middle'>
             <a href={url}>{`${listType} - ${elem.label}`}</a>
           </td>
           <td>
-            <span className='break-spaces sm:whitespace-nowrap'>{`${sizeInfo}`}</span>
+            <span className='max-sm:hidden break-spaces sm:whitespace-nowrap'>{`${sizeInfo}`}</span>
+            <div className='sm:hidden'>
+              <span>{closeAspectRatio}<br/>{`(${img.width}x${img.height}px)`}</span>
+            </div>
           </td>
         </tr>
       )
