@@ -3,7 +3,7 @@ import type { GetStaticProps } from 'next'
 import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
 import { getPublicPresentations } from '@/lib/databaseFunctions'
 import { YearGroupedPresentations } from '@/Components/Layout/YearGroupedPresentations'
-import { Box, Typography } from '@mui/material'
+import { Box, Typography, Button } from '@mui/material'
 import { splitByYear } from '@/lib/presentationArrayFunctions'
 
 type AllPresentationsProps = {
@@ -61,9 +61,13 @@ const AllPresentations: React.FC<AllPresentationsProps> = ({
   // The Box here prevents going to the very edge on smaller screens
   return (
     <StackedBoxes>
-      <Typography variant='h6' pl={1.5}>
-        We&apos;re almost done confirming presentations. An agenda will be available soon!
-      </Typography>
+      <div className='mx-auto'>
+        <a href={'https://hopin.com/events/gla-summit-2022'}>
+          <Button fullWidth variant='contained' className='bg-primaryc'>
+            <Typography textAlign='center'>Go to the Hopin Event page</Typography>
+          </Button>
+        </a>
+      </div>
       <Typography>
         Presentations below are listed by schedule where available and by name otherwise.
       </Typography>
