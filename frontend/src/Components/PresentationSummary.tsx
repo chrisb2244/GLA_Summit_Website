@@ -3,6 +3,7 @@ import { Link } from '@/lib/link'
 import type { LinkProps } from '@/lib/link'
 import { Database } from '@/lib/sb_databaseModels'
 import { PresentationType } from '@/lib/databaseModels'
+import { useSession } from '@/lib/sessionContext'
 
 export type Presenter = {
   firstname: string
@@ -34,13 +35,13 @@ export const PresentationSummary: React.FC<PresentationProps> = ({
   const speakerLine = Array.isArray(pres.speakerNames)
     ? pres.speakerNames.join(', ')
     : pres.speakerNames
-  // const {
-  //     timezoneInfo: { timeZone, timeZoneName, use24HourClock }
-  // } = useSession()
+  const {
+      timezoneInfo: { timeZone, timeZoneName, use24HourClock }
+  } = useSession()
   const dateToString = (utcDateString: string) => {
     const date = new Date(utcDateString)
     const formatter = new Intl.DateTimeFormat(undefined, {
-      timeZone: 'GMT',
+      timeZone: timeZone,
       hour: 'numeric',
       minute: '2-digit',
       second: undefined,
@@ -51,7 +52,7 @@ export const PresentationSummary: React.FC<PresentationProps> = ({
   }
 
   const scheduleLine = pres.scheduledFor !== null ? (
-    dateToString(pres.scheduledFor) + ' UTC'
+    dateToString(pres.scheduledFor) + ` ${timeZoneName}`
   ) : null
 
   const durationElem = (
