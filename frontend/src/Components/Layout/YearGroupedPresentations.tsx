@@ -48,7 +48,7 @@ export const YearGroupedPresentations: React.FC<
   .sort((a, b) => {
     const bySchedule = sortBySchedule(a, b)
     const byName = sortByName(a,b)
-    return bySchedule !== 0 ? bySchedule : byName
+    return byName !== 0 ? byName : bySchedule
   })
   .map((p) => (
     <Box pb={1} key={p.title}>
