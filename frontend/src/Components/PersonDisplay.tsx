@@ -100,7 +100,7 @@ export const PersonDisplay: React.FC<
     if (typeof pageLink !== 'undefined') {
       return (
         <Link href={pageLink}>
-          <a><h4 className='text-4xl underline'>{children}</h4></a>
+          <h4 className='text-4xl underline'>{children}</h4>
         </Link>
       )
     } else {

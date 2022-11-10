@@ -10,7 +10,7 @@ export const Link: React.FC<{ href: string } & LinkProps> = ({
   ...linkProps
 }) => {
   return (
-    <NextLink href={href} passHref>
+    <NextLink href={href} passHref legacyBehavior>
       <MuiLink {...linkProps}>{children}</MuiLink>
     </NextLink>
   )
