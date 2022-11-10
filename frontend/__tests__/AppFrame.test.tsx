@@ -85,7 +85,8 @@ mockedSession.mockReturnValue({
     timeZoneName: 'Japan Standard Time',
     use24HourClock: false
   },
-  isLoading: false
+  isLoading: false,
+  triggerUpdate: () => {},
 })
 
 describe('AppFrame', () => {
