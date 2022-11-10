@@ -17,7 +17,7 @@ export const MenuBar: React.FC<BoxProps> = ({ ...extraBoxProps }) => {
     { title: 'Home', link: '/' },
     { title: 'Presentations', link: '/presentations' },
     // { title: 'Submit a Presentation', link: '/submit-presentation' },
-    { title: 'Hopin Event', link: 'https://hopin.com/events/gla-summit-2022' },
+    { title: 'Virtual Venue (Hopin)', link: 'https://hopin.com/events/gla-summit-2022' },
     { title: 'Media and Banners', link: '/media' },
     { title: 'Our Team', link: '/our-team' }
     // { title: 'Presenters', link: '/presenters' }
