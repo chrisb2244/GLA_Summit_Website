@@ -5,6 +5,7 @@ import { getPublicPresentations } from '@/lib/databaseFunctions'
 import { YearGroupedPresentations } from '@/Components/Layout/YearGroupedPresentations'
 import { Box, Typography, Button } from '@mui/material'
 import { splitByYear } from '@/lib/presentationArrayFunctions'
+import NextLink from 'next/link'
 
 type AllPresentationsProps = {
   presentations: Presentation[]
@@ -64,12 +65,21 @@ const AllPresentations: React.FC<AllPresentationsProps> = ({
       <div className='mx-auto'>
         <a href={'https://hopin.com/events/gla-summit-2022'}>
           <Button fullWidth variant='contained' className='bg-primaryc'>
-            <Typography textAlign='center'>Go to the Hopin Event page</Typography>
+            <Typography textAlign='center'>
+              Go to the Hopin Event page
+            </Typography>
           </Button>
         </a>
       </div>
       <Typography>
-        Presentations below are listed by schedule where available and by name otherwise.
+        Presentations below are listed by first speaker&apos;s name.
+      </Typography>
+      <Typography>
+        For a list by schedule, see our{' '}
+        <NextLink href='/full-agenda' passHref legacyBehavior>
+          <a className='underline'>agenda</a>
+        </NextLink>
+        !
       </Typography>
       {elems}
     </StackedBoxes>

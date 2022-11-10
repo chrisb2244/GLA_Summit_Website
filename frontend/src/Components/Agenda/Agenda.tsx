@@ -1,5 +1,5 @@
 import { Database } from '@/lib/sb_databaseModels'
-import { FormControlLabel, Switch } from '@mui/material'
+// import { FormControlLabel, Switch } from '@mui/material'
 import {
   startTransition,
   useCallback,
@@ -23,6 +23,7 @@ export type AgendaProps = {
   hoursToShow: number
   startDate: Date
   durationInHours?: number
+  noContainer?: boolean
 }
 
 export const Agenda = (props: AgendaProps) => {
@@ -33,20 +34,27 @@ export const Agenda = (props: AgendaProps) => {
     1000
   // const timeNow = new Date(Date.UTC(2021, 10, 15, 18, 30))
 
-  const [advanceTime, toggleAdvanceTime] = useState(false)
+  // const [advanceTime, toggleAdvanceTime] = useState(false)
+  const advanceTime = true
+  const timePeriod = 1000 * 30; // update every 30s
   const [timeoutRef, setTimeoutRef] = useState<NodeJS.Timeout | null>(null)
-  const [timeNow, incrementTime] = useReducer((cur) => {
-    return new Date(cur.getTime() + 60 * 1000)
-  }, new Date(Date.UTC(2021, 10, 15, 18, 30)))
+
+  const startCount = props.startDate.getTime()
+  const endCount = startCount + totalDuration
+  const [timeNow, refreshTime] = useReducer(() => {
+    const now = new Date().getTime()
+    const cappedTime = Math.max(Math.min(now, endCount), startCount)
+    return new Date(cappedTime)
+  }, new Date())
 
   useEffect(() => {
     if (advanceTime) {
       setTimeoutRef(
         setInterval(() => {
           startTransition(() => {
-            incrementTime()
+            refreshTime()
           })
-        }, 200)
+        }, timePeriod)
       )
     } else if (timeoutRef !== null) {
       clearInterval(timeoutRef)
@@ -138,11 +146,11 @@ export const Agenda = (props: AgendaProps) => {
 
   return (
     <>
-      <FormControlLabel
+      {/* <FormControlLabel
         control={<Switch onChange={() => toggleAdvanceTime(!advanceTime)} />}
         label='Advance Time'
-      />
-      <p>{`Time now: ${dateToString(timeNow)}`}</p>
+      /> */}
+      {/* <p>{`Time now: ${dateToString(timeNow)}`}</p> */}
       { /* min-h-[80vh] ? */ }
       <div className='relative flex w-full h-[100%] overflow-hidden mb-5 box-content border-primaryc border-2 select-none'>
         <div className='relative w-[6ch] border-1 border-primaryc'>
