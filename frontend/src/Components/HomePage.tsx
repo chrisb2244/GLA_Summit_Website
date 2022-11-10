@@ -5,6 +5,7 @@ import { StackedBoxes } from './Layout/StackedBoxes'
 import { Link } from '@/lib/link'
 import NI_Logo from '@/media/NI-Logo.png'
 import GCentral_Logo from '@/media/GCentral-logo-color.svg'
+import SAS_Logo from '@/media/SAS-Logo.png'
 import CorgiBytes_Logo from '@/media/corgibytes-logo.png'
 import HeartWare_Dev_Logo from '@/media/heartware-dev-logo.png' // #1e143e_bg
 import NextImage, { StaticImageData } from 'next/image'
@@ -86,7 +87,7 @@ export const HomePage: React.FC = () => {
         alignItems='center'
         justifyContent='center'
       >
-        <NextImage src={GCentral_Logo} width={120} height={120} />
+        <NextImage src={GCentral_Logo} width={90} height={90} />
         <Typography variant='h5' px={2}>
           GCentral
         </Typography>
@@ -108,6 +109,22 @@ export const HomePage: React.FC = () => {
     </Link>
   )
 
+  const sasBlock = (
+    <Link href={'https://www.sasworkshops.com/'} py={2}>
+      <Box
+        display='flex'
+        flexDirection='row'
+        alignItems='center'
+        justifyContent='center'
+      >
+        <NextImage src={SAS_Logo} width={100} height={100} />
+        <Typography variant='h5' px={2}>
+          SAS Workshops
+        </Typography>
+      </Box>
+    </Link>
+  )
+
   const supportedBlock = (
     <div className='flex flex-col text-center m-auto'>
       <Typography variant='h5'>Supported by</Typography>
@@ -120,6 +137,7 @@ export const HomePage: React.FC = () => {
         {gcentralBlock}
         {corgiBlock}
         {heartwareBlock}
+        {sasBlock}
       </Box>
     </div>
   )
