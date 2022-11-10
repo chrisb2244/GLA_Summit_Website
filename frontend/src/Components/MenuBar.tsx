@@ -61,7 +61,9 @@ export const MenuBar: React.FC<BoxProps> = ({ ...extraBoxProps }) => {
       <Button
         onClick={() => handleCloseNavMenu()}
         role='menuitem'
+        // color={link.match(/hopin/i) ? 'warning' : 'inherit'}
         color='inherit'
+        variant='outlined'
       >
         <Typography textAlign='center'>{title}</Typography>
       </Button>
