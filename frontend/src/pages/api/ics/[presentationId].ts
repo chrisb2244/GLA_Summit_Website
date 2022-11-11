@@ -72,8 +72,10 @@ const handler: NextApiHandler = async (req, res) => {
     return res.status(500).send('Unable to generate the requested ICS file')
   }
 
+  const safeTitle = presentationData.title.replaceAll(/[^a-zA-Z0-9 ]/g, '');
+
   res.setHeader('Content-Type', 'text/calendar');
-  res.setHeader('Content-Disposition', 'attachment; filename=' + presentationData.title + '.ics');
+  res.setHeader('Content-Disposition', 'attachment; filename=' + safeTitle + '.ics');
   return res.send(value)
 }
 
