@@ -34,7 +34,7 @@ const FullAgenda = (): JSX.Element => {
   const [hoursToShow, setHoursToShow] = useState(4.5)
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setHoursToShow(window.matchMedia("(min-width: 768px)").matches ? 12 : 4.5)
+      setHoursToShow(window.matchMedia('(min-width: 768px)').matches ? 12 : 4.5)
     }
   }, [window])
 
@@ -49,16 +49,16 @@ const FullAgenda = (): JSX.Element => {
     return unableToRenderElem
   }
   const conferenceStart = new Date(Date.UTC(2022, 10, 14, 12, 0, 0))
-  
+
   if (typeof window !== 'undefined') {
-    window.matchMedia("(min-width: 768px)").addEventListener('change', (e) => {
+    window.matchMedia('(min-width: 768px)').addEventListener('change', (e) => {
       setHoursToShow(e.matches ? 12 : 4.5)
     })
   }
 
   return (
     <>
-      <div className='mb-2'>
+      <div className='mb-2 px-4'>
         <p>
           We&apos;re finalizing this page now - the authoritative agenda can be
           found at the{' '}
@@ -73,17 +73,19 @@ const FullAgenda = (): JSX.Element => {
           Times shown in both this agenda and the Hopin page are in your local
           timezone.
         </p>
-        <p>
-          We apologize that this page is difficult to use on mobile devices - in particular, you need to tap the scrollbar to scroll.
+        <p className='max-sm:block sm:hidden'>
+          We apologize that this page is difficult to use on mobile devices - in
+          particular, you need to tap the scrollbar to scroll, and the layout is
+          narrow.
         </p>
       </div>
       <div className={`px-4 max-sm:h-[80vh] max-sm:mb-[5vh] h-5/6`}>
-      <Agenda
-        agendaEntries={fullAgenda}
-        hoursToShow={hoursToShow}
-        startDate={conferenceStart}
-        durationInHours={24}
-      />
+        <Agenda
+          agendaEntries={fullAgenda}
+          hoursToShow={hoursToShow}
+          startDate={conferenceStart}
+          durationInHours={24}
+        />
       </div>
     </>
   )
