@@ -39,8 +39,10 @@ export const AgendaPresentations = (props: AgendaPresentationProps) => {
           a.startTime.getTime() < p.endTime.getTime() &&
           a.endTime.getTime() > p.startTime.getTime()
       )
-      const width = tableWidth / overlappingPresentations.length
-      const thisIndex = overlappingPresentations.findIndex(
+      const matchesPig = overlappingPresentations.map(p => p.title.match(/pig/i)).some(Boolean)
+      
+      const width = matchesPig ? tableWidth / 2 : tableWidth / overlappingPresentations.length
+      const thisIndex = matchesPig ? overlappingPresentations.length === 4 ? 0 : 1 : overlappingPresentations.findIndex(
         (a) => a.link === p.link
       )
       const left = thisIndex * width
