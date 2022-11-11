@@ -1,33 +1,54 @@
-import useSWR, { Fetcher } from 'swr'
+// import useSWR, { Fetcher } from 'swr'
 import { supabase } from '@/lib/supabaseClient'
-import type { PresentationYear } from '@/Components/PresentationSummary'
-import { logErrorToDb } from '@/lib/utils'
+// import type { PresentationYear } from '@/Components/PresentationSummary'
+// import { logErrorToDb } from '@/lib/utils'
 
 import { Agenda, ScheduledAgendaEntry } from '@/Components/Agenda/Agenda'
 import { useEffect, useState } from 'react'
+import { GetStaticProps } from 'next'
 
 // This is static...
-const agendaFetcher: Fetcher<ScheduledAgendaEntry[], PresentationYear> = async (
-  year: PresentationYear
-) => {
+// const agendaFetcher: Fetcher<ScheduledAgendaEntry[], PresentationYear> = async (
+//   year: PresentationYear
+// ) => {
+//   const { data, error } = await supabase
+//     .from('all_presentations')
+//     .select('*')
+//     .eq('year', year)
+//     .not('scheduled_for', 'is', 'null') // required for ScheduledAgendaEntry rather than AgendaEntry
+//   if (error) {
+//     throw error
+//   }
+//   return data as ScheduledAgendaEntry[] // not null filter in select
+// }
+
+export const getStaticProps: GetStaticProps = async () => {
   const { data, error } = await supabase
     .from('all_presentations')
     .select('*')
-    .eq('year', year)
+    .eq('year', '2022')
     .not('scheduled_for', 'is', 'null') // required for ScheduledAgendaEntry rather than AgendaEntry
-  if (error) {
-    throw error
+
+  if (error) throw error
+
+  return {
+    props: {
+      fullAgenda: data
+    },
+    revalidate: 300
   }
-  return data as ScheduledAgendaEntry[] // not null filter in select
 }
 
-const FullAgenda = (): JSX.Element => {
-  const thisYear = '2022'
-  const {
-    data: fullAgenda,
-    error: agendaError,
-    isValidating: loadingAgenda
-  } = useSWR(thisYear, agendaFetcher)
+const FullAgenda = (props: {
+  fullAgenda: ScheduledAgendaEntry[]
+}): JSX.Element => {
+  // const thisYear = '2022'
+  // const {
+  //   data: fullAgenda,
+  //   error: agendaError,
+  //   isValidating: loadingAgenda
+  // } = useSWR(thisYear, agendaFetcher)
+  const fullAgenda = props.fullAgenda
   const unableToRenderElem = (
     <p>Unable to load this year&apos;s agenda. Please try again later.</p>
   )
@@ -38,13 +59,13 @@ const FullAgenda = (): JSX.Element => {
     }
   }, [window])
 
-  if (agendaError !== null && typeof agendaError !== 'undefined') {
-    logErrorToDb((agendaError as Error).message, 'error')
-    return unableToRenderElem
-  }
-  if (loadingAgenda) {
-    return <p>Loading...</p>
-  }
+  // if (agendaError !== null && typeof agendaError !== 'undefined') {
+  //   logErrorToDb((agendaError as Error).message, 'error')
+  //   return unableToRenderElem
+  // }
+  // if (loadingAgenda) {
+  //   return <p>Loading...</p>
+  // }
   if (typeof fullAgenda === 'undefined') {
     return unableToRenderElem
   }
