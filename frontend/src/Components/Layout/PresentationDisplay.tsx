@@ -1,32 +1,37 @@
 import { Paper, Box, Typography } from '@mui/material'
 import { PersonDisplay, PersonDisplayProps } from '@/Components/PersonDisplay'
 import { StackedBoxes } from './StackedBoxes'
+import { mdiCalendar } from '@mdi/js'
+import Icon from '@mdi/react'
 
 export type Presentation = {
   title: string
   abstract: string
   speakerNames: string[]
   speakers: PersonDisplayProps[]
-} & Schedule 
+} & Schedule
 
-export type Schedule = ({
-  sessionStart: string
-  sessionEnd: string
-} | {
-  sessionStart: null
-  sessionEnd: null
-})
+export type Schedule =
+  | {
+      sessionStart: string
+      sessionEnd: string
+    }
+  | {
+      sessionStart: null
+      sessionEnd: null
+    }
 
 type PresentationDisplayProps = {
   presentation: Presentation
   timeZoneName: string
+  presentationId: string
   dateToStringFn: (datetime: string) => string
 }
 
 export const PresentationDisplay: React.FC<PresentationDisplayProps> = (
   props
 ) => {
-  const { presentation, timeZoneName, dateToStringFn } = props
+  const { presentation, timeZoneName, dateToStringFn, presentationId } = props
   let scheduleInfo = <></>
   if (presentation.sessionStart !== null) {
     const startTime = dateToStringFn(presentation.sessionStart)
@@ -37,6 +42,16 @@ export const PresentationDisplay: React.FC<PresentationDisplayProps> = (
       </Typography>
     )
   }
+
+  const downloadButton = (
+    <a href={`/api/ics/${presentationId}`} target='_blank' rel='noreferrer'>
+      <div className='flex flex-row items-center'>
+        <Icon path={mdiCalendar} size={1} />
+        <span className='prose pl-1'>Download ICS file</span>
+      </div>
+    </a>
+  )
+
   return (
     <Paper>
       <StackedBoxes>
@@ -44,7 +59,10 @@ export const PresentationDisplay: React.FC<PresentationDisplayProps> = (
           <Typography variant='h3' gutterBottom>
             {presentation.title}
           </Typography>
-          {scheduleInfo}
+          <div className='py-2 flex flex-col md:flex-row md:justify-between'>
+            {scheduleInfo}
+            {downloadButton}
+          </div>
           <Box>
             {presentation.abstract.split('\r\n').map((p, idx) => {
               return <Typography key={`p${idx}`}>{p}</Typography>
