@@ -11,6 +11,7 @@ import {
 
 type PresentationProps = {
   presentation: Presentation
+  presentationId: string
 }
 
 export const getStaticProps: GetStaticProps<PresentationProps> = async ({
@@ -63,7 +64,8 @@ export const getStaticProps: GetStaticProps<PresentationProps> = async ({
             speakers: presenters,
             speakerNames: data.all_presenters_names,
             ...schedule
-          }
+          },
+          presentationId
         },
         revalidate: 3600
       }
@@ -84,7 +86,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
   }
 }
 
-const PresentationPage = ({ presentation }: PresentationProps) => {
+const PresentationPage = ({ presentation, presentationId }: PresentationProps) => {
   const {
     timezoneInfo: { timeZone, timeZoneName, use24HourClock }
   } = useSession()
@@ -103,6 +105,7 @@ const PresentationPage = ({ presentation }: PresentationProps) => {
 
   return (
     <PresentationDisplay
+      presentationId={presentationId}
       dateToStringFn={dateToString}
       presentation={presentation}
       timeZoneName={timeZoneName}
