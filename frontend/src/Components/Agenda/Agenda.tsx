@@ -194,8 +194,8 @@ export const Agenda = (props: AgendaProps) => {
           initialPosition={fractionalTime}
           onScroll={(num) => {
             const offsetTimeInt =
-              (totalDuration - (2 / 3) * currentExtent) * num -
-              currentExtent / 6
+              (totalDuration - (5 / 6) * currentExtent) * num - 0
+              // currentExtent / 12
             setScrollTimeOffset(
               new Date(props.startDate.getTime() + offsetTimeInt).getTime() -
                 timeNow.getTime()

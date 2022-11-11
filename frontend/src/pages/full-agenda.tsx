@@ -34,7 +34,7 @@ const FullAgenda = (): JSX.Element => {
   const [hoursToShow, setHoursToShow] = useState(4.5)
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setHoursToShow(window.matchMedia('(min-width: 768px)').matches ? 12 : 4.5)
+      setHoursToShow(window.matchMedia('(min-width: 768px)').matches ? 6 : 3)
     }
   }, [window])
 
@@ -52,7 +52,7 @@ const FullAgenda = (): JSX.Element => {
 
   if (typeof window !== 'undefined') {
     window.matchMedia('(min-width: 768px)').addEventListener('change', (e) => {
-      setHoursToShow(e.matches ? 12 : 4.5)
+      setHoursToShow(e.matches ? 6 : 3)
     })
   }
 
@@ -77,6 +77,9 @@ const FullAgenda = (): JSX.Element => {
           We apologize that this page is difficult to use on mobile devices - in
           particular, you need to tap the scrollbar to scroll, and the layout is
           narrow.
+          <br />
+          We&apos;ll continue to try and improve this, but recommend using this
+          page on a larger screen, or instead viewing the Hopin agenda page.
         </p>
       </div>
       <div className={`px-4 max-sm:h-[80vh] max-sm:mb-[5vh] h-5/6`}>
