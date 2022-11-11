@@ -79,7 +79,7 @@ const FullAgenda = (props: {
 
   return (
     <>
-      <div className='mb-2 px-4'>
+      <div className='mb-2 px-4 prose mx-auto'>
         <p>
           We&apos;re finalizing this page now - the authoritative agenda can be
           found at the{' '}
@@ -94,16 +94,20 @@ const FullAgenda = (props: {
           Times shown in both this agenda and the Hopin page are in your local
           timezone.
         </p>
-        <p className='max-sm:block sm:hidden'>
-          We apologize that this page is difficult to use on mobile devices - in
-          particular, you need to tap the scrollbar to scroll, and the layout is
-          narrow.
-          <br />
-          We&apos;ll continue to try and improve this, but recommend using this
-          page on a larger screen, or instead viewing the Hopin agenda page.
-        </p>
+        <div className='max-sm:block sm:hidden'>
+          <p>
+            We recommend that you use this page on a wider screen. Please tap
+            the scrollbar to navigate through the table (native scrolling is not
+            currently possible).
+          </p>
+          <p>
+            We&apos;ll continue to try and improve this page, but recommend
+            using this page on a larger screen, or instead viewing the Hopin
+            agenda page.
+          </p>
+        </div>
       </div>
-      <div className={`px-4 max-sm:h-[80vh] max-sm:mb-[5vh] h-5/6`}>
+      <div className={`px-4 mb-[5vh] h-[80vh]`}>
         <Agenda
           agendaEntries={fullAgenda}
           hoursToShow={hoursToShow}
