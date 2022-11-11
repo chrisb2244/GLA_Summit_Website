@@ -4,6 +4,7 @@ import type { PresentationYear } from '@/Components/PresentationSummary'
 import { logErrorToDb } from '@/lib/utils'
 
 import { Agenda, ScheduledAgendaEntry } from '@/Components/Agenda/Agenda'
+import { useEffect, useState } from 'react'
 
 // This is static...
 const agendaFetcher: Fetcher<ScheduledAgendaEntry[], PresentationYear> = async (
@@ -30,6 +31,12 @@ const FullAgenda = (): JSX.Element => {
   const unableToRenderElem = (
     <p>Unable to load this year&apos;s agenda. Please try again later.</p>
   )
+  const [hoursToShow, setHoursToShow] = useState(4.5)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setHoursToShow(window.matchMedia("(min-width: 768px)").matches ? 12 : 4.5)
+    }
+  }, [window])
 
   if (agendaError !== null && typeof agendaError !== 'undefined') {
     logErrorToDb((agendaError as Error).message, 'error')
@@ -42,6 +49,12 @@ const FullAgenda = (): JSX.Element => {
     return unableToRenderElem
   }
   const conferenceStart = new Date(Date.UTC(2022, 10, 14, 12, 0, 0))
+  
+  if (typeof window !== 'undefined') {
+    window.matchMedia("(min-width: 768px)").addEventListener('change', (e) => {
+      setHoursToShow(e.matches ? 12 : 4.5)
+    })
+  }
 
   return (
     <>
@@ -60,13 +73,18 @@ const FullAgenda = (): JSX.Element => {
           Times shown in both this agenda and the Hopin page are in your local
           timezone.
         </p>
+        <p>
+          We apologize that this page is difficult to use on mobile devices - in particular, you need to tap the scrollbar to scroll.
+        </p>
       </div>
+      <div className={`px-4 max-sm:h-[80vh] max-sm:mb-[5vh] h-5/6`}>
       <Agenda
         agendaEntries={fullAgenda}
-        hoursToShow={4.5}
+        hoursToShow={hoursToShow}
         startDate={conferenceStart}
         durationInHours={24}
       />
+      </div>
     </>
   )
 }
