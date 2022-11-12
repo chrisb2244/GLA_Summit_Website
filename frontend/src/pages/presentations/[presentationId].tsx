@@ -38,7 +38,10 @@ export const getStaticProps: GetStaticProps<PresentationProps> = async ({
 
       const type = data.presentation_type
       // Panels, 7x7 for 1h, 'full length' for 45m?
-      const sessionDuration = type === 'full length' ? 45 * 60 : 60 * 60 // duration in seconds
+      const sessionDuration = (type === 'full length' ? 45 : 
+        type === '15 minutes' ? 15 : 
+        type === '7x7' ? 7 :
+        60) * 60 // duration in seconds
 
       let schedule: Schedule = {
         sessionStart: null,
