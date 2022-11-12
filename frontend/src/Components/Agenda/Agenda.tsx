@@ -109,12 +109,18 @@ export const Agenda = (props: AgendaProps) => {
           ? 7
           : 60 // panel
       const endTime = new Date(startTime.getTime() + duration * 60 * 1000)
+      let link = '/presentations/' + presentation.presentation_id
+      if (pType === 'panel') {
+        // ToDo - in a future year, fix this rather than being hardcoded
+        const isOS = presentation.title === 'How to make Open-Source more worthwhile?'
+        link = '/panels/' + isOS ? 'open-source' : 'labview-and-python'
+      }
       return {
         startTime,
         endTime,
         duration,
         title: presentation.title,
-        link: '/presentations/' + presentation.presentation_id
+        link
       }
     })
     .sort((a, b) => a.startTime.getTime() - b.startTime.getTime())
