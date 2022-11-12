@@ -58,13 +58,15 @@ const handler: NextApiHandler = async (req, res) => {
     type === 'panel' ? 60 : 60
   const abstract = presentationData.abstract.replaceAll('\r\n', '\\n')
   
+  const hopinUrl = 'https://hopin.com/events/gla-summit-2022'
   const eventAttributes: EventAttributes = {
     start,
     startInputType: 'utc',
     duration: { minutes: duration },
     title: presentationData.title,
     description: abstract,
-    url: 'https://hopin.com/events/gla-summit-2022'
+    url: hopinUrl,
+    location: hopinUrl
   }
 
   const {error: eventError, value} = createEvent(eventAttributes)
