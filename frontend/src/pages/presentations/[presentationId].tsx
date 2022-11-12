@@ -37,6 +37,17 @@ export const getStaticProps: GetStaticProps<PresentationProps> = async ({
       )
 
       const type = data.presentation_type
+      if (type === 'panel') {
+        // ToDo - in a future year, fix this rather than being hardcoded
+        const isOS = data.title === 'How to make Open-Source more worthwhile?'
+        const link = '/panels/' + isOS ? 'open-source' : 'labview-and-python'
+        return {
+          redirect: {
+            destination: link,
+            permanent: true
+          }
+        }
+      }
       // Panels, 7x7 for 1h, 'full length' for 45m?
       const sessionDuration = (type === 'full length' ? 45 : 
         type === '15 minutes' ? 15 : 
@@ -79,8 +90,14 @@ export const getStaticProps: GetStaticProps<PresentationProps> = async ({
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
+  const panelIds = [
+    'e65a01e9-65a0-4687-8825-004efc24bb7a', // open-source
+    '3d12f1c1-e99b-46c0-8188-3f4055e6580b' // python
+  ]
   const presentationIdArray = await getAcceptedPresentationIds().then((ids) =>
-    ids.map((id) => '/presentations/' + id)
+    ids
+    .filter(id => ! panelIds.includes(id))
+    .map((id) => '/presentations/' + id)
   )
 
   return {
