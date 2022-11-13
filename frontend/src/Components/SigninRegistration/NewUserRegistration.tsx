@@ -118,21 +118,23 @@ export const NewUserRegistration: React.FC<UserRegistrationProps> = ({
             with a verification link - click the link to automatically sign into
             the site.
           </SmallCenteredText>
+          <div className='bg-red-600 text-white rounded my-2 pt-2'>
           <SmallCenteredText sx={{ pb: 1 }}>
             In order to attend the conference, the required registration can be
             found at{' '}
             {
-              <a href={'https://hopin.com/events/gla-summit-2022'}>
+              <a href={'https://hopin.com/events/gla-summit-2022'} className='underline'>
                 https://hopin.com/events/gla-summit-2022
               </a>
             }
           </SmallCenteredText>
+          </div>
           <SmallCenteredText sx={{ pb: 2 }}>
             This site is currently mostly focused on presentation submission,
             although last year&apos;s presentations can be found at{' '}
             {
               <NextLink href={'/presentations'}>
-                https://glasummit.org/presentations
+                <span className='underline cursor-pointer'>https://glasummit.org/presentations</span>
               </NextLink>
             }
             .

@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { useSession } from '@/lib/sessionContext'
 import { RegistrationPopup } from '../SigninRegistration/RegistrationPopup'
 
-export const User: React.FC<BoxProps> = ({...extraBoxProps}) => {
+export const User: React.FC<BoxProps> = ({ ...extraBoxProps }) => {
   const [dialogOpen, setDialogOpen] = useState(false)
 
   const { user, signUp, signIn } = useSession()
@@ -15,15 +15,22 @@ export const User: React.FC<BoxProps> = ({...extraBoxProps}) => {
   } else {
     button = (
       <>
-        <Button
-          onClick={() => setDialogOpen(true)}
-          color='warning'
-        >
+        <Button onClick={() => setDialogOpen(true)} color='warning'>
           Sign In / Register
         </Button>
-        <RegistrationPopup signUp={signUp} signIn={signIn} open={dialogOpen} setClosed={() => setDialogOpen(false)} />
+        <RegistrationPopup
+          signUp={signUp}
+          signIn={signIn}
+          open={dialogOpen}
+          setClosed={() => setDialogOpen(false)}
+          initialState={'signin'}
+        />
       </>
     )
   }
-  return <Box id='user' {...extraBoxProps}>{button}</Box>
+  return (
+    <Box id='user' {...extraBoxProps}>
+      {button}
+    </Box>
+  )
 }

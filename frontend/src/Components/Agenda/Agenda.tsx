@@ -96,7 +96,7 @@ export const Agenda = (props: AgendaProps) => {
   }, [dataColumnRef, handleResize])
 
   const presentationSlots = props.agendaEntries
-    .filter((a) => a.presentation_type !== '7x7') // These have bad startTimes (all the same) for 2021 testing
+    // .filter((a) => a.presentation_type !== '7x7') // These have bad startTimes (all the same) for 2021 testing
     .map((presentation) => {
       const startTime = new Date(presentation.scheduled_for)
       const pType = presentation.presentation_type
