@@ -1,5 +1,6 @@
 import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
 import { Typography, Button } from '@mui/material'
+import NextLink from 'next/link'
 
 const Open_Source_Page = () => {
   /*
@@ -48,13 +49,13 @@ const Open_Source_Page = () => {
         <p>
           The benefits of open source have been widely promoted within the
           LabVIEW community - including in presentations at this summit such as{' '}
-          <a href='/presentations/85079b3c-e4f3-4ebe-b676-c9af4d97ff3b'>
+          <NextLink href='/presentations/85079b3c-e4f3-4ebe-b676-c9af4d97ff3b'>
             G Idea Exchange: Empowering Your Open-Source LabVIEW Ideas
-          </a>{' '}
+          </NextLink>{' '}
           and{' '}
-          <a href='/presentations/4dfe14f6-6c89-427d-a259-63f976392a75'>
+          <NextLink href='/presentations/4dfe14f6-6c89-427d-a259-63f976392a75'>
             A real-life example of contribution to a LabVIEW open-source project
-          </a>
+          </NextLink>
           .
         </p>
         <p>For this panel, we therefore want to discuss a different aspect:</p>
