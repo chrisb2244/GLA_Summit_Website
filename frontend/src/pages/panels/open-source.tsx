@@ -22,8 +22,9 @@ const Open_Source_Page = () => {
     <div className='prose'>
       <ul>
         <li>Quentin Alldredge</li>
-        <li>Enrique Noe Arias</li>
         <li>Jörg Hampel</li>
+        <li>Olivier Jourdan</li>
+        <li>Enrique Noe Arias</li>
         <li>Francois Normandin</li>
         <li>With Michał Radziwon moderating discussion</li>
       </ul>
