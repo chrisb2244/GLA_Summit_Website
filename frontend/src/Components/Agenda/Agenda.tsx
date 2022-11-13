@@ -107,7 +107,7 @@ export const Agenda = (props: AgendaProps) => {
           ? 15
           : pType === '7x7'
           ? 7
-          : 60 // panel
+          : pType === 'panel' ? 60 : pType === 'quiz' ? 30 : 60 // panel
       const endTime = new Date(startTime.getTime() + duration * 60 * 1000)
       let link = '/presentations/' + presentation.presentation_id
       if (pType === 'panel') {

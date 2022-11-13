@@ -41,9 +41,11 @@ export const AgendaPresentations = (props: AgendaPresentationProps) => {
       )
       const matchesPig = overlappingPresentations.map(p => p.title.match(/pig/i)).some(Boolean)
       const matchesWS = overlappingPresentations.map(p => p.title.match(/LabVIEW and Web Services/i)).some(Boolean)
+      const matchesQuiz = overlappingPresentations.map(p => p.title.match(/Quiz/)).some(Boolean)
+      const forceHalf = matchesPig || matchesWS || matchesQuiz
       
-      const width = (matchesPig || matchesWS) ? tableWidth / 2 : tableWidth / overlappingPresentations.length
-      const thisIndex = (matchesPig || matchesWS) ? overlappingPresentations.length > 2 ? 0 : 1 : overlappingPresentations.findIndex(
+      const width = forceHalf ? tableWidth / 2 : tableWidth / overlappingPresentations.length
+      const thisIndex = forceHalf ? overlappingPresentations.length > 2 ? 0 : 1 : overlappingPresentations.findIndex(
         (a) => a.link === p.link
       )
       const left = thisIndex * width

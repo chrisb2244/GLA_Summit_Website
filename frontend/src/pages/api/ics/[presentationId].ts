@@ -55,7 +55,8 @@ const handler: NextApiHandler = async (req, res) => {
     type === '7x7' ? 7 :
     type === '15 minutes' ? 15 :
     type === 'full length' ? 45 :
-    type === 'panel' ? 60 : 60
+    type === 'panel' ? 60 :
+    type === 'quiz' ? 30 : 60
   const abstract = presentationData.abstract.replaceAll('\r\n', '\\n')
   
   const hopinUrl = 'https://hopin.com/events/gla-summit-2022'

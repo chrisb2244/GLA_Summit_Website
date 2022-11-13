@@ -287,7 +287,12 @@ export interface Database {
       };
     };
     Enums: {
-      presentation_type: "7x7" | "full length" | "panel" | "15 minutes";
+      presentation_type:
+        | "7x7"
+        | "full length"
+        | "panel"
+        | "15 minutes"
+        | "quiz";
       mentoring_type: "mentor" | "mentee";
       log_type: "info" | "error" | "severe";
       summit_year: "2020" | "2021" | "2022" | "2023";
