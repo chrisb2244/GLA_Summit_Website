@@ -113,7 +113,7 @@ export const Agenda = (props: AgendaProps) => {
       if (pType === 'panel') {
         // ToDo - in a future year, fix this rather than being hardcoded
         const isOS = presentation.title === 'How to make Open-Source more worthwhile?'
-        link = '/panels/' + isOS ? 'open-source' : 'labview-and-python'
+        link = '/panels/' + (isOS ? 'open-source' : 'labview-and-python')
       }
       return {
         startTime,
