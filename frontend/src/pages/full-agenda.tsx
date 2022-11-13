@@ -81,7 +81,7 @@ const FullAgenda = (props: {
     <>
       <div className='mb-2 px-4 prose mx-auto'>
         <p>
-          We&apos;re finalizing this page now - the authoritative agenda can be
+          Please note that the authoritative agenda can be
           found at the{' '}
           <a
             href='https://hopin.com/events/gla-summit-2022'
