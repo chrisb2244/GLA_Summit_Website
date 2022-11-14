@@ -8,6 +8,7 @@ import {
   getPerson,
   getPublicPresentation
 } from '@/lib/databaseFunctions'
+import { getSessionDurationInMinutes } from '@/lib/utils'
 
 type PresentationProps = {
   presentation: Presentation
@@ -49,13 +50,7 @@ export const getStaticProps: GetStaticProps<PresentationProps> = async ({
         }
       }
       // Panels, 7x7 for 1h, 'full length' for 45m?
-      const sessionDuration = (
-        type === 'full length' ? 45 : 
-        type === '15 minutes' ? 15 : 
-        type === '7x7' ? 7 :
-        type === 'quiz' ? 30 :
-        type === 'panel' ? 60 :
-        60) * 60 // duration in seconds
+      const sessionDuration = getSessionDurationInMinutes(type) * 60 // duration in seconds
 
       let schedule: Schedule = {
         sessionStart: null,

@@ -1,3 +1,4 @@
+import { PresentationType } from "./databaseModels"
 import { createAdminClient } from "./supabaseClient"
 
 const shouldLog = process.env.NODE_ENV !== 'production'
@@ -90,4 +91,17 @@ export const estimateAspectRatio = (width: number, height: number) => {
   }
 
   return match
+}
+
+export const getSessionDurationInMinutes = (type: PresentationType) => {
+  const durationInMinutes = (
+    type === 'full length' ? 45 :
+    type === '15 minutes' ? 15 :
+    type === '7x7' ? 7 :
+    type === 'quiz' ? 30 :
+    type === 'panel' ? 60 :
+    60 // fallback
+  )
+  
+  return durationInMinutes
 }

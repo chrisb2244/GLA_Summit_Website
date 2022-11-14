@@ -3,6 +3,7 @@ import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs'
 import { Database } from '@/lib/sb_databaseModels'
 import { createEvent } from 'ics'
 import type { EventAttributes, DateArray } from 'ics'
+import { getSessionDurationInMinutes } from '@/lib/utils'
 
 const dateToDateArray = (d: Date): DateArray => {
   return [
@@ -50,13 +51,7 @@ const handler: NextApiHandler = async (req, res) => {
     : data.presentation_submissions
 
   const start = dateToDateArray(new Date(data.scheduled_for))
-  const type = presentationData.presentation_type
-  const duration =
-    type === '7x7' ? 7 :
-    type === '15 minutes' ? 15 :
-    type === 'full length' ? 45 :
-    type === 'panel' ? 60 :
-    type === 'quiz' ? 30 : 60
+  const duration = getSessionDurationInMinutes(presentationData.presentation_type)
   const abstract = presentationData.abstract.replaceAll('\r\n', '\\n')
   
   const hopinUrl = 'https://hopin.com/events/gla-summit-2022'
