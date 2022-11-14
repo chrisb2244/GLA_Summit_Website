@@ -15,6 +15,7 @@ import type { BoxProps } from '@mui/system'
 export const MenuBar: React.FC<BoxProps> = ({ ...extraBoxProps }) => {
   const menuValues = [
     { title: 'Home', link: '/' },
+    { title: 'Agenda', link: '/full-agenda' },
     { title: 'Presentations', link: '/presentations' },
     // { title: 'Submit a Presentation', link: '/submit-presentation' },
     { title: 'Virtual Venue (Hopin)', link: 'https://hopin.com/events/gla-summit-2022' },
@@ -69,7 +70,7 @@ export const MenuBar: React.FC<BoxProps> = ({ ...extraBoxProps }) => {
       </Button>
     )
     return useLinkComponent ? (
-      <Box display='flex' mx={1} alignSelf='center' key={title}>
+      <Box display='flex' mx={1} my={1} alignSelf='center' key={title}>
         <Link href={link} passHref key={title}>
           {button}
         </Link>
@@ -83,7 +84,7 @@ export const MenuBar: React.FC<BoxProps> = ({ ...extraBoxProps }) => {
 
   return (
     <>
-      <Box id='mobile-menu' display={{ xs: 'flex', md: 'none' }} {...boxProps}>
+      <Box id='mobile-menu' display={{ xs: 'flex', lg: 'none' }} {...boxProps}>
         <IconButton
           aria-haspopup
           aria-controls='menu-appbar'
@@ -102,12 +103,12 @@ export const MenuBar: React.FC<BoxProps> = ({ ...extraBoxProps }) => {
           open={Boolean(anchorElNav)}
           onClose={handleCloseNavMenu}
           keepMounted
-          sx={{ display: { xs: 'block', md: 'none' } }}
+          sx={{ display: { xs: 'block', lg: 'none' } }}
         >
           {mobileMenuElements}
         </Menu>
       </Box>
-      <Box id='desktop-menu' display={{ xs: 'none', md: 'flex' }} {...boxProps}>
+      <Box id='desktop-menu' display={{ xs: 'none', lg: 'flex' }} {...boxProps}>
         {desktopMenuElements}
       </Box>
     </>
