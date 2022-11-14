@@ -24,6 +24,7 @@ export type AgendaProps = {
   startDate: Date
   durationInHours?: number
   noContainer?: boolean
+  favourites?: string[]
 }
 
 export const Agenda = (props: AgendaProps) => {
@@ -120,7 +121,8 @@ export const Agenda = (props: AgendaProps) => {
         endTime,
         duration,
         title: presentation.title,
-        link
+        link,
+        id: presentation.presentation_id
       }
     })
     .sort((a, b) => a.startTime.getTime() - b.startTime.getTime())
@@ -183,6 +185,7 @@ export const Agenda = (props: AgendaProps) => {
               offsetFraction={1 / 12}
               agendaArea={agendaArea}
               presentations={presentationSlots}
+              favourites={props.favourites}
             />
           )}
           <div

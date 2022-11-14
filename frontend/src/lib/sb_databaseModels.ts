@@ -183,6 +183,23 @@ export interface Database {
           use_24h_clock?: boolean;
         };
       };
+      agenda_favourites: {
+        Row: {
+          user_id: string;
+          presentation_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          presentation_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          presentation_id?: string;
+          updated_at?: string;
+        };
+      };
       log: {
         Row: {
           id: number;
