@@ -45,25 +45,33 @@ export const YearGroupedPresentations: React.FC<
   }
 
   const renderedPresentations = presentations
-  .sort((a, b) => {
-    const bySchedule = sortBySchedule(a, b)
-    const byName = sortByName(a,b)
-    return byName !== 0 ? byName : bySchedule
-  })
-  .map((p) => (
-    <Box pb={1} key={p.title}>
-      <PresentationSummary
-        presentation={p}
-        pageLink={`/presentations/${p.presentationId}`}
-        paperProps={{
-          elevation: 2,
-          sx: {
-            // mx: -0.5
-          }
-        }}
-      />
-    </Box>
-  ))
+    .sort((a, b) => {
+      const bySchedule = sortBySchedule(a, b)
+      const byName = sortByName(a, b)
+      return byName !== 0 ? byName : bySchedule
+    })
+    .map((p) => {
+      let link = '/presentations/' + p.presentationId
+      if (p.presentationType === 'panel') {
+        // ToDo - in a future year, fix this rather than being hardcoded
+        const isOS = p.title === 'How to make Open-Source more worthwhile?'
+        link = '/panels/' + (isOS ? 'open-source' : 'labview-and-python')
+      }
+      return (
+        <Box pb={1} key={p.title}>
+          <PresentationSummary
+            presentation={p}
+            pageLink={link}
+            paperProps={{
+              elevation: 2,
+              sx: {
+                // mx: -0.5
+              }
+            }}
+          />
+        </Box>
+      )
+    })
 
   return disableAccordion ? (
     <Box>{renderedPresentations}</Box>
