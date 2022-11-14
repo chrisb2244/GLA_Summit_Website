@@ -4,9 +4,19 @@ import { supabase } from '@/lib/supabaseClient'
 // import { logErrorToDb } from '@/lib/utils'
 
 import { Agenda, ScheduledAgendaEntry } from '@/Components/Agenda/Agenda'
-import { useEffect, useState } from 'react'
+import { useEffect, useReducer, useState } from 'react'
 import { GetStaticProps } from 'next'
 import { useSession } from '@/lib/sessionContext'
+import { myLog } from '@/lib/utils'
+import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
+import type { Database } from '@/lib/sb_databaseModels'
+
+type DB_SubscriptionEvent = RealtimePostgresChangesPayload<
+  Database['public']['Tables']['agenda_favourites']['Row']
+>
+type SubscriptionEvent =
+  | DB_SubscriptionEvent
+  | { eventType: 'INITIALIZE'; data: string[] }
 
 // This is static...
 // const agendaFetcher: Fetcher<ScheduledAgendaEntry[], PresentationYear> = async (
@@ -58,10 +68,29 @@ const FullAgenda = (props: {
     if (typeof window !== 'undefined') {
       setHoursToShow(window.matchMedia('(min-width: 768px)').matches ? 6 : 3)
     }
-  }, [window])
+  }, [])
 
   const { user } = useSession()
-  const [userFavIds, setUserFavs] = useState<string[]>([])
+
+  const favouriteReducer = (
+    cachedFavourites: string[],
+    payload: SubscriptionEvent
+  ) => {
+    switch (payload.eventType) {
+      case 'INITIALIZE':
+        return payload.data
+      case 'INSERT':
+        return cachedFavourites.concat(payload.new.presentation_id)
+      case 'UPDATE':
+        // probably doesn't happen?
+        return cachedFavourites
+      case 'DELETE':
+        return cachedFavourites.filter((f) => f !== payload.old.presentation_id)
+    }
+  }
+
+  const [userFavIds, setUserFavs] = useReducer(favouriteReducer, [])
+
   useEffect(() => {
     // If not signed in, should return empty array
     if (user === null) {
@@ -76,12 +105,34 @@ const FullAgenda = (props: {
           return data.map((r) => r.presentation_id)
         })
         .then((favourites) => {
-          setUserFavs(favourites)
+          setUserFavs({ eventType: 'INITIALIZE', data: favourites })
         })
     } catch (err) {
       return
     }
   }, [user])
+
+  useEffect(() => {
+    myLog('adding subscription')
+    const subscription = supabase
+      .channel('public:agenda_favourites')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'agenda_favourites'
+        },
+        (payload: DB_SubscriptionEvent) => {
+          setUserFavs(payload)
+        }
+      )
+      .subscribe()
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [])
 
   // if (agendaError !== null && typeof agendaError !== 'undefined') {
   //   logErrorToDb((agendaError as Error).message, 'error')
