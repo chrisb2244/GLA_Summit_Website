@@ -49,7 +49,7 @@ export const PresentationDisplay: React.FC<PresentationDisplayProps> = (
         if (error) {
           return
         }
-        setFavourite(data !== null)
+        setFavourite(data !== null && data.length !== 0)
       })
   }, [presentationId])
 
