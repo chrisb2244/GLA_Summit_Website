@@ -59,6 +59,26 @@ const FullAgenda = (props: {
     }
   }, [window])
 
+  const [userFavIds, setUserFavs] = useState<string[]>([])
+  useEffect(() => {
+    // If not signed in, should return empty array
+    try {
+      supabase
+      .from('agenda_favourites')
+      .select('presentation_id')
+      .then(({ data, error }) => {
+        if (error) throw error
+        return data.map((r) => r.presentation_id)
+      })
+      .then(favourites => {
+        console.log(favourites)
+        setUserFavs(favourites)
+      })
+    } catch (err) {
+      return
+    }
+  }, [])
+
   // if (agendaError !== null && typeof agendaError !== 'undefined') {
   //   logErrorToDb((agendaError as Error).message, 'error')
   //   return unableToRenderElem
@@ -81,8 +101,7 @@ const FullAgenda = (props: {
     <>
       <div className='mb-2 px-4 prose mx-auto'>
         <p>
-          Please note that the authoritative agenda can be
-          found at the{' '}
+          Please note that the authoritative agenda can be found at the{' '}
           <a
             href='https://hopin.com/events/gla-summit-2022'
             className='underline'
@@ -113,6 +132,7 @@ const FullAgenda = (props: {
           hoursToShow={hoursToShow}
           startDate={conferenceStart}
           durationInHours={24}
+          favourites={userFavIds}
         />
       </div>
     </>

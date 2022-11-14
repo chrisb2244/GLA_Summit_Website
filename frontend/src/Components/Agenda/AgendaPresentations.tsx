@@ -4,6 +4,7 @@ export type PresentationSlot = {
   duration: number;
   title: string;
   link: string;
+  id: string;
 }
 
 export type AgendaPresentationProps = {
@@ -12,6 +13,7 @@ export type AgendaPresentationProps = {
   currentTime: Date
   offsetFraction: number
   extentInHours: number
+  favourites?: string[]
 }
 
 export const AgendaPresentations = (props: AgendaPresentationProps) => {
@@ -49,10 +51,12 @@ export const AgendaPresentations = (props: AgendaPresentationProps) => {
         (a) => a.link === p.link
       )
       const left = thisIndex * width
+
+      const favouriteTag = props.favourites?.includes(p.id) ? 'favourite-session' : ''
       return (
         <a href={p.link} key={p.link}>
           <div
-            className='absolute flex justify-center text-center items-center bg-secondaryc bg-clip-content p-[1px] text-white overflow-clip'
+            className={`absolute flex justify-center text-center items-center bg-secondaryc bg-clip-content p-[1px] text-white overflow-clip ${favouriteTag}`}
             style={{
               top: relStart * tableHeight,
               left: left,

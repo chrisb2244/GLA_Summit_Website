@@ -7,3 +7,9 @@
     display: contents;
   }
 }
+
+@layer utilities {
+  .favourite-session {
+    border: 8px green solid;
+  }
+}
