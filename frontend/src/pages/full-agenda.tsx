@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabaseClient'
 import { Agenda, ScheduledAgendaEntry } from '@/Components/Agenda/Agenda'
 import { useEffect, useState } from 'react'
 import { GetStaticProps } from 'next'
+import { useSession } from '@/lib/sessionContext'
 
 // This is static...
 // const agendaFetcher: Fetcher<ScheduledAgendaEntry[], PresentationYear> = async (
@@ -59,25 +60,28 @@ const FullAgenda = (props: {
     }
   }, [window])
 
+  const { user } = useSession()
   const [userFavIds, setUserFavs] = useState<string[]>([])
   useEffect(() => {
     // If not signed in, should return empty array
+    if (user === null) {
+      return
+    }
     try {
       supabase
-      .from('agenda_favourites')
-      .select('presentation_id')
-      .then(({ data, error }) => {
-        if (error) throw error
-        return data.map((r) => r.presentation_id)
-      })
-      .then(favourites => {
-        console.log(favourites)
-        setUserFavs(favourites)
-      })
+        .from('agenda_favourites')
+        .select('presentation_id')
+        .then(({ data, error }) => {
+          if (error) throw error
+          return data.map((r) => r.presentation_id)
+        })
+        .then((favourites) => {
+          setUserFavs(favourites)
+        })
     } catch (err) {
       return
     }
-  }, [])
+  }, [user])
 
   // if (agendaError !== null && typeof agendaError !== 'undefined') {
   //   logErrorToDb((agendaError as Error).message, 'error')
