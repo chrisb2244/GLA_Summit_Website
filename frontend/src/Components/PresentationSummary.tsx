@@ -61,7 +61,8 @@ export const PresentationSummary: React.FC<PresentationProps> = ({
         pres.presentationType === "full length" ? '45 minutes' :
         pres.presentationType === "15 minutes" ? '15 minutes' :
         pres.presentationType === "7x7" ? '7 minutes' :
-        'panel'
+        pres.presentationType === 'panel' ? 'Panel discussion' :
+        'Quiz'
       }
     </Typography>
   )
