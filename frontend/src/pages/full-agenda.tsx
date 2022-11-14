@@ -1,8 +1,4 @@
-// import useSWR, { Fetcher } from 'swr'
 import { supabase } from '@/lib/supabaseClient'
-// import type { PresentationYear } from '@/Components/PresentationSummary'
-// import { logErrorToDb } from '@/lib/utils'
-
 import { Agenda, ScheduledAgendaEntry } from '@/Components/Agenda/Agenda'
 import { useEffect, useReducer, useState } from 'react'
 import { GetStaticProps } from 'next'
@@ -18,20 +14,6 @@ type SubscriptionEvent =
   | DB_SubscriptionEvent
   | { eventType: 'INITIALIZE'; data: string[] }
 
-// This is static...
-// const agendaFetcher: Fetcher<ScheduledAgendaEntry[], PresentationYear> = async (
-//   year: PresentationYear
-// ) => {
-//   const { data, error } = await supabase
-//     .from('all_presentations')
-//     .select('*')
-//     .eq('year', year)
-//     .not('scheduled_for', 'is', 'null') // required for ScheduledAgendaEntry rather than AgendaEntry
-//   if (error) {
-//     throw error
-//   }
-//   return data as ScheduledAgendaEntry[] // not null filter in select
-// }
 
 export const getStaticProps: GetStaticProps = async () => {
   const { data, error } = await supabase
@@ -40,7 +22,14 @@ export const getStaticProps: GetStaticProps = async () => {
     .eq('year', '2022')
     .not('scheduled_for', 'is', 'null') // required for ScheduledAgendaEntry rather than AgendaEntry
 
-  if (error) throw error
+  if (error) {
+    return {
+      props: {
+        fullAgenda: null
+      },
+      revalidate: 300
+    }
+  }
 
   return {
     props: {
@@ -51,14 +40,8 @@ export const getStaticProps: GetStaticProps = async () => {
 }
 
 const FullAgenda = (props: {
-  fullAgenda: ScheduledAgendaEntry[]
+  fullAgenda: ScheduledAgendaEntry[] | null
 }): JSX.Element => {
-  // const thisYear = '2022'
-  // const {
-  //   data: fullAgenda,
-  //   error: agendaError,
-  //   isValidating: loadingAgenda
-  // } = useSWR(thisYear, agendaFetcher)
   const fullAgenda = props.fullAgenda
   const unableToRenderElem = (
     <p>Unable to load this year&apos;s agenda. Please try again later.</p>
@@ -134,14 +117,7 @@ const FullAgenda = (props: {
     }
   }, [])
 
-  // if (agendaError !== null && typeof agendaError !== 'undefined') {
-  //   logErrorToDb((agendaError as Error).message, 'error')
-  //   return unableToRenderElem
-  // }
-  // if (loadingAgenda) {
-  //   return <p>Loading...</p>
-  // }
-  if (typeof fullAgenda === 'undefined') {
+  if (fullAgenda === null) {
     return unableToRenderElem
   }
   const conferenceStart = new Date(Date.UTC(2022, 10, 14, 12, 0, 0))
