@@ -17,7 +17,7 @@ export const HomePage: React.FC = () => {
   const eventEnd = new Date(Date.UTC(2022, 10, 15, 12, 0, 0))
   const P: React.FC<TypographyProps> = ({ children, ...props }) => {
     return (
-      <Typography textAlign='center' {...props}>
+      <Typography textAlign='center' {...props} className='prose max-w-none'>
         {children}
       </Typography>
     )
@@ -41,9 +41,15 @@ export const HomePage: React.FC = () => {
         participate in an inclusive, all-digital, free event.
       </P>
       <P>
-        Recordings of all of the presentations will be made available via the
-        GLA Summit YouTube channel - we hope that you are as excited as we are
-        to see any presentations you missed, or to rewatch for details!
+        Recordings of all of the presentations will be made available via the{' '}
+        <a
+          href='https://www.youtube.com/c/GlobalLabVIEWArchitects'
+          className='underline'
+        >
+          GLA Summit YouTube channel
+        </a>{' '}
+        - we hope that you are as excited as we are to see any presentations you
+        missed, or to rewatch for details!
       </P>
       {/* <P>
         Presenters at the GLA Summit will be eligible to receive 30
