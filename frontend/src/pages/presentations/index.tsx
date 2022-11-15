@@ -74,13 +74,13 @@ const AllPresentations: React.FC<AllPresentationsProps> = ({
       <Typography>
         Presentations below are listed by first speaker&apos;s name.
       </Typography>
-      <Typography>
+      {/* <Typography>
         For a list by schedule, see our{' '}
         <NextLink href='/full-agenda' passHref legacyBehavior>
           <a className='underline'>agenda</a>
         </NextLink>
         !
-      </Typography>
+      </Typography> */}
       {elems}
     </StackedBoxes>
   )

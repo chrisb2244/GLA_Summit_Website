@@ -61,7 +61,7 @@ const LabVIEW_Python_Page = () => {
       </div>
       {panelists}
 
-      <div className='mx-auto'>
+      {/* <div className='mx-auto'>
         <a href={'https://hopin.com/events/gla-summit-2022'}>
           <Button fullWidth variant='contained' className='bg-primaryc'>
             <Typography textAlign='center'>
@@ -76,7 +76,7 @@ const LabVIEW_Python_Page = () => {
             <Typography textAlign='center'>Go to the agenda</Typography>
           </Button>
         </a>
-      </div>
+      </div> */}
     </StackedBoxes>
   )
 }
