@@ -223,6 +223,20 @@ export interface Database {
           user_id?: string | null;
         };
       };
+      container_groups: {
+        Row: {
+          container_id: string;
+          presentation_id: string;
+        };
+        Insert: {
+          container_id: string;
+          presentation_id: string;
+        };
+        Update: {
+          container_id?: string;
+          presentation_id?: string;
+        };
+      };
       log_viewers: {
         Row: {
           user_id: string;
@@ -309,7 +323,8 @@ export interface Database {
         | "full length"
         | "panel"
         | "15 minutes"
-        | "quiz";
+        | "quiz"
+        | "session-container";
       mentoring_type: "mentor" | "mentee";
       log_type: "info" | "error" | "severe";
       summit_year: "2020" | "2021" | "2022" | "2023";

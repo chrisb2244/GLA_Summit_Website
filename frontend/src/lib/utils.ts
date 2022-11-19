@@ -93,15 +93,22 @@ export const estimateAspectRatio = (width: number, height: number) => {
   return match
 }
 
-export const getSessionDurationInMinutes = (type: PresentationType) => {
-  const durationInMinutes = (
-    type === 'full length' ? 45 :
-    type === '15 minutes' ? 15 :
-    type === '7x7' ? 7 :
-    type === 'quiz' ? 30 :
-    type === 'panel' ? 60 :
-    60 // fallback
-  )
-  
-  return durationInMinutes
+export const getSessionDurationInMinutes = (
+  type: PresentationType,
+  windowType: 'schedule' | 'agenda-window' = 'schedule'
+) => {
+  switch (type) {
+    case 'full length':
+      return windowType === 'agenda-window' ? 60 : 45
+    case 'panel':
+      return 60
+    case '7x7':
+      return 7
+    case '15 minutes':
+      return 15
+    case 'quiz':
+      return 30
+    case 'session-container':
+      return 60
+  }
 }
