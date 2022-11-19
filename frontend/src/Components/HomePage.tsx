@@ -41,10 +41,17 @@ export const HomePage: React.FC = () => {
   const countdown = false ? (
     <Countdown event_start={eventStart} event_end={eventEnd} />
   ) : (
-    <P>
-      This event has finished - please give us your feedback by filling out our{' '}
-      <a href='https://ahaslides.com/GLA22POLL'>poll</a>!
-    </P>
+    <>
+      <P mb={3}>
+        This event has finished - please give us your feedback by filling out
+        our <a href='https://ahaslides.com/GLA22POLL'>poll</a>!
+      </P>
+      <P>
+        For recertification points, please complete{' '}
+        <a href='https://ahaslides.com/GLA22CERT'>this form</a>. We will share
+        the information submitted via this form with NI.
+      </P>
+    </>
   )
 
   const mainBlock = (
