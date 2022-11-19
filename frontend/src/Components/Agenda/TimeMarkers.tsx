@@ -1,10 +1,7 @@
 export type TimeMarkerProps = {
   startDate: Date
   durationInHours?: number
-  currentTime: Date
-  height: number
-  extentInHours: number
-  offsetFraction: number
+  pixelsPerMinute: number
   stringFormatter: (d: Date) => string
 }
 
@@ -12,7 +9,6 @@ export const TimeMarkers = (props: TimeMarkerProps) => {
   const duration = props.durationInHours
     ? Math.round(props.durationInHours)
     : 24
-  const visibleExtent = props.extentInHours * 60 * 60 * 1000
 
   const timeMarkers = new Array(duration + 1)
     .fill(0)
@@ -21,21 +17,14 @@ export const TimeMarkers = (props: TimeMarkerProps) => {
       return new Date(props.startDate.getTime() + tOffset)
     })
     .map((t) => {
-      const timeUntil = t.getTime() - props.currentTime.getTime()
-      if (timeUntil < -(visibleExtent / props.offsetFraction)) {
-        return null
-      }
-      const relStart = timeUntil / visibleExtent + props.offsetFraction
+      const minutesAfterStart = (t.getTime() - props.startDate.getTime()) / ( 60 * 1000)
       return {
         time: t,
         timeString: props.stringFormatter(t),
-        position: relStart * props.height
+        position: minutesAfterStart * props.pixelsPerMinute
       }
     })
     .map((tMark) => {
-      if (tMark === null) {
-        return null
-      }
       return (
         <span
           style={{
@@ -50,7 +39,6 @@ export const TimeMarkers = (props: TimeMarkerProps) => {
         </span>
       )
     })
-    .filter((t) => t !== null)
 
   return <>{timeMarkers}</>
 }
