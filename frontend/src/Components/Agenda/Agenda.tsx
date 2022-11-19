@@ -39,7 +39,7 @@ export const Agenda = (props: AgendaProps) => {
 
   // const [advanceTime, toggleAdvanceTime] = useState(false)
   const advanceTime = true
-  const timePeriod = 1000 * 30; // update every 30s
+  const timePeriod = 1000 * 30 // update every 30s
   const [timeoutRef, setTimeoutRef] = useState<NodeJS.Timeout | null>(null)
 
   const startCount = props.startDate.getTime()
@@ -69,7 +69,7 @@ export const Agenda = (props: AgendaProps) => {
         clearInterval(timeoutRef)
       }
     }
-  /* eslint-disable-next-line react-hooks/exhaustive-deps */
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [advanceTime]) // Don't include 'timeoutRef'
 
   const [timeOffset, setScrollTimeOffset] = useState(0)

@@ -1,5 +1,5 @@
-import { PresentationType } from "./databaseModels"
-import { createAdminClient } from "./supabaseClient"
+import { PresentationType } from './databaseModels'
+import { createAdminClient } from './supabaseClient'
 
 const shouldLog = process.env.NODE_ENV !== 'production'
 const dbLog = true // process.env.NODE_ENV === 'production'
@@ -11,15 +11,19 @@ export const myLog = (v: any) => {
   }
 }
 
-export const logErrorToDb = async (v: {message: string} | string, severity: 'info' | 'error' | 'severe', currentUserId?: string) => {
+export const logErrorToDb = async (
+  v: { message: string } | string,
+  severity: 'info' | 'error' | 'severe',
+  currentUserId?: string
+) => {
   if (dbLog) {
     const client = createAdminClient()
-    const {error} = await client.from('log').insert({
+    const { error } = await client.from('log').insert({
       severity,
-      message: (typeof v === 'string' ? v : v.message),
+      message: typeof v === 'string' ? v : v.message,
       user_id: currentUserId
     })
-    if(error) {
+    if (error) {
       console.log(error)
       // client.from('log').insert({
       //   s
@@ -37,10 +41,12 @@ export type TimezoneInfo = {
 
 export const defaultTimezoneInfo = () => {
   const { timeZone } = Intl.DateTimeFormat().resolvedOptions()
-  const timeZoneString = new Date().toLocaleDateString(undefined, { timeZoneName: 'long' })
+  const timeZoneString = new Date().toLocaleDateString(undefined, {
+    timeZoneName: 'long'
+  })
   const timeZoneNameBlock = timeZoneString.split(',')[1]
   let timeZoneName = ''
-  if(timeZoneNameBlock != null) {
+  if (timeZoneNameBlock != null) {
     timeZoneName = timeZoneNameBlock.trim()
   } else {
     const fallbackBlock = timeZoneString.split(' ')[1]
@@ -48,7 +54,7 @@ export const defaultTimezoneInfo = () => {
       timeZoneName = fallbackBlock.trim()
     } else {
       timeZoneName = ''
-      console.warn("Unable to detect timezone name from " + timeZoneString)
+      console.warn('Unable to detect timezone name from ' + timeZoneString)
     }
   }
   return { timeZone, timeZoneName, use24HourClock: false }
@@ -70,10 +76,10 @@ export const estimateAspectRatio = (width: number, height: number) => {
     ++ratioW // value from 1 to 16
     ratiosH.forEach((empty, ratioH) => {
       ++ratioH
-      const ratioX = (ratioW * 100) / (ratioH *100)
+      const ratioX = (ratioW * 100) / (ratioH * 100)
       if (!ratiosT[ratioX]) {
         ratiosT[ratioX] = true
-        ratios[ratioW + ":" + ratioH] = ratioX
+        ratios[ratioW + ':' + ratioH] = ratioX
       }
     })
   })
@@ -81,8 +87,11 @@ export const estimateAspectRatio = (width: number, height: number) => {
   // return '16:9'
 
   for (const key in ratios) {
-    if (!match || (Math.abs(ratio - ratios[key]) < Math.abs(ratio - ratios[match]))) {
-        match = key
+    if (
+      !match ||
+      Math.abs(ratio - ratios[key]) < Math.abs(ratio - ratios[match])
+    ) {
+      match = key
     }
   }
 
