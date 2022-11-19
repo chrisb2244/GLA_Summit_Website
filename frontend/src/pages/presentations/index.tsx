@@ -3,7 +3,7 @@ import type { GetStaticProps } from 'next'
 import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
 import { getPublicPresentations } from '@/lib/databaseFunctions'
 import { YearGroupedPresentations } from '@/Components/Layout/YearGroupedPresentations'
-import { Box, Typography, Button } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 import { splitByYear } from '@/lib/presentationArrayFunctions'
 import NextLink from 'next/link'
 
@@ -74,13 +74,13 @@ const AllPresentations: React.FC<AllPresentationsProps> = ({
       <Typography>
         Presentations below are listed by first speaker&apos;s name.
       </Typography>
-      {/* <Typography>
+      <Typography>
         For a list by schedule, see our{' '}
         <NextLink href='/full-agenda' passHref legacyBehavior>
           <a className='underline'>agenda</a>
         </NextLink>
         !
-      </Typography> */}
+      </Typography>
       {elems}
     </StackedBoxes>
   )

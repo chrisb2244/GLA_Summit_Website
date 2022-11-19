@@ -116,7 +116,7 @@ const PresentationPage = ({ presentation, presentationId }: PresentationProps) =
       minute: '2-digit',
       second: undefined,
       dateStyle: undefined,
-      hour12: use24HourClock === false
+      hour12: !use24HourClock
     })
     return formatter.format(date)
   }

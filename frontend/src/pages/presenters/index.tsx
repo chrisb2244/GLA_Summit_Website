@@ -1,6 +1,6 @@
 import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
 import { PersonDisplay, PersonDisplayProps } from '@/Components/PersonDisplay'
-import { getPerson, getPublicProfiles } from '@/lib/databaseFunctions'
+import { getPerson } from '@/lib/databaseFunctions'
 import type { GetStaticProps } from 'next'
 import { supabase } from '@/lib/supabaseClient'
 import { PresentationYear } from '@/Components/PresentationSummary'
@@ -94,9 +94,6 @@ const AllProfiles: React.FC<{
 
   const renderedProfiles22 = renderProfiles(props.peopleProps22)
   const renderedProfiles21 = renderProfiles(props.peopleProps21)
-  // const renderedProfiles = props.peopleProps.map((i) => {
-  //   return <div>{JSON.stringify(i)}</div>
-  // })
 
   return (
     <StackedBoxes>
@@ -106,7 +103,6 @@ const AllProfiles: React.FC<{
       <Box>
         <YearGroupedPresenters elements={renderedProfiles21} year={'2021'} disableAccordion={false} />
       </Box>
-      {/* <div>{props.peopleProps.length}</div> */}
     </StackedBoxes>
   )
 }

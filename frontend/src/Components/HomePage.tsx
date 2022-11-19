@@ -8,7 +8,7 @@ import GCentral_Logo from '@/media/GCentral-logo-color.svg'
 import SAS_Logo from '@/media/SAS-Logo.png'
 import CorgiBytes_Logo from '@/media/corgibytes-logo.png'
 import HeartWare_Dev_Logo from '@/media/heartware-dev-logo.png' // #1e143e_bg
-import NextImage, { StaticImageData } from 'next/image'
+import NextImage from 'next/image'
 // import { SnackbarNotification } from './Utilities/SnackbarNotification'
 
 export const HomePage: React.FC = () => {
@@ -28,9 +28,25 @@ export const HomePage: React.FC = () => {
   //   vertical: 'bottom'
   // }
 
+  const registrationButton = false ? (
+    <Box>
+      <Link href={'https://hopin.com/events/gla-summit-2022'}>
+        <Button fullWidth variant='contained' className='bg-primaryc'>
+          Register for a ticket at Hopin
+        </Button>
+      </Link>
+    </Box>
+  ) : null
+
+  const countdown = false ? (
+    <Countdown event_start={eventStart} event_end={eventEnd} />
+  ) : (
+    <P>This event has finished!</P>
+  )
+
   const mainBlock = (
     <StackedBoxes>
-      <P>This event has finished!</P>
+      {countdown}
       <P>
         The GLA Summit Organizers would like to thank all of the LabVIEW
         enthusiasts who joined us for our third GLA Summit!
@@ -57,13 +73,7 @@ export const HomePage: React.FC = () => {
         <br />
         Attendees will also be able to receive 20 points.
       </P> */}
-      {/* <Box>
-        <Link href={'https://hopin.com/events/gla-summit-2022'}>
-          <Button fullWidth variant='contained' className='bg-primaryc'>
-            Register for a ticket at Hopin
-          </Button>
-        </Link>
-      </Box> */}
+      {registrationButton}
     </StackedBoxes>
   )
 

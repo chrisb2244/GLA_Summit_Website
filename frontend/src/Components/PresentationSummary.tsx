@@ -46,7 +46,7 @@ export const PresentationSummary: React.FC<PresentationProps> = ({
       minute: '2-digit',
       second: undefined,
       dateStyle: undefined,
-      hour12: false
+      hour12: !use24HourClock
     })
     return formatter.format(date)
   }
