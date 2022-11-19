@@ -73,7 +73,7 @@ const Open_Source_Page = () => {
       </div>
 
       {panelists}
-      <div className='mx-auto'>
+      {/* <div className='mx-auto'>
         <a href={'https://hopin.com/events/gla-summit-2022'}>
           <Button fullWidth variant='contained' className='bg-primaryc'>
             <Typography textAlign='center'>
@@ -81,7 +81,7 @@ const Open_Source_Page = () => {
             </Typography>
           </Button>
         </a>
-      </div>
+      </div> */}
       <div className='mx-auto'>
         <a href={'/full-agenda'}>
           <Button fullWidth variant='contained' className='bg-primaryc'>

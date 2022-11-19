@@ -18,7 +18,6 @@ const LabVIEW_Python_Page = () => {
   const panelists = (
     <div className='prose'>
       <ul>
-        <li>Tatiana Boyé</li>
         <li>Jim Kring</li>
         <li>Ajay MV</li>
         <li>Jesper Kjær Sørensen</li>
@@ -61,7 +60,7 @@ const LabVIEW_Python_Page = () => {
       </div>
       {panelists}
 
-      <div className='mx-auto'>
+      {/* <div className='mx-auto'>
         <a href={'https://hopin.com/events/gla-summit-2022'}>
           <Button fullWidth variant='contained' className='bg-primaryc'>
             <Typography textAlign='center'>
@@ -69,7 +68,7 @@ const LabVIEW_Python_Page = () => {
             </Typography>
           </Button>
         </a>
-      </div>
+      </div> */}
       <div className='mx-auto'>
         <a href={'/full-agenda'}>
           <Button fullWidth variant='contained' className='bg-primaryc'>

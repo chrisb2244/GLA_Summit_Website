@@ -17,7 +17,7 @@ export const HomePage: React.FC = () => {
   const eventEnd = new Date(Date.UTC(2022, 10, 15, 12, 0, 0))
   const P: React.FC<TypographyProps> = ({ children, ...props }) => {
     return (
-      <Typography textAlign='center' {...props}>
+      <Typography textAlign='center' {...props} className='prose max-w-none'>
         {children}
       </Typography>
     )
@@ -30,31 +30,40 @@ export const HomePage: React.FC = () => {
 
   const mainBlock = (
     <StackedBoxes>
+      <P>This event has finished!</P>
       <P>
-        The GLA Summit Organizers would like to welcome all LabVIEW enthusiasts
-        to join us in our third GLA Summit!
-        <br />
-        The Summit will run between 12:00 UTC, 14<sup>th</sup> and 12:00 UTC, 15
-        <sup>th</sup> November 2022, for a full 24 hours.
+        The GLA Summit Organizers would like to thank all of the LabVIEW
+        enthusiasts who joined us for our third GLA Summit!
       </P>
       <P>
-        This is an exciting opportunity for advanced LabVIEW developers and
-        Architects (certified or self-proclaimed) from around the world to
-        network and participate in an inclusive, all-digital, free event.
+        We were excited to welcome advanced LabVIEW developers and Architects
+        (certified or self-proclaimed) from around the world to network and
+        participate in an inclusive, all-digital, free event.
       </P>
       <P>
+        Recordings of all of the presentations will be made available via the{' '}
+        <a
+          href='https://www.youtube.com/c/GlobalLabVIEWArchitects'
+          className='underline'
+        >
+          GLA Summit YouTube channel
+        </a>{' '}
+        - we hope that you are as excited as we are to see any presentations you
+        missed, or to rewatch for details!
+      </P>
+      {/* <P>
         Presenters at the GLA Summit will be eligible to receive 30
         recertification points for NI LabVIEW certifications.
         <br />
         Attendees will also be able to receive 20 points.
-      </P>
-      <Box>
+      </P> */}
+      {/* <Box>
         <Link href={'https://hopin.com/events/gla-summit-2022'}>
           <Button fullWidth variant='contained' className='bg-primaryc'>
             Register for a ticket at Hopin
           </Button>
         </Link>
-      </Box>
+      </Box> */}
     </StackedBoxes>
   )
 
@@ -144,7 +153,7 @@ export const HomePage: React.FC = () => {
 
   return (
     <>
-      <Countdown event_start={eventStart} event_end={eventEnd} />
+      {/* <Countdown event_start={eventStart} event_end={eventEnd} /> */}
       <div className='max-md:flex max-md:flex-col md:grid md:grid-cols-[1fr_2fr_1fr] md:grid-rows-1 w-full max-w-[90vw] mx-auto'>
         <div className='contents-display md:grid md:col-start-2 my-auto'>
           {mainBlock}

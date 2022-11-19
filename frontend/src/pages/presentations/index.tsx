@@ -62,7 +62,7 @@ const AllPresentations: React.FC<AllPresentationsProps> = ({
   // The Box here prevents going to the very edge on smaller screens
   return (
     <StackedBoxes>
-      <div className='mx-auto'>
+      {/* <div className='mx-auto'>
         <a href={'https://hopin.com/events/gla-summit-2022'}>
           <Button fullWidth variant='contained' className='bg-primaryc'>
             <Typography textAlign='center'>
@@ -70,17 +70,17 @@ const AllPresentations: React.FC<AllPresentationsProps> = ({
             </Typography>
           </Button>
         </a>
-      </div>
+      </div> */}
       <Typography>
         Presentations below are listed by first speaker&apos;s name.
       </Typography>
-      <Typography>
+      {/* <Typography>
         For a list by schedule, see our{' '}
         <NextLink href='/full-agenda' passHref legacyBehavior>
           <a className='underline'>agenda</a>
         </NextLink>
         !
-      </Typography>
+      </Typography> */}
       {elems}
     </StackedBoxes>
   )

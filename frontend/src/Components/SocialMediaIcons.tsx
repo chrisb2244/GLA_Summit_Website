@@ -17,7 +17,7 @@ export const SocialMediaIcons: React.FC = () => {
       <a aria-label='FaceBook link' href='https://www.facebook.com/GLASummit/'>
         <Facebook />
       </a>
-      <a aria-label='YouTube link' href='https://www.youtube.com/channel/UCtQvJ5rMGYoq8n7ExvITVNA'>
+      <a aria-label='YouTube link' href='https://www.youtube.com/c/GlobalLabVIEWArchitects'>
         <YouTube />
       </a>
       <a aria-label='Instagram link' href='https://www.instagram.com/glasummit/'>

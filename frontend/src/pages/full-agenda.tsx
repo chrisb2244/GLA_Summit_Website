@@ -178,28 +178,11 @@ const FullAgenda = (props: {
     <>
       <div className='mb-2 px-4 prose mx-auto'>
         <p>
-          Please note that the authoritative agenda can be found at the{' '}
-          <a
-            href='https://hopin.com/events/gla-summit-2022'
-            className='underline'
-          >
-            Event page on Hopin
-          </a>
-        </p>
-        <p>
-          Times shown in both this agenda and the Hopin page are in your local
-          timezone.
+          Times shown in this agenda are in your local timezone.
         </p>
         <div className='max-sm:block sm:hidden'>
           <p>
-            We recommend that you use this page on a wider screen. Please tap
-            the scrollbar to navigate through the table (native scrolling is not
-            currently possible).
-          </p>
-          <p>
-            We&apos;ll continue to try and improve this page, but recommend
-            using this page on a larger screen, or instead viewing the Hopin
-            agenda page.
+            We recommend that you use this page on a wider screen.
           </p>
         </div>
       </div>
