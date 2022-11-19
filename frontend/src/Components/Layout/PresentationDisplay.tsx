@@ -30,12 +30,14 @@ type PresentationDisplayProps = {
   timeZoneName: string
   presentationId: string
   dateToStringFn: (datetime: string) => string
+  withFavouritesButton?: boolean
 }
 
 export const PresentationDisplay: React.FC<PresentationDisplayProps> = (
   props
 ) => {
   const { presentation, timeZoneName, dateToStringFn, presentationId } = props
+  const showFavouritesButton = props.withFavouritesButton ?? true
 
   const { user } = useSession()
 
@@ -105,8 +107,7 @@ export const PresentationDisplay: React.FC<PresentationDisplayProps> = (
     setFavourite(!isFavourite)
   }
 
-  const favouriteButton =
-    user !== null ? (
+  const favouriteButton = showFavouritesButton && user !== null ? (
       <div
         className='flex flex-row bg-secondaryc rounded w-[fit-content] mb-2 cursor-pointer'
         onClick={() => handleFavouriteClick()}

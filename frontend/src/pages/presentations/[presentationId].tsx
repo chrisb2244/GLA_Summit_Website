@@ -127,6 +127,7 @@ const PresentationPage = ({ presentation, presentationId }: PresentationProps) =
       dateToStringFn={dateToString}
       presentation={presentation}
       timeZoneName={timeZoneName}
+      withFavouritesButton={false}
     />
   )
 }
