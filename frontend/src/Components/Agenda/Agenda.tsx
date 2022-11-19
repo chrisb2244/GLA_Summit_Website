@@ -9,6 +9,7 @@ import {
   useState
 } from 'react'
 import { FakeScrollbar } from '../Utilities/FakeScrollbar'
+import { ContainerHint } from './AgendaCalculations'
 import { AgendaPresentations } from './AgendaPresentations'
 import { TimeMarkers } from './TimeMarkers'
 
@@ -25,6 +26,7 @@ export type AgendaProps = {
   durationInHours?: number
   noContainer?: boolean
   favourites?: string[]
+  containerHints?: ContainerHint[]
 }
 
 export const Agenda = (props: AgendaProps) => {
@@ -37,7 +39,7 @@ export const Agenda = (props: AgendaProps) => {
 
   // const [advanceTime, toggleAdvanceTime] = useState(false)
   const advanceTime = true
-  const timePeriod = 1000 * 30; // update every 30s
+  const timePeriod = 1000 * 30 // update every 30s
   const [timeoutRef, setTimeoutRef] = useState<NodeJS.Timeout | null>(null)
 
   const startCount = props.startDate.getTime()
@@ -47,6 +49,8 @@ export const Agenda = (props: AgendaProps) => {
     const cappedTime = Math.max(Math.min(now, endCount), startCount)
     return new Date(cappedTime)
   }, new Date())
+
+  const pixelsPerMinute = 2
 
   useEffect(() => {
     if (advanceTime) {
@@ -65,7 +69,7 @@ export const Agenda = (props: AgendaProps) => {
         clearInterval(timeoutRef)
       }
     }
-  /* eslint-disable-next-line react-hooks/exhaustive-deps */
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [advanceTime]) // Don't include 'timeoutRef'
 
   const [timeOffset, setScrollTimeOffset] = useState(0)
@@ -96,37 +100,6 @@ export const Agenda = (props: AgendaProps) => {
     handleResize()
   }, [dataColumnRef, handleResize])
 
-  const presentationSlots = props.agendaEntries
-    // .filter((a) => a.presentation_type !== '7x7') // These have bad startTimes (all the same) for 2021 testing
-    .map((presentation) => {
-      const startTime = new Date(presentation.scheduled_for)
-      const pType = presentation.presentation_type
-      const duration =
-        pType === 'full length'
-          ? 60
-          : pType === '15 minutes'
-          ? 15
-          : pType === '7x7'
-          ? 7
-          : pType === 'panel' ? 60 : pType === 'quiz' ? 30 : 60 // panel
-      const endTime = new Date(startTime.getTime() + duration * 60 * 1000)
-      let link = '/presentations/' + presentation.presentation_id
-      if (pType === 'panel') {
-        // ToDo - in a future year, fix this rather than being hardcoded
-        const isOS = presentation.title === 'How to make Open-Source more worthwhile?'
-        link = '/panels/' + (isOS ? 'open-source' : 'labview-and-python')
-      }
-      return {
-        startTime,
-        endTime,
-        duration,
-        title: presentation.title,
-        link,
-        id: presentation.presentation_id
-      }
-    })
-    .sort((a, b) => a.startTime.getTime() - b.startTime.getTime())
-
   const currentExtent = props.hoursToShow * 60 * 60 * 1000
   // Adjust fractionalTime for the reformatting necessary to have some overlap (i.e. a total window > 24h)
   const uncappedFractionalTime =
@@ -152,6 +125,19 @@ export const Agenda = (props: AgendaProps) => {
     return formatter.format(date)
   }
 
+  const timeNowLine = (
+    <div
+      className='h-px border-2 border-primaryc absolute box-border border-dashed'
+      style={{
+        left: '-0.5ch',
+        width: 'calc(100% + 1.5ch)',
+        top: timeNowOffsetTop, // (agendaArea?.height ?? 0) * (1 / 12), // will need changing for scroll
+        display: showTimeNowLine ? 'block' : 'none',
+        zIndex: '5'
+      }}
+    />
+  )
+
   return (
     <>
       {/* <FormControlLabel
@@ -159,16 +145,13 @@ export const Agenda = (props: AgendaProps) => {
         label='Advance Time'
       /> */}
       {/* <p>{`Time now: ${dateToString(timeNow)}`}</p> */}
-      { /* min-h-[80vh] ? */ }
-      <div className='relative flex w-full h-[100%] overflow-hidden mb-5 box-content border-primaryc border-2 select-none'>
+      <div className='relative flex w-full mb-5 py-4 box-content border-primaryc border-2 select-none' style={{height: `${totalDuration * pixelsPerMinute / (60 * 1000)}px`}}>
         <div className='relative w-[6ch] border-1 border-primaryc'>
           {agendaArea && (
             <TimeMarkers
               startDate={props.startDate}
-              currentTime={new Date(timeNow.getTime() + timeOffset)}
-              extentInHours={props.hoursToShow}
-              height={agendaArea.height}
-              offsetFraction={1 / 12}
+              pixelsPerMinute={pixelsPerMinute}
+              durationInHours={24}
               stringFormatter={dateToString}
             />
           )}
@@ -180,37 +163,28 @@ export const Agenda = (props: AgendaProps) => {
         >
           {agendaArea && (
             <AgendaPresentations
-              currentTime={new Date(timeNow.getTime() + timeOffset)}
-              extentInHours={props.hoursToShow}
-              offsetFraction={1 / 12}
-              agendaArea={agendaArea}
-              presentations={presentationSlots}
+              pixelsPerMinute={pixelsPerMinute}
+              start={props.startDate}
+              width={agendaArea.width}
+              presentations={props.agendaEntries}
               favourites={props.favourites}
+              containerHints={props.containerHints}
             />
           )}
-          <div
-            className='h-px border-2 border-primaryc absolute box-border border-dashed'
-            style={{
-              left: '-0.5ch',
-              width: 'calc(100% + 1.5ch)',
-              top: timeNowOffsetTop, // (agendaArea?.height ?? 0) * (1 / 12), // will need changing for scroll
-              display: showTimeNowLine ? 'block' : 'none',
-              zIndex: '5'
-            }}
-          />
+          {/* {timeNowLine} */}
         </div>
-        <FakeScrollbar
+        {/* <FakeScrollbar
           initialPosition={fractionalTime}
           onScroll={(num) => {
             const offsetTimeInt =
               (totalDuration - (5 / 6) * currentExtent) * num - 0
-              // currentExtent / 12
+            // currentExtent / 12
             setScrollTimeOffset(
               new Date(props.startDate.getTime() + offsetTimeInt).getTime() -
                 timeNow.getTime()
             )
           }}
-        />
+        /> */}
       </div>
     </>
   )
