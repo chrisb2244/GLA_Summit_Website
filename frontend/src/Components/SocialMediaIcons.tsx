@@ -1,31 +1,58 @@
-import { Box } from '@mui/material'
-import { Twitter, Facebook, YouTube, Instagram, LinkedIn } from '@mui/icons-material'
+import {
+  mdiTwitter,
+  mdiFacebook,
+  mdiYoutube,
+  mdiInstagram,
+  mdiLinkedin
+} from '@mdi/js'
+import Icon from '@mdi/react'
+
+type SocialLink = {
+  label: string
+  href: string
+  path: string
+}
 
 export const SocialMediaIcons: React.FC = () => {
+  const sources: SocialLink[] = [
+    {
+      label: 'Twitter',
+      href: 'https://twitter.com/glasummit',
+      path: mdiTwitter
+    },
+    {
+      label: 'FaceBook',
+      href: 'https://www.facebook.com/GLASummit/',
+      path: mdiFacebook
+    },
+    {
+      label: 'YouTube',
+      href: 'https://www.youtube.com/c/GlobalLabVIEWArchitects',
+      path: mdiYoutube
+    },
+    {
+      label: 'Instagram',
+      href: 'https://www.instagram.com/glasummit/',
+      path: mdiInstagram
+    },
+    {
+      label: 'LinkedIn',
+      href: 'https://www.linkedin.com/company/glasummit/',
+      path: mdiLinkedin
+    }
+  ]
+
+  const icons = sources.map((s) => {
+    return (
+      <a aria-label={`${s.label} link`} href={s.href} key={s.label}>
+        <Icon path={s.path} size={1} className='mx-1' />
+      </a>
+    )
+  })
+
   return (
-    <Box
-      role='grid'
-      aria-label='Social Media Links'
-      display='flex'
-      justifyContent='space-around'
-      alignSelf={{md: 'center'}}
-      sx={{ '& a': { px: 0.4 }, '.MuiSvgIcon-root': { color: (t) => t.palette.primary.contrastText, fontSize: '18px' } }}
-    >
-      <a aria-label='Twitter link' href='https://twitter.com/glasummit'>
-        <Twitter />
-      </a>
-      <a aria-label='FaceBook link' href='https://www.facebook.com/GLASummit/'>
-        <Facebook />
-      </a>
-      <a aria-label='YouTube link' href='https://www.youtube.com/c/GlobalLabVIEWArchitects'>
-        <YouTube />
-      </a>
-      <a aria-label='Instagram link' href='https://www.instagram.com/glasummit/'>
-        <Instagram />
-      </a>
-      <a aria-label='LinkedIn link' href='https://www.linkedin.com/company/glasummit/'>
-        <LinkedIn />
-      </a>
-    </Box>
+    <div className='flex justify-around md:self-center' role='grid' aria-label='Social Media Links'>
+      {icons}
+    </div>
   )
 }
