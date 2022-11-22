@@ -36,9 +36,7 @@
     "test-w": "jest --watch",
     "playwright": "playwright test",
     "lint": "eslint --format visualstudio ./src/ ./__tests__/",
-    "lint-f": "eslint --format visualstudio --fix ./src/ ./__tests__/",
-    "precommit-tests": "LIST=$(git diff-index --name-only --diff-filter=d HEAD | grep -E \"(.js$|.jsx$|.ts$|.tsx$)\" | sed -e 's|frontend/||g'); if [ \"$LIST\" ]; then eslint ${LIST} ${LIST}; else echo 'No files to lint'; fi && npx jest && npx playwright test",
-    "husky-install": "cd .. && husky install frontend/.husky && cd frontend"
+    "lint-f": "eslint --format visualstudio --fix ./src/ ./__tests__/"
   },
   "browserslist": {
     "production": [
@@ -75,8 +73,6 @@
     "eslint-plugin-jest-dom": "^4.0.2",
     "eslint-plugin-jest-react": "^0.1.0",
     "eslint-plugin-testing-library": "^5.9.1",
-    "husky": "^7.0.0",
-    "is-ci": "^3.0.1",
     "jest": "^29.2.2",
     "jest-environment-jsdom": "^29.2.2",
     "postcss": "^8.4.18",
