@@ -20,6 +20,7 @@ module.exports = {
       colors: {
         'primaryc': '#5837b9',
         'secondaryc': '#a25bcd',
+        'primaryc.light': '#795fc7',
       },
       fontSize: {
         // xs: {
