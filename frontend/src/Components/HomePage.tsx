@@ -56,7 +56,7 @@ export const HomePage: React.FC = () => {
 
   const mainBlock = (
     <StackedBoxes>
-      {countdown}
+      {/* {countdown} */}
       <P>
         The GLA Summit Organizers would like to thank all of the LabVIEW
         enthusiasts who joined us for our third GLA Summit!
