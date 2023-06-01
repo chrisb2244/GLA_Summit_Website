@@ -1,5 +1,4 @@
 import { AgendaEntry, ScheduledAgendaEntry } from '@/Components/Agenda/Agenda'
-
 import type { Database } from '@/lib/sb_databaseModels'
 import { PresentationYear } from '@/Components/PresentationSummary'
 import { ContainerHint } from '@/Components/Agenda/AgendaCalculations'

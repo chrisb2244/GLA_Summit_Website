@@ -1,11 +1,8 @@
 'use client'
 import { useEffect, useReducer, useState } from 'react'
-import {
-  Agenda,
-  ScheduledAgendaEntry
-} from '@/Components/Agenda/Agenda'
+import { Agenda, ScheduledAgendaEntry } from '@/Components/Agenda/Agenda'
 import type { Database } from '@/lib/sb_databaseModels'
-import type { RealtimePostgresChangesPayload, User } from '@supabase/supabase-js'
+import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { ContainerHint } from '@/Components/Agenda/AgendaCalculations'
 import { useSession } from '@/lib/sessionContext'
@@ -19,7 +16,7 @@ type SubscriptionEvent =
   | { eventType: 'INITIALIZE'; data: string[] }
 
 export const FullAgenda = (props: {
-  fullAgenda: ScheduledAgendaEntry[],
+  fullAgenda: ScheduledAgendaEntry[]
   containerHints: ContainerHint[]
 }) => {
   const { fullAgenda, containerHints } = props
@@ -101,7 +98,7 @@ export const FullAgenda = (props: {
     <p>Unable to load this year&apos;s agenda. Please try again later.</p>
   )
 
-  const supabase = createClientComponentClient({isSingleton: true});
+  const supabase = createClientComponentClient({ isSingleton: true })
 
   if (fullAgenda === null) {
     return unableToRenderElem
