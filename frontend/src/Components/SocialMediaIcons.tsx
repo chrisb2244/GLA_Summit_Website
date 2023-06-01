@@ -5,7 +5,7 @@ export const SocialMediaIcons: React.FC = () => {
   const icons = [
     {path: mdiTwitter, title: 'Twitter link', href: 'https://twitter.com/glasummit'},
     {path: mdiFacebook, title: 'FaceBook link', href: 'https://www.facebook.com/GLASummit/'},
-    {path: mdiYoutube, title: 'YouTube link', href: 'https://www.youtube.com/channel/UCtQvJ5rMGYoq8n7ExvITVNA'},
+    {path: mdiYoutube, title: 'YouTube link', href: 'https://www.youtube.com/@GlobalLabVIEWArchitects'},
     {path: mdiInstagram, title: 'Instagram link', href: 'https://www.instagram.com/glasummit/'},
     {path: mdiLinkedin, title: 'LinkedIn link', href: 'https://www.linkedin.com/company/glasummit/'},
   ].map(({path, title, href}) => {
