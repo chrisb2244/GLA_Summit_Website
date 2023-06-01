@@ -15,7 +15,10 @@ export const HomePage: React.FC<React.PropsWithChildren<unknown>> = () => {
   // The month value is 0-based (so 10 -> November)
   const eventStart = new Date(Date.UTC(2022, 10, 14, 12, 0, 0))
   const eventEnd = new Date(Date.UTC(2022, 10, 15, 12, 0, 0))
-  const P: React.FC<React.PropsWithChildren<TypographyProps>> = ({ children, ...props }) => {
+  const P: React.FC<React.PropsWithChildren<TypographyProps>> = ({
+    children,
+    ...props
+  }) => {
     return (
       <Typography textAlign='center' {...props} className='prose max-w-none'>
         {children}
@@ -103,7 +106,7 @@ export const HomePage: React.FC<React.PropsWithChildren<unknown>> = () => {
         >
           Sponsored by NI
         </Typography>
-        <NextImage src={NI_Logo} width={180} height={180} alt="NI Logo"/>
+        <NextImage src={NI_Logo} width={180} height={180} alt='NI Logo' />
       </Box>
     </Link>
   )
@@ -116,7 +119,12 @@ export const HomePage: React.FC<React.PropsWithChildren<unknown>> = () => {
         alignItems='center'
         justifyContent='center'
       >
-        <NextImage src={GCentral_Logo} width={90} height={90} alt="GCentral Logo"/>
+        <NextImage
+          src={GCentral_Logo}
+          width={90}
+          height={90}
+          alt='GCentral Logo'
+        />
         <Typography variant='h5' px={2}>
           GCentral
         </Typography>
@@ -126,14 +134,24 @@ export const HomePage: React.FC<React.PropsWithChildren<unknown>> = () => {
 
   const corgiBlock = (
     <Link href={'https://corgibytes.com/'} py={2}>
-      <NextImage src={CorgiBytes_Logo} width={275} height={79} alt="CorgiBytes Logo"/>
+      <NextImage
+        src={CorgiBytes_Logo}
+        width={275}
+        height={79}
+        alt='CorgiBytes Logo'
+      />
     </Link>
   )
 
   const heartwareBlock = (
     <Link href={'https://www.heartware.dev/'} py={2}>
       <div className='bg-[#1e143e]'>
-        <NextImage src={HeartWare_Dev_Logo} width={1000} height={250} alt="HeartWare Logo"/>
+        <NextImage
+          src={HeartWare_Dev_Logo}
+          width={1000}
+          height={250}
+          alt='HeartWare Logo'
+        />
       </div>
     </Link>
   )
@@ -146,7 +164,7 @@ export const HomePage: React.FC<React.PropsWithChildren<unknown>> = () => {
         alignItems='center'
         justifyContent='center'
       >
-        <NextImage src={SAS_Logo} width={100} height={100} alt="SAS Logo"/>
+        <NextImage src={SAS_Logo} width={100} height={100} alt='SAS Logo' />
         <Typography variant='h5' px={2}>
           SAS Workshops
         </Typography>
