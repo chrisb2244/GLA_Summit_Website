@@ -63,12 +63,12 @@ describe('RegistrationPopup', () => {
     expect(emailBox).toHaveAccessibleName('Email')
   })
 
-  it('contains only email in signin state (switched)', () => {
+  it('contains only email in signin state (switched)', async () => {
     render(form('signup'))
     const switchButton = screen.getByRole('button', {name: 'Sign In'})
     expect(switchButton).toBeVisible()
 
-    userEvent.click(switchButton)
+    await userEvent.click(switchButton)
     const emailBox = screen.getByRole('textbox')
 
     expect(emailBox).toBeVisible()
@@ -80,37 +80,37 @@ describe('RegistrationPopup', () => {
     expect(screen.getAllByRole('textbox')).toHaveLength(3)
   })
 
-  it('contains firstname, lastname and email when in signup state (switched)', () => {
+  it('contains firstname, lastname and email when in signup state (switched)', async () => {
     render(form('signin'))
     const switchButton = screen.getByRole('button', {name: 'Join Now'})
     expect(switchButton).toBeVisible()
 
-    userEvent.click(switchButton)
+    await userEvent.click(switchButton)
     expect(screen.getAllByRole('textbox')).toHaveLength(3)
   })
 
   it('calls signIn when submitting from signin state', async () => {
     signInFn.mockImplementation(goodSignInValue)
     render(form('signin'))
+    expect.hasAssertions()
 
-    userEvent.type(screen.getByRole('textbox'), 'test.user@test.com')
-    userEvent.click(screen.getByRole('button', {name: /log in/i}))
+    await userEvent.type(screen.getByRole('textbox'), 'test.user@test.com')
+    await userEvent.click(screen.getByRole('button', {name: /log in/i}))
 
-    await waitFor(() => {
-      expect(signInFn).toBeCalledWith('test.user@test.com')
-    })
+    return waitFor(() => expect(signInFn).toBeCalledWith('test.user@test.com'))
   })
 
-  it('calls signUp when submitting from signin state', async () => {
+  it('calls signUp when submitting from signup state', async () => {
     signUpFn.mockImplementation(goodSignUpValue)
     render(form('signup'))
+    expect.hasAssertions()
 
-    userEvent.type(screen.getByRole('textbox', {name: 'First Name'}), 'Test')
-    userEvent.type(screen.getByRole('textbox', {name: 'Last Name'}), 'User')
-    userEvent.type(screen.getByRole('textbox', {name: 'Email'}), 'test.user@test.com')
-    userEvent.click(screen.getByRole('button', {name: /register/i}))
+    await userEvent.type(screen.getByRole('textbox', {name: 'First Name'}), 'Test')
+    await userEvent.type(screen.getByRole('textbox', {name: 'Last Name'}), 'User')
+    await userEvent.type(screen.getByRole('textbox', {name: 'Email'}), 'test.user@test.com')
+    await userEvent.click(screen.getByRole('button', {name: /register/i}))
 
-    await waitFor(() => {
+    return waitFor(() => {
       expect(signUpFn).toBeCalledWith(
         {
           email: 'test.user@test.com',

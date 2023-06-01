@@ -8,9 +8,11 @@ import {
   getPerson,
   getPublicPresentation
 } from '@/lib/databaseFunctions'
+import { getSessionDurationInMinutes } from '@/lib/utils'
 
 type PresentationProps = {
   presentation: Presentation
+  presentationId: string
 }
 
 export const getStaticProps: GetStaticProps<PresentationProps> = async ({
@@ -36,8 +38,19 @@ export const getStaticProps: GetStaticProps<PresentationProps> = async ({
       )
 
       const type = data.presentation_type
+      if (type === 'panel') {
+        // ToDo - in a future year, fix this rather than being hardcoded
+        const isOS = data.title === 'How to make Open-Source more worthwhile?'
+        const link = '/panels/' + isOS ? 'open-source' : 'labview-and-python'
+        return {
+          redirect: {
+            destination: link,
+            permanent: true
+          }
+        }
+      }
       // Panels, 7x7 for 1h, 'full length' for 45m?
-      const sessionDuration = type === 'full length' ? 45 * 60 : 60 * 60 // duration in seconds
+      const sessionDuration = getSessionDurationInMinutes(type) * 60 // duration in seconds
 
       let schedule: Schedule = {
         sessionStart: null,
@@ -63,8 +76,10 @@ export const getStaticProps: GetStaticProps<PresentationProps> = async ({
             speakers: presenters,
             speakerNames: data.all_presenters_names,
             ...schedule
-          }
-        }
+          },
+          presentationId
+        },
+        revalidate: 3600
       }
     })
     .catch(() => {
@@ -73,8 +88,14 @@ export const getStaticProps: GetStaticProps<PresentationProps> = async ({
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
+  const panelIds = [
+    'e65a01e9-65a0-4687-8825-004efc24bb7a', // open-source
+    '3d12f1c1-e99b-46c0-8188-3f4055e6580b' // python
+  ]
   const presentationIdArray = await getAcceptedPresentationIds().then((ids) =>
-    ids.map((id) => '/presentations/' + id)
+    ids
+    .filter(id => ! panelIds.includes(id))
+    .map((id) => '/presentations/' + id)
   )
 
   return {
@@ -83,7 +104,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
   }
 }
 
-const PresentationPage = ({ presentation }: PresentationProps) => {
+const PresentationPage = ({ presentation, presentationId }: PresentationProps) => {
   const {
     timezoneInfo: { timeZone, timeZoneName, use24HourClock }
   } = useSession()
@@ -95,16 +116,18 @@ const PresentationPage = ({ presentation }: PresentationProps) => {
       minute: '2-digit',
       second: undefined,
       dateStyle: undefined,
-      hour12: use24HourClock === false
+      hour12: !use24HourClock
     })
     return formatter.format(date)
   }
 
   return (
     <PresentationDisplay
+      presentationId={presentationId}
       dateToStringFn={dateToString}
       presentation={presentation}
       timeZoneName={timeZoneName}
+      withFavouritesButton={false}
     />
   )
 }

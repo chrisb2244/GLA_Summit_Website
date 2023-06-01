@@ -3,6 +3,7 @@ import { Container, Dialog } from '@mui/material'
 type NotificationDialogPopupProps = {
   open: boolean
   onClose: () => void
+  children?: React.ReactNode
 }
 
 export const NotificationDialogPopup: React.FC<React.PropsWithChildren<NotificationDialogPopupProps>> = ({ open, onClose, children }) => {

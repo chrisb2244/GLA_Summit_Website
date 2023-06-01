@@ -324,7 +324,7 @@ export const getMyPresentations = async () => {
     })
     throw errorPresData
   }
-  return data
+  return data ?? []
 }
 
 export const deletePresentation = async (presentationId: string) => {

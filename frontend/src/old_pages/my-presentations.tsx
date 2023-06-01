@@ -20,6 +20,10 @@ const MyPresentations = (): JSX.Element => {
 
   const key = user ? keyPrefix + user.id : null
   const { data, error, isValidating, mutate } = useSWR(key, presentationFetcher)
+  
+  if (user === null) {
+    return <p>You are not signed in</p>
+  }
 
   if (user === null) {
     return <p>You are not signed in</p>

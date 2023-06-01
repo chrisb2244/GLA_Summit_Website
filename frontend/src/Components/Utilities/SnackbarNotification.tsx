@@ -7,6 +7,7 @@ type NotificationProps = {
   open?: boolean
   anchorOrigin?: SnackbarOrigin
   maxWidth?: string
+  children?: React.ReactNode
 }
 
 export const SnackbarNotification: React.FC<React.PropsWithChildren<NotificationProps>> = (props) => {

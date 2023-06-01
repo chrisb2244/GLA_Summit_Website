@@ -4,8 +4,8 @@ import ErrorIcon from '@mui/icons-material/NoEncryptionGmailerrorredTwoTone'
 import type { NextPage } from 'next'
 
 const InvalidLoginLinkPage: NextPage = () => {
-  const T: React.FC<React.PropsWithChildren<unknown>> = ({ children }) => (
-    <Typography textAlign='center'>{children}</Typography>
+  const T = (props: { children: React.ReactNode }) => (
+    <Typography textAlign='center'>{props.children}</Typography>
   )
 
   return (

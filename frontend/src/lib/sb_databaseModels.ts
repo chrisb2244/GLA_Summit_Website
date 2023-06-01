@@ -183,6 +183,23 @@ export interface Database {
           use_24h_clock?: boolean;
         };
       };
+      agenda_favourites: {
+        Row: {
+          user_id: string;
+          presentation_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          presentation_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          presentation_id?: string;
+          updated_at?: string;
+        };
+      };
       log: {
         Row: {
           id: number;
@@ -204,6 +221,20 @@ export interface Database {
           severity?: Database["public"]["Enums"]["log_type"];
           message?: string;
           user_id?: string | null;
+        };
+      };
+      container_groups: {
+        Row: {
+          container_id: string;
+          presentation_id: string;
+        };
+        Insert: {
+          container_id: string;
+          presentation_id: string;
+        };
+        Update: {
+          container_id?: string;
+          presentation_id?: string;
         };
       };
       log_viewers: {
@@ -287,7 +318,13 @@ export interface Database {
       };
     };
     Enums: {
-      presentation_type: "7x7" | "full length" | "panel" | "15 minutes";
+      presentation_type:
+        | "7x7"
+        | "full length"
+        | "panel"
+        | "15 minutes"
+        | "quiz"
+        | "session-container";
       mentoring_type: "mentor" | "mentee";
       log_type: "info" | "error" | "severe";
       summit_year: "2020" | "2021" | "2022" | "2023";

@@ -15,6 +15,7 @@ import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs'
 
 import '../spinningLogo.css'
 import '../GLA-generic.css'
+import '../global.css'
 import { MaintenanceModeProvider } from '@/lib/maintenanceModeContext'
 
 // declare module '@mui/styles/defaultTheme' {

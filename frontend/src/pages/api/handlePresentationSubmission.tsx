@@ -10,7 +10,7 @@ import {
 import { generateBody } from '@/lib/emailGeneration'
 import { createAdminClient } from '@/lib/supabaseClient'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type {Database} from '@/lib/sb_databaseModels'
+import type { Database } from '@/lib/sb_databaseModels'
 import { PersonProps } from '@/Components/Form/Person'
 import { logErrorToDb, myLog } from '@/lib/utils'
 import { generateInviteLink } from '@/lib/generateSupabaseLinks'
@@ -41,28 +41,31 @@ const handlePresentationSubmission = async (
   )
 
   // Get the IDs and necessary information to send the emails
-  const otherPresenterEmails = formData.otherPresenters.map(p => p.email)
+  const otherPresenterEmails = formData.otherPresenters.map((p) => p.email)
   const { data, error } = await adminClient
     .from('email_lookup')
-    .select("*")
-    .in("email", otherPresenterEmails)
+    .select('*')
+    .in('email', otherPresenterEmails)
   if (error) {
     myLog(error)
-    logErrorToDb(error, "error", submitter_id)
+    logErrorToDb(error, 'error', submitter_id)
     throw error
   }
-  const otherPresenterIds = data.map(p => p.id) ?? []
+  const otherPresenterIds = data.map((p) => p.id) ?? []
   const idArray = otherPresenterIds.concat(submitter_id)
 
   // Upload presenter information
-  type PresentationPresentersRow = Database['public']['Tables']['presentation_presenters']['Row']
+  type PresentationPresentersRow =
+    Database['public']['Tables']['presentation_presenters']['Row']
   const presentationPresenterData: PresentationPresentersRow[] = idArray.map(
     (presenter_id) => {
       return { presenter_id, presentation_id }
     }
   )
 
-  await adminClient.from('presentation_presenters').upsert(presentationPresenterData)
+  await adminClient
+    .from('presentation_presenters')
+    .upsert(presentationPresenterData)
 
   // Send all emails
   if (sendEmails) {
@@ -105,7 +108,7 @@ const getEmailInfoAndIds = async (
   formData: FormData,
   adminClient: SupabaseClient,
   submitterId: string,
-  otherPresentersEmailIdList: { email: string, id: string }[]
+  otherPresentersEmailIdList: { email: string; id: string }[]
 ) => {
   // Data for the form submitter
   const formSubmitterOptions = emailOptionsForFormSubmitter(formData)
@@ -153,8 +156,9 @@ const getEmailInfoAndIds = async (
     })
   )
 
-  return [{ id: submitterId, emailOptions: formSubmitterOptions }]
-    .concat(idAndInfo)
+  return [{ id: submitterId, emailOptions: formSubmitterOptions }].concat(
+    idAndInfo
+  )
 }
 
 // const saveDraft = async (formData: FormData) => {}

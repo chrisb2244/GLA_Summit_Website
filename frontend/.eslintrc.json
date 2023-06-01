@@ -4,7 +4,7 @@
     "es2021": true
   },
   "root": true,
-  "plugins": ["react", "jest-react", "@typescript-eslint", "testing-library"],
+  "plugins": ["react", "jest-react", "@typescript-eslint", "testing-library", "jest-dom"],
   "extends": [
     "plugin:react/recommended",
     "plugin:jest-react/recommended",

@@ -67,7 +67,7 @@ describe('PersonArray', () => {
 
   it('adds a person when the Add button is clicked', async () => {
     const { button } = renderForm()
-    userEvent.click(button)
+    await userEvent.click(button)
 
     const inputs = screen.queryAllByRole('textbox')
     await waitFor(() => expect(inputs).toHaveLength(3)) // firstName, lastName, email
@@ -75,7 +75,7 @@ describe('PersonArray', () => {
 
   it('has a Delete button when a Person exists', async () => {
     const { button: addButton } = renderForm()
-    userEvent.click(addButton)
+    await userEvent.click(addButton)
 
     const deleteButtonCandidates = screen
       .getAllByRole('button')

@@ -1,11 +1,12 @@
 import { Typography } from '@mui/material'
 import { PopupProps, ConfirmationPopup } from '@/Components/ConfirmationPopup'
+import { ReactNode } from 'react'
 
 export const PresentationSubmissionConfirmationPopup: React.FC<PopupProps> = (props) => {
   const P: React.FC<React.PropsWithChildren<unknown>> = ({ children }) => {
     return (
       <Typography align='justify' pb={2}>
-        {children}
+        {props.children}
       </Typography>
     )
   }

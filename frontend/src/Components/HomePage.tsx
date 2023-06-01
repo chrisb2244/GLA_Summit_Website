@@ -1,10 +1,15 @@
 import { Box, Button, Typography } from '@mui/material'
-import type { SnackbarOrigin, TypographyProps } from '@mui/material'
+import type { TypographyProps } from '@mui/material'
 import { Countdown } from './Countdown'
-import { SponsorBar } from './SponsorBar'
 import { StackedBoxes } from './Layout/StackedBoxes'
-import NextLink from 'next/link'
-import { SnackbarNotification } from './Utilities/SnackbarNotification'
+import { Link } from '@/lib/link'
+import NI_Logo from '@/media/NI-Logo.png'
+import GCentral_Logo from '@/media/GCentral-logo-color.svg'
+import SAS_Logo from '@/media/SAS-Logo.png'
+import CorgiBytes_Logo from '@/media/corgibytes-logo.png'
+import HeartWare_Dev_Logo from '@/media/heartware-dev-logo.png' // #1e143e_bg
+import NextImage from 'next/image'
+// import { SnackbarNotification } from './Utilities/SnackbarNotification'
 
 export const HomePage: React.FC<React.PropsWithChildren<unknown>> = () => {
   // The month value is 0-based (so 10 -> November)
@@ -12,72 +17,172 @@ export const HomePage: React.FC<React.PropsWithChildren<unknown>> = () => {
   const eventEnd = new Date(Date.UTC(2022, 10, 15, 12, 0, 0))
   const P: React.FC<React.PropsWithChildren<TypographyProps>> = ({ children, ...props }) => {
     return (
-      <Typography textAlign='center' {...props}>
+      <Typography textAlign='center' {...props} className='prose max-w-none'>
         {children}
       </Typography>
     )
   }
 
-  // const theme = useTheme()
-  // const isLargerScreen = useMediaQuery(theme.breakpoints.up('md'))
-  // const anchorPosition: SnackbarOrigin | undefined = isLargerScreen
-  //   ? { vertical: 'top', horizontal: 'right' }
-  //   : undefined
-  const anchorPosition: SnackbarOrigin = {
-    horizontal: 'center',
-    vertical: 'bottom'
-  }
+  // const anchorPosition: SnackbarOrigin = {
+  //   horizontal: 'center',
+  //   vertical: 'bottom'
+  // }
+
+  const registrationButton = false ? (
+    <Box>
+      <Link href={'https://hopin.com/events/gla-summit-2022'}>
+        <Button fullWidth variant='contained' className='bg-primaryc'>
+          Register for a ticket at Hopin
+        </Button>
+      </Link>
+    </Box>
+  ) : null
+
+  const countdown = false ? (
+    <Countdown event_start={eventStart} event_end={eventEnd} />
+  ) : (
+    <>
+      <P mb={3}>
+        This event has finished - please give us your feedback by filling out
+        our <a href='https://ahaslides.com/GLA22POLL'>poll</a>!
+      </P>
+      <P>
+        For recertification points, please complete{' '}
+        <a href='https://ahaslides.com/GLA22CERT'>this form</a>. We will share
+        the information submitted via this form with NI.
+      </P>
+    </>
+  )
+
+  const mainBlock = (
+    <StackedBoxes>
+      {/* {countdown} */}
+      <P>
+        The GLA Summit Organizers would like to thank all of the LabVIEW
+        enthusiasts who joined us for our third GLA Summit!
+      </P>
+      <P>
+        We were excited to welcome advanced LabVIEW developers and Architects
+        (certified or self-proclaimed) from around the world to network and
+        participate in an inclusive, all-digital, free event.
+      </P>
+      <P>
+        Recordings of all of the presentations will be made available via the{' '}
+        <a
+          href='https://www.youtube.com/c/GlobalLabVIEWArchitects'
+          className='underline'
+        >
+          GLA Summit YouTube channel
+        </a>{' '}
+        - we hope that you are as excited as we are to see any presentations you
+        missed, or to rewatch for details!
+      </P>
+      {/* <P>
+        Presenters at the GLA Summit will be eligible to receive 30
+        recertification points for NI LabVIEW certifications.
+        <br />
+        Attendees will also be able to receive 20 points.
+      </P> */}
+      {registrationButton}
+    </StackedBoxes>
+  )
+
+  const NI_Block = (
+    <Link href='https://www.ni.com' py={2}>
+      <Box
+        display='flex'
+        flexDirection='column'
+        alignItems='center'
+        justifyContent='center'
+        width='fit-content'
+      >
+        <Typography
+          variant='h5'
+          sx={{ fontSize: { md: '2.5rem' }, textAlign: 'center' }}
+          px={2}
+        >
+          Sponsored by NI
+        </Typography>
+        <NextImage src={NI_Logo} width={180} height={180} alt="NI Logo"/>
+      </Box>
+    </Link>
+  )
+
+  const gcentralBlock = (
+    <Link href={'https://www.gcentral.org/'} py={2}>
+      <Box
+        display='flex'
+        flexDirection='row'
+        alignItems='center'
+        justifyContent='center'
+      >
+        <NextImage src={GCentral_Logo} width={90} height={90} alt="GCentral Logo"/>
+        <Typography variant='h5' px={2}>
+          GCentral
+        </Typography>
+      </Box>
+    </Link>
+  )
+
+  const corgiBlock = (
+    <Link href={'https://corgibytes.com/'} py={2}>
+      <NextImage src={CorgiBytes_Logo} width={275} height={79} alt="CorgiBytes Logo"/>
+    </Link>
+  )
+
+  const heartwareBlock = (
+    <Link href={'https://www.heartware.dev/'} py={2}>
+      <div className='bg-[#1e143e]'>
+        <NextImage src={HeartWare_Dev_Logo} width={1000} height={250} alt="HeartWare Logo"/>
+      </div>
+    </Link>
+  )
+
+  const sasBlock = (
+    <Link href={'https://www.sasworkshops.com/'} py={2}>
+      <Box
+        display='flex'
+        flexDirection='row'
+        alignItems='center'
+        justifyContent='center'
+      >
+        <NextImage src={SAS_Logo} width={100} height={100} alt="SAS Logo"/>
+        <Typography variant='h5' px={2}>
+          SAS Workshops
+        </Typography>
+      </Box>
+    </Link>
+  )
+
+  const supportedBlock = (
+    <div className='flex flex-col text-center m-auto'>
+      <Typography variant='h5'>Supported by</Typography>
+      <Box
+        display='flex'
+        flexDirection='column' //</Link>{{ xs: 'column-reverse', md: 'row' }}
+        alignItems='center'
+        justifyContent='center'
+      >
+        {gcentralBlock}
+        {corgiBlock}
+        {heartwareBlock}
+        {sasBlock}
+      </Box>
+    </div>
+  )
 
   return (
     <>
-      <StackedBoxes>
-        <Countdown event_start={eventStart} event_end={eventEnd} />
-        <P>
-          The GLA Summit Organizers would like to welcome all LabVIEW
-          enthusiasts to join us in our third GLA Summit!
-          <br />
-          The Summit will run between 12:00 UTC, 14<sup>th</sup> and 12:00 UTC,
-          15<sup>th</sup> November 2022, for a full 24 hours.
-        </P>
-        <P>
-          This is an exciting opportunity for advanced LabVIEW developers and
-          Architects (certified or self-proclaimed) from around the world to
-          network and participate in an inclusive, all-digital, free event.
-        </P>
-        <P>
-          Presenters at the GLA Summit will be eligible to receive 30
-          recertification points for NI LabVIEW certifications.
-          <br />
-          Attendees will also be able to receive 20 points.
-        </P>
-        <Box>
-          <NextLink href={'https://hopin.com/events/gla-summit-2022'} legacyBehavior passHref>
-            <Button fullWidth variant='contained'>
-              Register for a ticket at Hopin
-            </Button>
-          </NextLink>
-        </Box>
-        <Box>
-          <NextLink href={'/submit-presentation'} legacyBehavior passHref>
-            <Button fullWidth variant='contained'>
-              Submit a Presentation Now!
-            </Button>
-          </NextLink>
-        </Box>
-      </StackedBoxes>
-      <SnackbarNotification open anchorOrigin={anchorPosition}>
-        <P textAlign='center'>
-          Our presentation submission process will close on Friday 28th October.
-        </P>
-        <P textAlign='center'>
-          If you are considering submitting a presentation, please do so this week!
-        </P>
-      </SnackbarNotification>
-      <Box my='auto' pb={2}>
-        <Box>
-          <SponsorBar />
-        </Box>
-      </Box>
+      {/* <Countdown event_start={eventStart} event_end={eventEnd} /> */}
+      <div className='max-md:flex max-md:flex-col md:grid md:grid-cols-[1fr_2fr_1fr] md:grid-rows-1 w-full max-w-[90vw] mx-auto'>
+        <div className='contents-display md:grid md:col-start-2 my-auto'>
+          {mainBlock}
+        </div>
+        <div className='md:grid md:col-start-1 md:row-start-1 m-auto max-md:pb-4'>
+          {NI_Block}
+        </div>
+        <div className='md:grid md:col-start-3'>{supportedBlock}</div>
+      </div>
     </>
   )
 }

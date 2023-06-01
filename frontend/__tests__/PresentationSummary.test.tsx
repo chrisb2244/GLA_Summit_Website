@@ -1,6 +1,25 @@
 import { PresentationSummary } from '@/Components/PresentationSummary'
 import type { Presentation } from '@/Components/PresentationSummary'
 import { render, screen } from '@testing-library/react'
+import { useSession } from '@/lib/sessionContext'
+
+jest.mock('@/lib/sessionContext')
+const mockedSession = useSession as jest.MockedFunction<typeof useSession>
+mockedSession.mockReturnValue({
+  isOrganizer: false,
+  signIn: jest.fn(),
+  signUp: jest.fn(),
+  signOut: jest.fn(),
+  profile: null,
+  user: null,
+  timezoneInfo: {
+    timeZone: 'Asia/Tokyo',
+    timeZoneName: 'Japan Standard Time',
+    use24HourClock: false
+  },
+  isLoading: false,
+  triggerUpdate: () => {},
+})
 
 const speakerName = 'First Last'
 const speakerObj = {firstname: 'First', lastname: 'Last'}
@@ -16,6 +35,8 @@ const dummyPresentation: Presentation = {
 } as const
 
 describe('PresentationSummary', () => {
+
+
   it('contains the title as a heading', () => {
     render(<PresentationSummary presentation={dummyPresentation} />)
     expect(screen.getByRole('heading', { name: dummyPresentation.title })).toBeVisible()

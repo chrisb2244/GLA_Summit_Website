@@ -3,6 +3,7 @@ import { Link } from '@/lib/link'
 import type { LinkProps } from '@/lib/link'
 import { Database } from '@/lib/sb_databaseModels'
 import { PresentationType } from '@/lib/databaseModels'
+import { useSession } from '@/lib/sessionContext'
 
 export type Presenter = {
   firstname: string
@@ -34,24 +35,24 @@ export const PresentationSummary: React.FC<React.PropsWithChildren<PresentationP
   const speakerLine = Array.isArray(pres.speakerNames)
     ? pres.speakerNames.join(', ')
     : pres.speakerNames
-  // const {
-  //     timezoneInfo: { timeZone, timeZoneName, use24HourClock }
-  // } = useSession()
+  const {
+      timezoneInfo: { timeZone, timeZoneName, use24HourClock }
+  } = useSession()
   const dateToString = (utcDateString: string) => {
     const date = new Date(utcDateString)
     const formatter = new Intl.DateTimeFormat(undefined, {
-      timeZone: 'GMT',
+      timeZone: timeZone,
       hour: 'numeric',
       minute: '2-digit',
       second: undefined,
       dateStyle: undefined,
-      hour12: false
+      hour12: !use24HourClock
     })
     return formatter.format(date)
   }
 
   const scheduleLine = pres.scheduledFor !== null ? (
-    dateToString(pres.scheduledFor) + ' UTC'
+    dateToString(pres.scheduledFor) + ` ${timeZoneName}`
   ) : null
 
   const durationElem = (
@@ -60,7 +61,8 @@ export const PresentationSummary: React.FC<React.PropsWithChildren<PresentationP
         pres.presentationType === "full length" ? '45 minutes' :
         pres.presentationType === "15 minutes" ? '15 minutes' :
         pres.presentationType === "7x7" ? '7 minutes' :
-        'panel'
+        pres.presentationType === 'panel' ? 'Panel discussion' :
+        'Quiz'
       }
     </Typography>
   )

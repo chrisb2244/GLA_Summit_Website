@@ -1,19 +1,15 @@
-import type {
-  Presentation,
-  PresentationYear,
-  Presenter
-} from '@/Components/PresentationSummary'
+import type { Presentation, Presenter } from '@/Components/PresentationSummary'
 import type { GetStaticProps } from 'next'
 import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
 import { getPublicPresentations } from '@/lib/databaseFunctions'
 import { YearGroupedPresentations } from '@/Components/Layout/YearGroupedPresentations'
 import { Box, Typography } from '@mui/material'
+import { splitByYear } from '@/lib/presentationArrayFunctions'
+import NextLink from 'next/link'
 
 type AllPresentationsProps = {
   presentations: Presentation[]
 }
-
-type EntriesType = [PresentationYear, Presentation[]][]
 
 export const getStaticProps: GetStaticProps<
   AllPresentationsProps
@@ -49,21 +45,9 @@ export const getStaticProps: GetStaticProps<
 const AllPresentations: React.FC<React.PropsWithChildren<AllPresentationsProps>> = ({
   presentations
 }) => {
-  const groupedPresentationProps: {
-    [key in PresentationYear]?: Presentation[]
-  } = {
-    '2023': presentations.filter((p) => p.year === '2023'),
-    '2022': presentations.filter((p) => p.year === '2022'),
-    '2021': presentations.filter((p) => p.year === '2021'),
-    '2020': presentations.filter((p) => p.year === '2020')
-  }
-
-  const elems = (Object.entries(groupedPresentationProps) as EntriesType)
-    .sort((a, b) => {
-      return parseInt(b[0], 10) - parseInt(a[0], 10)
-    })
-    .filter((v) => v[1].length !== 0) // filter before map to make idx=0 the top element
-    .map(([year, presentationsInYear], idx, arr) => (
+  const presentationEntries = splitByYear(presentations)
+  const elems = presentationEntries.map(
+    ([year, presentationsInYear], idx, arr) => (
       <Box pb={1} key={`presentationslist-${year}`}>
         <YearGroupedPresentations
           year={year}
@@ -72,14 +56,30 @@ const AllPresentations: React.FC<React.PropsWithChildren<AllPresentationsProps>>
           disableAccordion={arr.length === 1}
         />
       </Box>
-    ))
+    )
+  )
 
   // The Box here prevents going to the very edge on smaller screens
   return (
     <StackedBoxes>
-      <Typography variant='h6' pl={1.5}>
-        The list of confirmed presentations for 2022 is still growing - come
-        back soon to see more sessions!
+      {/* <div className='mx-auto'>
+        <a href={'https://hopin.com/events/gla-summit-2022'}>
+          <Button fullWidth variant='contained' className='bg-primaryc'>
+            <Typography textAlign='center'>
+              Go to the Hopin Event page
+            </Typography>
+          </Button>
+        </a>
+      </div> */}
+      <Typography>
+        Presentations below are listed by first speaker&apos;s name.
+      </Typography>
+      <Typography>
+        For a list by schedule, see our{' '}
+        <NextLink href='/full-agenda' passHref legacyBehavior>
+          <a className='underline'>agenda</a>
+        </NextLink>
+        !
       </Typography>
       {elems}
     </StackedBoxes>

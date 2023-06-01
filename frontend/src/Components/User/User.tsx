@@ -15,15 +15,22 @@ export const User: React.FC<React.PropsWithChildren<BoxProps>> = ({...extraBoxPr
   } else {
     button = (
       <>
-        <Button
-          onClick={() => setDialogOpen(true)}
-          color='warning'
-        >
+        <Button onClick={() => setDialogOpen(true)} color='warning'>
           Sign In / Register
         </Button>
-        <RegistrationPopup signUp={signUp} signIn={signIn} open={dialogOpen} setClosed={() => setDialogOpen(false)} />
+        <RegistrationPopup
+          signUp={signUp}
+          signIn={signIn}
+          open={dialogOpen}
+          setClosed={() => setDialogOpen(false)}
+          initialState={'signin'}
+        />
       </>
     )
   }
-  return <Box id='user' {...extraBoxProps}>{button}</Box>
+  return (
+    <Box id='user' {...extraBoxProps}>
+      {button}
+    </Box>
+  )
 }
