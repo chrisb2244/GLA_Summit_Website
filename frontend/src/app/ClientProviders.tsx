@@ -7,7 +7,7 @@ import { CacheProvider, EmotionCache } from '@emotion/react'
 import { theme } from '../theme'
 import createEmotionCache from '../createEmotionCache'
 import React, { useState } from 'react'
-import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs'
+import { createPagesBrowserClient } from '@supabase/auth-helpers-nextjs'
 import { Database } from '@/lib/sb_databaseModels'
 
 
@@ -17,7 +17,7 @@ export const ClientProviders: React.FC<{
   children?: React.ReactNode
 }> = ({ children }) => {
   const [supabaseClient] = useState(() =>
-    createBrowserSupabaseClient<Database>()
+    createPagesBrowserClient<Database>()
   )
 
 
