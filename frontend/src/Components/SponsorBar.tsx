@@ -28,7 +28,7 @@ export const SponsorBar: React.FC<React.PropsWithChildren<unknown>> = () => {
           justifyContent='center'
           width='fit-content'
         >
-          <NextImage src={GCentral_Logo} width='120px' height='120px' />
+          <NextImage src={GCentral_Logo} width={120} height={120}  alt="GCentral Logo"/>
           <Typography variant='h5' px={2}>
             Supported by GCentral
           </Typography>
