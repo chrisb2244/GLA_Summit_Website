@@ -1,3 +1,5 @@
+'use client';
+
 import { Database } from "@/lib/sb_databaseModels"
 import { Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material"
 

@@ -1,3 +1,4 @@
+'use client'
 import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
 import { Typography } from '@mui/material'
 import ErrorIcon from '@mui/icons-material/NoEncryptionGmailerrorredTwoTone'
@@ -8,9 +9,12 @@ import {
   SubmittedPresentationReviewCard
 } from '@/Components/SubmittedPresentationReviewCard'
 import { Box } from '@mui/system'
+import { createPagesBrowserClient } from '@supabase/auth-helpers-nextjs'
 
 const ReviewSubmissionsPage: NextPage = () => {
-  const T: React.FC<React.PropsWithChildren<unknown>> = ({children}) => <Typography textAlign='center'>{children}</Typography>
+  const T: React.FC<React.PropsWithChildren<unknown>> = ({ children }) => (
+    <Typography textAlign='center'>{children}</Typography>
+  )
 
   const [submittedPresentations, setSubmittedPresentations] = useState<
     PresentationReviewInfo[]
