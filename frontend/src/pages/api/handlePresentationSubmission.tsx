@@ -79,11 +79,12 @@ const handlePresentationSubmission = async (
     // Default to sending, unless directed not to send via the data content
     myLog(`Sending emails to ${emailInfoArray.length} recipient(s)`)
     return Promise.all(emailInfoArray.map(sendMailApi)).then((statusArray) => {
-      const failedEmails = statusArray
-        .filter((s) => {
-          return s.rejected.length > 0
-        })
-        .flatMap((s) => s.rejected)
+      // const failedEmails = statusArray
+      //   .filter((s) => {
+      //     return s.rejected.length > 0
+      //   })
+      //   .flatMap((s) => s.rejected)
+      const failedEmails: string[] = [];
 
       if (failedEmails.length !== 0) {
         myLog({ failedEmails, errMessage: 'Not all emails could be sent' })
