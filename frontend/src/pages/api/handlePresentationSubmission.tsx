@@ -78,23 +78,21 @@ const handlePresentationSubmission = async (
     const emailInfoArray = idAndInfoArray.map((v) => v.emailOptions)
     // Default to sending, unless directed not to send via the data content
     myLog(`Sending emails to ${emailInfoArray.length} recipient(s)`)
-    return Promise.all(emailInfoArray.map(sendMailApi))
-      // .then((_statusArray) => {
-      .then(() => {
+    return Promise.all(emailInfoArray.map(sendMailApi)).then((statusArray) => {
       // const failedEmails = statusArray
       //   .filter((s) => {
       //     return s.rejected.length > 0
       //   })
       //   .flatMap((s) => s.rejected)
+      const failedEmails: string[] = [];
 
-      // if (failedEmails.length === 0) {
-        return res.status(201).json({ message: 'success' })
-      // } else {
-      //   myLog({ failedEmails, errMessage: 'Not all emails could be sent' })
-      //   return res
-      //     .status(201)
-      //     .json({ message: 'not all emails could be sent', failedEmails })
-      // }
+      if (failedEmails.length !== 0) {
+        myLog({ failedEmails, errMessage: 'Not all emails could be sent' })
+        // return res
+        // .status(201)
+        // .json({ message: 'not all emails could be sent', failedEmails })
+      }
+      return res.status(201).json({ message: 'success' })
     })
   } else {
     // Don't send email

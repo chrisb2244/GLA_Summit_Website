@@ -1,6 +1,7 @@
 // import nodemailer from 'nodemailer'
 import Mailgun from 'mailgun.js'
 import FormDataPackage from 'form-data'
+import type { MessagesSendResult } from 'mailgun.js/interfaces/Messages'
 // import type { Options } from 'nodemailer/lib/mailer'
 
 const MG_API_KEY = process.env.MG_API_KEY as string
@@ -45,6 +46,11 @@ export const sendMailApi = async (emailContent: EmailContent) => {
       return msg
     })
     .catch((err) => {
-      return err
+      const response: MessagesSendResult = {
+        status: 500,
+        message: err,
+        details: "Some error occurred when trying to send mail"
+      }
+      return response
     })
 }
