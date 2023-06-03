@@ -1,12 +1,12 @@
+'use client'
 import { useState } from 'react'
-import { NewUserRegistration, SignUpFunction } from './NewUserRegistration'
-import { UserSignIn, SignInFunction } from './UserSignIn'
+import { NewUserRegistration } from './NewUserRegistration'
+import { UserSignIn } from './UserSignIn'
+import { useSession } from '@/lib/sessionContext'
 
 export type RegistrationProps = {
   open?: boolean
   setClosed?: () => void
-  signUp: SignUpFunction
-  signIn: SignInFunction
   initialState?: 'signup' | 'signin'
   waitingSpinner: JSX.Element
 }
@@ -17,13 +17,12 @@ export const RegistrationPopup: React.FC<React.PropsWithChildren<RegistrationPro
     setClosed = () => {
       return
     },
-    signUp,
-    signIn,
     initialState = 'signup',
     waitingSpinner
   } = props
 
   const [state, setState] = useState<'signup' | 'signin'>(initialState)
+  const { signUp, signIn } = useSession()
 
   // Use the state checks outside of the 'open' property to avoid rendering the unused dialog
   const elemToRender =

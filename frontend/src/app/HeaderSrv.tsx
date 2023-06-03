@@ -1,7 +1,7 @@
 import NextLink from 'next/link'
 import NextImage from 'next/image'
 import { MenuBar } from './MenuBarSrv'
-import { User } from './User'
+import { UserIcon } from './UserIcon'
 
 export const Header = () => {
   const imageProps = {
@@ -72,8 +72,8 @@ export const Header = () => {
               'rgb(0 0 0 / 20%) 0px 4px 6px 0px, rgb(0 0 0 / 14%) 0px 4px 5px 0px'
           }}
         >
-          <MenuBar/>
-          {/* <User flexGrow='0' pr={1} /> */}
+          <MenuBar />
+          <UserIcon />
         </div>
       </div>
     </>
