@@ -13,12 +13,12 @@ import type { SignInOptions, SignInReturn } from '@/lib/sessionContext'
 import { myLog } from '@/lib/utils'
 import { NotificationDialogPopup } from '../NotificationDialogPopup'
 import { SmallCenteredText } from '@/Components/Utilities/SmallCenteredText'
+import { signIn } from './SignInUpActions'
 
 type SignInProps = {
   open: boolean
   setClosed: () => void
   switchToRegistration: () => void
-  signIn: SignInFunction
   waitingSpinner: JSX.Element
 }
 
@@ -32,7 +32,6 @@ type SignInFormValues = {
 }
 
 export const UserSignIn: React.FC<React.PropsWithChildren<SignInProps>> = ({
-  signIn,
   setClosed,
   waitingSpinner,
   ...props
@@ -55,11 +54,12 @@ export const UserSignIn: React.FC<React.PropsWithChildren<SignInProps>> = ({
   const [isWaiting, setIsWaiting] = useState(false)
   const signinCallback = useCallback(
     (email: string) => {
-      signIn(email).then(({ error }) => {
+      signIn(email).then(({ data, error }) => {
         if (error) {
           myLog(error)
           setFeedbackPopup({ state: 'invalid', email })
         } else {
+          console.log(data.properties)
           setFeedbackPopup({ state: 'valid', email })
         }
         setIsWaiting(false)

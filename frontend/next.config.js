@@ -4,6 +4,9 @@
 
 module.exports = {
   reactStrictMode: true,
+  experimental: {
+    serverActions: true
+  },
   images: {
     domains: ['iuqlmccpbxtgcluccazt.supabase.co']
   },
