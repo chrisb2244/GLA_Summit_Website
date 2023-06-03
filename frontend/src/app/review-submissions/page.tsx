@@ -9,7 +9,6 @@ import {
   SubmittedPresentationReviewCard
 } from '@/Components/SubmittedPresentationReviewCard'
 import { Box } from '@mui/system'
-import { createPagesBrowserClient } from '@supabase/auth-helpers-nextjs'
 
 const ReviewSubmissionsPage: NextPage = () => {
   const T: React.FC<React.PropsWithChildren<unknown>> = ({ children }) => (

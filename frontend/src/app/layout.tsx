@@ -2,7 +2,6 @@ import { Header } from './HeaderSrv'
 import { Footer } from './FooterSrv'
 import { Roboto } from 'next/font/google'
 
-// import '../css/global.css'
 import './global.css'
 import '../GLA-generic.css'
 import { ClientProviders } from "./ClientProviders";
