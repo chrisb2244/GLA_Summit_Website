@@ -8,6 +8,7 @@ export type RegistrationProps = {
   signUp: SignUpFunction
   signIn: SignInFunction
   initialState?: 'signup' | 'signin'
+  waitingSpinner: JSX.Element
 }
 
 export const RegistrationPopup: React.FC<React.PropsWithChildren<RegistrationProps>> = (props) => {
@@ -18,7 +19,8 @@ export const RegistrationPopup: React.FC<React.PropsWithChildren<RegistrationPro
     },
     signUp,
     signIn,
-    initialState = 'signup'
+    initialState = 'signup',
+    waitingSpinner
   } = props
 
   const [state, setState] = useState<'signup' | 'signin'>(initialState)
@@ -31,6 +33,7 @@ export const RegistrationPopup: React.FC<React.PropsWithChildren<RegistrationPro
         setClosed={setClosed}
         signUp={signUp}
         switchToSignIn={() => setState('signin')}
+        waitingSpinner={waitingSpinner}
       />
     ) : (
       <UserSignIn
@@ -38,6 +41,7 @@ export const RegistrationPopup: React.FC<React.PropsWithChildren<RegistrationPro
         setClosed={setClosed}
         signIn={signIn}
         switchToRegistration={() => setState('signup')}
+        waitingSpinner={waitingSpinner}
       />
     )
 

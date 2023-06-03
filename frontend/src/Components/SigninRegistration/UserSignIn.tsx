@@ -12,7 +12,6 @@ import { useCallback, useEffect, useState } from 'react'
 import type { SignInOptions, SignInReturn } from '@/lib/sessionContext'
 import { myLog } from '@/lib/utils'
 import { NotificationDialogPopup } from '../NotificationDialogPopup'
-import { WaitingIndicator } from '../WaitingIndicator'
 import { SmallCenteredText } from '@/Components/Utilities/SmallCenteredText'
 
 type SignInProps = {
@@ -20,6 +19,7 @@ type SignInProps = {
   setClosed: () => void
   switchToRegistration: () => void
   signIn: SignInFunction
+  waitingSpinner: JSX.Element
 }
 
 export type SignInFunction = (
@@ -34,6 +34,7 @@ type SignInFormValues = {
 export const UserSignIn: React.FC<React.PropsWithChildren<SignInProps>> = ({
   signIn,
   setClosed,
+  waitingSpinner,
   ...props
 }) => {
   const [feedbackPopup, setFeedbackPopup] = useState<{
@@ -178,12 +179,7 @@ export const UserSignIn: React.FC<React.PropsWithChildren<SignInProps>> = ({
       >
         {popupText(feedbackPopup)}
       </NotificationDialogPopup>
-      <WaitingIndicator
-        open={isWaiting}
-        onClose={() => {
-          return
-        }}
-      />
+      {isWaiting ? waitingSpinner : null}
     </>
   )
 }

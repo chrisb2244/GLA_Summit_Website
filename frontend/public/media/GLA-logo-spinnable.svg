@@ -14,26 +14,31 @@
       <mask id="gla-mask">
         <g id="mask-group" fill="white" stroke="none" maskContentUnits="objectBoundingBox">
           <g>
-            <use xlink:href="#top-circle-rel" />
-            <use xlink:href="#top-circle-rel" transform="rotate(120,0,0)" />
-            <use xlink:href="#top-circle-rel" transform="rotate(240,0,0)" />
-            <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 0 0" to="360 0 0" dur="20s" repeatCount="indefinite" />
-            <!-- <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="360 0 0" to="0 0 0" dur="20s" repeatCount="indefinite" /> -->
-          </g>
-          <g>
             <use xlink:href="#top-curve-rel" />
             <use xlink:href="#top-curve-rel" transform="rotate(120,0,0)" />
             <use xlink:href="#top-curve-rel" transform="rotate(240,0,0)" />
+            <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 0 0" to="360 0 0" dur="20s" repeatCount="indefinite" />
+          </g>
+        </g>
+      </mask>
+      <mask id="gla-mask-2">
+        <g id="mask-group-2" fill="white" stroke="none" maskContentUnits="objectBoundingBox">
+          <g>
+            <use xlink:href="#top-circle-rel" />
+            <use xlink:href="#top-circle-rel" transform="rotate(120,0,0)" />
+            <use xlink:href="#top-circle-rel" transform="rotate(240,0,0)" />
+            <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 0 0" to="360 0 0" dur="12s" repeatCount="indefinite" />
           </g>
         </g>
       </mask>
     </defs>
     <g id="borders">
-        <rect fill="white" width="296" height="296" x="-148" y="-148" mask="url(#gla-mask)" transform="scale(1.01, 1.01)"/>
+        <rect fill="white" width="296" height="296" x="-148" y="-148" mask="url(#gla-mask)" transform="scale(1.005, 1.005)"/>
+        <!-- Add borders to the circles -->
+        <!-- <rect fill="white" width="296" height="296" x="-148" y="-148" mask="url(#gla-mask-2)" transform="scale(1.005, 1.005)"/> -->
     </g>
-    <rect fill="url(#linearGradient-1)" width="296" height="296" x="-148" y="-148" mask="url(#gla-mask)" >
-      <!-- <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 0 0" to="360 0 0" dur="30s" repeatCount="indefinite" /> -->
-    </rect>
+    <rect fill="url(#linearGradient-1)" width="296" height="296" x="-148" y="-148" mask="url(#gla-mask)" />
+    <rect fill="url(#linearGradient-1)" width="296" height="296" x="-148" y="-148" mask="url(#gla-mask-2)" />
     <!-- <rect fill="none" stroke="black" width="296" height="296" x="-148" y="-148" /> -->
   </g>
 </svg>

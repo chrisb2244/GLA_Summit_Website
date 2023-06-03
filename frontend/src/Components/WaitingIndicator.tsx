@@ -1,53 +1,34 @@
 import NextImage from 'next/image'
 import GLA_Logo from '@/media/GLA-logo-spinnable.svg'
-import { Box, Dialog } from '@mui/material'
 
 type WaitingIndicatorProps = {
-  open: boolean
-  onClose: () => void
   scale?: number
   maxLength?: number
   children?: React.ReactNode
 }
 
-export const WaitingIndicator: React.FC<React.PropsWithChildren<WaitingIndicatorProps>> = ({
-  open,
-  onClose,
+export const WaitingIndicator: React.FC<
+  React.PropsWithChildren<WaitingIndicatorProps>
+> = ({
   scale = 0.3,
   maxLength = 300,
   children
 }) => {
-  const length = Math.min(scale * screen.width, maxLength)
+  const width = typeof screen === 'undefined' ? 0 : screen.width
+  const length = Math.min(scale * width, maxLength)
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      PaperProps={{ sx: { backgroundColor: 'transparent', boxShadow: 'none' } }}
-    >
-      <Box
-        sx={{
-          '@keyframes rotation': {
-            from: {
-              transform: 'rotate(0deg)'
-            },
-            to: {
-              transform: 'rotate(360deg)'
-            }
-          }
+    <div>
+      <NextImage
+        src={GLA_Logo}
+        width={length}
+        height={length}
+        style={{
+          animation: 'spin 10s infinite linear'
         }}
-      >
-        <NextImage
-          src={GLA_Logo}
-          width={length}
-          height={length}
-          style={{
-            animation: 'rotation 10s infinite linear'
-          }}
-          alt='loading indicator'
-        />
-        {children}
-      </Box>
-    </Dialog>
+        alt='loading indicator'
+      />
+      {children}
+    </div>
   )
 }

@@ -17,6 +17,7 @@ type UserRegistrationProps = {
   setClosed: () => void
   switchToSignIn: () => void
   signUp: SignUpFunction
+  waitingSpinner: JSX.Element
 }
 
 export type SignUpFunction = (
@@ -36,6 +37,7 @@ function EMPTY<T>() {
 export const NewUserRegistration: React.FC<React.PropsWithChildren<UserRegistrationProps>> = ({
   signUp,
   setClosed,
+  waitingSpinner,
   ...props
 }) => {
   const {
@@ -163,12 +165,7 @@ export const NewUserRegistration: React.FC<React.PropsWithChildren<UserRegistrat
           account.
         </Typography>
       </NotificationDialogPopup>
-      <WaitingIndicator
-        open={isWaiting}
-        onClose={() => {
-          return
-        }}
-      />
+      {isWaiting ? waitingSpinner : null}
     </>
   )
 }
