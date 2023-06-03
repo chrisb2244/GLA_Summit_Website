@@ -10,8 +10,10 @@ export async function middleware(req: NextRequest) {
 
   const targetPath = req.nextUrl.pathname
   const res = NextResponse.next()
+
+  // This is called before returning to refresh the cookie-based session.
   const supabase = createMiddlewareClient<Database>({ req, res })
-  await supabase.auth.getSession()
+  const { data: { session } } = await supabase.auth.getSession()
 
   const pathsToFilter = ['/review-submissions']
 
@@ -21,8 +23,9 @@ export async function middleware(req: NextRequest) {
 
   const denyAccess = () =>
     NextResponse.redirect(new URL('/access-denied', req.url))
-  const user = (await supabase.auth.getUser()).data.user
-  if (user === null) {
+
+  const user = session?.user
+  if (user === null || typeof user === 'undefined') {
     return denyAccess()
   }
   const isOrganizer =
