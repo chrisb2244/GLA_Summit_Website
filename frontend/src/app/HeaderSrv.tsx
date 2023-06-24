@@ -9,7 +9,7 @@ export const Header = () => {
   }
   const logo = (
     <div className='h-full col-span-full md:col-span-1'>
-      <NextLink href='/'>
+      <NextLink href='/' tabIndex={-1}>
         <div className='xs:hidden md:flex justify-center h-full relative'>
           <NextImage
             alt='GLA Logo'
