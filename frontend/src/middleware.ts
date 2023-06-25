@@ -13,7 +13,11 @@ export async function middleware(req: NextRequest) {
 
   // This is called before returning to refresh the cookie-based session.
   const supabase = createMiddlewareClient<Database>({ req, res })
-  const { data: { session } } = await supabase.auth.getSession()
+  // getSession only performs network operations if the session exists but has expired
+  // With no session or a valid session, only the storage method is accessed (e.g. cookies)
+  const {
+    data: { session }
+  } = await supabase.auth.getSession()
 
   const pathsToFilter = ['/review-submissions']
 
