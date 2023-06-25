@@ -1,22 +1,8 @@
-import { ReactNode, Fragment, ReactElement } from 'react'
+import { ReactNode, ReactElement } from 'react'
 import Image, { StaticImageData } from 'next/image'
 import { mdiAccount } from '@mdi/js'
 import Icon from '@mdi/react'
 import NextLink from 'next/link'
-
-const MyPaper = ({ children }: { children?: ReactNode }) => {
-  return (
-    <div
-      className='rounded'
-      style={{
-        boxShadow:
-          'rgb(0 0 0 / 20%) 0px 3px 5px -1px, rgb(0 0 0 / 14%) 0px 5px 8px 0px, rgb(0 0 0 / 12%) 0px 1px 14px 0px'
-      }}
-    >
-      {children}
-    </div>
-  )
-}
 
 export interface PersonDisplayProps {
   firstName: string
@@ -91,8 +77,6 @@ export const PersonDisplay: React.FC<
     descriptionElem = props.description
   }
 
-  const OuterElem = props.stripContainer ? Fragment : MyPaper
-
   const TitleComponent = ({ children }: { children?: ReactNode }) => {
     if (typeof pageLink !== 'undefined') {
       return (
@@ -108,7 +92,7 @@ export const PersonDisplay: React.FC<
   const imgDispCName = isDefaultImage ? 'max-sm:hidden' : ''
 
   return (
-    <OuterElem>
+    <div className={props.stripContainer ? '' : 'rounded shadow'}>
       <div
         className={`flex flex-col ${md_direction} justify-around content-center`}
       >
@@ -126,6 +110,6 @@ export const PersonDisplay: React.FC<
           {imageElem}
         </div>
       </div>
-    </OuterElem>
+    </div>
   )
 }
