@@ -15,4 +15,5 @@ ENV PATH /usr/app/node_modules/.bin:$PATH
 COPY --chown=node:node next.config.js next-env.d.ts .env.local .env ./
 # ENV PLAYWRIGHT 1
 COPY --chown=node:node postcss.config.js tailwind.config.js ./
+ENV NODE_OPTIONS=--max_old_space_size=3000
 CMD ["npm", "run", "dev"]
