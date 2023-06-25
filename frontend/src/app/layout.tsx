@@ -1,4 +1,4 @@
-import { Header } from './HeaderSrv'
+import { Header } from './Header'
 import { Footer } from './FooterSrv'
 import { Roboto } from 'next/font/google'
 
