@@ -1,59 +1,95 @@
 'use client'
-import {
-  Avatar,
-  Tooltip,
-  IconButton,
-  Menu,
-  MenuItem,
-  ListItemIcon
-} from '@mui/material'
-import {
-  Logout as LogoutIcon,
-  CoPresentOutlined as PresentationsIcon
-} from '@mui/icons-material'
-import React, { useState } from 'react'
+import { Popover, Transition } from '@headlessui/react'
+import { mdiLogout, mdiMonitorAccount } from '@mdi/js'
+import { Icon } from '@mdi/react'
+import React, { useEffect, useState } from 'react'
 import NextLink from 'next/link'
-import { useSession } from '@/lib/sessionContext'
 import { useProfileImage } from '@/lib/profileImage'
-import type { User } from '@/lib/databaseFunctions'
+import { getProfileInfo, type User } from '@/lib/databaseFunctions'
+import type { ProfileModel } from '@/lib/databaseModels'
 
 type UserMenuProps = {
   user: User
 }
 
-export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (props) => {
-  // Tools to handle clicking on and off the Avatar
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
-  const open = Boolean(anchorEl)
-  const handleClick = (ev: React.MouseEvent<HTMLElement>): void => {
-    setAnchorEl(ev.currentTarget)
+export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
+  props
+) => {
+  // const { isOrganizer, signOut, profile } = useSession()
+  const isOrganizer = false
+
+  const userId = props.user.id
+  const [profile, setProfile] = useState<ProfileModel['Insert'] | null>(null)
+  useEffect(() => {
+    console.log(`Fetching profile info for ${props.user.id}`)
+    getProfileInfo(props.user)
+      .then(setProfile)
+      .catch((e) => {
+        console.log(e)
+      })
+  }, [props.user])
+  const { src: avatarSrc, loading: imgLoading } = useProfileImage(userId) ?? {}
+  console.log({ avatarSrc, imgLoading })
+
+  // TODO: Implement logout function
+  const signOut = () => {
+    console.log('Sign out attempted')
   }
-  const handleClose = (): void => setAnchorEl(null)
 
-  const { isOrganizer, signOut, profile } = useSession()
-  const userId = profile ? profile.id : null
-  const avatarSrc = useProfileImage(userId)?.src
-
-  const userAvatar = (
-    <Avatar sx={{ width: 48, height: 48 }} src={avatarSrc}>
-      {profile ? profile.firstname + ' ' + profile.lastname : props.user?.email}
-    </Avatar>
-  )
-
-  const MenuItemLink = (props: {
-    href: string
-    children?: React.ReactNode
-  }) => {
-    return (
-      <MenuItem component={NextLink} href={props.href}>
-        {props.children}
-      </MenuItem>
+  const email = props.user.email
+  const UserIcon = (
+    props: { src?: string; size: 'large' | 'small' } = { size: 'large' }
+  ) => {
+    const { src, size } = props
+    return src ? (
+      <img
+        src={src}
+        className={`${
+          size === 'large' ? 'w-12 h-12' : 'w-6 h-6'
+        } object-cover rounded-full inline-flex`}
+        alt='User Profile Icon'
+      />
+    ) : (
+      <span>
+        {profile ? profile.firstname + ' ' + profile.lastname : email}
+      </span>
     )
   }
 
+  const ListIcon = (props: { path: string }) => {
+    return (
+      <div className='min-w-[36px] text-black text-opacity-50 inline-flex flex-shrink-0'>
+        <Icon path={props.path} size={1} />
+      </div>
+    )
+  }
+
+  const menuObjs = [
+    {
+      title: 'My Profile',
+      href: '/my-profile',
+      imgObj: (
+        <div className='min-w-[36px]'>
+          <UserIcon src={avatarSrc} size='small' />
+        </div>
+      )
+    },
+    {
+      title: 'My Presentations',
+      href: '/my-presentations',
+      imgObj: <ListIcon path={mdiMonitorAccount} />
+    },
+    {
+      title: 'Logout',
+      href: undefined, // '/api/logout',
+      imgObj: <ListIcon path={mdiLogout} />,
+      clickFn: signOut
+    }
+  ]
+
   return (
     <>
-      <Tooltip title='Account Settings'>
+      {/* <Tooltip title='Account Settings'>
         <IconButton
           onClick={handleClick}
           size='small'
@@ -64,8 +100,8 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (props
         >
           {userAvatar}
         </IconButton>
-      </Tooltip>
-      <Menu
+      </Tooltip> */}
+      {/* <Menu
         anchorEl={anchorEl}
         id='account-menu'
         open={open}
@@ -100,36 +136,53 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (props
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
-        <MenuItemLink href='/my-profile'>
-          {userAvatar}
-          My Profile
-        </MenuItemLink>
         {isOrganizer && (
-          <MenuItemLink href=''>
-            Yay, I&apos;m an organizer...
-          </MenuItemLink>
+          <MenuItemLink href=''>Yay, I&apos;m an organizer...</MenuItemLink>
         )}
-        <MenuItemLink href='/my-presentations'>
-          <>
-            <ListItemIcon>
-              <PresentationsIcon />
-            </ListItemIcon>
-            My Presentations
-          </>
-        </MenuItemLink>
-        <MenuItem
-          onClick={() => {
-            void signOut()
-          }}
-          component={NextLink}
-          href='/'
+
+      
+      </Menu> */}
+      <Popover className='pr-4'>
+        <Popover.Button aria-haspopup aria-label=''>
+          <UserIcon src={avatarSrc} size='large' />
+        </Popover.Button>
+        <Transition
+          enter='transition duration-250 ease-in'
+          enterFrom='transform scale-90 opacity-0'
+          enterTo='transform scale-100 opacity-100'
+          leave='transition duration-150 ease-out'
+          leaveFrom='transform scale-100 opacity-100'
+          leaveTo='transform scale-90 opacity-0'
         >
-          <ListItemIcon>
-            <LogoutIcon fontSize='small' />
-          </ListItemIcon>
-          Logout
-        </MenuItem>
-      </Menu>
+          <Popover.Panel className='absolute right-0 mt-2 p-2 rounded shadow bg-white text-black text-opacity-75'>
+            {({ close }) => (
+              <>
+                <div className='rotate-45 rounded-none w-3 h-3 absolute -top-[6px] right-4 bg-white' />
+                <div className='list-none cursor-pointer w-max max-w-[80vw] relative'>
+                  <ul>
+                    {menuObjs.map(({ title, href, imgObj, clickFn }) => {
+                      return (
+                        <NextLink href={href ?? ''} key={title}>
+                          <li
+                            className='py-[6px] px-4 flex flex-row h-8'
+                            onClick={() => {
+                              clickFn?.()
+                              close()
+                            }}
+                          >
+                            {imgObj}
+                            <p className='tracking-[0.00938em]'>{title}</p>
+                          </li>
+                        </NextLink>
+                      )
+                    })}
+                  </ul>
+                </div>
+              </>
+            )}
+          </Popover.Panel>
+        </Transition>
+      </Popover>
     </>
   )
 }
