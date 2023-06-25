@@ -6,7 +6,7 @@ import './global.css'
 import '../GLA-generic.css'
 // import { ClientProviders } from "./ClientProviders";
 
-const roboto = Roboto({ weight: ['300', '400'], subsets: ['latin'], preload: true })
+const roboto = Roboto({ weight: ['300', '400'], subsets: ['latin'] })
 
 export default function RootLayout({
   children
