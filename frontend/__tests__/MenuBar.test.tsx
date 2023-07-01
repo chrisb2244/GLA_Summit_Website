@@ -1,5 +1,5 @@
 import { render, screen, within } from '@testing-library/react'
-import { MenuBar } from '@/Components/MenuBar'
+import { MenuBar } from '@/Components/MenuBar/MenuBar'
 
 describe('MenuBar', () => {
   render(<MenuBar />)

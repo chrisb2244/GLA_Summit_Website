@@ -1,12 +1,13 @@
-import { DesktopMenuBar } from '@/Components/MenuBar/DesktopMenuBar'
-import { MobileMenuBar } from '@/Components/MenuBar/MobileMenuBar'
+import { DesktopMenuBar } from './DesktopMenuBar'
+import { MobileMenuBar } from './MobileMenuBar'
 
 export const MenuBar = () => {
-  console.log('Rendering menubar')
   const menuElements = [
     { title: 'Home', link: '/' },
+    // { title: 'Agenda', link: '/full-agenda' },
     // { title: 'Presentations', link: '/presentations' },
     // { title: 'Submit a Presentation', link: '/submit-presentation' },
+    // { title: 'Virtual Venue (Hopin)', link: 'https://hopin.com/events/gla-summit-2022' },
     { title: 'Media and Banners', link: '/media' },
     { title: 'Our Team', link: '/our-team' }
     // { title: 'Presenters', link: '/presenters' }

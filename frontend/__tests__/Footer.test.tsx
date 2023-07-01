@@ -1,5 +1,5 @@
 import { render, screen, within } from '@testing-library/react'
-import { Footer } from '@/Components/Footer'
+import { Footer } from '../src/app/Footer'
 
 describe('Footer', () => {
   it('has contentinfo role', () => {

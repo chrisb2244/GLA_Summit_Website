@@ -1,6 +1,6 @@
 import NextLink from 'next/link'
 import NextImage from 'next/image'
-import { MenuBar } from './MenuBarSrv'
+import { MenuBar } from '@/Components/MenuBar/MenuBar'
 import { UserIcon } from './UserIcon'
 
 export const Header = () => {
