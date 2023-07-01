@@ -2,9 +2,6 @@
 import { useState } from 'react'
 import { NewUserRegistration } from './NewUserRegistration'
 import { UserSignIn } from './UserSignIn'
-import { useSession } from '@/lib/sessionContext'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { generateSupabaseLinks } from '@/lib/generateSupabaseLinks'
 
 export type RegistrationProps = {
   open?: boolean
@@ -13,7 +10,9 @@ export type RegistrationProps = {
   waitingSpinner: JSX.Element
 }
 
-export const RegistrationPopup: React.FC<React.PropsWithChildren<RegistrationProps>> = (props) => {
+export const RegistrationPopup: React.FC<
+  React.PropsWithChildren<RegistrationProps>
+> = (props) => {
   const {
     open = false,
     setClosed = () => {
@@ -24,10 +23,6 @@ export const RegistrationPopup: React.FC<React.PropsWithChildren<RegistrationPro
   } = props
 
   const [state, setState] = useState<'signup' | 'signin'>(initialState)
-  // const { signUp, signIn } = useSession()
-  const supabase = createClientComponentClient();
-
-  const signUp = () => {}
 
   // Use the state checks outside of the 'open' property to avoid rendering the unused dialog
   const elemToRender =
@@ -35,7 +30,6 @@ export const RegistrationPopup: React.FC<React.PropsWithChildren<RegistrationPro
       <NewUserRegistration
         open={open}
         setClosed={setClosed}
-        signUp={signUp}
         switchToSignIn={() => setState('signin')}
         waitingSpinner={waitingSpinner}
       />

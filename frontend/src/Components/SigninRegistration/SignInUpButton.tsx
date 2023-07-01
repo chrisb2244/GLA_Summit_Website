@@ -12,7 +12,7 @@ export const SignInUpButton: React.FC<{ waitingSpinner: JSX.Element }> = (
     <>
       <button
         className='px-2 py-[6px]'
-        color='warning'
+        color='warning' // TODO: warning isn't a colour
         onClick={() => {
           setDialogOpen(true)
         }}
