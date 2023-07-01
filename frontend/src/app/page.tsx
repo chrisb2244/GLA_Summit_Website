@@ -1,6 +1,7 @@
 import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
 import { SponsorBar } from '@/Components/SponsorBar'
 import React, { ReactNode } from 'react'
+import { Countdown } from '@/Components/Countdown'
 
 export default function Page() {
   const P = (
@@ -13,6 +14,36 @@ export default function Page() {
       </p>
     )
   }
+
+  // The month value is 0-based (so 10 -> November)
+  // const eventStart = new Date(Date.UTC(2022, 10, 14, 12, 0, 0))
+  // const eventEnd = new Date(Date.UTC(2022, 10, 15, 12, 0, 0))
+  // const countdown = false ? (
+  //   <Countdown event_start={eventStart} event_end={eventEnd} />
+  // ) : (
+  //   <>
+  //     <P mb={3}>
+  //       This event has finished - please give us your feedback by filling out
+  //       our <a href='https://ahaslides.com/GLA22POLL'>poll</a>!
+  //     </P>
+  //     <P>
+  //       For recertification points, please complete{' '}
+  //       <a href='https://ahaslides.com/GLA22CERT'>this form</a>. We will share
+  //       the information submitted via this form with NI.
+  //     </P>
+  //   </>
+  // )
+
+  // const registrationButton = false ? (
+  //   <Box>
+  //     <Link href={'https://hopin.com/events/gla-summit-2022'}>
+  //       <Button fullWidth variant='contained' className='bg-primaryc'>
+  //         Register for a ticket at Hopin
+  //       </Button>
+  //     </Link>
+  //   </Box>
+  // ) : null
+
 
   return (
     <div>
