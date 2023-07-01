@@ -5,7 +5,7 @@ export const Footer: React.FC<React.PropsWithChildren<unknown>> = () => {
   // direction a row, rather than a column otherwise...
   return (
     <footer className='App-footer'>
-      <div className='justify-between text-white bg-primaryc items-center flex justify-between min-h-[64px] px-6'>
+      <div className='justify-between text-white bg-primaryc items-center flex min-h-[64px] px-6'>
         <div className='flex flex-col md:flex-row flex-grow justify-between mx-auto py-4 md:py-0 text-sm'>
           <SocialMediaIcons />
           <FileLink title='Code of Conduct' link='/media/codeofconduct.pdf' />

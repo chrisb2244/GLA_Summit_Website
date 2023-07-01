@@ -1,5 +1,5 @@
 import { Header } from './Header'
-import { Footer } from './FooterSrv'
+import { Footer } from './Footer'
 import { Roboto } from 'next/font/google'
 
 import './global.css'
