@@ -4,7 +4,6 @@ import { Roboto } from 'next/font/google'
 
 import './global.css'
 import '../GLA-generic.css'
-// import { ClientProviders } from "./ClientProviders";
 
 const roboto = Roboto({ weight: ['300', '400'], subsets: ['latin'] })
 
@@ -21,7 +20,6 @@ export default function RootLayout({
       </head>
 
       <body>
-        {/* <ClientProviders> */}
         <div className='flex flex-col min-h-screen'>
           <Header/>
 
@@ -34,7 +32,6 @@ export default function RootLayout({
 
           <Footer />
         </div>
-        {/* </ClientProviders> */}
       </body>
     </html>
   )
