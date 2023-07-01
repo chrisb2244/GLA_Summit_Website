@@ -1,5 +1,3 @@
-import HomePage from "./HomePage";
-
 export default function Page() {
-  return <HomePage />
+  return <div><p>Home Page</p></div>
 }
