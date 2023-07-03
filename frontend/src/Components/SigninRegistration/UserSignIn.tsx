@@ -1,19 +1,17 @@
 import {
-  Box,
-  Button,
   Container,
   Dialog,
   Link,
-  TextField,
   Typography
 } from '@mui/material'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { useCallback, useEffect, useState } from 'react'
 import type { SignInOptions, SignInReturn } from '@/lib/sessionContext'
-import { myLog } from '@/lib/utils'
 import { NotificationDialogPopup } from '../NotificationDialogPopup'
 import { SmallCenteredText } from '@/Components/Utilities/SmallCenteredText'
-import { signIn } from './SignInUpActions'
+import { signIn, verifyLogin } from './SignInUpActions'
+import { SignInForm, SignInFormValues } from '../Forms/SignInForm'
+// import { useRouter } from 'next/router'
 
 type SignInProps = {
   open: boolean
@@ -27,14 +25,11 @@ export type SignInFunction = (
   options?: SignInOptions | undefined
 ) => Promise<SignInReturn>
 
-type SignInFormValues = {
-  email: string
-}
-
-export const UserSignIn: React.FC<React.PropsWithChildren<SignInProps>> = ({
+export const UserSignIn: React.FC<SignInProps> = ({
+  open,
   setClosed,
   waitingSpinner,
-  ...props
+  switchToRegistration
 }) => {
   const [feedbackPopup, setFeedbackPopup] = useState<{
     state: 'valid' | 'invalid'
@@ -42,24 +37,20 @@ export const UserSignIn: React.FC<React.PropsWithChildren<SignInProps>> = ({
   } | null>(null)
   const [attemptedEmail, setAttemptedEmail] = useState<string | null>(null)
 
-  const {
-    register,
-    reset,
-    handleSubmit,
-    formState: { errors }
-  } = useForm<SignInFormValues>({
-    mode: 'onTouched'
-  })
+
 
   const [isWaiting, setIsWaiting] = useState(false)
+
+  // TODO: I think the callback here is preventing new OTPs being generated
+  // Consider adding 'email' to the dependencies, or removing the callback?
   const signinCallback = useCallback(
     (email: string) => {
-      signIn(email).then(({ data, error }) => {
-        if (error) {
-          myLog(error)
+      signIn(email, {
+        redirectTo: new URL(window.location.href).origin + '/'
+      }).then((emailSent) => {
+        if (!emailSent) {
           setFeedbackPopup({ state: 'invalid', email })
         } else {
-          console.log(data.properties)
           setFeedbackPopup({ state: 'valid', email })
         }
         setIsWaiting(false)
@@ -82,12 +73,15 @@ export const UserSignIn: React.FC<React.PropsWithChildren<SignInProps>> = ({
     setAttemptedEmail(email)
   }
 
-  const BoldEmail = (props: { email: string | null }) => {
-    return (
-      <Box component='span' fontWeight={500}>
-        {props.email}
-      </Box>
-    )
+  // const router = useRouter()
+  const checkLogin = async (data: FormData) => {
+    verifyLogin(data)
+      .then(({ user, session }) => {
+        console.log({ m: 'Logged in', user, session })
+      })
+      .then(() => {
+        // router.reload()
+      })
   }
 
   const popupText = (
@@ -98,36 +92,36 @@ export const UserSignIn: React.FC<React.PropsWithChildren<SignInProps>> = ({
     }
     if (v.state === 'valid') {
       return (
-        <Typography>
-          An email has been sent to <BoldEmail email={v.email} />. Please use
-          the link in that email to sign in.
-        </Typography>
+        <>
+          <Typography>
+            An email has been sent to <b>{v.email}</b>. Please copy the code
+            from that email into the boxes below to sign in.
+          </Typography>
+          <form action={checkLogin}>
+            <input type='hidden' name='email' value={v.email} />
+            <input type='text' name='verification_code' className='font-lg' />
+            <button type='submit'>Submit</button>
+          </form>
+        </>
       )
     } else if (v.state === 'invalid') {
       return (
         <Typography>
-          The email you gave, <BoldEmail email={v.email} />, was not found.
+          The email you gave, <b>{v.email}</b>, was not found.
         </Typography>
       )
-    }
-  }
-
-  const emailErrorProps = () => {
-    const error = errors.email
-    const isError = !!errors.email
-    return {
-      error: isError,
-      helperText: error?.message,
-      FormHelperTextProps: { role: isError ? ' alert' : undefined }
     }
   }
 
   return (
     <>
-      <Dialog open={props.open} onClose={() => {
+      <Dialog
+        open={open}
+        onClose={() => {
           setClosed()
-          reset({ email: '' })
+          // reset({ email: '' })
         }}
+        id='loginDialog'
       >
         <Container maxWidth='md' sx={{ p: 2 }}>
           <SmallCenteredText sx={{ pb: 1 }}>
@@ -141,33 +135,14 @@ export const UserSignIn: React.FC<React.PropsWithChildren<SignInProps>> = ({
             <Link
               onClick={(ev) => {
                 ev.preventDefault()
-                props.switchToRegistration()
+                switchToRegistration()
               }}
               component='button'
             >
               Join Now
             </Link>
           </SmallCenteredText>
-          <form onSubmit={handleSubmit(onSubmit, (e) => myLog(e))}>
-            <Box mb={2}>
-              <TextField
-                fullWidth
-                label='Email'
-                autoComplete='email'
-                {...register('email', {
-                  required: 'Required',
-                  pattern: {
-                    value: /^\S+@\S+$/i,
-                    message: "This email doesn't match the expected pattern"
-                  }
-                })}
-                {...emailErrorProps()}
-              />
-            </Box>
-            <Button type='submit' variant='outlined' fullWidth>
-              Log In
-            </Button>
-          </form>
+          <SignInForm />
         </Container>
       </Dialog>
 
