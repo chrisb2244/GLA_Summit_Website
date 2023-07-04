@@ -6,7 +6,7 @@ import { WaitingIndicator } from '@/Components/WaitingIndicator'
 
 export async function UserIcon () {
   const supabase = createServerComponentClient({ cookies })
-  const user = (await supabase.auth.getUser()).data.user
+  const user = (await supabase.auth.getSession()).data.session?.user
 
   const idleSpinner = <WaitingIndicator />
   // const button = user == null ? <SignInUpButton /> : <UserMenu user={user} />
