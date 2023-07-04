@@ -25,28 +25,17 @@ export const SignInForm: React.FC<SignInFormProps> = (props) => {
     mode: 'onTouched'
   })
 
-  const emailErrorProps = () => {
-    const error = errors.email
-    const isError = !!errors.email
-    return {
-      error: isError,
-      helperText: error?.message,
-      FormHelperTextProps: { role: isError ? ' alert' : undefined }
-    }
-  }
-
   return (
     <form onSubmit={handleSubmit(onSubmit, (e) => myLog(e))}>
         <FormField
           fullWidth
           label='Email'
           type='email'
-          placeholder='dummy.email@glasummit.org'
-          // autoComplete='email'
+          placeholder='my.email@glasummit.org'
           registerReturn={register('email', {
             required: 'Required',
             pattern: {
-              value: /^\S+@\S+$/i,
+              value: /^\S+@\S+\.\S+$/i,
               message: "This email doesn't match the expected pattern"
             }
           })}
