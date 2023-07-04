@@ -7,6 +7,8 @@ import NextLink from 'next/link'
 import { useProfileImage } from '@/lib/profileImage'
 import { getProfileInfo, type User } from '@/lib/databaseFunctions'
 import type { ProfileModel } from '@/lib/databaseModels'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { useRouter } from 'next/navigation'
 
 type UserMenuProps = {
   user: User
@@ -17,6 +19,7 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
 ) => {
   // const { isOrganizer, signOut, profile } = useSession()
   const isOrganizer = false
+  const router = useRouter()
 
   const userId = props.user.id
   const [profile, setProfile] = useState<ProfileModel['Insert'] | null>(null)
@@ -31,9 +34,9 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
   const { src: avatarSrc, loading: imgLoading } = useProfileImage(userId) ?? {}
   console.log({ avatarSrc, imgLoading })
 
-  // TODO: Implement logout function
   const signOut = () => {
-    console.log('Sign out attempted')
+    createClientComponentClient().auth.signOut()
+    router.refresh()
   }
 
   const email = props.user.email
