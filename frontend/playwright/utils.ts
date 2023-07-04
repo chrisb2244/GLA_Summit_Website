@@ -1,5 +1,21 @@
 import { IncomingMessage } from 'http';
 import { networkInterfaces } from 'os';
+import { request } from '@playwright/test'
+
+export type MessageAddress = {
+  address: string
+  name: string
+}
+
+export type Message = {
+  _id: string
+  subject: string
+  links: string[]
+  to: MessageAddress[]
+  from: MessageAddress[]
+  cc: MessageAddress[]
+  bcc: MessageAddress[]
+}
 
 const results = Object.create(null);
 const nets = networkInterfaces()
@@ -24,6 +40,56 @@ export const reqToBody = (req: IncomingMessage, callback: (body: string) => void
   req.on('end', () => {
     callback(body)
   })
+}
+
+const getMailsacAPIContext = async () => {
+  const mailboxApiKey = process.env['MAILSAC_API_KEY'] as string
+
+  const context = await request.newContext({
+    baseURL: `https://mailsac.com/api/`,
+    extraHTTPHeaders: {
+      'Mailsac-Key': mailboxApiKey
+    }
+  })
+
+  return context
+}
+
+export const checkMailsacEmail = async (
+  email: string,
+  subject: string,
+  counter: number = 0
+): Promise<Message | null> => {
+  const context = await getMailsacAPIContext()
+  const response = await context.get(`addresses/${email}/messages`)
+  const messages = (await response.json()) as Array<Message>
+
+  const message = messages.find((msg) => msg.subject === subject)
+
+  if (typeof message === 'undefined') {
+    return new Promise((resolve) => {
+      if (counter < 5) {
+        setTimeout(() => {
+          resolve(checkMailsacEmail(email, subject, counter + 1))
+        }, 1000)
+      } else {
+        return null
+      }
+    })
+  } else {
+    return message
+  }
+}
+
+export const getMailsacEmailBody = async (email: string, id: string) => {
+  const context = await getMailsacAPIContext()
+  const response = await context.get(`text/${email}/${id}`)
+  console.log({
+    response,
+    rtext: await response.text(),
+    rbody: await response.body()
+  })
+  return await response.text()
 }
 
 export const localIP = results['eth0'][0]

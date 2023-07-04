@@ -30,7 +30,7 @@ export class LoginablePage {
 
     // Click the button, expect a dialog to appear
     await this.loginOrRegisterButton.click()
-    await expect(this.dialog).toBeVisible()
+    await expect(this.page.locator("id=registerDialog").or(this.page.locator("id=loginDialog"))).toBeVisible()
 
     // If required, change the form type.
     if (typeof type !== undefined) {

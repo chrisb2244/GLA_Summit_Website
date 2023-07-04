@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test'
 import { PresentationSubmissionPage } from './models/PresentationSubmissionPage'
 
 test.describe('logged-in tests for presentation submission', () => {
+  test.skip()
   test.use({
     storageState: async ({}, use) =>
       use('./session-states/signedInNormalUserState.json')

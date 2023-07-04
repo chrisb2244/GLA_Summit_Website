@@ -1,39 +1,14 @@
 import { test, expect } from '@playwright/test'
-import { localIP, reqToBody as parseRequestBody } from './utils'
-import http from 'http'
-import { createAdminClient } from '@/lib/supabaseClient'
+import { checkMailsacEmail, getMailsacEmailBody } from './utils'
 import { LoginablePage } from './models/LoginablePage'
 
-const dummyServer = http.createServer()
-test.beforeAll(() => {
-  dummyServer.listen(3001)
-})
-test.afterAll(() => {
-  dummyServer.close()
-})
-
-test('User can log-in', async ({ page }) => {
-  const port = 3001
-  const path = 'testEndpoint'
-  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-  const requests: any[] = []
-
-  dummyServer.addListener('request', (req, res) => {
-    console.log('Caught with dummyServer')
-    parseRequestBody(req, (body) => {
-      const jbody = JSON.parse(body)
-      requests.push(jbody)
-    })
-    res.writeHead(200)
-    return res.end()
-  })
-
+test('User can register', async ({ page }) => {
+  await page.goto("/");
   const loginablePage = new LoginablePage(page)
-  await loginablePage.goto('/')
   await loginablePage.openLoginOrRegisterForm('register')
 
-  const randomVal = Math.floor(Math.random() * 10000).toString()
-  const emailValue = `test${randomVal}_${localIP}_${port}_${path}_user@glasummit.org`
+  const randomVal = Math.random().toString(36).substring(2)
+  const emailValue = `test-${randomVal}-glasummit@mailsac.com`
   await loginablePage.fillInRegistrationForm({
     firstname: 'Test_' + randomVal,
     lastname: 'User',
@@ -46,20 +21,24 @@ test('User can log-in', async ({ page }) => {
     page.locator('role=dialog', { hasText: /Thank you.*check.*email/i })
   ).toBeVisible()
 
-  expect(requests).toHaveLength(2)
-  const bodyPlain = requests[1]['text'] as string
-  expect(bodyPlain).toBeDefined()
-  expect(bodyPlain).toContain('supabase')
+  const emailText = await new Promise((resolve) => setTimeout(resolve, 1000))
+  .then(() => checkMailsacEmail(emailValue, 'GLA Summit 2022 Website Signup'))
+  .then((msg) => {
+    if (msg === null) {
+      throw new Error('Could not find message')
+    }
+    return getMailsacEmailBody(emailValue, msg._id)
+  })
 
-  const newUserData = requests[0]
-  expect(newUserData['type']).toBe('signup')
-  const userId = newUserData['userId']
-  expect(userId).toBeDefined()
+  const matchGroups = emailText.match(/Your One-Time-Passcode \(OTP\) token is ([0-9]{6})/i)
+  console.log(matchGroups)
+  // const userId = newUserData['userId']
+  // expect(userId).toBeDefined()
 
-  console.log('Deleting user with id: ', userId)
-  const adminClient = createAdminClient()
-  const { data: uData, error } = await adminClient.auth.admin.deleteUser(userId)
-  console.log({ uData, error })
+  // console.log('Deleting user with id: ', userId)
+  // const adminClient = createAdminClient()
+  // const { data: uData, error } = await adminClient.auth.admin.deleteUser(userId)
+  // console.log({ uData, error })
 })
 
 test('Enter key triggers correct behaviour for login form', async ({

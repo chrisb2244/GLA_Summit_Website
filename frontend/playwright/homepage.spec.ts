@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test'
 
-test.describe.only('Homepage tests', () => {
+test.describe('Homepage tests', () => {
   test('GLA homepage has title with GLA Summit', async ({ page }) => {
     await page.goto('/')
     await expect(page).toHaveTitle(/GLA Summit/)
@@ -14,7 +14,7 @@ test.describe.only('Homepage tests', () => {
     await expect(page).toHaveURL(/https:\/\/www.ni.com\/.*/)
   })
 
-  test.only('Clicking "our team" link navigates to the our-team page', async ({page}) => {
+  test('Clicking "our team" link navigates to the our-team page', async ({page}) => {
     await page.goto('/')
     const our_team_button = page.locator('role=menuitem[name="Our Team"]')
 
