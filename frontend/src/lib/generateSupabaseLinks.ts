@@ -7,6 +7,8 @@ import {
   checkForExistingUser
 } from './databaseFunctions'
 import { logErrorToDb, myLog } from './utils'
+import { createServerActionClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
 
 export type GenerateLinkBody =
   | {
@@ -47,6 +49,7 @@ export const generateSupabaseLinks = async (
   // data looks to have the same format as the 'data' object accepted by signUp.
   const { type, email, redirectTo } = bodyData
   const { userId: existingId } = await checkForExistingUser(email)
+  const serviceKey = process.env.SECRET_SUPABASE_SERVICE_KEY as string
   let fnPromise = null
 
   switch (type) {
@@ -58,10 +61,12 @@ export const generateSupabaseLinks = async (
         if (typeof data !== 'undefined') {
           adminUpdateExistingProfile(existingId, data)
         }
-        fnPromise = createAdminClient().auth.admin.generateLink({type: 'magiclink', email, options: { redirectTo }})
+        fnPromise = createServerActionClient({cookies}, { supabaseKey: serviceKey })
+          .auth.admin.generateLink({type: 'magiclink', email, options: {redirectTo}})
       } else {
         // There was no existingId (this is expected), so create new user.
-        fnPromise = createAdminClient().auth.admin.generateLink({type: 'signup', email, password, options: {data, redirectTo}})
+        fnPromise = createServerActionClient({cookies}, { supabaseKey: serviceKey })
+          .auth.admin.generateLink({type: 'signup', email, password, options: {data, redirectTo}})
       }
       break
     }
@@ -74,7 +79,8 @@ export const generateSupabaseLinks = async (
           error: { message: 'User not found', status: 401 }
         }
       }
-      fnPromise = createAdminClient().auth.admin.generateLink({type: 'magiclink', email, options: {redirectTo}})
+      fnPromise = createServerActionClient({cookies}, { supabaseKey: serviceKey })
+        .auth.admin.generateLink({type: 'magiclink', email, options: {redirectTo}})
       break
     }
     default: {
