@@ -3,7 +3,7 @@ import { type VariantProps, cva } from 'class-variance-authority'
 import type { HTMLInputTypeAttribute } from 'react'
 
 const inputFieldStyles = cva(
-  'px-4 pt-3 pb-1 peer placeholder-transparent border-b-2 border-b-gray-400 focus:border-b-violet-600 focus-visible:outline-none text-lg',
+  'px-4 pt-3 pb-1 peer placeholder-transparent border border-b-4 border-b-gray-400 focus:border-b-secondaryc focus-visible:outline-none text-lg',
   {
     variants: {
       fullWidth: {
@@ -38,10 +38,12 @@ export const FormField: React.FC<FormFieldProps> = (props) => {
     'text-sm',
     '-top-2',
     'left-2',
+    'bg-white',
     'peer-focus:text-gray-700',
     'peer-focus:text-sm',
     'peer-focus:-top-2',
-    'peer-focus:left-2'
+    'peer-focus:left-2',
+    'peer-focus:bg-white'
   ].join(' ')
   const labelPlaceholder = [
     'peer-placeholder-shown:text-gray-500',
