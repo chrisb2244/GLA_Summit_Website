@@ -75,7 +75,18 @@ export const UserSignIn: React.FC<SignInProps> = ({
 
   // const router = useRouter()
   const checkLogin = async (data: FormData) => {
-    verifyLogin(data)
+    const email = data.get('email')
+    const verificationCode = data.get('verification_code')
+    if (
+      verificationCode === null ||
+      typeof verificationCode !== 'string' ||
+      email === null ||
+      typeof email !== 'string'
+    ) {
+      return
+    }
+
+    verifyLogin({email, verificationCode})
       .then(({ user, session }) => {
         console.log({ m: 'Logged in', user, session })
       })

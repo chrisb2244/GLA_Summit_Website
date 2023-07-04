@@ -1,6 +1,6 @@
 'use client'
 
-import { verifyLogin2 } from '@/Components/SigninRegistration/SignInUpActions'
+import { verifyLogin } from '@/Components/SigninRegistration/SignInUpActions'
 import { useForm } from 'react-hook-form'
 
 type ValidationFormData = {
@@ -11,7 +11,7 @@ type ValidationFormData = {
 const ValidateLogin = () => {
   const onSubmit = (data: ValidationFormData) => {
     console.log(data)
-    verifyLogin2(data)
+    verifyLogin(data)
   }
 
   const { register, handleSubmit } = useForm<ValidationFormData>()
