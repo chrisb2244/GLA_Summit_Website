@@ -1,11 +1,9 @@
 import { Header } from './Header'
 import { Footer } from './Footer'
-import { Roboto } from 'next/font/google'
+import { roboto } from './font-workaround'
 
 import './global.css'
 import '../GLA-generic.css'
-
-const roboto = Roboto({ weight: ['300', '400'], subsets: ['latin'] })
 
 export default function RootLayout({
   children
