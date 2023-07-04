@@ -38,11 +38,10 @@ const LogsPage: NextPage<{ serverLogs: LogEntry[] }> = ({ serverLogs }) => {
   }
 
   const [logEntries, updateLogEntries] = useReducer(logEntryReducer, serverLogs)
-  const supabase = createClientComponentClient<Database>()
 
   useEffect(() => {
     myLog('adding subscription')
-    const subscription = supabase
+    const subscription = createClientComponentClient<Database>()
       .channel('public:log')
       .on(
         'postgres_changes',
