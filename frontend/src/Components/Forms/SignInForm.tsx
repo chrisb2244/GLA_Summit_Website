@@ -1,11 +1,11 @@
 'use client'
 
 import { myLog } from '@/lib/utils'
-import { Button } from '@mui/material'
-
+import { Button } from '../Form/Button'
 import { FormField } from '../Form'
 import { useForm } from 'react-hook-form'
 import React from 'react'
+import { signIn } from '../SigninRegistration/SignInUpActions'
 
 export type SignInFormValues = {
   email: string
@@ -15,8 +15,11 @@ type SignInFormProps = {}
 
 export const SignInForm: React.FC<SignInFormProps> = (props) => {
   const onSubmit = (data: SignInFormValues) => {
-    console.log(data)
+    signIn(data.email).then((success) => {
+      console.log(success)
+    })
   }
+
   const {
     register,
     handleSubmit,
@@ -41,7 +44,7 @@ export const SignInForm: React.FC<SignInFormProps> = (props) => {
           })}
           fieldError={errors.email}
         />
-      <Button type='submit' variant='outlined' fullWidth>
+      <Button type='submit' fullWidth>
         Log In
       </Button>
     </form>
