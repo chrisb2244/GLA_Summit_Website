@@ -52,17 +52,18 @@ export const SponsorBar: React.FC<React.PropsWithChildren<unknown>> = () => {
   const supporterElements = supporters.map((s) => {
     return (
       <>
-        <h5 className='px-4 text-lg md:row-span-1 flex mx-auto'>{s.title}</h5>
+        <h5 className='px-4 text-lg md:row-span-1 flex mx-auto' key={`${s.title}-heading`}>{s.title}</h5>
         <Link
           href={s.href}
           className='p-4 md:p-0 md:px-4 md:row-start-2 flex m-auto'
+          key={`${s.title}-link`}
         >
           <div className={`my-auto max-h-[100px] ${s.imgWrapperCName ?? ''}`}>
             <NextImage
               src={s.src}
               width={(s.width / s.height) * 100}
               height={100}
-              objectFit='scale-down'
+              className='object-scale-down'
               alt={`${s.title} Logo`}
             />
           </div>
