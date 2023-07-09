@@ -17,7 +17,7 @@ export async function UserIcon() {
     )
 
   return (
-    <div id='user' className='flex-grow-0 pr-2'>
+    <div id='user' className='flex flex-grow-0 pr-2 h-full'>
       {button}
     </div>
   )

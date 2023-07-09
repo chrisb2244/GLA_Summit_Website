@@ -11,13 +11,15 @@ export const SignInUpButton: React.FC<{ waitingSpinner: JSX.Element }> = (
   return (
     <>
       <button
-        className='px-2 py-[6px]'
+        className='flex h-full px-2 hover:bg-secondaryc'
         color='warning' // TODO: warning isn't a colour
         onClick={() => {
           setDialogOpen(true)
         }}
       >
-        Sign In / Register
+        <span className='text-[18px] line-height-[28px] p-2'>
+          Sign In / Register
+        </span>
       </button>
       <RegistrationPopup
         open={dialogOpen}
