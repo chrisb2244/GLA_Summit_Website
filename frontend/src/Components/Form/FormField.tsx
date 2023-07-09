@@ -1,13 +1,17 @@
 import { type FieldError, UseFormRegisterReturn } from 'react-hook-form'
 import { type VariantProps, cva } from 'class-variance-authority'
-import type { HTMLInputTypeAttribute } from 'react'
+import type { HTMLInputTypeAttribute, HTMLProps } from 'react'
 
 const inputFieldStyles = cva(
-  'px-4 pt-3 pb-1 peer placeholder-transparent border border-b-4 border-b-gray-400 focus:border-b-secondaryc focus-visible:outline-none text-lg',
+  'px-4 pt-3 pb-1 peer placeholder-transparent border focus-visible:outline-none text-lg',
   {
     variants: {
       fullWidth: {
         true: 'w-full'
+      },
+      readOnly: {
+        true: 'bg-gray-200',
+        false: 'border-b-4 border-b-gray-400 focus:border-b-secondaryc'
       }
     }
   }
@@ -16,14 +20,14 @@ const inputFieldStyles = cva(
 type FormFieldProps = {
   registerReturn: UseFormRegisterReturn
   fieldError: FieldError | undefined
-  label: string
   type?: HTMLInputTypeAttribute
   placeholder?: string
-} & VariantProps<typeof inputFieldStyles>
+  hidden?: boolean
+} & VariantProps<typeof inputFieldStyles> & Omit<HTMLProps<HTMLInputElement>, 'type'>
 
 // This provides a wrapper for the TextField, providing the error behaviour.
 export const FormField: React.FC<FormFieldProps> = (props) => {
-  const { registerReturn, fieldError, fullWidth } = props
+  const { registerReturn, fieldError, fullWidth, ...inputProps } = props
   const isError = typeof fieldError !== 'undefined'
   const id = registerReturn.name
 
@@ -38,12 +42,12 @@ export const FormField: React.FC<FormFieldProps> = (props) => {
     'text-sm',
     '-top-2',
     'left-2',
-    'bg-white',
+    'bg-inherit',
     'peer-focus:text-gray-700',
     'peer-focus:text-sm',
     'peer-focus:-top-2',
     'peer-focus:left-2',
-    'peer-focus:bg-white'
+    'peer-focus:bg-inherit'
   ].join(' ')
   const labelPlaceholder = [
     'peer-placeholder-shown:text-gray-500',
@@ -65,15 +69,16 @@ export const FormField: React.FC<FormFieldProps> = (props) => {
     <div
       className={`inline-flex flex-col relative align-top mt-2 mb-4 ${
         fullWidth ? 'w-full' : ''
-      }`}
+      } ${props.hidden ? 'hidden' : ''}`}
     >
       <input
         id={id}
         type={props.type ?? 'text'}
         autoComplete='email'
-        className={inputFieldStyles({ fullWidth })}
+        className={inputFieldStyles({ fullWidth, readOnly: inputProps.readOnly ?? false })}
         placeholder={props.placeholder ?? id}
         {...registerReturn}
+        {...inputProps}
       />
       <label
         id={`${id}-label`}
@@ -82,7 +87,7 @@ export const FormField: React.FC<FormFieldProps> = (props) => {
           isError ? errorTextClassNames : ''
         } ${labelAlways} ${labelRaised} ${labelPlaceholder}`}
       >
-        {props.label}
+        {props.label ?? id}
       </label>
       {errorMessage}
     </div>
