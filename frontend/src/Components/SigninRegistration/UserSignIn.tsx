@@ -1,16 +1,12 @@
-import {
-  Container,
-  Dialog,
-  Link,
-  Typography
-} from '@mui/material'
-import { SubmitHandler, useForm } from 'react-hook-form'
+import { Link, Typography } from '@mui/material'
+import { SubmitHandler } from 'react-hook-form'
 import { useCallback, useEffect, useState } from 'react'
 import type { SignInOptions, SignInReturn } from '@/lib/sessionContext'
 import { NotificationDialogPopup } from '../NotificationDialogPopup'
 import { SmallCenteredText } from '@/Components/Utilities/SmallCenteredText'
 import { signIn, verifyLogin } from './SignInUpActions'
 import { SignInForm, SignInFormValues } from '../Forms/SignInForm'
+import { CenteredDialog } from '../Layout/CenteredDialog'
 // import { useRouter } from 'next/router'
 
 type SignInProps = {
@@ -36,8 +32,6 @@ export const UserSignIn: React.FC<SignInProps> = ({
     email: string
   } | null>(null)
   const [attemptedEmail, setAttemptedEmail] = useState<string | null>(null)
-
-
 
   const [isWaiting, setIsWaiting] = useState(false)
 
@@ -126,36 +120,26 @@ export const UserSignIn: React.FC<SignInProps> = ({
 
   return (
     <>
-      <Dialog
-        open={open}
-        onClose={() => {
-          setClosed()
-          // reset({ email: '' })
-        }}
-        id='loginDialog'
-      >
-        <Container maxWidth='md' sx={{ p: 2 }}>
-          <SmallCenteredText sx={{ pb: 1 }}>
-            In order to sign in, enter the email address you used to register
-            for this website. Once completed, you will receive an email with a
-            verification link. Open this link to automatically sign into the
-            site.
-          </SmallCenteredText>
-          <SmallCenteredText sx={{ pb: 2 }}>
-            Not registered?{' '}
-            <Link
-              onClick={(ev) => {
-                ev.preventDefault()
-                switchToRegistration()
-              }}
-              component='button'
-            >
-              Join Now
-            </Link>
-          </SmallCenteredText>
-          <SignInForm />
-        </Container>
-      </Dialog>
+      <CenteredDialog open={open} onClose={setClosed} dialogId='loginDialog'>
+        <SmallCenteredText sx={{ pb: 1 }}>
+          In order to sign in, enter the email address you used to register for
+          this website. Once completed, you will receive an email with a
+          verification link. Open this link to automatically sign into the site.
+        </SmallCenteredText>
+        <SmallCenteredText sx={{ pb: 2 }}>
+          Not registered?{' '}
+          <Link
+            onClick={(ev) => {
+              ev.preventDefault()
+              switchToRegistration()
+            }}
+            component='button'
+          >
+            Join Now
+          </Link>
+        </SmallCenteredText>
+        <SignInForm />
+      </CenteredDialog>
 
       <NotificationDialogPopup
         open={feedbackPopup !== null}
