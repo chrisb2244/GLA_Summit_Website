@@ -2,7 +2,9 @@ import { ValidateLoginForm } from '@/Components/Forms/ValidateLoginForm'
 
 const ValidateLogin = () => {
   return (
-    <ValidateLoginForm />
+    <div className='mx-4 md:mx-0'>
+      <ValidateLoginForm />
+    </div>
   )
 }
 
