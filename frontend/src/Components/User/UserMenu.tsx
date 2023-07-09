@@ -34,8 +34,8 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
   const { src: avatarSrc, loading: imgLoading } = useProfileImage(userId) ?? {}
   console.log({ avatarSrc, imgLoading })
 
-  const signOut = () => {
-    createClientComponentClient().auth.signOut()
+  const signOut = async () => {
+    await createClientComponentClient().auth.signOut()
     router.refresh()
   }
 
