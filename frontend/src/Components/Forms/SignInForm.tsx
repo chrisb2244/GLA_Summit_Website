@@ -11,9 +11,7 @@ export type SignInFormValues = {
   email: string
 }
 
-type SignInFormProps = {}
-
-export const SignInForm: React.FC<SignInFormProps> = (props) => {
+export const SignInForm = () => {
   const onSubmit = (data: SignInFormValues) => {
     signIn(data.email).then((success) => {
       console.log(success)
@@ -29,9 +27,8 @@ export const SignInForm: React.FC<SignInFormProps> = (props) => {
   })
 
   return (
-    <form onSubmit={handleSubmit(onSubmit, (e) => myLog(e))}>
+    <form onSubmit={handleSubmit(onSubmit, (e) => myLog(e))} className='flex flex-col'>
         <FormField
-          fullWidth
           label='Email'
           type='email'
           placeholder='my.email@glasummit.org'
@@ -44,7 +41,7 @@ export const SignInForm: React.FC<SignInFormProps> = (props) => {
           })}
           fieldError={errors.email}
         />
-      <Button type='submit' fullWidth>
+      <Button type='submit'>
         Log In
       </Button>
     </form>

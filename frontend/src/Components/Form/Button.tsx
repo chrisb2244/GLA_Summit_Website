@@ -12,7 +12,7 @@ const buttonStyles = cva(
   }
 )
 
-type ButtonProps = {} & ButtonHTMLAttributes<HTMLButtonElement> &
+type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
   VariantProps<typeof buttonStyles>
 
 export const Button: React.FC<PropsWithChildren<ButtonProps>> = (props) => {
