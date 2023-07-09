@@ -17,6 +17,7 @@ type UserRegistrationProps = {
   open: boolean
   setClosed: () => void
   switchToSignIn: () => void
+  moveToValidation: (email: string) => void
   waitingSpinner: JSX.Element
 }
 
@@ -61,7 +62,7 @@ export const NewUserRegistration: React.FC<
         .then((success) => {
           // myLog({ user, session, error })
           if (!success) {
-            console.log("Failed to sign up")
+            console.log('Failed to sign up')
             setIsWaiting(false)
           } else {
             setIsWaiting(false)

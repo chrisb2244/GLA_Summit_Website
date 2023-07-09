@@ -13,6 +13,7 @@ type SignInProps = {
   open: boolean
   setClosed: () => void
   switchToRegistration: () => void
+  moveToValidation: (email: string) => void
   waitingSpinner: JSX.Element
 }
 
@@ -80,7 +81,7 @@ export const UserSignIn: React.FC<SignInProps> = ({
       return
     }
 
-    verifyLogin({email, verificationCode})
+    verifyLogin({ email, verificationCode })
       .then(({ user, session }) => {
         console.log({ m: 'Logged in', user, session })
       })
