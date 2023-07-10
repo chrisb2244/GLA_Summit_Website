@@ -4,7 +4,8 @@ import { NewUserRegistration } from './NewUserRegistration'
 import { UserSignIn } from './UserSignIn'
 import { ValidationCodePopup } from './ValidationCodePopup'
 import { SignInFormValues } from '../Forms/SignInForm'
-import { signIn } from './SignInUpActions'
+import { signIn, signUp } from './SignInUpActions'
+import { PersonProps } from '../Form'
 
 export type RegistrationProps = {
   open?: boolean
@@ -39,9 +40,25 @@ export const RegistrationPopup: React.FC<
         if (success) {
           setEmail(data.email)
           setState('validation')
-        } else [
+        } else {
           // Probably invalid email for login?
-        ]
+        }
+      })
+      .finally(() => {
+        setIsWaiting(false)
+      })
+  }
+
+  const signUpSubmitHandler = (data: PersonProps) => {
+    setIsWaiting(true)
+    signUp(data)
+      .then((success) => {
+        if (success) {
+          setEmail(data.email)
+          setState('validation')
+        } else {
+          // Existing values? Unsure why would fail here.
+        }
       })
       .finally(() => {
         setIsWaiting(false)
@@ -56,7 +73,7 @@ export const RegistrationPopup: React.FC<
       open={open}
       setClosed={setClosed}
       switchToSignIn={() => setState('signin')}
-      waitingSpinner={waitingSpinner}
+      onSubmit={signUpSubmitHandler}
     />
   ) : state === 'signin' ? (
     <UserSignIn

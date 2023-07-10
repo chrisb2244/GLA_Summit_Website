@@ -4,9 +4,9 @@ import 'server-only' // Poison the module for client code.
 import { generateSupabaseLinks } from '@/lib/generateSupabaseLinks'
 import { createServerActionClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
-import { NewUserInformation } from './NewUserRegistration'
 import { randomBytes } from 'crypto'
 import { sendMailApi } from '@/lib/sendMail'
+import { PersonProps } from '../Form'
 
 export const mailUser = async () => {
   // Send email
@@ -61,20 +61,23 @@ export const signIn = async (
 }
 
 export const signUp = async (
-  email: string,
-  info: NewUserInformation,
+  newUser: PersonProps,
   redirectTo?: string
 ): Promise<boolean> => {
   // Sign up
   console.log('Generating signup link')
   const password = randomBytes(32).toString('hex')
+  const email = newUser.email
 
   return generateSupabaseLinks({
     type: 'signup',
     email,
     signUpData: {
       password,
-      data: info
+      data: {
+        firstname: newUser.firstName,
+        lastname: newUser.lastName
+      }
     },
     redirectTo
   }).then(({ data, error }) => {
@@ -87,11 +90,6 @@ export const signUp = async (
     const link = data.properties.action_link
     const otp = data.properties.email_otp
     const plainText = 'Your One-Time-Passode (OTP) token is ' + otp + '\r\n'
-    const person = {
-      firstName: info.firstname,
-      lastName: info.lastname,
-      email
-    }
     sendMailApi({
       to: email,
       subject,

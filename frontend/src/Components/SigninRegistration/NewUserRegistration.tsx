@@ -1,26 +1,16 @@
 import { TypedFieldPath, useForm } from 'react-hook-form'
 import type { SubmitHandler, SubmitErrorHandler } from 'react-hook-form'
-import type { UserCredentials } from '@/lib/sessionContext'
 import { Person, PersonProps } from '../Form/Person'
 import { myLog } from '@/lib/utils'
-import { useCallback, useState } from 'react'
-import { NotificationDialogPopup } from '../NotificationDialogPopup'
-import type { SignUpOptions, SignUpReturn } from '@/lib/sessionContext'
 import NextLink from 'next/link'
-import { signUp } from './SignInUpActions'
 import { CenteredDialog } from '../Layout/CenteredDialog'
 
 type UserRegistrationProps = {
   open: boolean
   setClosed: () => void
   switchToSignIn: () => void
-  waitingSpinner: JSX.Element
+  onSubmit: SubmitHandler<PersonProps>
 }
-
-export type SignUpFunction = (
-  credentials: UserCredentials,
-  options?: SignUpOptions | undefined
-) => Promise<SignUpReturn>
 
 export type NewUserInformation = {
   firstname: string
@@ -33,7 +23,7 @@ function EMPTY<T>() {
 
 export const NewUserRegistration: React.FC<
   React.PropsWithChildren<UserRegistrationProps>
-> = ({ open, setClosed, waitingSpinner, ...props }) => {
+> = ({ open, setClosed, ...props }) => {
   const {
     handleSubmit,
     reset,
@@ -42,44 +32,10 @@ export const NewUserRegistration: React.FC<
   } = useForm<PersonProps>({
     mode: 'onTouched'
   })
-  const [isWaiting, setIsWaiting] = useState(false)
-  const [popupEmail, setPopupOpen] = useState<string | null>(null)
-
-  const signupCallback = useCallback(
-    (data: PersonProps) => {
-      const newUserData: NewUserInformation = {
-        firstname: data['firstName'],
-        lastname: data['lastName']
-      }
-
-      const redirectTo = new URL(window.location.href).origin + '/'
-      signUp(data.email, newUserData, redirectTo)
-        // .then(({ user, session, error }) => {
-        .then((success) => {
-          // myLog({ user, session, error })
-          if (!success) {
-            console.log('Failed to sign up')
-            setIsWaiting(false)
-          } else {
-            setIsWaiting(false)
-            setPopupOpen(data.email)
-          }
-        })
-      setClosed()
-      reset()
-    },
-    [signUp, setClosed, reset]
-  )
-
-  const onSubmit: SubmitHandler<PersonProps> = async (data) => {
-    setIsWaiting(true)
-    signupCallback(data)
-  }
 
   const onError: SubmitErrorHandler<PersonProps> = (err) => myLog(err)
 
   return (
-    <>
       <CenteredDialog
         open={open}
         onClose={() => {
@@ -88,7 +44,7 @@ export const NewUserRegistration: React.FC<
         }}
         dialogId='registerDialog'
       >
-        <div className='flex flex-col space-y-2 px-4 text-sm items-center text-center pb-4'>
+        <div className='flex flex-col space-y-2 px-2 text-sm items-center text-center pb-4'>
           <p>
             {'Already registered?\u00A0'}
             <a
@@ -133,7 +89,7 @@ export const NewUserRegistration: React.FC<
             .
           </p>
         </div>
-        <form onSubmit={handleSubmit(onSubmit, onError)}>
+        <form onSubmit={handleSubmit(props.onSubmit, onError)}>
           <Person<PersonProps>
             register={register}
             path={EMPTY()}
@@ -154,16 +110,5 @@ export const NewUserRegistration: React.FC<
         </form>
       </CenteredDialog>
 
-      <NotificationDialogPopup
-        open={popupEmail !== null}
-        onClose={() => setPopupOpen(null)}
-      >
-        <p>
-          Thank you for registering for the GLA Summit 2022 website. Please
-          check your email at <b>{popupEmail}</b> to verify your account.
-        </p>
-      </NotificationDialogPopup>
-      {isWaiting ? waitingSpinner : null}
-    </>
   )
 }
