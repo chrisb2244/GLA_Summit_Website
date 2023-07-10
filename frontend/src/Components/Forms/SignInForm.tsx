@@ -22,7 +22,7 @@ export const SignInForm = (props: SignInFormProps) => {
     handleSubmit,
     formState: { errors }
   } = useForm<SignInFormValues>({
-    mode: 'onTouched'
+    mode: 'onSubmit'
   })
 
   return (
