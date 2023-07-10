@@ -48,12 +48,14 @@ export const signIn = async (
         to: email,
         bodyPlain: `Your One-Time Passcode is ${v.data.properties.email_otp}`
       })
-      console.log(mailResult)
-      // console.log(v.data)
-      return true
+      if (mailResult.status === 200) {
+        return true
+      } else {
+        throw new Error(mailResult.message)
+      }
     })
     .catch((err) => {
-      console.log(err)
+      console.log(`Failed to send a sign-in link: ${err}`)
       return false
     })
 }
@@ -80,7 +82,7 @@ export const signUp = async (
     if (error) {
       return false
     }
-    const subject = 'GLA Summit 2022 Website Signup'
+    const subject = 'GLA Summit Website Signup'
     const user = data.user
     const link = data.properties.action_link
     const otp = data.properties.email_otp
@@ -93,7 +95,6 @@ export const signUp = async (
     sendMailApi({
       to: email,
       subject,
-      from: 'web@glasummit.org',
       bodyPlain: plainText,
       body: plainText
     })
