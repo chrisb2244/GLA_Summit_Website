@@ -1,6 +1,4 @@
-import { Link } from '@mui/material'
 import type { SignInOptions, SignInReturn } from '@/lib/sessionContext'
-import { SmallCenteredText } from '@/Components/Utilities/SmallCenteredText'
 import { SignInForm, SignInFormValues } from '../Forms/SignInForm'
 import { CenteredDialog } from '../Layout/CenteredDialog'
 import { SubmitHandler } from 'react-hook-form'
@@ -21,27 +19,30 @@ export const UserSignIn: React.FC<SignInProps> = (props) => {
   const { open, setClosed, switchToRegistration, onSubmit } = props
 
   return (
-    <>
-      <CenteredDialog open={open} onClose={setClosed} dialogId='loginDialog'>
-        <SmallCenteredText sx={{ pb: 1 }}>
+    <CenteredDialog open={open} onClose={setClosed} dialogId='loginDialog'>
+      <div className='flex flex-col space-y-1 px-4 text-sm items-center text-center pb-4'>
+        <p>
           In order to sign in, enter the email address you used to register for
-          this website. Once completed, you will receive an email with a
+          this website.
+        </p>
+        <p>
+          Once completed, you will receive an email with a single-use
           verification code.
-        </SmallCenteredText>
-        <SmallCenteredText sx={{ pb: 2 }}>
-          Not registered?{' '}
-          <Link
+        </p>
+        <p>
+          <span>{'Not registered?\u00A0'}</span>
+          <a
+            className='link'
             onClick={(ev) => {
               ev.preventDefault()
               switchToRegistration()
             }}
-            component='button'
           >
             Join Now
-          </Link>
-        </SmallCenteredText>
-        <SignInForm onSubmit={onSubmit} />
-      </CenteredDialog>
-    </>
+          </a>
+        </p>
+      </div>
+      <SignInForm onSubmit={onSubmit} />
+    </CenteredDialog>
   )
 }
