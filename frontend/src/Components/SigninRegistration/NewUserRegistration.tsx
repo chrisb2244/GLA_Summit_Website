@@ -1,15 +1,12 @@
 import { TypedFieldPath, useForm } from 'react-hook-form'
 import type { SubmitHandler, SubmitErrorHandler } from 'react-hook-form'
-import type { ApiError, UserCredentials } from '@/lib/sessionContext'
-import { randomBytes } from 'crypto'
+import type { UserCredentials } from '@/lib/sessionContext'
 import { Person, PersonProps } from '../Form/Person'
 import { myLog } from '@/lib/utils'
 import { useCallback, useState } from 'react'
 import { NotificationDialogPopup } from '../NotificationDialogPopup'
 import type { SignUpOptions, SignUpReturn } from '@/lib/sessionContext'
 import NextLink from 'next/link'
-import { SmallCenteredText } from '@/Components/Utilities/SmallCenteredText'
-import { LinkLikeText } from '../Utilities/LinkLikeText'
 import { signUp } from './SignInUpActions'
 import { CenteredDialog } from '../Layout/CenteredDialog'
 
@@ -91,48 +88,51 @@ export const NewUserRegistration: React.FC<
         }}
         dialogId='registerDialog'
       >
-        <SmallCenteredText sx={{ pb: 2 }}>
-          Already registered?{' '}
-          <LinkLikeText
-            onClick={(ev) => {
-              ev.preventDefault()
-              props.switchToSignIn()
-            }}
-          >
-            Sign In
-          </LinkLikeText>
-        </SmallCenteredText>
-        <SmallCenteredText sx={{ pb: 1 }}>
-          Please fill out the information below. You will receive an email with
-          a verification link - click the link to automatically sign into the
-          site.
-        </SmallCenteredText>
-        <div className='bg-red-600 text-white rounded my-2 pt-2'>
-          <SmallCenteredText sx={{ pb: 1 }}>
-            In order to attend the conference, the required registration can be
-            found at{' '}
+        <div className='flex flex-col space-y-2 px-4 text-sm items-center text-center pb-4'>
+          <p>
+            {'Already registered?\u00A0'}
+            <a
+              className='link'
+              onClick={(ev) => {
+                ev.preventDefault()
+                props.switchToSignIn()
+              }}
+            >
+              Sign In
+            </a>
+          </p>
+          <p>
+            Please fill out the information below. You will receive an email
+            with a verification link - click the link to automatically sign into
+            the site.
+          </p>
+          <div className='bg-red-600 text-white rounded my-2 py-2'>
+            <p>
+              In order to attend the conference, the required registration can
+              be found at{' '}
+              {
+                <a
+                  href={'https://hopin.com/events/gla-summit-2022'}
+                  className='underline'
+                >
+                  https://hopin.com/events/gla-summit-2022
+                </a>
+              }
+            </p>
+          </div>
+          <p>
+            This site is currently mostly focused on presentation submission,
+            although last year&apos;s presentations can be found at{' '}
             {
-              <a
-                href={'https://hopin.com/events/gla-summit-2022'}
-                className='underline'
-              >
-                https://hopin.com/events/gla-summit-2022
-              </a>
+              <NextLink href={'/presentations'}>
+                <span className='underline cursor-pointer'>
+                  https://glasummit.org/presentations
+                </span>
+              </NextLink>
             }
-          </SmallCenteredText>
+            .
+          </p>
         </div>
-        <SmallCenteredText sx={{ pb: 2 }}>
-          This site is currently mostly focused on presentation submission,
-          although last year&apos;s presentations can be found at{' '}
-          {
-            <NextLink href={'/presentations'}>
-              <span className='underline cursor-pointer'>
-                https://glasummit.org/presentations
-              </span>
-            </NextLink>
-          }
-          .
-        </SmallCenteredText>
         <form onSubmit={handleSubmit(onSubmit, onError)}>
           <Person<PersonProps>
             register={register}
