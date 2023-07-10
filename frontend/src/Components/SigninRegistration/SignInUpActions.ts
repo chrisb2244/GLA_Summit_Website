@@ -23,8 +23,7 @@ export const verifyLogin = async (data: {
       type: 'email'
     })
     .then((res) => {
-      console.log(res)
-      return res.data
+      return res.data.user !== null
     })
 }
 
@@ -38,8 +37,19 @@ export const signIn = async (
     email,
     redirectTo: options?.redirectTo
   })
-    .then((v) => {
-      console.log(v.data)
+    .then(async (v) => {
+      if (v.data.properties == null) {
+        console.log('Some error?')
+        console.log(v.data)
+        return false
+      }
+      const mailResult = await sendMailApi({
+        subject: 'Validation Code for GLA Summit Login',
+        to: email,
+        bodyPlain: `Your One-Time Passcode is ${v.data.properties.email_otp}`
+      })
+      console.log(mailResult)
+      // console.log(v.data)
       return true
     })
     .catch((err) => {

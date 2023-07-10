@@ -13,9 +13,9 @@ type ValidationFormData = {
 export const ValidateLoginForm = (props: {email?: string, showEmail?: boolean}) => {
   const hideEmail = typeof props.email !== 'undefined' && ! props.showEmail
 
-  const onSubmit = (data: ValidationFormData) => {
-    console.log(data)
-    verifyLogin(data)
+  const onSubmit = async (data: ValidationFormData) => {
+    const validLogin = await verifyLogin(data)
+    console.log(validLogin)
   }
 
   const { register, handleSubmit, formState: { errors } } = useForm<ValidationFormData>()
