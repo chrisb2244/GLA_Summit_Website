@@ -1,20 +1,15 @@
-import { Link, Typography } from '@mui/material'
-import { SubmitHandler } from 'react-hook-form'
-import { useCallback, useEffect, useState } from 'react'
+import { Link } from '@mui/material'
 import type { SignInOptions, SignInReturn } from '@/lib/sessionContext'
-import { NotificationDialogPopup } from '../NotificationDialogPopup'
 import { SmallCenteredText } from '@/Components/Utilities/SmallCenteredText'
-import { signIn, verifyLogin } from './SignInUpActions'
 import { SignInForm, SignInFormValues } from '../Forms/SignInForm'
 import { CenteredDialog } from '../Layout/CenteredDialog'
-// import { useRouter } from 'next/router'
+import { SubmitHandler } from 'react-hook-form'
 
 type SignInProps = {
   open: boolean
   setClosed: () => void
   switchToRegistration: () => void
-  moveToValidation: (email: string) => void
-  waitingSpinner: JSX.Element
+  onSubmit: SubmitHandler<SignInFormValues>
 }
 
 export type SignInFunction = (
@@ -22,102 +17,8 @@ export type SignInFunction = (
   options?: SignInOptions | undefined
 ) => Promise<SignInReturn>
 
-export const UserSignIn: React.FC<SignInProps> = ({
-  open,
-  setClosed,
-  waitingSpinner,
-  switchToRegistration
-}) => {
-  const [feedbackPopup, setFeedbackPopup] = useState<{
-    state: 'valid' | 'invalid'
-    email: string
-  } | null>(null)
-  const [attemptedEmail, setAttemptedEmail] = useState<string | null>(null)
-
-  const [isWaiting, setIsWaiting] = useState(false)
-
-  // TODO: I think the callback here is preventing new OTPs being generated
-  // Consider adding 'email' to the dependencies, or removing the callback?
-  const signinCallback = useCallback(
-    (email: string) => {
-      signIn(email, {
-        redirectTo: new URL(window.location.href).origin + '/'
-      }).then((emailSent) => {
-        if (!emailSent) {
-          setFeedbackPopup({ state: 'invalid', email })
-        } else {
-          setFeedbackPopup({ state: 'valid', email })
-        }
-        setIsWaiting(false)
-      })
-      setClosed()
-      setAttemptedEmail(null)
-    },
-    [signIn, setClosed]
-  )
-
-  useEffect(() => {
-    if (attemptedEmail == null) {
-      return
-    }
-    setIsWaiting(true)
-    signinCallback(attemptedEmail)
-  }, [attemptedEmail, signinCallback])
-
-  const onSubmit: SubmitHandler<SignInFormValues> = async ({ email }) => {
-    setAttemptedEmail(email)
-  }
-
-  // const router = useRouter()
-  const checkLogin = async (data: FormData) => {
-    const email = data.get('email')
-    const verificationCode = data.get('verification_code')
-    if (
-      verificationCode === null ||
-      typeof verificationCode !== 'string' ||
-      email === null ||
-      typeof email !== 'string'
-    ) {
-      return
-    }
-
-    verifyLogin({ email, verificationCode })
-      .then(({ user, session }) => {
-        console.log({ m: 'Logged in', user, session })
-      })
-      .then(() => {
-        // router.reload()
-      })
-  }
-
-  const popupText = (
-    v: { state: 'valid' | 'invalid'; email: string } | null
-  ) => {
-    if (v == null) {
-      return null
-    }
-    if (v.state === 'valid') {
-      return (
-        <>
-          <Typography>
-            An email has been sent to <b>{v.email}</b>. Please copy the code
-            from that email into the boxes below to sign in.
-          </Typography>
-          <form action={checkLogin}>
-            <input type='hidden' name='email' value={v.email} />
-            <input type='text' name='verification_code' className='font-lg' />
-            <button type='submit'>Submit</button>
-          </form>
-        </>
-      )
-    } else if (v.state === 'invalid') {
-      return (
-        <Typography>
-          The email you gave, <b>{v.email}</b>, was not found.
-        </Typography>
-      )
-    }
-  }
+export const UserSignIn: React.FC<SignInProps> = (props) => {
+  const { open, setClosed, switchToRegistration, onSubmit } = props
 
   return (
     <>
@@ -125,7 +26,7 @@ export const UserSignIn: React.FC<SignInProps> = ({
         <SmallCenteredText sx={{ pb: 1 }}>
           In order to sign in, enter the email address you used to register for
           this website. Once completed, you will receive an email with a
-          verification link. Open this link to automatically sign into the site.
+          verification code.
         </SmallCenteredText>
         <SmallCenteredText sx={{ pb: 2 }}>
           Not registered?{' '}
@@ -139,18 +40,8 @@ export const UserSignIn: React.FC<SignInProps> = ({
             Join Now
           </Link>
         </SmallCenteredText>
-        <SignInForm />
+        <SignInForm onSubmit={onSubmit} />
       </CenteredDialog>
-
-      <NotificationDialogPopup
-        open={feedbackPopup !== null}
-        onClose={() => {
-          setFeedbackPopup(null)
-        }}
-      >
-        {popupText(feedbackPopup)}
-      </NotificationDialogPopup>
-      {isWaiting ? waitingSpinner : null}
     </>
   )
 }

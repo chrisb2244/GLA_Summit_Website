@@ -2,6 +2,9 @@
 import { useState } from 'react'
 import { NewUserRegistration } from './NewUserRegistration'
 import { UserSignIn } from './UserSignIn'
+import { ValidationCodePopup } from './ValidationCodePopup'
+import { SignInFormValues } from '../Forms/SignInForm'
+import { signIn } from './SignInUpActions'
 
 export type RegistrationProps = {
   open?: boolean
@@ -22,34 +25,53 @@ export const RegistrationPopup: React.FC<
     waitingSpinner
   } = props
 
-  const [state, setState] = useState<'signup' | 'signin' | 'validation'>(initialState)
+  const [state, setState] = useState<'signup' | 'signin' | 'validation'>(
+    initialState
+  )
   const [email, setEmail] = useState<string | null>(null)
-  const moveToValidation = (email: string) => {
-    setEmail(email);
-    setState('validation');
+
+  const [isWaiting, setIsWaiting] = useState(false)
+
+  const signInSubmitHandler = (data: SignInFormValues) => {
+    setIsWaiting(true)
+    signIn(data.email)
+      .then((success) => {
+        if (success) {
+          setEmail(data.email)
+          setState('validation')
+        } else [
+          // Probably invalid email for login?
+        ]
+      })
+      .finally(() => {
+        setIsWaiting(false)
+      })
   }
 
   // Use the state checks outside of the 'open' property to avoid rendering the unused dialog
-  const elemToRender =
-    state === 'signup' ? (
-      <NewUserRegistration
-        open={open}
-        setClosed={setClosed}
-        switchToSignIn={() => setState('signin')}
-        moveToValidation={moveToValidation}
-        waitingSpinner={waitingSpinner}
-      />
-    ) : state === 'signin' ? (
-      <UserSignIn
-        open={open}
-        setClosed={setClosed}
-        switchToRegistration={() => setState('signup')}
-        moveToValidation={moveToValidation}
-        waitingSpinner={waitingSpinner}
-      />
-    ) : (
-      null
-    )
+  const elemToRender = isWaiting ? (
+    waitingSpinner
+  ) : state === 'signup' ? (
+    <NewUserRegistration
+      open={open}
+      setClosed={setClosed}
+      switchToSignIn={() => setState('signin')}
+      waitingSpinner={waitingSpinner}
+    />
+  ) : state === 'signin' ? (
+    <UserSignIn
+      open={open}
+      setClosed={setClosed}
+      switchToRegistration={() => setState('signup')}
+      onSubmit={signInSubmitHandler}
+    />
+  ) : (
+    <ValidationCodePopup
+      email={email ?? undefined}
+      open={open}
+      setClosed={setClosed}
+    />
+  )
 
   return elemToRender
 }

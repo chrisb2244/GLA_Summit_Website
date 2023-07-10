@@ -17,7 +17,6 @@ type UserRegistrationProps = {
   open: boolean
   setClosed: () => void
   switchToSignIn: () => void
-  moveToValidation: (email: string) => void
   waitingSpinner: JSX.Element
 }
 
