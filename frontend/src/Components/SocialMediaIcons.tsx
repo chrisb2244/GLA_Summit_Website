@@ -17,11 +17,7 @@ export const SocialMediaIcons: React.FC = () => {
   })
 
   return (
-    <div
-      className='flex justify-around md:self-center [&_a]:px-1'
-      role='grid'
-      aria-label='Social Media Links'
-    >
+    <div className='flex justify-around md:self-center' role='grid' aria-label='Social Media Links'>
       {icons}
     </div>
   )

@@ -1,6 +1,4 @@
 import { useEffect, useState } from 'react'
-import type { ReactNode } from 'react'
-import { Box, Container, Typography } from '@mui/material'
 
 export interface CountdownProps {
   event_start: Date
@@ -60,26 +58,15 @@ export const Countdown: React.FC<React.PropsWithChildren<CountdownProps>> = (pro
   }
 
   return (
-    <Container
-      sx={{
-        mb: 2,
-        py: 1,
-        alignItems: 'center',
-        display: 'flex',
-        flexDirection: 'column',
-        backgroundColor: 'primary.light',
-        borderRadius: '12.5%/50%',
-        width: displayProps.width
-      }}
-    >
-      <Typography variant='body1'>
+    <div className={`mb-4 py-2 items-center flex flex-col bg-primaryc.light rounded-[12.5%/50%] w-[300px] mx-auto px-4`}>
+      <div>
         {status === 'Upcoming'
           ? 'This event will start in:'
           : status === 'Live'
           ? 'This event is live for the next:'
           : null}
-      </Typography>
-      <Box title='countdown' sx={{ display: 'flex', flexDirection: 'row' }}>
+      </div>
+      <div className='flex flex-row' title='countdown'>
         {typeof status === 'undefined' ? (
           <div style={{ ...displayProps }} />
         ) : status !== 'Finished' ? (
@@ -90,32 +77,25 @@ export const Countdown: React.FC<React.PropsWithChildren<CountdownProps>> = (pro
             <CounterElem unit='Seconds'>{timerVals.seconds}</CounterElem>
           </>
         ) : (
-          <Typography variant='body1'>This event has finished.</Typography>
+          <div>This event has finished.</div>
         )}
-      </Box>
-    </Container>
+      </div>
+    </div>
   )
 }
 
-const CounterElem: React.FC<React.PropsWithChildren<{
-  unit: 'Days' | 'Hours' | 'Minutes' | 'Seconds',
-  children?: ReactNode
-}>> = (props) => {
+type CounterElemUnit = 'Days' | 'Hours' | 'Minutes' | 'Seconds'
+
+const CounterElem: React.FC<React.PropsWithChildren<{unit: CounterElemUnit}>> = (props) => {
   return (
-    <Box
-      sx={{
-        display: 'inline-block',
-        paddingInline: '10px',
-        textAlign: 'center'
-      }}
-    >
-      <Typography variant='body2' component='div' fontSize='larger'>
+    <div className='inline-block px-3 text-center'>
+      <div className='text-2xl'>
         {props.children}
-      </Typography>
-      <Typography variant='body2' component='div' fontSize='small'>
+      </div>
+      <div className='text-sm'>
         {props.unit}
-      </Typography>
-    </Box>
+      </div>
+    </div>
   )
 }
 

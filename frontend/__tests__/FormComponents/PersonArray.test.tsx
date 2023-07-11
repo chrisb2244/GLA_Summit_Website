@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event'
 import { useForm, of, useFieldArray } from 'react-hook-form'
 import { PersonArrayFormComponent } from '@/Components/Form/PersonArray'
 import type { PersonProps } from '@/Components/Form/Person'
-import { Button } from '@mui/material'
 
 type FormData = {
   people: PersonProps[]
@@ -28,15 +27,13 @@ const Form = (props: {addlabel?: string}): JSX.Element => {
         register={register}
         removePresenter={remove}
       />
-      <Button
-        fullWidth
+      <button
         onClick={() => {
           append({})
         }}
-        variant='outlined'
       >
         {props.addlabel ?? 'Add Presenter'}
-      </Button>
+      </button>
     </>
   )
 }
