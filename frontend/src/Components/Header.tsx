@@ -58,7 +58,7 @@ export const Header: React.FC = () => {
             gridColumn={2}
           >
             <Typography variant='h1'>GLA Summit</Typography>
-            <Typography variant='h4'>14-15 November, 12:00 UTC</Typography>
+            <Typography variant='h4'>14-15 November 2022</Typography>
           </Box>
         </Toolbar>
       </AppBar>
