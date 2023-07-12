@@ -1,11 +1,11 @@
-import { AgendaEntry, ScheduledAgendaEntry } from '@/Components/Agenda/Agenda'
-import type { Database } from '@/lib/sb_databaseModels'
-import { PresentationYear } from '@/Components/PresentationSummary'
-import { ContainerHint } from '@/Components/Agenda/AgendaCalculations'
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
-import type { SupabaseClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { FullAgenda } from './FullAgenda'
+import type { AgendaEntry, ScheduledAgendaEntry } from '@/Components/Agenda/Agenda'
+import type { Database } from '@/lib/sb_databaseModels'
+import type { PresentationYear } from '@/Components/PresentationSummary'
+import type { ContainerHint } from '@/Components/Agenda/AgendaCalculations'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 export const revalidate = 300
 
@@ -71,6 +71,7 @@ const getAgendaAndHints = async (supabase: SupabaseClient<Database>) => {
 const SvrFullAgenda = async () => {
   const supabase = createServerComponentClient<Database>({ cookies })
   const agendaAndHints = await getAgendaAndHints(supabase)
+  const user = (await supabase.auth.getSession()).data.session?.user
 
   return (
     <>
@@ -84,6 +85,7 @@ const SvrFullAgenda = async () => {
         <FullAgenda
           fullAgenda={agendaAndHints.fullAgenda}
           containerHints={agendaAndHints.containerHints ?? []}
+          user={user}
         />
       </div>
     </>

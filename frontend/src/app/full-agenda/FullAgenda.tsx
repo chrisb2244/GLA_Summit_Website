@@ -2,10 +2,9 @@
 import { useEffect, useReducer, useState } from 'react'
 import { Agenda, ScheduledAgendaEntry } from '@/Components/Agenda/Agenda'
 import type { Database } from '@/lib/sb_databaseModels'
-import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
+import type { RealtimePostgresChangesPayload, User } from '@supabase/supabase-js'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { ContainerHint } from '@/Components/Agenda/AgendaCalculations'
-import { useSession } from '@/lib/sessionContext'
 import { myLog } from '@/lib/utils'
 
 type DB_SubscriptionEvent = RealtimePostgresChangesPayload<
@@ -18,9 +17,9 @@ type SubscriptionEvent =
 export const FullAgenda = (props: {
   fullAgenda: ScheduledAgendaEntry[]
   containerHints: ContainerHint[]
+  user?: User
 }) => {
-  const { fullAgenda, containerHints } = props
-  const { user } = useSession()
+  const { fullAgenda, containerHints, user } = props
 
   const [hoursToShow, setHoursToShow] = useState(4.5)
   useEffect(() => {
@@ -50,7 +49,7 @@ export const FullAgenda = (props: {
 
   useEffect(() => {
     // If not signed in, should return empty array
-    if (user === null) {
+    if (typeof user === 'undefined') {
       return
     }
     try {
