@@ -72,7 +72,7 @@ export const Header: React.FC = () => {
       >
         <Toolbar disableGutters id='menu bar' sx={{ width: '100%' }}>
           <MenuBar flexGrow='1' />
-          <User flexGrow='0' pr={1} />
+          {/* <User flexGrow='0' pr={1} /> */}
         </Toolbar>
       </Box>
     </>
