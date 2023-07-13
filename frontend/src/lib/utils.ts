@@ -1,3 +1,4 @@
+import { Presentation } from '@/Components/PresentationSummary'
 import { PresentationType } from './databaseModels'
 import { createAdminClient } from './supabaseClient'
 
@@ -120,4 +121,35 @@ export const getSessionDurationInMinutes = (
     case 'session-container':
       return 60
   }
+}
+
+export const sortPresentationsBySchedule = (
+  a: Presentation,
+  b: Presentation
+) => {
+  // negative if a < b
+  // Returns "smallest" first
+  if (b.scheduledFor !== null && a.scheduledFor !== null) {
+    return (
+      -1 *
+      (new Date(b.scheduledFor).getTime() - new Date(a.scheduledFor).getTime())
+    )
+  } else if (b.scheduledFor !== null) {
+    return 1 // b has a scheduled time, a does not. b first.
+  } else if (a.scheduledFor !== null) {
+    return -1 // a has a scheduled time, b does not. a first.
+  } else {
+    return 0
+  }
+}
+
+export const sortPresentationsByPresenterName = (
+  a: Presentation,
+  b: Presentation
+) => {
+  const bPrimarySpeaker = Array.isArray(b.speakers) ? b.speakers[0] : b.speakers
+  const aPrimarySpeaker = Array.isArray(a.speakers) ? a.speakers[0] : a.speakers
+  return (
+    -1 * ('' + bPrimarySpeaker.lastname).localeCompare(aPrimarySpeaker.lastname)
+  )
 }

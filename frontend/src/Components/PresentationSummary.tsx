@@ -1,3 +1,4 @@
+'use client'
 import { Box, Paper, PaperProps, Typography } from '@mui/material'
 import { Link } from '@/lib/link'
 import type { LinkProps } from '@/lib/link'
@@ -35,9 +36,10 @@ export const PresentationSummary: React.FC<React.PropsWithChildren<PresentationP
   const speakerLine = Array.isArray(pres.speakerNames)
     ? pres.speakerNames.join(', ')
     : pres.speakerNames
-  const {
-      timezoneInfo: { timeZone, timeZoneName, use24HourClock }
-  } = useSession()
+  // const {
+  //     timezoneInfo: { timeZone, timeZoneName, use24HourClock }
+  // } = useSession()
+  const timeZone = 'UTC'; const use24HourClock = true; const timeZoneName = 'UTC';
   const dateToString = (utcDateString: string) => {
     const date = new Date(utcDateString)
     const formatter = new Intl.DateTimeFormat(undefined, {
