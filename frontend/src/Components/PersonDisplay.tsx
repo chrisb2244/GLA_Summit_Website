@@ -55,7 +55,7 @@ export const PersonDisplay: React.FC<
         src={props.image}
         alt={`Image of ${props.firstName} ${props.lastName}`}
         className='object-contain'
-        sizes="(max-width: 899px) 100vw, 30vw"
+        sizes='(max-width: 899px) 100vw, 30vw'
       />
     )
   } else {

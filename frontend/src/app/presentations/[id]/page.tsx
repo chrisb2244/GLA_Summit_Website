@@ -30,11 +30,11 @@ export async function generateStaticParams(): Promise<{ id: string }[]> {
 
 const PresentationsForYearPage: NextPage<PageProps> = async ({ params }) => {
   const pId = params.id
-
-  const supabase = createAnonServerClient()
   if (typeof pId !== 'string') {
     return null
   }
+
+  const supabase = createAnonServerClient()
 
   const presentation = await getPublicPresentation(pId, supabase).then(
     async (data) => {

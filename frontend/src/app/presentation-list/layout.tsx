@@ -3,7 +3,7 @@ import { SummitYear } from '@/lib/databaseModels'
 import NextLink from 'next/link'
 import React from 'react'
 
-const PresentationsLayout = async ({
+const PresentationListLayout = async ({
   children
 }: {
   children: React.ReactNode
@@ -46,4 +46,4 @@ const PresentationsLayout = async ({
   )
 }
 
-export default PresentationsLayout
+export default PresentationListLayout
