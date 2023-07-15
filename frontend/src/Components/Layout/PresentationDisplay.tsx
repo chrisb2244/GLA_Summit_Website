@@ -31,42 +31,50 @@ export type Schedule =
 
 type PresentationDisplayProps = {
   presentation: Presentation
+  timeZoneName?: string
   presentationId: string
+  dateToStringFn?: (datetime: string) => string
   withFavouritesButton?: boolean
 }
 
-export const PresentationDisplay: React.FC<
-  React.PropsWithChildren<PresentationDisplayProps>
-> = (props) => {
-  const { presentation, presentationId, withFavouritesButton = true } = props
-  const supabase = createClientComponentClient()
-
-  const [user, setUser] = useState<User | null>(null)
-  useEffect(() => {
-    supabase.auth.getUser().then((res) => {
-      if (res.error !== null) {
-        return
-      }
-      setUser(res.data.user)
+export const PresentationDisplay: React.FC<React.PropsWithChildren<PresentationDisplayProps>> = (
+  props
+) => {
+  const { presentation, presentationId } = props
+  const timeZoneName = props.timeZoneName ?? 'JST'
+  const dateToStringFn = props.dateToStringFn ?? ((utcDateString) => {
+    const date = new Date(utcDateString)
+    const formatter = new Intl.DateTimeFormat(undefined, {
+      timeZone: 'JST',
+      hour: 'numeric',
+      minute: '2-digit',
+      second: undefined,
+      dateStyle: undefined,
+      hour12: false
     })
-  }, [supabase.auth])
-  const showFavouritesButton = withFavouritesButton && user !== null
+    return formatter.format(date)
+  })
+  const showFavouritesButton = props.withFavouritesButton ?? true
 
-  const [isFavourite, setFavourite] = useState(false)
-  useEffect(() => {
-    supabase
-      .from('agenda_favourites')
-      .select('*')
-      .eq('presentation_id', presentationId)
-      .then(({ data, error }) => {
-        if (error) {
-          return
-        }
-        setFavourite(data !== null && data.length !== 0)
-      })
-  }, [presentationId, supabase])
+  // const { user } = useSession()
+  const user = null
+
+  // const [isFavourite, setFavourite] = useState(false)
+  // useEffect(() => {
+  //   supabase
+  //     .from('agenda_favourites')
+  //     .select('*')
+  //     .eq('presentation_id', presentationId)
+  //     .then(({ data, error }) => {
+  //       if (error) {
+  //         return
+  //       }
+  //       setFavourite(data !== null && data.length !== 0)
+  //     })
+  // }, [presentationId, supabase])
 
   let scheduleInfo = <></>
+
   if (presentation.sessionStart !== null) {
     scheduleInfo = (
       <TimestampSpan
@@ -91,53 +99,53 @@ export const PresentationDisplay: React.FC<
     </a>
   )
 
-  const handleFavouriteClick = () => {
-    if (user === null) {
-      return
-    }
-    if (isFavourite) {
-      // Remove from favourites
-      supabase
-        .from('agenda_favourites')
-        .delete()
-        .eq('presentation_id', presentationId)
-        .then(({ error }) => {
-          if (error) {
-            logErrorToDb(error.message, 'error', user.id)
-          }
-        })
-    } else {
-      // Add to favourites
-      supabase
-        .from('agenda_favourites')
-        .insert({
-          presentation_id: presentationId,
-          user_id: user.id
-        })
-        .then(({ error }) => {
-          if (error) {
-            logErrorToDb(error.message, 'error', user.id)
-          }
-        })
-    }
-    setFavourite(!isFavourite)
-  }
+  // const handleFavouriteClick = () => {
+  //   if (user === null) {
+  //     return
+  //   }
+  //   if (isFavourite) {
+  //     // Remove from favourites
+  //     supabase
+  //       .from('agenda_favourites')
+  //       .delete()
+  //       .eq('presentation_id', presentationId)
+  //       .then(({ error }) => {
+  //         if (error) {
+  //           logErrorToDb(error.message, 'error', user.id)
+  //         }
+  //       })
+  //   } else {
+  //     // Add to favourites
+  //     supabase
+  //       .from('agenda_favourites')
+  //       .insert({
+  //         presentation_id: presentationId,
+  //         user_id: user.id
+  //       })
+  //       .then(({ error }) => {
+  //         if (error) {
+  //           logErrorToDb(error.message, 'error', user.id)
+  //         }
+  //       })
+  //   }
+  //   setFavourite(!isFavourite)
+  // }
 
-  const favouriteButton = showFavouritesButton ? (
-    <div
-      className='mb-2 flex w-[fit-content] cursor-pointer flex-row rounded bg-secondaryc'
-      onClick={() => handleFavouriteClick()}
-    >
-      <Icon
-        path={isFavourite ? mdiStarRemoveOutline : mdiStarPlusOutline}
-        size={1}
-        className='m-2'
-      />
-      <span className='m-2 mr-3'>
-        {isFavourite ? 'Remove from my agenda' : 'Add to my agenda'}
-      </span>
-    </div>
-  ) : null
+  // const favouriteButton = showFavouritesButton ? (
+  //   <div
+  //     className='mb-2 flex w-[fit-content] cursor-pointer flex-row rounded bg-secondaryc'
+  //     onClick={() => handleFavouriteClick()}
+  //   >
+  //     <Icon
+  //       path={isFavourite ? mdiStarRemoveOutline : mdiStarPlusOutline}
+  //       size={1}
+  //       className='m-2'
+  //     />
+  //     <span className='m-2 mr-3'>
+  //       {isFavourite ? 'Remove from my agenda' : 'Add to my agenda'}
+  //     </span>
+  //   </div>
+  // ) : null
 
   return (
     <Paper>
@@ -150,7 +158,7 @@ export const PresentationDisplay: React.FC<
             {scheduleInfo}
             {downloadButton}
           </div>
-          {favouriteButton}
+          {/* {favouriteButton} */}
           <Box>
             {presentation.abstract.split('\r\n').map((p, idx) => {
               return <Typography key={`p${idx}`}>{p}</Typography>
