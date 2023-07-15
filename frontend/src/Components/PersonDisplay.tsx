@@ -106,7 +106,7 @@ export const PersonDisplay: React.FC<
           </div>
         </div>
         <div
-          className={`min-h-[200px] w-full md:w-[30%] ${paddingCName}  my-4 ${imgDispCName} relative flex flex-row justify-center `}
+          className={`relative w-full md:w-[30%] min-h-[200px] ${paddingCName}  my-4 ${imgDispCName} flex flex-row justify-center `}
         >
           {imageElem}
         </div>
