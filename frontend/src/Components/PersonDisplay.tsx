@@ -54,14 +54,15 @@ export const PersonDisplay: React.FC<
         fill
         src={props.image}
         alt={`Image of ${props.firstName} ${props.lastName}`}
-        style={{ objectFit: 'contain' }}
+        className='object-contain'
+        sizes="(max-width: 899px) 100vw, 30vw"
       />
     )
   } else {
     // No image
     if (props.useDefaultIconImage) {
       isDefaultImage = true
-      imageElem = <Icon path={mdiAccount} />
+      imageElem = <Icon path={mdiAccount} size={8} />
     }
   }
 
@@ -82,11 +83,11 @@ export const PersonDisplay: React.FC<
     if (typeof pageLink !== 'undefined') {
       return (
         <NextLink href={pageLink}>
-          <h4>{children}</h4>
+          <span className='text-3xl link pr-1'>{children}</span>
         </NextLink>
       )
     } else {
-      return <h4 className='text-4xl'>{children}</h4>
+      return <h4 className='text-3xl'>{children}</h4>
     }
   }
   const paddingCName = props.stripContainer ? 'p-0' : 'p-4'
@@ -95,9 +96,9 @@ export const PersonDisplay: React.FC<
   return (
     <div className={props.stripContainer ? '' : 'rounded shadow'}>
       <div
-        className={`flex flex-col ${md_direction} content-center justify-around`}
+        className={`flex flex-col ${md_direction} justify-around content-center `}
       >
-        <div className={`w-full md:w-3/5 ${paddingCName} items-center`}>
+        <div className={`w-full md:w-3/5 ${paddingCName} my-auto items-center`}>
           <TitleComponent>
             {props.firstName} {props.lastName}
           </TitleComponent>
@@ -106,7 +107,7 @@ export const PersonDisplay: React.FC<
           </div>
         </div>
         <div
-          className={`relative w-full md:w-[30%] min-h-[200px] ${paddingCName}  my-4 ${imgDispCName} flex flex-row justify-center `}
+          className={`relative w-full md:w-[30%] min-h-[200px] my-auto ${paddingCName} ${imgDispCName} flex flex-row justify-center`}
         >
           {imageElem}
         </div>
