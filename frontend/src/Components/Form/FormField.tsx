@@ -1,6 +1,7 @@
 import { type FieldError, UseFormRegisterReturn } from 'react-hook-form'
 import { type VariantProps, cva } from 'class-variance-authority'
 import type { HTMLInputTypeAttribute, HTMLProps } from 'react'
+import React from 'react'
 
 const inputFieldStyles = cva(
   'px-4 pt-3 pb-1 peer placeholder-transparent border focus-visible:outline-none text-lg',
@@ -17,13 +18,17 @@ const inputFieldStyles = cva(
   }
 )
 
-type FormFieldProps = {
+type FormProps = {
   registerReturn: UseFormRegisterReturn
   fieldError: FieldError | undefined
   type?: HTMLInputTypeAttribute
   placeholder?: string
   hidden?: boolean
-} & VariantProps<typeof inputFieldStyles> & Omit<HTMLProps<HTMLInputElement>, 'type'>
+}
+
+type FormFieldProps = FormProps &
+  VariantProps<typeof inputFieldStyles> &
+  Omit<HTMLProps<HTMLInputElement>, 'type'>
 
 // This provides a wrapper for the TextField, providing the error behaviour.
 export const FormField: React.FC<FormFieldProps> = (props) => {
@@ -36,35 +41,6 @@ export const FormField: React.FC<FormFieldProps> = (props) => {
 
   // IMPORTANT:
   // The peer selectors require that the input is before the label in the DOM.
-  const labelAlways = 'absolute block z-[1] transition-all'
-  const labelRaised = [
-    'text-gray-700',
-    'text-sm',
-    '-top-2',
-    'left-2',
-    'bg-inherit',
-    'peer-focus:text-gray-700',
-    'peer-focus:text-sm',
-    'peer-focus:-top-2',
-    'peer-focus:left-2',
-    'peer-focus:bg-inherit'
-  ].join(' ')
-  const labelPlaceholder = [
-    'peer-placeholder-shown:text-gray-500',
-    'peer-placeholder-shown:text-base',
-    'peer-placeholder-shown:top-4',
-    'peer-placeholder-shown:left-4'
-  ].join(' ')
-
-  // Define separately for use styling the label and the error message
-  const errorTextClassNames = 'text-red-700'
-
-  const errorMessage = isError ? (
-    <span className={errorTextClassNames} role='alert'>
-      {fieldError.message}
-    </span>
-  ) : null
-
   return (
     <div
       className={`inline-flex flex-col relative align-top mt-2 mb-4 ${
@@ -75,7 +51,10 @@ export const FormField: React.FC<FormFieldProps> = (props) => {
         id={id}
         type={props.type ?? 'text'}
         autoComplete='email'
-        className={inputFieldStyles({ fullWidth, readOnly: inputProps.readOnly ?? false })}
+        className={inputFieldStyles({
+          fullWidth,
+          readOnly: inputProps.readOnly ?? false
+        })}
         placeholder={props.placeholder ?? id}
         {...registerReturn}
         {...inputProps}
@@ -89,7 +68,80 @@ export const FormField: React.FC<FormFieldProps> = (props) => {
       >
         {props.label ?? id}
       </label>
-      {errorMessage}
+      <ErrorMessage error={fieldError} />
     </div>
   )
 }
+
+type TextAreaProps = FormProps &
+  VariantProps<typeof inputFieldStyles> &
+  HTMLProps<HTMLTextAreaElement>
+
+export const TextArea: React.FC<TextAreaProps> = (props) => {
+  const { registerReturn, fieldError, fullWidth, ...inputProps } = props
+  const isError = typeof fieldError !== 'undefined'
+  const id = registerReturn.name
+  
+  return (
+    <div
+      className={`inline-flex flex-col relative align-top mt-2 mb-4 ${
+        fullWidth ? 'w-full' : ''
+      } ${props.hidden ? 'hidden' : ''}`}
+    >
+      <textarea
+        id={id}
+        className={inputFieldStyles({
+          fullWidth,
+          readOnly: inputProps.readOnly ?? false
+        })}
+        placeholder={props.placeholder ?? id}
+        {...registerReturn}
+        {...inputProps}
+      />
+      <label
+        id={`${id}-label`}
+        htmlFor={id}
+        className={`${
+          isError ? errorTextClassNames : ''
+        } ${labelAlways} ${labelRaised} ${labelPlaceholder}`}
+      >
+        {props.label ?? id}
+      </label>
+      <ErrorMessage error={fieldError} />
+    </div>
+  )
+}
+
+const ErrorMessage = ({ error }: { error: FieldError | undefined }) => {
+  const isError = typeof error !== 'undefined'
+  return isError ? (
+    <span className={errorTextClassNames} role='alert'>
+      {error.message}
+    </span>
+  ) : null
+}
+
+// IMPORTANT:
+// The peer selectors require that the input is before the label in the DOM.
+const labelAlways = 'absolute block z-[1] transition-all'
+const labelRaised = [
+  'text-gray-700',
+  'text-sm',
+  '-top-2',
+  'left-2',
+  'bg-inherit',
+  'peer-focus:text-gray-700',
+  'peer-focus:text-sm',
+  'peer-focus:-top-2',
+  'peer-focus:left-2',
+  'peer-focus:bg-inherit'
+].join(' ')
+const labelPlaceholder = [
+  'peer-placeholder-shown:text-gray-500',
+  'peer-placeholder-shown:text-base',
+  'peer-placeholder-shown:top-4',
+  'peer-placeholder-shown:left-4'
+].join(' ')
+
+// Define separately for use styling the label and the error message
+const errorTextClassNames = 'text-red-700'
