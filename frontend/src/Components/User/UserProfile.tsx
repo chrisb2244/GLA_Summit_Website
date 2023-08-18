@@ -1,3 +1,4 @@
+'use client'
 import { Box, Button, Grid, Stack, TextField } from '@mui/material'
 import { useReducer, useState } from 'react'
 import { clientUpdateExistingProfile } from '@/lib/databaseFunctions'
@@ -6,13 +7,17 @@ import type { ProfileModel } from '@/lib/databaseModels'
 import type { ChangeEvent } from 'react'
 import type { KeyedMutator } from 'swr'
 
-type ProfileData = ProfileModel['Row'] 
+type ProfileData = ProfileModel['Row']
 type ProfileKey = keyof Omit<ProfileData, 'updated_at'>
 
 const areEqual = (a: ProfileData, b: ProfileData) => {
   if (a === null || b === null) return false
-  const aKeys = Object.keys(a).filter(key => key !== 'updated_at') as Array<ProfileKey>
-  const bKeys = Object.keys(b).filter(key => key !== 'updated_at') as Array<ProfileKey>
+  const aKeys = Object.keys(a).filter(
+    (key) => key !== 'updated_at'
+  ) as Array<ProfileKey>
+  const bKeys = Object.keys(b).filter(
+    (key) => key !== 'updated_at'
+  ) as Array<ProfileKey>
   return (
     bKeys.every(function (i) {
       return aKeys.indexOf(i) !== -1
@@ -24,30 +29,40 @@ const areEqual = (a: ProfileData, b: ProfileData) => {
 }
 
 type UserProfileProps = {
-  profile: ProfileData,
-  userEmail: string,
-  mutate: KeyedMutator<ProfileData>
+  profile: ProfileData
+  userEmail: string
+  mutate?: KeyedMutator<ProfileData>
 }
 
-export const UserProfile: React.FC<React.PropsWithChildren<UserProfileProps>> = ({profile, mutate, userEmail }) => {
+export const UserProfile: React.FC<
+  React.PropsWithChildren<UserProfileProps>
+> = ({ profile, mutate, userEmail }) => {
   const [valuesChanged, setValuesChanged] = useState(false)
   const [updating, setUpdating] = useState(false)
 
   const submitUpdate = async () => {
     setUpdating(true)
-    mutate(() => {
-      return clientUpdateExistingProfile(localProfileData)
-    }, {
-      optimisticData: localProfileData,
-      revalidate: false, // Acquired by the clientUpdateExistingProfile function
-      rollbackOnError: true,
-      populateCache: (updatedData: ProfileData) => {
-        const returnedValuesEqualToSetValues = areEqual(updatedData, localProfileData)
-        setValuesChanged(!returnedValuesEqualToSetValues)
-        setUpdating(false)
-        return updatedData
-      }
-    })
+    if (typeof mutate !== 'undefined') {
+      mutate(
+        () => {
+          return clientUpdateExistingProfile(localProfileData)
+        },
+        {
+          optimisticData: localProfileData,
+          revalidate: false, // Acquired by the clientUpdateExistingProfile function
+          rollbackOnError: true,
+          populateCache: (updatedData: ProfileData) => {
+            const returnedValuesEqualToSetValues = areEqual(
+              updatedData,
+              localProfileData
+            )
+            setValuesChanged(!returnedValuesEqualToSetValues)
+            setUpdating(false)
+            return updatedData
+          }
+        }
+      )
+    }
   }
 
   const updateProfileField = (
@@ -69,7 +84,10 @@ export const UserProfile: React.FC<React.PropsWithChildren<UserProfileProps>> = 
     return newProfileData
   }
 
-  const [localProfileData, setProfileField] = useReducer(updateProfileField, profile)
+  const [localProfileData, setProfileField] = useReducer(
+    updateProfileField,
+    profile
+  )
 
   const onChangeFn =
     (key: ProfileKey) => (ev: ChangeEvent<HTMLInputElement>) => {
@@ -90,12 +108,7 @@ export const UserProfile: React.FC<React.PropsWithChildren<UserProfileProps>> = 
       <Stack direction={{ xs: 'column', md: 'row' }}>
         <Box m={2} width='80%' alignSelf={{ xs: 'center', md: 'flex-start' }}>
           <Box p={2}>
-            <TextField
-              fullWidth
-              label='Email'
-              value={userEmail}
-              disabled
-            />
+            <TextField fullWidth label='Email' value={userEmail} disabled />
           </Box>
           <Grid container p={2} spacing={2}>
             <Grid item xs={12} sm={6}>
@@ -122,7 +135,11 @@ export const UserProfile: React.FC<React.PropsWithChildren<UserProfileProps>> = 
             if (box) setImageSize(box.clientWidth)
           }}
         >
-          <UserProfileImage userId={profile.id} size={imageSize} avatarUrl={profile.avatar_url} />
+          <UserProfileImage
+            userId={profile.id}
+            size={imageSize}
+            avatarUrl={profile.avatar_url}
+          />
         </Box>
       </Stack>
       <Button
@@ -130,7 +147,7 @@ export const UserProfile: React.FC<React.PropsWithChildren<UserProfileProps>> = 
         disabled={
           !valuesChanged ||
           localProfileData.firstname === '' ||
-          localProfileData.lastname === '' || 
+          localProfileData.lastname === '' ||
           updating
         }
       >

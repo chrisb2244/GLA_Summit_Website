@@ -1,5 +1,5 @@
 import useSWRImmutable from 'swr/immutable'
-import type { ScopedMutator } from 'swr/dist/types'
+import type { KeyedMutator, ScopedMutator } from 'swr/dist/types'
 import { downloadAvatar, uploadAvatar } from './databaseFunctions'
 
 export const uploadProfileImage = async (
@@ -17,8 +17,8 @@ export const uploadProfileImage = async (
 
 export const useProfileImage = (
   userId: string | null
-): { loading: boolean; src: string } | null => {
-  const { data, error, isValidating } = useSWRImmutable(
+): { loading: boolean; src: string; mutate: KeyedMutator<Blob | null> } | null => {
+  const { data, error, isValidating, mutate } = useSWRImmutable(
     userId,
     downloadAvatar
   )
@@ -27,7 +27,8 @@ export const useProfileImage = (
   if (!!data) {
     return {
       loading: isValidating,
-      src: URL.createObjectURL(data) // 'blob:http://localhost:3000/some-Hexademical-Bits-Here'
+      src: URL.createObjectURL(data), // 'blob:http://localhost:3000/some-Hexademical-Bits-Here'
+      mutate
     }
   }
   return null
