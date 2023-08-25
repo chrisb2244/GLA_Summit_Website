@@ -453,7 +453,7 @@ export interface Database {
           }
       get_reviewable_submissions: {
         Args: {
-          year: string
+          target_year: Database["public"]["Enums"]["summit_year"]
         }
         Returns: {
           presentation_id: string
@@ -461,7 +461,8 @@ export interface Database {
           abstract: string
           presentation_type: Database["public"]["Enums"]["presentation_type"]
           learning_points: string
-          presenters: Json
+          submitter_id: string
+          presenters: Database["public"]["CompositeTypes"]["presenter_info"][]
           updated_at: string
         }[]
       }
@@ -501,7 +502,11 @@ export interface Database {
       summit_year: "2020" | "2021" | "2022" | "2023"
     }
     CompositeTypes: {
-      [_ in never]: never
+      presenter_info: {
+        id: string
+        firstname: string
+        lastname: string
+      }
     }
   }
 }
