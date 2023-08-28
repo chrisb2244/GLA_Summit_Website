@@ -33,6 +33,7 @@ export const SignInForm = (props: SignInFormProps) => {
       <FormField
         label='Email'
         type='email'
+        autoComplete='email'
         placeholder='my.email@glasummit.org'
         registerReturn={register('email', {
           required: 'Required',

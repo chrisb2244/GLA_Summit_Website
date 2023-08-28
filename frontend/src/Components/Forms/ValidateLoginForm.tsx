@@ -22,7 +22,7 @@ export const ValidateLoginForm = (props: {email?: string, showEmail?: boolean}) 
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col '>
-      <FormField registerReturn={register('email')} fieldError={errors.email} label='Email' hidden={hideEmail} value={props.email} readOnly={typeof props.email !== 'undefined'}/>
+      <FormField registerReturn={register('email')} fieldError={errors.email} label='Email' hidden={hideEmail} value={props.email} readOnly={typeof props.email !== 'undefined'} autoComplete='email'/>
       <FormField registerReturn={register('verificationCode')} fieldError={errors.verificationCode} type='text' required label='Verification Code'/>
       <Button type='submit'>Submit</Button>
     </form>
