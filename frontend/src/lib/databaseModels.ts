@@ -3,6 +3,7 @@ import { Database } from './sb_databaseModels'
 export type PresentationType = Database['public']['Enums']['presentation_type']
 
 export type SummitYear = Database['public']['Enums']['summit_year']
+export const currentWebsiteYear: SummitYear = '2023'
 
 // Awkward typing code to check that years are exhaustively covered
 // This prevents an issue in which updating the database type (e.g. to add another year)

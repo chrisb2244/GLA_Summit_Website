@@ -3,6 +3,7 @@ import { FormSubmissionEmail } from '@/EmailTemplates/FormSubmissionEmail'
 import { buildSubmitterName, P } from '@/EmailTemplates/emailComponents'
 import { PersonProps } from '@/Components/Form/Person'
 import { adminAddNewPresentationSubmission, adminUpdateExistingPresentationSubmission } from './databaseFunctions'
+import { currentWebsiteYear } from './databaseModels'
 
 export const uploadPresentationData = async (
   formData: FormData,
@@ -15,7 +16,8 @@ export const uploadPresentationData = async (
     title: formData.title,
     abstract: formData.abstract,
     learning_points: formData.learningPoints,
-    presentation_type: formData.presentationType
+    presentation_type: formData.presentationType,
+    year: currentWebsiteYear
   }
   if (typeof presentationId === 'undefined') {
     return adminAddNewPresentationSubmission(content)
