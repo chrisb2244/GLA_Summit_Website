@@ -4,9 +4,10 @@ import { Popover, Transition } from '@headlessui/react'
 import { mdiMenu } from '@mdi/js'
 import { Icon } from '@mdi/react'
 import NextLink from 'next/link'
+import { MenuElement } from './MenuBar'
 
 export const MobileMenuItems = (props: {
-  menuElements: Array<{ title: string; link: string }>
+  menuElements: MenuElement[]
 }) => {
   return (
     <Popover>

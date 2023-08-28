@@ -1,8 +1,14 @@
+import type { Route } from 'next'
 import { DesktopMenuItems } from './DesktopMenuItems'
 import { MobileMenuItems } from './MobileMenuItems'
 
+export type MenuElement = {
+  title: string,
+  link: Route
+}
+
 export const MenuBar = () => {
-  const menuElements = [
+  const menuElements: MenuElement[] = [
     { title: 'Home', link: '/' },
     // { title: 'Agenda', link: '/full-agenda' },
     // { title: 'Presentations', link: '/presentations' },
