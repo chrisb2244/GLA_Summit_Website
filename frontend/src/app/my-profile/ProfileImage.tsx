@@ -51,14 +51,17 @@ export const ProfileImage = (props: ProfileImageProps) => {
   return (
     <>
       <div className='relative flex-grow'>{avatar}</div>
-      <FileButton
-        className='w-full h-full bg-red-300 flex'
-        id='image-input'
-        accept='image/*'
-        onChange={changeHandler}
-      >
-        {uploading ? 'Uploading' : 'Change Image'}
-      </FileButton>
+      <div className='mx-4 mt-2 flex'>
+        <FileButton
+          className='mx-4 mt-2'
+          id='image-input'
+          accept='image/*'
+          onChange={changeHandler}
+          fullWidth
+        >
+          {uploading ? 'Uploading' : 'Change Image'}
+        </FileButton>
+      </div>
     </>
   )
 }

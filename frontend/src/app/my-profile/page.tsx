@@ -1,4 +1,3 @@
-import { UserProfile } from '@/Components/User/UserProfile'
 import { Database } from '@/lib/sb_databaseModels'
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
@@ -46,13 +45,10 @@ const ProfilePage = async () => {
         </div>
 
         {/* Profile image */}
-        <div className='flex flex-col w-4/5 md:w-1/5 self-center min-h-[200px] md:min-h-[300px] '>
+        <div className='flex flex-col w-4/5 md:w-1/5 self-center min-h-[80vw] md:min-h-[300px] '>
           <ProfileImage userId={userId} avatarUrl={data.avatar_url} />
         </div>
       </div>
-
-      <div className='border border-black h-2 w-full my-4' />
-      <UserProfile profile={data} userEmail={user.email ?? 'Email Not Found'} />
     </Wrapper>
   )
 }
