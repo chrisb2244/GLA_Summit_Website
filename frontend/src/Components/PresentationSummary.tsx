@@ -38,7 +38,7 @@ export function PresentationSummary<T extends string>({presentation: pres, pageL
     const date = new Date(utcDateString)
     const formatter = new Intl.DateTimeFormat(undefined, {
       timeZone: timeZone,
-      hour: 'numeric',
+      hour: '2-digit',
       minute: '2-digit',
       second: undefined,
       dateStyle: undefined,
