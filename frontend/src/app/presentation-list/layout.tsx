@@ -33,7 +33,7 @@ const PresentationsLayout = async ({
       <div className='flex flex-row space-x-4 py-2'>
         {years.map((y) => {
           return (
-            <NextLink key={y} href={`/presentations/${y}`}>
+            <NextLink key={y} href={`/presentation-list/${y}`}>
               <Button type='button'>{y}</Button>
             </NextLink>
           )
