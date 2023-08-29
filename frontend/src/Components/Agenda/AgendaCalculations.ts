@@ -1,5 +1,5 @@
+import { SummitYear } from '@/lib/databaseModels'
 import { myLog } from '@/lib/utils'
-import { PresentationYear } from '../PresentationSummary'
 
 export type PresentationPlottingInfo = {
   style: {
@@ -18,7 +18,7 @@ export type ContainerHint = {
   abstract: string
   container_id: string
   presentation_ids: string[]
-  year: PresentationYear
+  year: SummitYear
 }
 
 type PresentationPlottingHints = {

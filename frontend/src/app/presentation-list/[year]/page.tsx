@@ -9,7 +9,6 @@ import {
   sortPresentationsByPresenterName,
   sortPresentationsBySchedule
 } from '@/lib/utils'
-import { Route } from 'next'
 
 type PageProps = {
   params: {

@@ -1,7 +1,6 @@
 'use client'
 import { Box, Paper, PaperProps, Typography } from '@mui/material'
-import { Database } from '@/lib/sb_databaseModels'
-import { PresentationType } from '@/lib/databaseModels'
+import { PresentationType, SummitYear } from '@/lib/databaseModels'
 import { useSession } from '@/lib/sessionContext'
 import Link from 'next/link'
 import type { Route } from 'next'
@@ -10,14 +9,13 @@ export type Presenter = {
   firstname: string
   lastname: string
 }
-export type PresentationYear = Database['public']['Enums']['summit_year']
 export type Presentation = {
   title: string
   abstract: string
   speakers: Presenter | Presenter[]
   speakerNames: string | string[],
   presentationId: string
-  year: PresentationYear
+  year: SummitYear
   scheduledFor: string | null
   presentationType: PresentationType
 }

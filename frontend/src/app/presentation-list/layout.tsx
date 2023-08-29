@@ -1,5 +1,5 @@
 import { Button } from '@/Components/Form/Button'
-import type { PresentationYear } from '@/Components/PresentationSummary'
+import { SummitYear } from '@/lib/databaseModels'
 import NextLink from 'next/link'
 import React from 'react'
 
@@ -10,7 +10,7 @@ const PresentationsLayout = async ({
 }) => {
   const showAgendaLink = true
 
-  const years: PresentationYear[] = ['2022', '2021']
+  const years: SummitYear[] = ['2022', '2021']
 
   return (
     <div>

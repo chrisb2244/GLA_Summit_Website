@@ -1,4 +1,4 @@
-import type { PresentationYear } from '@/Components/PresentationSummary'
+import type { SummitYear } from '@/lib/databaseModels'
 import { ArrowForwardIosSharp } from '@mui/icons-material'
 import {
   Accordion,
@@ -10,7 +10,7 @@ import {
 import { useState } from 'react'
 
 type YearGroupedPresenterProps = {
-  year: PresentationYear
+  year: SummitYear
   elements: JSX.Element[]
   initiallyOpen?: boolean
   disableAccordion?: boolean

@@ -3,9 +3,9 @@ import { cookies } from 'next/headers'
 import { FullAgenda } from './FullAgenda'
 import type { AgendaEntry, ScheduledAgendaEntry } from '@/Components/Agenda/Agenda'
 import type { Database } from '@/lib/sb_databaseModels'
-import type { PresentationYear } from '@/Components/PresentationSummary'
 import type { ContainerHint } from '@/Components/Agenda/AgendaCalculations'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import type { SummitYear } from '@/lib/databaseModels'
 
 export const revalidate = 300
 
@@ -19,7 +19,7 @@ const getAgendaAndHints = async (supabase: SupabaseClient<Database>) => {
       containerHints
     }
   }
-  const year: PresentationYear = '2022'
+  const year: SummitYear = '2022'
 
   const { data: agenda, error } = await supabase
     .from('all_presentations')
