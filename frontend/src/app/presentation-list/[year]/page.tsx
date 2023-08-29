@@ -9,6 +9,7 @@ import {
   sortPresentationsByPresenterName,
   sortPresentationsBySchedule
 } from '@/lib/utils'
+import { Route } from 'next'
 
 type PageProps = {
   params: {
@@ -56,15 +57,20 @@ const PresentationsForYearPage = async (props: PageProps) => {
       return byName !== 0 ? byName : bySchedule
     })
     .map((p) => {
-      let href = '/presentations/' + p.presentationId
-      if (p.presentationType === 'panel') {
-        // ToDo - in a future year, fix this rather than being hardcoded
-        const isOS = p.title === 'How to make Open-Source more worthwhile?'
-        href = '/panels/' + (isOS ? 'open-source' : 'labview-and-python')
-      }
       return (
         <div key={p.title} className='pb-2'>
-          <PresentationSummary presentation={p} pageLink={href} />
+          <PresentationSummary
+            presentation={p}
+            pageLink={
+              p.presentationType !== 'panel'
+                ? `/presentations/${p.presentationId}`
+                : `/panels/${
+                    p.title === 'How to make Open-Source more worthwhile?'
+                      ? 'open-source'
+                      : 'labview-and-python'
+                  }`
+            }
+          />
         </div>
       )
     })

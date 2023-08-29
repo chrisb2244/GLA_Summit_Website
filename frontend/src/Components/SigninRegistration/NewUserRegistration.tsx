@@ -63,7 +63,7 @@ export const NewUserRegistration: React.FC<
           This site is currently mostly focused on presentation submission,
           although last year&apos;s presentations can be found at{' '}
           {
-            <NextLink href={'/presentations'}>
+            <NextLink href={'/presentation-list'}>
               <span className='underline cursor-pointer'>
                 https://glasummit.org/presentations
               </span>

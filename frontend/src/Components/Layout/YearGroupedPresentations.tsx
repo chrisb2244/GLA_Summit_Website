@@ -11,6 +11,7 @@ import {
   Box,
   Typography
 } from '@mui/material'
+import { Route } from 'next'
 import { useState } from 'react'
 
 type YearGroupedPresentationsProps = {
@@ -49,17 +50,19 @@ export const YearGroupedPresentations: React.FC<React.PropsWithChildren<YearGrou
       return byName !== 0 ? byName : bySchedule
     })
     .map((p) => {
-      let link = '/presentations/' + p.presentationId
-      if (p.presentationType === 'panel') {
-        // ToDo - in a future year, fix this rather than being hardcoded
-        const isOS = p.title === 'How to make Open-Source more worthwhile?'
-        link = '/panels/' + (isOS ? 'open-source' : 'labview-and-python')
-      }
       return (
         <Box pb={1} key={p.title}>
           <PresentationSummary
             presentation={p}
-            pageLink={link}
+            pageLink={
+              p.presentationType !== 'panel'
+                ? `/presentations/${p.presentationId}`
+                : `/panels/${
+                    p.title === 'How to make Open-Source more worthwhile?'
+                      ? 'open-source'
+                      : 'labview-and-python'
+                  }`
+            }
             paperProps={{
               elevation: 2,
               sx: {

@@ -3,6 +3,7 @@ import Image, { StaticImageData } from 'next/image'
 import { mdiAccount } from '@mdi/js'
 import Icon from '@mdi/react'
 import NextLink from 'next/link'
+import type { Route } from 'next'
 
 export interface PersonDisplayProps {
   firstName: string
@@ -12,7 +13,7 @@ export interface PersonDisplayProps {
   imageSide?: 'left' | 'right'
   useDefaultIconImage?: boolean
   stripContainer?: boolean
-  pageLink?: string
+  pageLink?: Route
 }
 
 export const PersonDisplay: React.FC<

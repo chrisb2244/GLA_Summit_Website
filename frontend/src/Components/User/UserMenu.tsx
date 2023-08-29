@@ -2,16 +2,24 @@
 import { Popover, Transition } from '@headlessui/react'
 import { mdiLogout, mdiMonitorAccount } from '@mdi/js'
 import { Icon } from '@mdi/react'
-import React, { useEffect, useState } from 'react'
+import React, { PropsWithChildren, useEffect, useState } from 'react'
 import NextLink from 'next/link'
 import { useProfileImage } from '@/lib/profileImage'
 import { getProfileInfo, type User } from '@/lib/databaseFunctions'
 import type { ProfileModel } from '@/lib/databaseModels'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useRouter } from 'next/navigation'
+import { Route } from 'next'
 
 type UserMenuProps = {
   user: User
+}
+
+type UserMenuEntry = {
+  title: string
+  href: Route | undefined
+  imgObj: React.JSX.Element
+  clickFn?: () => void
 }
 
 export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
@@ -67,7 +75,7 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
     )
   }
 
-  const menuObjs = [
+  const menuObjs: UserMenuEntry[] = [
     {
       title: 'My Profile',
       href: '/my-profile',
@@ -89,6 +97,16 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
       clickFn: signOut
     }
   ]
+
+  const WrapperElement: React.FC<
+    PropsWithChildren<{ href: Route | undefined }>
+  > = ({ href, children }) => {
+    if (typeof href !== 'undefined') {
+      return <NextLink href={href}>{children}</NextLink>
+    } else {
+      return <div>{children}</div>
+    }
+  }
 
   return (
     <>
@@ -165,7 +183,7 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
                   <ul>
                     {menuObjs.map(({ title, href, imgObj, clickFn }) => {
                       return (
-                        <NextLink href={href ?? ''} key={title}>
+                        <WrapperElement href={href} key={title}>
                           <li
                             className='py-[6px] px-4 flex flex-row h-8'
                             onClick={() => {
@@ -176,7 +194,7 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
                             {imgObj}
                             <p className='tracking-[0.00938em]'>{title}</p>
                           </li>
-                        </NextLink>
+                        </WrapperElement>
                       )
                     })}
                   </ul>

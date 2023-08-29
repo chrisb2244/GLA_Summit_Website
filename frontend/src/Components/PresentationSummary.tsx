@@ -1,10 +1,10 @@
 'use client'
 import { Box, Paper, PaperProps, Typography } from '@mui/material'
-import { Link } from '@/lib/link'
-import type { LinkProps } from '@/lib/link'
 import { Database } from '@/lib/sb_databaseModels'
 import { PresentationType } from '@/lib/databaseModels'
 import { useSession } from '@/lib/sessionContext'
+import Link from 'next/link'
+import type { Route } from 'next'
 
 export type Presenter = {
   firstname: string
@@ -22,17 +22,13 @@ export type Presentation = {
   presentationType: PresentationType
 }
 
-export type PresentationProps = {
+export type PresentationProps<T extends string> = {
   presentation: Presentation
-  pageLink?: string
+  pageLink: Route<T>
   paperProps?: PaperProps
 }
 
-export const PresentationSummary: React.FC<React.PropsWithChildren<PresentationProps>> = ({
-  presentation: pres,
-  pageLink,
-  paperProps
-}) => {
+export function PresentationSummary<T extends string>({presentation: pres, pageLink, paperProps}: PresentationProps<T>) {
   const speakerLine = Array.isArray(pres.speakerNames)
     ? pres.speakerNames.join(', ')
     : pres.speakerNames
@@ -69,22 +65,22 @@ export const PresentationSummary: React.FC<React.PropsWithChildren<PresentationP
     </Typography>
   )
 
-  const TitleComponent: React.FC<React.PropsWithChildren<LinkProps>> = ({ children, ...props }) => {
-    if (typeof pageLink !== 'undefined') {
+  const TitleComponent: React.FC<React.PropsWithChildren<{link?: Route}>> = ({ link, children }) => {
+    if (typeof link !== 'undefined') {
       return (
-        <Link href={pageLink} {...props}>
+        <Link href={link}>
           {children}
         </Link>
       )
     } else {
-      return <Typography {...props}>{children}</Typography>
+      return <Typography variant='h6'>{children}</Typography>
     }
   }
 
   return (
     <Paper {...paperProps}>
       <Box p={2}>
-        <TitleComponent variant='h6'>{pres.title}</TitleComponent>
+        <TitleComponent >{pres.title}</TitleComponent>
         <Typography variant='subtitle1' fontStyle='italic'>
           {speakerLine}
         </Typography>
