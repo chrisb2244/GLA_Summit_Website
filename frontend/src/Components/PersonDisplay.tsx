@@ -95,18 +95,18 @@ export const PersonDisplay: React.FC<
   return (
     <div className={props.stripContainer ? '' : 'rounded shadow'}>
       <div
-        className={`flex flex-col ${md_direction} justify-around content-center`}
+        className={`flex flex-col ${md_direction} content-center justify-around`}
       >
         <div className={`w-full md:w-3/5 ${paddingCName} items-center`}>
           <TitleComponent>
             {props.firstName} {props.lastName}
           </TitleComponent>
-          <div className='text-justify whitespace-pre-wrap text-lg my-4 space-y-4'>
+          <div className='my-4 space-y-4 whitespace-pre-wrap text-justify text-lg'>
             {descriptionElem}
           </div>
         </div>
         <div
-          className={`w-full md:w-[30%] min-h-[200px] ${paddingCName}  my-4 ${imgDispCName} flex flex-row justify-center `}
+          className={`min-h-[200px] w-full md:w-[30%] ${paddingCName}  my-4 ${imgDispCName} relative flex flex-row justify-center `}
         >
           {imageElem}
         </div>
