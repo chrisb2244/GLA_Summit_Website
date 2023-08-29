@@ -21,13 +21,19 @@ type YearGroupedPresentationsProps = {
   disableAccordion?: boolean
 }
 
-export const YearGroupedPresentations: React.FC<React.PropsWithChildren<YearGroupedPresentationsProps>> = ({ year, presentations, initiallyOpen, disableAccordion }) => {
+export const YearGroupedPresentations: React.FC<
+  React.PropsWithChildren<YearGroupedPresentationsProps>
+> = ({ year, presentations, initiallyOpen, disableAccordion }) => {
   const [open, setOpen] = useState(initiallyOpen ?? false)
   const sortBySchedule = (a: Presentation, b: Presentation) => {
     // negative if a < b
     // Returns "smallest" first
     if (b.scheduledFor !== null && a.scheduledFor !== null) {
-      return -1 * (new Date(b.scheduledFor).getTime() - new Date(a.scheduledFor).getTime())
+      return (
+        -1 *
+        (new Date(b.scheduledFor).getTime() -
+          new Date(a.scheduledFor).getTime())
+      )
     } else if (b.scheduledFor !== null) {
       return 1 // b has a scheduled time, a does not. b first.
     } else if (a.scheduledFor !== null) {
@@ -37,10 +43,17 @@ export const YearGroupedPresentations: React.FC<React.PropsWithChildren<YearGrou
     }
   }
 
-  const sortByName = (a:Presentation, b: Presentation) => {
-    const bPrimarySpeaker = Array.isArray(b.speakers) ? b.speakers[0] : b.speakers
-    const aPrimarySpeaker = Array.isArray(a.speakers) ? a.speakers[0] : a.speakers
-    return -1 * ('' + bPrimarySpeaker.lastname).localeCompare(aPrimarySpeaker.lastname)
+  const sortByName = (a: Presentation, b: Presentation) => {
+    const bPrimarySpeaker = Array.isArray(b.speakers)
+      ? b.speakers[0]
+      : b.speakers
+    const aPrimarySpeaker = Array.isArray(a.speakers)
+      ? a.speakers[0]
+      : a.speakers
+    return (
+      -1 *
+      ('' + bPrimarySpeaker.lastname).localeCompare(aPrimarySpeaker.lastname)
+    )
   }
 
   const renderedPresentations = presentations

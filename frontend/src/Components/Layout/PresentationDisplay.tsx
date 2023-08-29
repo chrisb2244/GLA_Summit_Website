@@ -1,3 +1,4 @@
+'use client'
 import { Paper, Box, Typography } from '@mui/material'
 import { PersonDisplay, PersonDisplayProps } from '@/Components/PersonDisplay'
 import { StackedBoxes } from './StackedBoxes'
