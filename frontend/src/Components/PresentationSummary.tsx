@@ -47,21 +47,12 @@ export function PresentationSummary<T extends string>({
     </Typography>
   )
 
-  const TitleComponent: React.FC<React.PropsWithChildren<{ link?: Route }>> = ({
-    link,
-    children
-  }) => {
-    if (typeof link !== 'undefined') {
-      return <Link href={link}>{children}</Link>
-    } else {
-      return <Typography variant='h6'>{children}</Typography>
-    }
-  }
-
   return (
     <Paper {...paperProps}>
       <Box p={2}>
-        <TitleComponent >{pres.title}</TitleComponent>
+        <Link href={`/presentations/${pres.presentationId}`}>
+          {pres.title}
+        </Link>
         <Typography variant='subtitle1' fontStyle='italic'>
           {speakerLine}
         </Typography>

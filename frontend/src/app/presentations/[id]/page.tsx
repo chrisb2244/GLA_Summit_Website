@@ -7,6 +7,7 @@ import { getPerson, getPublicPresentation } from '@/lib/databaseFunctions'
 import { createAnonServerClient } from '@/lib/supabaseClient'
 import { getSessionDurationInMinutes } from '@/lib/utils'
 import type { NextPage, Route } from 'next'
+import { redirect } from 'next/navigation'
 
 type PageProps = {
   params: {
@@ -51,11 +52,10 @@ const PresentationsForYearPage: NextPage<PageProps> = async ({ params }) => {
       if (type === 'panel') {
         // ToDo - in a future year, fix this rather than being hardcoded
         const isOS = data.title === 'How to make Open-Source more worthwhile?'
-        const link = '/panels/' + isOS ? 'open-source' : 'labview-and-python'
+        const link = `/panels/${isOS ? 'open-source' : 'labview-and-python'}`
         return {
           redirect: {
             destination: link,
-            permanent: true
           }
         }
       }
@@ -87,6 +87,7 @@ const PresentationsForYearPage: NextPage<PageProps> = async ({ params }) => {
   )
 
   if (typeof presentation.redirect != 'undefined') {
+    redirect(presentation.redirect.destination)
   } else {
     return (
       <PresentationDisplay
