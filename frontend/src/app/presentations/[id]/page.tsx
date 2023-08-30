@@ -75,20 +75,12 @@ const PresentationsForYearPage: NextPage<PageProps> = async ({ params }) => {
     }
   )
 
-  const dateToString = (utcDateString: string) => {
-    return ''
-  }
-
-  const timeZoneName = ''
-
   if (typeof presentation.redirect != 'undefined') {
   } else {
     return (
       <PresentationDisplay
         presentationId={presentationId}
-        dateToStringFn={dateToString}
         presentation={presentation}
-        timeZoneName={timeZoneName}
         withFavouritesButton={false}
       />
     )

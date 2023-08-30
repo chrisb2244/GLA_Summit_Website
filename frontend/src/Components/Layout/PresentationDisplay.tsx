@@ -5,9 +5,12 @@ import { StackedBoxes } from './StackedBoxes'
 import { mdiCalendar, mdiStarPlusOutline, mdiStarRemoveOutline } from '@mdi/js'
 import Icon from '@mdi/react'
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabaseClient'
-import { useSession } from '@/lib/sessionContext'
 import { logErrorToDb } from '@/lib/utils'
+import {
+  User,
+  createClientComponentClient
+} from '@supabase/auth-helpers-nextjs'
+import { TimestampSpan } from '../Utilities/TimestampSpan'
 
 export type Presentation = {
   title: string
@@ -28,19 +31,26 @@ export type Schedule =
 
 type PresentationDisplayProps = {
   presentation: Presentation
-  timeZoneName: string
   presentationId: string
-  dateToStringFn: (datetime: string) => string
   withFavouritesButton?: boolean
 }
 
-export const PresentationDisplay: React.FC<React.PropsWithChildren<PresentationDisplayProps>> = (
-  props
-) => {
-  const { presentation, timeZoneName, dateToStringFn, presentationId } = props
-  const showFavouritesButton = props.withFavouritesButton ?? true
+export const PresentationDisplay: React.FC<
+  React.PropsWithChildren<PresentationDisplayProps>
+> = (props) => {
+  const { presentation, presentationId, withFavouritesButton = true } = props
+  const supabase = createClientComponentClient()
 
-  const { user } = useSession()
+  const [user, setUser] = useState<User | null>(null)
+  useEffect(() => {
+    supabase.auth.getUser().then((res) => {
+      if (res.error !== null) {
+        return
+      }
+      setUser(res.data.user)
+    })
+  }, [])
+  const showFavouritesButton = withFavouritesButton && user !== null
 
   const [isFavourite, setFavourite] = useState(false)
   useEffect(() => {
@@ -58,12 +68,14 @@ export const PresentationDisplay: React.FC<React.PropsWithChildren<PresentationD
 
   let scheduleInfo = <></>
   if (presentation.sessionStart !== null) {
-    const startTime = dateToStringFn(presentation.sessionStart)
-    const endTime = dateToStringFn(presentation.sessionEnd)
     scheduleInfo = (
-      <Typography variant='subtitle1' fontStyle='italic'>
-        {`${startTime} - ${endTime} (${timeZoneName})`}
-      </Typography>
+      <TimestampSpan
+        utcValue={{
+          start: presentation.sessionStart,
+          end: presentation.sessionEnd
+        }}
+        displayDate
+      />
     )
   }
 
@@ -108,21 +120,21 @@ export const PresentationDisplay: React.FC<React.PropsWithChildren<PresentationD
     setFavourite(!isFavourite)
   }
 
-  const favouriteButton = showFavouritesButton && user !== null ? (
-      <div
-        className='flex flex-row bg-secondaryc rounded w-[fit-content] mb-2 cursor-pointer'
-        onClick={() => handleFavouriteClick()}
-      >
-        <Icon
-          path={isFavourite ? mdiStarRemoveOutline : mdiStarPlusOutline}
-          size={1}
-          className='m-2'
-        />
-        <span className='m-2 mr-3'>
-          {isFavourite ? 'Remove from my agenda' : 'Add to my agenda'}
-        </span>
-      </div>
-    ) : null
+  const favouriteButton = showFavouritesButton ? (
+    <div
+      className='mb-2 flex w-[fit-content] cursor-pointer flex-row rounded bg-secondaryc'
+      onClick={() => handleFavouriteClick()}
+    >
+      <Icon
+        path={isFavourite ? mdiStarRemoveOutline : mdiStarPlusOutline}
+        size={1}
+        className='m-2'
+      />
+      <span className='m-2 mr-3'>
+        {isFavourite ? 'Remove from my agenda' : 'Add to my agenda'}
+      </span>
+    </div>
+  ) : null
 
   return (
     <Paper>
@@ -131,7 +143,7 @@ export const PresentationDisplay: React.FC<React.PropsWithChildren<PresentationD
           <Typography variant='h3' gutterBottom>
             {presentation.title}
           </Typography>
-          <div className='py-2 flex flex-col md:flex-row md:justify-between'>
+          <div className='flex flex-col py-2 md:flex-row md:justify-between'>
             {scheduleInfo}
             {downloadButton}
           </div>

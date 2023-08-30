@@ -1,9 +1,9 @@
 'use client'
 import { Box, Paper, PaperProps, Typography } from '@mui/material'
 import { PresentationType, SummitYear } from '@/lib/databaseModels'
-import { useSession } from '@/lib/sessionContext'
 import Link from 'next/link'
 import type { Route } from 'next'
+import { TimestampSpan } from './Utilities/TimestampSpan'
 
 export type Presenter = {
   firstname: string
@@ -13,7 +13,7 @@ export type Presentation = {
   title: string
   abstract: string
   speakers: Presenter | Presenter[]
-  speakerNames: string | string[],
+  speakerNames: string | string[]
   presentationId: string
   year: SummitYear
   scheduledFor: string | null
@@ -26,30 +26,14 @@ export type PresentationProps<T extends string> = {
   paperProps?: PaperProps
 }
 
-export function PresentationSummary<T extends string>({presentation: pres, pageLink, paperProps}: PresentationProps<T>) {
+export function PresentationSummary<T extends string>({
+  presentation: pres,
+  pageLink,
+  paperProps
+}: PresentationProps<T>) {
   const speakerLine = Array.isArray(pres.speakerNames)
     ? pres.speakerNames.join(', ')
     : pres.speakerNames
-  // const {
-  //     timezoneInfo: { timeZone, timeZoneName, use24HourClock }
-  // } = useSession()
-  const timeZone = 'UTC'; const use24HourClock = true; const timeZoneName = 'UTC';
-  const dateToString = (utcDateString: string) => {
-    const date = new Date(utcDateString)
-    const formatter = new Intl.DateTimeFormat(undefined, {
-      timeZone: timeZone,
-      hour: '2-digit',
-      minute: '2-digit',
-      second: undefined,
-      dateStyle: undefined,
-      hour12: !use24HourClock
-    })
-    return formatter.format(date)
-  }
-
-  const scheduleLine = pres.scheduledFor !== null ? (
-    dateToString(pres.scheduledFor) + ` ${timeZoneName}`
-  ) : null
 
   const durationElem = (
     <Typography variant='subtitle2' fontStyle='italic'>
@@ -63,13 +47,12 @@ export function PresentationSummary<T extends string>({presentation: pres, pageL
     </Typography>
   )
 
-  const TitleComponent: React.FC<React.PropsWithChildren<{link?: Route}>> = ({ link, children }) => {
+  const TitleComponent: React.FC<React.PropsWithChildren<{ link?: Route }>> = ({
+    link,
+    children
+  }) => {
     if (typeof link !== 'undefined') {
-      return (
-        <Link href={link}>
-          {children}
-        </Link>
-      )
+      return <Link href={link}>{children}</Link>
     } else {
       return <Typography variant='h6'>{children}</Typography>
     }
@@ -82,9 +65,7 @@ export function PresentationSummary<T extends string>({presentation: pres, pageL
         <Typography variant='subtitle1' fontStyle='italic'>
           {speakerLine}
         </Typography>
-        <Typography variant='subtitle2' fontStyle='italic'>
-          {scheduleLine}
-        </Typography>
+        <TimestampSpan utcValue={pres.scheduledFor} />
         {durationElem}
         <Box
           sx={{
