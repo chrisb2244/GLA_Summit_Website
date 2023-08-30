@@ -7,6 +7,7 @@ import { cookies } from 'next/headers'
 import { randomBytes } from 'crypto'
 import { sendMailApi } from '@/lib/sendMail'
 import { PersonProps } from '../Form'
+import { UserMetadata } from '@supabase/supabase-js'
 
 export const mailUser = async () => {
   // Send email
@@ -38,15 +39,18 @@ export const signIn = async (
     redirectTo: options?.redirectTo
   })
     .then(async (v) => {
-      if (v.data.properties == null) {
+      const { properties, user } = v.data
+      if (properties == null) {
         console.log('Some error?')
         console.log(v.data)
         return false
       }
+      const { firstName, lastName } = parseUserMetadata(user.user_metadata)
+      const plainText = otpEmailText(firstName, lastName, properties.email_otp)
       const mailResult = await sendMailApi({
         subject: 'Validation Code for GLA Summit Login',
         to: email,
-        bodyPlain: `Your One-Time Passcode is ${v.data.properties.email_otp}`
+        bodyPlain: plainText //`Your One-Time Passcode is ${v.data.properties.email_otp}`
       })
       if (mailResult.status === 200) {
         return true
@@ -86,10 +90,8 @@ export const signUp = async (
       return false
     }
     const subject = 'GLA Summit Website Signup'
-    const user = data.user
-    const link = data.properties.action_link
     const otp = data.properties.email_otp
-    const plainText = 'Your One-Time-Passode (OTP) token is ' + otp + '\r\n'
+    const plainText = otpEmailText(newUser.firstName, newUser.lastName, otp)
     sendMailApi({
       to: email,
       subject,
@@ -98,4 +100,32 @@ export const signUp = async (
     })
     return true
   })
+}
+
+const otpEmailText = (fname: string, lname: string, otp: string) => {
+  const firstline = `Dear ${fname} ${lname},\r\n`
+  const mainline = 'Your One-Time-Passode (OTP) token is ' + otp + '\r\n'
+  const signature = 'GLA Summit Organizers'
+  return [firstline, mainline, signature].join('\r\n')
+}
+
+const parseUserMetadata = (
+  metadata: UserMetadata
+): { firstName: string; lastName: string } => {
+  if (
+    Object.hasOwn(metadata, 'firstName') &&
+    typeof metadata.firstName === 'string' &&
+    Object.hasOwn(metadata, 'lastName') &&
+    typeof metadata.lastName === 'string'
+  ) {
+    return {
+      firstName: metadata.firstName,
+      lastName: metadata.lastName
+    }
+  } else {
+    return {
+      firstName: 'GLA Summit',
+      lastName: 'User'
+    }
+  }
 }
