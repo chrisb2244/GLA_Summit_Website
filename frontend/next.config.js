@@ -11,6 +11,15 @@ module.exports = {
   images: {
     domains: ['iuqlmccpbxtgcluccazt.supabase.co']
   },
+  async redirects() {
+    return [
+      {
+        source: '/presentations',
+        destination: '/presentation-list',
+        permanent: true
+      }
+    ]
+  },
   async headers() {
     return [
       {
@@ -20,10 +29,10 @@ module.exports = {
         headers: [
           {
             key: 'Service-Worker-Allowed',
-            value: '/',
+            value: '/'
           }
         ]
       }
     ]
-  },
+  }
 }
