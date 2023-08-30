@@ -16,22 +16,33 @@ type PageProps = {
 
 export const revalidate = 600
 
+export async function generateStaticParams(): Promise<{ id: string }[]> {
+  const supabase = createAnonServerClient()
+  const { data, error } = await supabase
+    .from('accepted_presentations')
+    .select('id')
+  if (error) {
+    return []
+  }
+  return data
+}
+
 const PresentationsForYearPage: NextPage<PageProps> = async ({ params }) => {
-  const presentationId = params.id
+  const pId = params.id
 
   const supabase = createAnonServerClient()
-  if (typeof presentationId !== 'string') {
+  if (typeof pId !== 'string') {
     return null
   }
 
-  const presentation = await getPublicPresentation(presentationId).then(
+  const presentation = await getPublicPresentation(pId, supabase).then(
     async (data) => {
       const speakerIds = data.all_presenters
       const presenters: PersonDisplayProps[] = await Promise.all(
-        speakerIds.map(async (id) => {
+        speakerIds.map(async (speakerId) => {
           return {
-            ...(await getPerson(id)),
-            pageLink: `/presenters/${id}` as Route
+            ...(await getPerson(speakerId)),
+            pageLink: `/presenters/${speakerId}` as Route
           }
         })
       )
@@ -79,7 +90,7 @@ const PresentationsForYearPage: NextPage<PageProps> = async ({ params }) => {
   } else {
     return (
       <PresentationDisplay
-        presentationId={presentationId}
+        presentationId={pId}
         presentation={presentation}
         withFavouritesButton={false}
       />
