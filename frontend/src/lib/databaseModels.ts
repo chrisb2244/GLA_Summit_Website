@@ -29,6 +29,7 @@ declare let dummyYear: SummitYear
 declare let summitCandidateYear: (typeof summityears)[number]
 // The check is placed inside a function to prevent being called
 // at runtime when importing the file.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const checkTypeValid = () => exactType(summitCandidateYear, dummyYear)
 
 export function isSummitYear(year: string): year is SummitYear {
