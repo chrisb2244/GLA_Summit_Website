@@ -17,16 +17,16 @@ type PageProps = {
 
 export const revalidate = 600
 
-export async function generateStaticParams(): Promise<{ id: string }[]> {
-  const supabase = createAnonServerClient()
-  const { data, error } = await supabase
-    .from('accepted_presentations')
-    .select('id')
-  if (error) {
-    return []
-  }
-  return data
-}
+// export async function generateStaticParams(): Promise<{ id: string }[]> {
+//   const supabase = createAnonServerClient()
+//   const { data, error } = await supabase
+//     .from('accepted_presentations')
+//     .select('id')
+//   if (error) {
+//     return []
+//   }
+//   return data
+// }
 
 const PresentationsForYearPage: NextPage<PageProps> = async ({ params }) => {
   const pId = params.id
