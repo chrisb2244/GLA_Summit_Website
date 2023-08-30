@@ -1,5 +1,5 @@
 import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
-import { Typography, Button } from '@mui/material'
+import { Button } from '@/Components/Form/Button'
 
 const LabVIEW_Python_Page = () => {
   /*
@@ -30,9 +30,9 @@ const LabVIEW_Python_Page = () => {
   // The Box here prevents going to the very edge on smaller screens
   return (
     <StackedBoxes>
-      <Typography variant='h3' textAlign={'center'}>
+      <h3 className='text-center'>
         LabVIEW and Python - A Discussion
-      </Typography>
+      </h3>
       <div className='prose max-w-screen-lg mx-auto'>
         <p>
           In recent years, LabVIEW has gained better and better support for
@@ -71,8 +71,8 @@ const LabVIEW_Python_Page = () => {
       </div> */}
       <div className='mx-auto'>
         <a href={'/full-agenda'}>
-          <Button fullWidth variant='contained' className='bg-primaryc'>
-            <Typography textAlign='center'>Go to the agenda</Typography>
+          <Button fullWidth className='bg-primaryc'>
+            <span className='text-center'>Go to the agenda</span>
           </Button>
         </a>
       </div>

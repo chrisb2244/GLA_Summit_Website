@@ -1,6 +1,6 @@
 import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
-import { Typography, Button } from '@mui/material'
 import NextLink from 'next/link'
+import { Button } from '@/Components/Form/Button'
 
 const Open_Source_Page = () => {
   /*
@@ -35,9 +35,9 @@ const Open_Source_Page = () => {
   // The Box here prevents going to the very edge on smaller screens
   return (
     <StackedBoxes>
-      <Typography variant='h3' textAlign={'center'}>
+      <h3 className='text-center'>
         How to make Open-Source more worthwhile?
-      </Typography>
+      </h3>
       <div className='prose max-w-screen-lg mx-auto'>
         <p>
           One of the things that keeps the software community alive is the
@@ -84,8 +84,8 @@ const Open_Source_Page = () => {
       </div> */}
       <div className='mx-auto'>
         <a href={'/full-agenda'}>
-          <Button fullWidth variant='contained' className='bg-primaryc'>
-            <Typography textAlign='center'>Go to the agenda</Typography>
+          <Button fullWidth className='bg-primaryc'>
+            <span className='text-center'>Go to the agenda</span>
           </Button>
         </a>
       </div>
