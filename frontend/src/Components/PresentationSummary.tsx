@@ -2,7 +2,6 @@
 import { Box, Paper, PaperProps, Typography } from '@mui/material'
 import { PresentationType, SummitYear } from '@/lib/databaseModels'
 import Link from 'next/link'
-import type { Route } from 'next'
 import { TimestampSpan } from './Utilities/TimestampSpan'
 
 export type Presenter = {
@@ -20,21 +19,19 @@ export type Presentation = {
   presentationType: PresentationType
 }
 
-export type PresentationProps<T extends string> = {
+export type PresentationProps = {
   presentation: Presentation
-  pageLink: Route<T>
   paperProps?: PaperProps
 }
 
-export function PresentationSummary<T extends string>({
-  presentation: pres,
-  pageLink,
-  paperProps
-}: PresentationProps<T>) {
+export const PresentationSummary = (props: PresentationProps) => {
+  const { presentation: pres, paperProps } = props
+
   const speakerLine = Array.isArray(pres.speakerNames)
     ? pres.speakerNames.join(', ')
     : pres.speakerNames
 
+  // prettier-ignore
   const durationElem = (
     <Typography variant='subtitle2' fontStyle='italic'>
       {
@@ -50,9 +47,7 @@ export function PresentationSummary<T extends string>({
   return (
     <Paper {...paperProps}>
       <Box p={2}>
-        <Link href={`/presentations/${pres.presentationId}`}>
-          {pres.title}
-        </Link>
+        <Link href={`/presentations/${pres.presentationId}`}>{pres.title}</Link>
         <Typography variant='subtitle1' fontStyle='italic'>
           {speakerLine}
         </Typography>

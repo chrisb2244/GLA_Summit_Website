@@ -66,15 +66,6 @@ export const YearGroupedPresentations: React.FC<
         <Box pb={1} key={p.title}>
           <PresentationSummary
             presentation={p}
-            pageLink={
-              p.presentationType !== 'panel'
-                ? `/presentations/${p.presentationId}`
-                : `/panels/${
-                    p.title === 'How to make Open-Source more worthwhile?'
-                      ? 'open-source'
-                      : 'labview-and-python'
-                  }`
-            }
             paperProps={{
               elevation: 2,
               sx: {

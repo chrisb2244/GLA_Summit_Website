@@ -58,25 +58,14 @@ const PresentationsForYearPage = async (props: PageProps) => {
     .map((p) => {
       return (
         <div key={p.title} className='pb-2'>
-          <PresentationSummary
-            presentation={p}
-            pageLink={
-              p.presentationType !== 'panel'
-                ? `/presentations/${p.presentationId}`
-                : `/panels/${
-                    p.title === 'How to make Open-Source more worthwhile?'
-                      ? 'open-source'
-                      : 'labview-and-python'
-                  }`
-            }
-          />
+          <PresentationSummary presentation={p} />
         </div>
       )
     })
 
   return (
     <>
-      <h3 className='text-lg text-center py-1'>{year} Presentations</h3>
+      <h3 className='py-1 text-center text-lg'>{year} Presentations</h3>
       <StackedBoxes>{presentations}</StackedBoxes>
     </>
   )
