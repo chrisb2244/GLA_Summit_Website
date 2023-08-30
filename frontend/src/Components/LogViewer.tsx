@@ -2,6 +2,7 @@
 
 import { Database } from "@/lib/sb_databaseModels"
 import { Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material"
+import { TimestampSpan } from "./Utilities/TimestampSpan";
 
 type LogProps = {
   entries: LogEntry[]
@@ -20,7 +21,7 @@ export const LogViewer: React.FC<React.PropsWithChildren<LogProps>> = ({entries}
   const createRow = (e: LogEntry) => {
     const c1 = <Typography color={severityColorMap[e.severity]}>{e.severity}</Typography>
     const c2 = [e.message, e.user_id].map((v, idx) => <Typography key={`${e.id}_c_content_${idx}`}>{v}</Typography>)
-    const c3 = <Typography>{new Date(e.created_at).toLocaleString()}</Typography>
+    const c3 = <TimestampSpan utcValue={e.created_at} dateFormat={{year: '2-digit', month: '2-digit', day: '2-digit'}} />
 
     const cells = [c1, c2, c3].flat().map((c, idx) => {
       return <TableCell key={`${e.id}_${idx}`}>{c}</TableCell>

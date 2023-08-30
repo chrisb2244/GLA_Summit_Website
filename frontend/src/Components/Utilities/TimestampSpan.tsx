@@ -3,21 +3,31 @@
 import { useCallback, useEffect, useState } from 'react'
 
 type TimeValue = string | null | { start: string; end: string }
+type DateDisplay = {
+  year?: 'numeric' | '2-digit' | undefined
+  month?: 'numeric' | '2-digit' | 'short' | 'long' | 'narrow' | undefined
+  day?: 'numeric' | '2-digit' | undefined
+}
 
 type TimestampSpanProps = {
   utcValue: TimeValue
   displayUTC?: boolean
   use12Hour?: boolean
-  displayDate?: boolean
+  dateFormat?: DateDisplay
 }
 
 export const TimestampSpan = (props: TimestampSpanProps) => {
-  const { utcValue, displayUTC, use12Hour, displayDate } = props
+  const { utcValue, displayUTC, use12Hour, dateFormat } = props
 
   const format = useCallback(
     (utcString: TimeValue, tz?: string) => {
       if (utcString === null) {
         return ''
+      }
+      const { year, month, day } = dateFormat || {
+        year: undefined,
+        month: undefined,
+        day: undefined
       }
       const locale = undefined
       const formatter = new Intl.DateTimeFormat(locale, {
@@ -27,8 +37,9 @@ export const TimestampSpan = (props: TimestampSpanProps) => {
         second: undefined,
         hour12: use12Hour,
         hourCycle: 'h23',
-        month: displayDate ? 'long' : undefined,
-        day: displayDate ? '2-digit' : undefined,
+        year,
+        month,
+        day,
         timeZoneName: 'short'
       })
       if (typeof utcString === 'object') {
@@ -40,7 +51,7 @@ export const TimestampSpan = (props: TimestampSpanProps) => {
       const d = new Date(utcString)
       return formatter.format(d)
     },
-    [displayDate, use12Hour]
+    [dateFormat, use12Hour]
   )
 
   const utcSpan = (

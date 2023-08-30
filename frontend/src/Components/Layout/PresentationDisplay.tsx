@@ -74,7 +74,10 @@ export const PresentationDisplay: React.FC<
           start: presentation.sessionStart,
           end: presentation.sessionEnd
         }}
-        displayDate
+        dateFormat={{
+          month: 'long',
+          day: '2-digit'
+        }}
       />
     )
   }
