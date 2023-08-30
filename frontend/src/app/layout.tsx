@@ -1,5 +1,5 @@
-import { Header } from './Header'
-import { Footer } from './Footer'
+import { Header } from './_rootElements/Header'
+import { Footer } from './_rootElements/Footer'
 import { roboto } from './font-workaround'
 
 import './global.css'

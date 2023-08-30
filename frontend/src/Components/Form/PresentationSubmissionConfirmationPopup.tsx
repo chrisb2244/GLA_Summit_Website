@@ -1,4 +1,4 @@
-import { PopupProps, ConfirmationPopup } from '@/Components/ConfirmationPopup'
+import { PopupProps, ConfirmationPopup } from '@/Components/Utilities/ConfirmationPopup'
 import { ReactNode } from 'react'
 
 export const PresentationSubmissionConfirmationPopup: React.FC<PopupProps> = (props) => {

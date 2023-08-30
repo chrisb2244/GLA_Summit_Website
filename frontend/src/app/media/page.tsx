@@ -14,7 +14,7 @@ import NextImage, { StaticImageData } from 'next/image'
 // import { CopyableTextBox } from '@/Components/CopyableTextBox'
 import { estimateAspectRatio } from '@/lib/utils'
 import { ReactNode } from 'react'
-import { CopyableTextBox } from '@/Components/CopyableTextBox'
+import { CopyableTextBox } from '@/Components/Utilities/CopyableTextBox'
 
 const MediaPage = () => {
   const hostname =

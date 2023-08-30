@@ -1,7 +1,7 @@
 import { SignInUpButton } from '@/Components/SigninRegistration/SignInUpButton'
 import { cookies } from 'next/headers'
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
-import { WaitingIndicator } from '@/Components/WaitingIndicator'
+import { WaitingIndicator } from '@/Components/Utilities/WaitingIndicator'
 import { UserMenu } from '@/Components/User/UserMenu'
 
 export async function UserIcon() {
@@ -17,7 +17,7 @@ export async function UserIcon() {
     )
 
   return (
-    <div id='user' className='flex flex-grow-0 pr-2 h-full'>
+    <div id='user' className='flex h-full flex-grow-0 pr-2'>
       {button}
     </div>
   )

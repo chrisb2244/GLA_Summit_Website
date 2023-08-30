@@ -1,7 +1,7 @@
 import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
-import { SponsorBar } from '@/Components/SponsorBar'
+import { SponsorBar } from './_rootElements/SponsorBar'
 import React, { ReactNode } from 'react'
-import { Countdown } from '@/Components/Countdown'
+import { Countdown } from './_rootElements/Countdown'
 
 export default function Page() {
   const P = (

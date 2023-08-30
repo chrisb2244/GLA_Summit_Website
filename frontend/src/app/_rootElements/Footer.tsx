@@ -1,4 +1,4 @@
-import { SocialMediaIcons } from '@/Components/SocialMediaIcons'
+import { SocialMediaIcons } from './SocialMediaIcons'
 
 export const Footer: React.FC<React.PropsWithChildren<unknown>> = () => {
   // The 'Toolbar' component appears to make the flow
