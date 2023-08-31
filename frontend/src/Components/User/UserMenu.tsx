@@ -1,6 +1,6 @@
 'use client'
 import { Popover, Transition } from '@headlessui/react'
-import { mdiLogout, mdiMonitorAccount } from '@mdi/js'
+import { mdiLogout, mdiMonitorAccount, mdiVoteOutline } from '@mdi/js'
 import { Icon } from '@mdi/react'
 import React, { PropsWithChildren, useEffect, useState } from 'react'
 import NextLink from 'next/link'
@@ -13,6 +13,7 @@ import { Route } from 'next'
 
 type UserMenuProps = {
   user: User
+  isOrganizer?: boolean
 }
 
 type UserMenuEntry = {
@@ -25,11 +26,11 @@ type UserMenuEntry = {
 export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
   props
 ) => {
-  // const { isOrganizer, signOut, profile } = useSession()
-  const isOrganizer = false
   const router = useRouter()
 
   const userId = props.user.id
+  const { isOrganizer } = props
+
   const [profile, setProfile] = useState<ProfileModel['Insert'] | null>(null)
   useEffect(() => {
     console.log(`Fetching profile info for ${props.user.id}`)
@@ -97,6 +98,16 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
       clickFn: signOut
     }
   ]
+
+  const organizerMenuObjs: UserMenuEntry[] = isOrganizer
+    ? [
+        {
+          title: 'Submission Review',
+          href: '/review-submissions',
+          imgObj: <ListIcon path={mdiVoteOutline} />
+        }
+      ]
+    : []
 
   const WrapperElement: React.FC<
     PropsWithChildren<{ href: Route | undefined }>
@@ -175,28 +186,30 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
           leaveFrom='transform scale-100 opacity-100'
           leaveTo='transform scale-90 opacity-0'
         >
-          <Popover.Panel className='absolute right-0 mt-2 p-2 rounded shadow bg-white text-black text-opacity-75'>
+          <Popover.Panel className='absolute right-0 mt-2 rounded bg-white p-2 text-black text-opacity-75 shadow'>
             {({ close }) => (
               <>
-                <div className='rotate-45 rounded-none w-3 h-3 absolute -top-[6px] right-4 bg-white' />
-                <div className='list-none cursor-pointer w-max max-w-[80vw] relative'>
+                <div className='absolute -top-[6px] right-4 h-3 w-3 rotate-45 rounded-none bg-white' />
+                <div className='relative w-max max-w-[80vw] cursor-pointer list-none'>
                   <ul>
-                    {menuObjs.map(({ title, href, imgObj, clickFn }) => {
-                      return (
-                        <WrapperElement href={href} key={title}>
-                          <li
-                            className='py-[6px] px-4 flex flex-row h-8'
-                            onClick={() => {
-                              clickFn?.()
-                              close()
-                            }}
-                          >
-                            {imgObj}
-                            <p className='tracking-[0.00938em]'>{title}</p>
-                          </li>
-                        </WrapperElement>
-                      )
-                    })}
+                    {menuObjs
+                      .concat(organizerMenuObjs)
+                      .map(({ title, href, imgObj, clickFn }) => {
+                        return (
+                          <WrapperElement href={href} key={title}>
+                            <li
+                              className='flex h-8 flex-row px-4 py-[6px]'
+                              onClick={() => {
+                                clickFn?.()
+                                close()
+                              }}
+                            >
+                              {imgObj}
+                              <p className='tracking-[0.00938em]'>{title}</p>
+                            </li>
+                          </WrapperElement>
+                        )
+                      })}
                   </ul>
                 </div>
               </>
