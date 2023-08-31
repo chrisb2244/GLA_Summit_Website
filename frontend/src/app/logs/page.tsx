@@ -20,6 +20,9 @@ const SvrLogsPage = async () => {
   const { data: initialLogs, error: logError } = await supabase
     .from('log')
     .select()
+  if (logError) {
+    throw logError
+  }
 
   return <LogsPage serverLogs={initialLogs ?? []} />
 }

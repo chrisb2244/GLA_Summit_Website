@@ -1,8 +1,5 @@
-'use client';
-
-import { Database } from "@/lib/sb_databaseModels"
-import { Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material"
-import { TimestampSpan } from "./Utilities/TimestampSpan";
+import { Database } from '@/lib/sb_databaseModels'
+import { TimestampSpan } from './Utilities/TimestampSpan'
 
 type LogProps = {
   entries: LogEntry[]
@@ -10,58 +7,65 @@ type LogProps = {
 
 export type LogEntry = Database['public']['Tables']['log']['Row']
 
-export const LogViewer: React.FC<React.PropsWithChildren<LogProps>> = ({entries}) => {
-
+export const LogViewer: React.FC<React.PropsWithChildren<LogProps>> = ({
+  entries
+}) => {
   const severityColorMap = {
-    'severe': 'red',
-    'error': 'black',
-    'info': 'lightgrey'
+    severe: 'text-red-600',
+    error: 'text-black',
+    info: 'text-gray-400'
   } as const
 
   const createRow = (e: LogEntry) => {
-    const c1 = <Typography color={severityColorMap[e.severity]}>{e.severity}</Typography>
-    const c2 = [e.message, e.user_id].map((v, idx) => <Typography key={`${e.id}_c_content_${idx}`}>{v}</Typography>)
-    const c3 = <TimestampSpan utcValue={e.created_at} dateFormat={{year: '2-digit', month: '2-digit', day: '2-digit'}} />
+    const c1 = (
+      <div className={`${severityColorMap[e.severity]} text-center`}>
+        {e.severity}
+      </div>
+    )
+    const c2 = [
+      <div key={`${e.id}_c_content_0`} className='text-base'>
+        {e.message}
+      </div>,
+      <div key={`${e.id}_c_content_1`} className='text-sm'>
+        {e.user_id}
+      </div>
+    ]
+    const c3 = (
+      <TimestampSpan
+        utcValue={e.created_at}
+        dateFormat={{ year: 'numeric', month: '2-digit', day: '2-digit' }}
+      />
+    )
 
     const cells = [c1, c2, c3].flat().map((c, idx) => {
-      return <TableCell key={`${e.id}_${idx}`}>{c}</TableCell>
+      return <td key={`${e.id}_${idx}`} className='p-2'>{c}</td>
     })
     return (
-      <TableRow key={e.id}>
-        {cells}
-      </TableRow>
+      <>
+        <tr key={e.id}>{cells}</tr>
+      </>
     )
   }
 
-  // Make the list longer...
-  /* const sourceEntries = entries.map((e) => {
-    return new Array(20).fill(0).map((_, innerIdx) => {
-      return {...e, id: (e.id*20 + innerIdx)}
-    })
-  })
-  .flat() */
-
   const sourceEntries = entries
-  const tableRows = sourceEntries.sort((a, b) => {
-    const db = new Date(b.created_at).getTime()
-    const da = new Date(a.created_at).getTime()
-    return db-da
-  }).map(e => createRow(e))
+  const tableRows = sourceEntries
+    .sort((a, b) => {
+      const db = new Date(b.created_at).getTime()
+      const da = new Date(a.created_at).getTime()
+      return db - da
+    })
+    .map((e) => createRow(e))
 
   return (
-    <Table>
-      <TableHead>
-        <TableRow>
-          {
-            ['Severity', 'Message', 'User ID', 'Created At'].map((h, idx) => {
-              return <TableCell key={`headercell_${idx}`}>{h}</TableCell>
-            })
-          }
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {tableRows}
-      </TableBody>
-    </Table>
+    <table className='relative'>
+      <thead>
+        <tr>
+          {['Severity', 'Message', 'User ID', 'Created At'].map((h, idx) => {
+            return <th key={`headercell_${idx}`} className='p-2 font-normal sticky top-0 pt-16 mb-2 bg-white'>{h}</th>
+          })}
+        </tr>
+      </thead>
+      <tbody>{tableRows}</tbody>
+    </table>
   )
 }
