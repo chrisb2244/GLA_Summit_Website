@@ -10,6 +10,7 @@ import type { ProfileModel } from '@/lib/databaseModels'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useRouter } from 'next/navigation'
 import { Route } from 'next'
+import NextImage from 'next/image'
 
 type UserMenuProps = {
   user: User
@@ -40,8 +41,8 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
         console.log(e)
       })
   }, [props.user])
-  const { src: avatarSrc, loading: imgLoading } = useProfileImage(userId) ?? {}
-  console.log({ avatarSrc, imgLoading })
+  const { src: avatarSrc } = useProfileImage(userId) ?? {}
+  // console.log({ avatarSrc, imgLoading })
 
   const signOut = async () => {
     await createClientComponentClient().auth.signOut()
@@ -52,13 +53,13 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
   const UserIcon = (
     props: { src?: string; size: 'large' | 'small' } = { size: 'large' }
   ) => {
-    const { src, size } = props
-    return src ? (
-      <img
-        src={src}
-        className={`${
-          size === 'large' ? 'w-12 h-12' : 'w-6 h-6'
-        } object-cover rounded-full inline-flex`}
+    const pxSz = props.size === 'large' ? 48 : 24
+    return props.src ? (
+      <NextImage
+        width={pxSz}
+        height={pxSz}
+        src={props.src}
+        className='inline-flex rounded-full object-cover'
         alt='User Profile Icon'
       />
     ) : (
@@ -70,7 +71,7 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
 
   const ListIcon = (props: { path: string }) => {
     return (
-      <div className='min-w-[36px] text-black text-opacity-50 inline-flex flex-shrink-0'>
+      <div className='inline-flex min-w-[36px] flex-shrink-0 text-black text-opacity-50'>
         <Icon path={props.path} size={1} />
       </div>
     )
