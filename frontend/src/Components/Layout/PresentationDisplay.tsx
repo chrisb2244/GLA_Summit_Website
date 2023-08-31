@@ -49,7 +49,7 @@ export const PresentationDisplay: React.FC<
       }
       setUser(res.data.user)
     })
-  }, [])
+  }, [supabase.auth])
   const showFavouritesButton = withFavouritesButton && user !== null
 
   const [isFavourite, setFavourite] = useState(false)
@@ -64,7 +64,7 @@ export const PresentationDisplay: React.FC<
         }
         setFavourite(data !== null && data.length !== 0)
       })
-  }, [presentationId])
+  }, [presentationId, supabase])
 
   let scheduleInfo = <></>
   if (presentation.sessionStart !== null) {
