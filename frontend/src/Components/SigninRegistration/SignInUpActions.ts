@@ -7,10 +7,35 @@ import { cookies } from 'next/headers'
 import { randomBytes } from 'crypto'
 import { sendMailApi } from '@/lib/sendMail'
 import { PersonProps } from '../Form'
-import { UserMetadata } from '@supabase/supabase-js'
+import { User, UserMetadata } from '@supabase/supabase-js'
 
 export const mailUser = async () => {
   // Send email
+}
+
+export const signOut = async () => {
+  await createServerActionClient({ cookies }).auth.signOut()
+}
+
+export const getUser = async () => {
+  const supabase = createServerActionClient({ cookies })
+  return await supabase.auth.getUser().then(({ data, error }) => {
+    if (error) {
+      return null
+    }
+    return data.user
+  })
+}
+
+export const getIsOrganizer = async (user: User) => {
+  const supabase = createServerActionClient({ cookies })
+
+  return supabase
+    .from('organizers')
+    .select()
+    .eq('id', user.id)
+    .maybeSingle()
+    .then((v) => v !== null)
 }
 
 export const verifyLogin = async (data: {

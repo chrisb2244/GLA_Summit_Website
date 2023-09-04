@@ -7,14 +7,13 @@ import NextLink from 'next/link'
 import { useProfileImage } from '@/lib/profileImage'
 import { getProfileInfo, type User } from '@/lib/databaseFunctions'
 import type { ProfileModel } from '@/lib/databaseModels'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { useRouter } from 'next/navigation'
 import { Route } from 'next'
 import NextImage from 'next/image'
 
 type UserMenuProps = {
   user: User
   isOrganizer?: boolean
+  signOut: () => void
 }
 
 type UserMenuEntry = {
@@ -27,14 +26,11 @@ type UserMenuEntry = {
 export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
   props
 ) => {
-  const router = useRouter()
-
   const userId = props.user.id
-  const { isOrganizer } = props
+  const { isOrganizer, signOut } = props
 
   const [profile, setProfile] = useState<ProfileModel['Insert'] | null>(null)
   useEffect(() => {
-    console.log(`Fetching profile info for ${props.user.id}`)
     getProfileInfo(props.user)
       .then(setProfile)
       .catch((e) => {
@@ -43,11 +39,6 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
   }, [props.user])
   const { src: avatarSrc } = useProfileImage(userId) ?? {}
   // console.log({ avatarSrc, imgLoading })
-
-  const signOut = async () => {
-    await createClientComponentClient().auth.signOut()
-    router.refresh()
-  }
 
   const email = props.user.email
   const UserIcon = (

@@ -10,6 +10,7 @@ import { PersonProps } from '../Form'
 export type RegistrationProps = {
   open?: boolean
   setClosed?: () => void
+  onSignInComplete?: () => void
   initialState?: 'signup' | 'signin'
   waitingSpinner: JSX.Element
 }
@@ -86,7 +87,10 @@ export const RegistrationPopup: React.FC<
     <ValidationCodePopup
       email={email ?? undefined}
       open={open}
-      setClosed={setClosed}
+      setClosed={() => {
+        setClosed()
+        props.onSignInComplete?.()
+      }}
     />
   )
 

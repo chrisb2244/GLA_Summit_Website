@@ -1,12 +1,18 @@
 'use client'
 import { useState } from 'react'
 import { RegistrationPopup } from './RegistrationPopup'
+import { useRouter } from 'next/navigation'
 
-export const SignInUpButton: React.FC<{ waitingSpinner: JSX.Element }> = (
+type SignInUpButtonProps = {
+  waitingSpinner: JSX.Element
+  onSignInComplete?: () => void
+}
+
+export const SignInUpButton: React.FC<SignInUpButtonProps> = (
   props
 ) => {
   const [dialogOpen, setDialogOpen] = useState(false)
-  const { waitingSpinner } = props
+  const { waitingSpinner, onSignInComplete } = props
 
   return (
     <>
@@ -23,7 +29,11 @@ export const SignInUpButton: React.FC<{ waitingSpinner: JSX.Element }> = (
       </button>
       <RegistrationPopup
         open={dialogOpen}
-        setClosed={() => setDialogOpen(false)}
+        setClosed={() => {
+          console.log('closed dialog')
+          setDialogOpen(false)
+        }}
+        onSignInComplete={onSignInComplete}
         waitingSpinner={waitingSpinner}
       />
     </>
