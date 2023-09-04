@@ -41,3 +41,16 @@ export async function middleware(req: NextRequest) {
 
   return res
 }
+
+export const config = {
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - _next/data (json file for presentations)
+     * - favicon.ico (favicon file)
+     */
+    '/((?!_next/static|_next/image|_next/data|favicon.ico).*)',
+  ],
+}
