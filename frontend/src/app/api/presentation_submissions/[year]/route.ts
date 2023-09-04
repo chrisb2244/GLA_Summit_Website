@@ -1,6 +1,6 @@
 import { PresentationReviewInfo } from '@/Components/SubmittedPresentationReviewCard'
 import { Database } from '@/lib/sb_databaseModels'
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { isSummitYear } from '@/lib/databaseModels'
@@ -10,7 +10,7 @@ export async function GET(
   { params }: { params: { year: string } }
 ) {
   const { year: target_year } = params
-  const supabase = createServerComponentClient<Database>({ cookies })
+  const supabase = createRouteHandlerClient<Database>({ cookies })
 
   if (!isSummitYear(target_year)) {
     return NextResponse.json({ presentationSubmissions: [] })
