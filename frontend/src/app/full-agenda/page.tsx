@@ -1,15 +1,12 @@
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
 import { FullAgenda } from './FullAgenda'
 import type { AgendaEntry, ScheduledAgendaEntry } from '@/Components/Agenda/Agenda'
-import type { Database } from '@/lib/sb_databaseModels'
 import type { ContainerHint } from '@/Components/Agenda/AgendaCalculations'
-import type { SupabaseClient } from '@supabase/supabase-js'
-import type { SummitYear } from '@/lib/databaseModels'
+import { currentDisplayYear } from '@/lib/databaseModels'
+import { createAnonServerClient } from '@/lib/supabaseClient'
 
 export const revalidate = 300
 
-const getAgendaAndHints = async (supabase: SupabaseClient<Database>) => {
+const getAgendaAndHints = async () => {
   const returnVal = (
     agenda: AgendaEntry[] | null,
     containerHints?: ContainerHint[]
@@ -19,12 +16,12 @@ const getAgendaAndHints = async (supabase: SupabaseClient<Database>) => {
       containerHints
     }
   }
-  const year: SummitYear = '2022'
 
+  const supabase = createAnonServerClient();
   const { data: agenda, error } = await supabase
     .from('all_presentations')
     .select('*')
-    .eq('year', year)
+    .eq('year', currentDisplayYear)
     .not('scheduled_for', 'is', 'null') // required for ScheduledAgendaEntry rather than AgendaEntry
 
   if (error) return returnVal(null)
@@ -61,7 +58,7 @@ const getAgendaAndHints = async (supabase: SupabaseClient<Database>) => {
       abstract: c.abstract,
       container_id: c.id,
       presentation_ids: presentationIdsInContainer,
-      year
+      year: currentDisplayYear
     }
   })
 
@@ -69,9 +66,7 @@ const getAgendaAndHints = async (supabase: SupabaseClient<Database>) => {
 }
 
 const SvrFullAgenda = async () => {
-  const supabase = createServerComponentClient<Database>({ cookies })
-  const agendaAndHints = await getAgendaAndHints(supabase)
-  const user = (await supabase.auth.getSession()).data.session?.user
+  const agendaAndHints = await getAgendaAndHints()
 
   return (
     <>
@@ -85,7 +80,6 @@ const SvrFullAgenda = async () => {
         <FullAgenda
           fullAgenda={agendaAndHints.fullAgenda}
           containerHints={agendaAndHints.containerHints ?? []}
-          user={user}
         />
       </div>
     </>

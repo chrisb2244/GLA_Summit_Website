@@ -17,9 +17,18 @@ type SubscriptionEvent =
 export const FullAgenda = (props: {
   fullAgenda: ScheduledAgendaEntry[]
   containerHints: ContainerHint[]
-  user?: User
 }) => {
-  const { fullAgenda, containerHints, user } = props
+  const supabase = createClientComponentClient<Database>()
+  const [user, setUser] = useState<User>();
+  useEffect(() => {
+    supabase.auth.getUser().then(({data, error}) => {
+      if (!error) {
+        setUser(data.user)
+      }
+    })
+  }, [supabase])
+
+  const { fullAgenda, containerHints } = props
 
   const [hoursToShow, setHoursToShow] = useState(4.5)
   useEffect(() => {
@@ -96,8 +105,6 @@ export const FullAgenda = (props: {
   const unableToRenderElem = (
     <p>Unable to load this year&apos;s agenda. Please try again later.</p>
   )
-
-  const supabase = createClientComponentClient({ isSingleton: true })
 
   if (fullAgenda === null) {
     return unableToRenderElem
