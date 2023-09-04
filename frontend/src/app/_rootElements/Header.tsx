@@ -9,9 +9,9 @@ export const Header = () => {
     'aria-label': 'logo'
   }
   const logo = (
-    <div className='h-full col-span-full md:col-span-1'>
+    <div className='col-span-full h-full md:col-span-1'>
       <NextLink href='/' tabIndex={-1}>
-        <div className='xs:hidden md:flex justify-center h-full relative'>
+        <div className='relative h-full justify-center xs:hidden md:flex'>
           <NextImage
             alt='GLA Logo'
             src='/media/GLA-logo.svg'
@@ -27,7 +27,7 @@ export const Header = () => {
             }}
           />
         </div>
-        <div className='xs:flex md:hidden h-[200px] relative'>
+        <div className='relative h-[200px] xs:flex md:hidden'>
           <NextImage
             alt='GLA Logo'
             src='/media/GLA-logo-mobile.svg'
@@ -45,18 +45,18 @@ export const Header = () => {
   return (
     <>
       <header
-        className='static flex flex-col w-full bg-primaryc'
+        className='static flex w-full flex-col bg-primaryc'
         style={{
           boxShadow:
             'rgb(0 0 0 / 20%) 0px 2px 4px -1px, rgb(0 0 0 / 14%) 0px 4px 5px 0px, rgb(0 0 0 / 12%) 0px 1px 10px 0px'
         }}
       >
         <div
-          className='justify-center relative items-center grid grid-rows-1 grid-cols-[1fr_5fr_1fr]'
+          className='relative grid grid-cols-[1fr_5fr_1fr] grid-rows-1 items-center justify-center'
           id='logo bar'
         >
           {logo}
-          <div className='mx-auto xs:hidden md:flex md:flex-col text-center col-start-2  text-white'>
+          <div className='col-start-2 mx-auto text-center text-white xs:hidden md:flex  md:flex-col'>
             <h1 className={`text-h1s font-light`}>GLA Summit</h1>
             <h4 className={`text-h4s font-normal`}>
               14-15 November, 12:00 UTC
@@ -64,19 +64,17 @@ export const Header = () => {
           </div>
         </div>
       </header>
-      <div className='sticky top-0 left-0 z-50 mb-4 bg-primaryc text-white'>
+      <div className='sticky left-0 top-0 z-50 mb-4 bg-primaryc text-white'>
         <div
           id='menu bar'
-          className='w-full min-h-[54px] items-center flex'
+          className='flex min-h-[54px] w-full items-center'
           style={{
             boxShadow:
               'rgb(0 0 0 / 20%) 0px 4px 6px 0px, rgb(0 0 0 / 14%) 0px 4px 5px 0px'
           }}
         >
           <MenuBar />
-          <Suspense fallback={null}>
-            <UserIcon />
-          </Suspense>
+          <UserIcon />
         </div>
       </div>
     </>
