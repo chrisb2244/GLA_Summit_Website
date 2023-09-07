@@ -35,7 +35,7 @@ export const getIsOrganizer = async (user: User) => {
     .select()
     .eq('id', user.id)
     .maybeSingle()
-    .then((v) => v !== null)
+    .then((v) => v.data !== null)
 }
 
 export const verifyLogin = async (data: {
