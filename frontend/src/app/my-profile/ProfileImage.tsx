@@ -38,7 +38,7 @@ export const ProfileImage = (props: ProfileImageProps) => {
         sizes='(max-width: 900px) 80vw, 20vw'
       />
     ) : (
-      <Icon path={mdiAccountBox} color='grey' />
+      <Icon path={mdiAccountBox} color='grey' title='Placeholder profile image' />
     )
 
   const changeHandler = (ev: ChangeEvent<HTMLInputElement>) => {
