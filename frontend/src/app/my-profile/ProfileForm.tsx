@@ -5,6 +5,8 @@ import { Button } from '@/Components/Form/Button'
 import { ProfileModel } from '@/lib/databaseModels'
 import React from 'react'
 import { useForm } from 'react-hook-form'
+import { SubmitForm } from './ProfileFormServerActions'
+import { useRouter } from 'next/navigation'
 
 type ProfileData = ProfileModel['Row']
 
@@ -25,40 +27,66 @@ export const ProfileForm: React.FC<ProfileFormProps> = (props) => {
     defaultValues: props.profile,
     mode: 'all'
   })
+  const router = useRouter()
 
   // Only allow submitting if not currently submitting, and the form is changed.
   const submitButtonDisabled = isSubmitting || !isDirty
 
+  const clientSideSubmitAction = async (formData: FormData) => {
+    const isValid = await trigger()
+    if (!isValid) {
+      return
+    }
+    const changedValuesFormData = new FormData()
+    Array.from(formData.entries()).forEach(([name, value]) => {
+      // If 'name' is not a valid key, then this is undefined, and the '??' returns false.
+      const isChanged = dirtyFields[name as keyof ProfileFormData] ?? false
+      if (isChanged || name === 'id') {
+        changedValuesFormData.append(name, value)
+      }
+    })
+    await SubmitForm(changedValuesFormData).then(
+      (updatedProfile) => {
+        router.refresh()
+      },
+      (err) => console.error(err)
+    )
+  }
 
   return (
-    <form>
+    <form action={clientSideSubmitAction}>
       <div className='px-4'>
         <FormFieldIndicator fullWidth label='Email' value={props.email} />
       </div>
-      <div className='px-4 grid grid-cols-[1fr_8px_1fr]'>
-        <div className='col-start-1 col-span-3 md:col-span-1'>
+      <div className='grid grid-cols-[1fr_8px_1fr] px-4'>
+        <div className='col-span-3 col-start-1 md:col-span-1'>
           <FormField
-            registerReturn={register('firstname')}
+            registerReturn={register('firstname', {
+              required: 'First Name is required'
+            })}
             fieldError={errors.firstname}
             fullWidth
             label='First Name'
           />
         </div>
-        <div className='col-start-1 col-span-3 md:col-start-3 md:col-span-1 bg-inherit'>
+        <div className='col-span-3 col-start-1 bg-inherit md:col-span-1 md:col-start-3'>
           <FormField
-            registerReturn={register('lastname')}
+            registerReturn={register('lastname', {
+              required: 'Last Name is required'
+            })}
             fieldError={errors.lastname}
             fullWidth
             label='Last Name'
           />
         </div>
-        <div className='col-start-1 col-span-3'>
+        <div className='col-span-3 col-start-1'>
           <TextArea
             registerReturn={register('bio')}
             fieldError={errors.bio}
             fullWidth
             rows={5}
             label='Biography'
+            placeholder={`${props.profile.firstname} ${props.profile.lastname} is an awesome LabVIEW developer who hasn't yet filled out a bio...`}
           />
         </div>
       </div>
