@@ -7,7 +7,6 @@ import {
 } from '@supabase/auth-helpers-nextjs'
 import { WaitingIndicator } from '@/Components/Utilities/WaitingIndicator'
 import { UserMenu } from '@/Components/User/UserMenu'
-import { Database } from '@/lib/sb_databaseModels'
 import { useEffect, useState } from 'react'
 import {
   getIsOrganizer,
