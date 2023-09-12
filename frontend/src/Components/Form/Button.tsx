@@ -11,6 +11,9 @@ const buttonStyles = cva(
     variants: {
       fullWidth: {
         true: 'w-full'
+      },
+      disabled: {
+        true: 'text-gray-400'
       }
     }
   }
@@ -20,9 +23,9 @@ type VariantStyleProps = VariantProps<typeof buttonStyles>
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & VariantStyleProps
 
 export const Button: React.FC<PropsWithChildren<ButtonProps>> = (props) => {
-  const { children, fullWidth, ...buttonProps } = props
+  const { children, fullWidth, disabled, ...buttonProps } = props
   return (
-    <button {...buttonProps} className={buttonStyles({ fullWidth })}>
+    <button {...buttonProps} disabled={disabled} className={buttonStyles({ fullWidth, disabled })}>
       {children}
     </button>
   )

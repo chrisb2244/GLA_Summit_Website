@@ -1,6 +1,7 @@
 'use client'
 
 import { FormField, FormFieldIndicator, TextArea } from '@/Components/Form'
+import { Button } from '@/Components/Form/Button'
 import { ProfileModel } from '@/lib/databaseModels'
 import React from 'react'
 import { useForm } from 'react-hook-form'
@@ -13,15 +14,21 @@ type ProfileFormProps = {
 }
 
 // avatar_url is handled separately. Don't consider updated_at.
-type ProfileFormData = Omit<ProfileData, 'id' | 'updated_at' | 'avatar_url'>
+type ProfileFormData = Omit<ProfileData, 'updated_at' | 'avatar_url'>
 
 export const ProfileForm: React.FC<ProfileFormProps> = (props) => {
   const {
     register,
-    formState: { errors }
+    trigger,
+    formState: { errors, isDirty, isSubmitting, dirtyFields }
   } = useForm<ProfileFormData>({
-    defaultValues: props.profile
+    defaultValues: props.profile,
+    mode: 'all'
   })
+
+  // Only allow submitting if not currently submitting, and the form is changed.
+  const submitButtonDisabled = isSubmitting || !isDirty
+
 
   return (
     <form>
@@ -54,6 +61,12 @@ export const ProfileForm: React.FC<ProfileFormProps> = (props) => {
             label='Biography'
           />
         </div>
+      </div>
+      <input hidden value={props.profile.id} readOnly {...register('id')} />
+      <div className='px-4'>
+        <Button type='submit' fullWidth disabled={submitButtonDisabled}>
+          Save Changes
+        </Button>
       </div>
     </form>
   )
