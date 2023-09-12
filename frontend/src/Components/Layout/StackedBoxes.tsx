@@ -7,7 +7,7 @@ export const StackedBoxes: React.FC<{
   children?: ReactNode
   stackSpacing?: 1.5 // fix possible values to constrain dynamic CSS - chosen based on existing use
   child_mx?: spacing | { xs?: spacing, sm?: spacing, md?: spacing, lg?: spacing, xl?: spacing }
-} & React.HTMLAttributes<HTMLDivElement>> = ({ children, stackSpacing = 3, child_mx = 3, ...divProps }) => {
+}> = ({ children, stackSpacing = 3, child_mx = 3 }) => {
   const isArray = Array.isArray(children)
   const childArray = isArray ? children : [children]
   const spacingToString = (s: spacing) => {
@@ -36,7 +36,7 @@ export const StackedBoxes: React.FC<{
 
   const mbName = stackSpacing === 1.5 ? 'mb-3' : 'mb-6'
   return (
-    <div {...divProps}>
+    <div>
       {childArray.map((child, idx) => (
         <div className={`${mbName} ${mxName} `} key={idx}>
           {child}
