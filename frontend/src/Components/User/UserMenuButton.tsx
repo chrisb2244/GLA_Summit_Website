@@ -15,7 +15,7 @@ import {
 } from '@/Components/SigninRegistration/SignInUpActions'
 import { useRouter } from 'next/navigation'
 
-export function UserIcon() {
+export function UserMenuButton() {
   const [isLoading, setIsLoading] = useState(true)
 
   const [user, setUser] = useState<User | null>()
@@ -54,7 +54,10 @@ export function UserIcon() {
 
   const idleSpinner = <WaitingIndicator />
   const button = isLoading ? null : user == null ? (
-    <SignInUpButton waitingSpinner={idleSpinner} onSignInComplete={updateUserClient}/>
+    <SignInUpButton
+      waitingSpinner={idleSpinner}
+      onSignInComplete={updateUserClient}
+    />
   ) : (
     <UserMenu user={user} isOrganizer={isOrganizer} signOut={signOutClient} />
   )

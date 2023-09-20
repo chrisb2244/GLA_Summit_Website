@@ -8,7 +8,7 @@ import { useProfileImage } from '@/lib/profileImage'
 import { getProfileInfo, type User } from '@/lib/databaseFunctions'
 import type { ProfileModel } from '@/lib/databaseModels'
 import { Route } from 'next'
-import NextImage from 'next/image'
+import { UserIcon } from './UserIcon'
 
 type UserMenuProps = {
   user: User
@@ -41,25 +41,6 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
   // console.log({ avatarSrc, imgLoading })
 
   const email = props.user.email
-  const UserIcon = (
-    props: { src?: string; size: 'large' | 'small' } = { size: 'large' }
-  ) => {
-    const pxSz = props.size === 'large' ? 48 : 24
-    return props.src ? (
-      <NextImage
-        width={pxSz}
-        height={pxSz}
-        src={props.src}
-        className='inline-flex rounded-full object-cover'
-        alt='User Profile Icon'
-      />
-    ) : (
-      <span>
-        {profile ? profile.firstname + ' ' + profile.lastname : email}
-      </span>
-    )
-  }
-
   const ListIcon = (props: { path: string }) => {
     return (
       <div className='inline-flex min-w-[36px] flex-shrink-0 text-black text-opacity-50'>
@@ -111,104 +92,53 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
     }
   }
 
-  return (
-    <>
-      {/* <Tooltip title='Account Settings'>
-        <IconButton
-          onClick={handleClick}
-          size='small'
-          sx={{ ml: 2 }}
-          aria-haspopup='true'
-          aria-controls={open ? 'account-menu' : undefined}
-          aria-expanded={open ? 'true' : undefined}
-        >
-          {userAvatar}
-        </IconButton>
-      </Tooltip> */}
-      {/* <Menu
-        anchorEl={anchorEl}
-        id='account-menu'
-        open={open}
-        onClick={handleClose}
-        onClose={handleClose}
-        PaperProps={{
-          elevation: 0,
-          sx: {
-            overflow: 'visible',
-            filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
-            mt: 1.5,
-            '& .MuiAvatar-root': {
-              width: 32,
-              height: 32,
-              ml: -0.5,
-              mr: 1
-            },
-            '&:before': {
-              content: '""',
-              display: 'block',
-              position: 'absolute',
-              top: 0,
-              right: 14,
-              width: 10,
-              height: 10,
-              bgcolor: 'background.paper',
-              transform: 'translateY(-50%) rotate(45deg)',
-              zIndex: 0
-            }
-          }
-        }}
-        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-      >
-        {isOrganizer && (
-          <MenuItemLink href=''>Yay, I&apos;m an organizer...</MenuItemLink>
-        )}
+  const buttonText = profile
+    ? profile.firstname + ' ' + profile.lastname
+    : email
 
-      
-      </Menu> */}
-      <Popover className='pr-4'>
-        <Popover.Button aria-haspopup aria-label=''>
-          <UserIcon src={avatarSrc} size='large' />
-        </Popover.Button>
-        <Transition
-          enter='transition duration-250 ease-in'
-          enterFrom='transform scale-90 opacity-0'
-          enterTo='transform scale-100 opacity-100'
-          leave='transition duration-150 ease-out'
-          leaveFrom='transform scale-100 opacity-100'
-          leaveTo='transform scale-90 opacity-0'
-        >
-          <Popover.Panel className='absolute right-0 mt-2 rounded bg-white p-2 text-black text-opacity-75 shadow'>
-            {({ close }) => (
-              <>
-                <div className='absolute -top-[6px] right-4 h-3 w-3 rotate-45 rounded-none bg-white' />
-                <div className='relative w-max max-w-[80vw] cursor-pointer list-none'>
-                  <ul>
-                    {menuObjs
-                      .concat(organizerMenuObjs)
-                      .map(({ title, href, imgObj, clickFn }) => {
-                        return (
-                          <WrapperElement href={href} key={title}>
-                            <li
-                              className='flex h-8 flex-row px-4 py-[6px]'
-                              onClick={() => {
-                                clickFn?.()
-                                close()
-                              }}
-                            >
-                              {imgObj}
-                              <p className='tracking-[0.00938em]'>{title}</p>
-                            </li>
-                          </WrapperElement>
-                        )
-                      })}
-                  </ul>
-                </div>
-              </>
-            )}
-          </Popover.Panel>
-        </Transition>
-      </Popover>
-    </>
+  return (
+    <Popover className='pr-4'>
+      <Popover.Button aria-haspopup aria-label=''>
+        <UserIcon src={avatarSrc} size='large' text={buttonText} />
+      </Popover.Button>
+      <Transition
+        enter='transition duration-250 ease-in'
+        enterFrom='transform scale-90 opacity-0'
+        enterTo='transform scale-100 opacity-100'
+        leave='transition duration-150 ease-out'
+        leaveFrom='transform scale-100 opacity-100'
+        leaveTo='transform scale-90 opacity-0'
+      >
+        <Popover.Panel className='absolute right-0 mt-2 rounded bg-white p-2 text-black text-opacity-75 shadow'>
+          {({ close }) => (
+            <>
+              <div className='absolute -top-[6px] right-4 h-3 w-3 rotate-45 rounded-none bg-white' />
+              <div className='relative w-max max-w-[80vw] cursor-pointer list-none'>
+                <ul>
+                  {menuObjs
+                    .concat(organizerMenuObjs)
+                    .map(({ title, href, imgObj, clickFn }) => {
+                      return (
+                        <WrapperElement href={href} key={title}>
+                          <li
+                            className='flex h-8 flex-row px-4 py-[6px]'
+                            onClick={() => {
+                              clickFn?.()
+                              close()
+                            }}
+                          >
+                            {imgObj}
+                            <p className='tracking-[0.00938em]'>{title}</p>
+                          </li>
+                        </WrapperElement>
+                      )
+                    })}
+                </ul>
+              </div>
+            </>
+          )}
+        </Popover.Panel>
+      </Transition>
+    </Popover>
   )
 }
