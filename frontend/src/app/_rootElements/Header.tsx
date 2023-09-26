@@ -58,7 +58,7 @@ export const Header = () => {
           <div className='col-start-2 mx-auto text-center text-white xs:hidden md:flex  md:flex-col'>
             <h1 className={`text-h1s font-light`}>GLA Summit</h1>
             <h4 className={`text-h4s font-normal`}>
-              14-15 November, 12:00 UTC
+              25-26 March 2024, 12:00 UTC
             </h4>
           </div>
         </div>

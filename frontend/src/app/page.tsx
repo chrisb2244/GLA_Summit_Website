@@ -9,7 +9,7 @@ export default function Page() {
   ) => {
     const { className: classNameProps, ...other } = props
     return (
-      <p className={`prose max-w-none text-center ${classNameProps ?? ''}`} {...other}>
+      <p className={`prose text-justify ${classNameProps ?? ''}`} {...other}>
         {props.children}
       </p>
     )
@@ -44,32 +44,43 @@ export default function Page() {
   //   </Box>
   // ) : null
 
-
   return (
-    <div>
+    <div className='mx-auto'>
       <StackedBoxes>
         <P>
-          The GLA Summit Organizers would like to thank all of the LabVIEW
-          enthusiasts who joined us for our third GLA Summit!
+          The GLA Summit Organizers are excited to announce the next GLA Summit,
+          scheduled for 25-26 March 2024!
         </P>
         <P>
-          We were excited to welcome advanced LabVIEW developers and Architects
+          We are excited to welcome advanced LabVIEW developers and Architects
           (certified or self-proclaimed) from around the world to network and
           participate in an inclusive, all-digital, free event.
         </P>
         <P>
-          Recordings of all of the presentations will be made available via the{' '}
+          Recordings of previous presentations are available via the{' '}
           <a
             href='https://www.youtube.com/c/GlobalLabVIEWArchitects'
             className='underline'
           >
             GLA Summit YouTube channel
           </a>{' '}
-          - we hope that you are as excited as we are to see any presentations
-          you missed, or to rewatch for details!
+          - we hope that you are as excited as we are to have these great
+          resources available to rewatch!
+        </P>
+        <P>
+          Many parts of the website are currently being updated and refactored
+          to improve our ability to deliver a smooth experience with logins,
+          presentation submissions and submission review, amongst other
+          features.
+        </P>
+        <P>
+          If there's something you&apos;d like to see in a future version,
+          please feel free to let us know at{' '}
+          <a href='mailto:web@glasummit.org'>web@glasummit.org</a> and
+          we&apos;ll be happy to consider it!
         </P>
       </StackedBoxes>
-      <SponsorBar />
+      {/* <SponsorBar /> */}
     </div>
   )
 }

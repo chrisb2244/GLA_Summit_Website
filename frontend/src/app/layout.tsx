@@ -13,7 +13,7 @@ export default function RootLayout({
   return (
     <html lang='en' className={roboto.className}>
       <head>
-        <title>GLA Summit 2022</title>
+        <title>GLA Summit 2024</title>
         <meta name='viewport' content='initial-scale=1, width=device-width' />
       </head>
 
