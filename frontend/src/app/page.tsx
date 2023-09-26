@@ -74,7 +74,7 @@ export default function Page() {
           features.
         </P>
         <P>
-          If there's something you&apos;d like to see in a future version,
+          If there&apos;s something you&apos;d like to see in a future version,
           please feel free to let us know at{' '}
           <a href='mailto:web@glasummit.org'>web@glasummit.org</a> and
           we&apos;ll be happy to consider it!
