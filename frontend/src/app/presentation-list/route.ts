@@ -1,8 +1,6 @@
 import { redirect } from "next/navigation"
 import { currentDisplayYear } from "@/lib/databaseModels"
 
-const PresentationPage = () => {
+export const GET = () => {
   redirect(`/presentation-list/${currentDisplayYear}`)
 }
-
-export default PresentationPage
