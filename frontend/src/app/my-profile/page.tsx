@@ -1,13 +1,12 @@
 import { Database } from '@/lib/sb_databaseModels'
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
+import { createServerComponentClient } from '@/lib/supabaseServer'
 
 import React, { PropsWithChildren } from 'react'
 import { ProfileImage } from './ProfileImage'
 import { ProfileForm } from './ProfileForm'
 
 const ProfilePage = async () => {
-  const supabase = createServerComponentClient<Database>({ cookies })
+  const supabase = createServerComponentClient()
   const user = (await supabase.auth.getSession()).data.session?.user
 
   const Wrapper: React.FC<PropsWithChildren> = (props) => {
