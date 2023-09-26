@@ -70,8 +70,8 @@ const SvrFullAgenda = async () => {
 
   return (
     <>
-      <div className='mb-2 px-4 prose mx-auto'>
-        <p>Times shown in this agenda are in your local timezone.</p>
+      <div className='mb-2 prose max-w-none mx-auto'>
+        <p>Times shown in this agenda are in your local timezone, and reflect the {currentDisplayYear} agenda.</p>
         <div className='max-sm:block sm:hidden'>
           <p>We recommend that you use this page on a wider screen.</p>
         </div>
