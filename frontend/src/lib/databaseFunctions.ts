@@ -1,6 +1,10 @@
 import { PersonDisplayProps } from '@/Components/PersonDisplay'
 import type { NewUserInformation } from '@/Components/SigninRegistration/NewUserRegistration'
-import { PostgrestError, User as SB_User, SupabaseClient } from '@supabase/supabase-js'
+import {
+  PostgrestError,
+  User as SB_User,
+  SupabaseClient
+} from '@supabase/supabase-js'
 import { AllPresentationsModel, ProfileModel } from './databaseModels'
 import { Database } from './sb_databaseModels'
 import { supabase, createAdminClient } from './supabaseClient'
@@ -94,19 +98,17 @@ export const adminUpdateExistingPresentationSubmission = async (
 export const clientUpdateExistingProfile = async (
   profileData: ProfileModel['Row']
 ) => {
-  return (
-    supabase
-      .from('profiles')
-      .upsert(profileData)
-      .select()
-      .then(({ data, error }) => {
-        if (error) throw error
-        if (data.length !== 1) {
-          throw new Error('Unexpected data length when updating profile')
-        }
-        return data[0]
-      })
-  )
+  return supabase
+    .from('profiles')
+    .upsert(profileData)
+    .select()
+    .then(({ data, error }) => {
+      if (error) throw error
+      if (data.length !== 1) {
+        throw new Error('Unexpected data length when updating profile')
+      }
+      return data[0]
+    })
 }
 
 export const checkIfOrganizer = async (user: User) => {
@@ -168,17 +170,21 @@ export const uploadAvatar = async (
   originalProfileURL: string | null
 ) => {
   // Upload a new file to storage
-  const { error } = await supabase.storage.from('avatars').upload(remoteFilePath, localFile)
+  const { error } = await supabase.storage
+    .from('avatars')
+    .upload(remoteFilePath, localFile)
   if (error) throw error
-  
+
   // Set that file as the profile avatar
   const { error: profileUpdateError } = await supabase
-    .from('profiles').update({avatar_url: remoteFilePath}).match({'id': userId})
+    .from('profiles')
+    .update({ avatar_url: remoteFilePath })
+    .match({ id: userId })
   if (profileUpdateError) {
     deleteAvatar(remoteFilePath)
     throw profileUpdateError
   }
-  
+
   if (originalProfileURL != null) {
     await deleteAvatar(originalProfileURL)
   }
@@ -197,9 +203,10 @@ export const downloadAvatar = async (userId: string) => {
     return null
   }
 
-  return await supabase.storage.from('avatars')
+  return await supabase.storage
+    .from('avatars')
     .download(data.avatar_url)
-    .then(({data, error}) => {
+    .then(({ data, error }) => {
       if (error) throw error
       return data
     })
@@ -224,9 +231,10 @@ export const deleteAvatar = async (remotePath: string) => {
 }
 
 export const getPerson = async (
-  userId: string
+  userId: string,
+  client: SupabaseClient<Database> = supabase
 ): Promise<PersonDisplayProps> => {
-  return supabase
+  return client
     .from('profiles')
     .select()
     .eq('id', userId)
@@ -248,21 +256,25 @@ export const getPerson = async (
     })
 }
 
-export const getPublicProfileIds = async () => {
-  return supabase
+export const getPublicProfileIds = async (
+  client: SupabaseClient<Database> = supabase
+) => {
+  return client
     .from('public_profiles')
     .select('id')
-    .then(({data, error}) => {
+    .then(({ data, error }) => {
       if (error) throw error
-      const ids = data.map(({id}) => id)
+      const ids = data.map(({ id }) => id)
       return ids
     })
 }
 
-export const getPublicProfiles = async (): Promise<ProfileModel['Row'][]> => {
+export const getPublicProfiles = async (
+  client: SupabaseClient<Database> = supabase
+): Promise<ProfileModel['Row'][]> => {
   return getPublicProfileIds()
     .then((ids) => {
-      return supabase
+      return client
         .from('profiles')
         .select()
         .in('id', ids)
@@ -274,22 +286,28 @@ export const getPublicProfiles = async (): Promise<ProfileModel['Row'][]> => {
     })
 }
 
-export const getPublicPresentations = async () => {
-  const { data, error } = await supabase.from('all_presentations')
+export const getPublicPresentations = async (
+  client: SupabaseClient<Database> = supabase
+) => {
+  const { data, error } = await client
+    .from('all_presentations')
     .select()
     .order('scheduled_for', { ascending: true })
   if (error) throw error
   return data
 }
-export const getPublicPresentationsForPresenter = async (presenterId: string) => {
-  const { data, error } = await supabase.from('all_presentations')
+export const getPublicPresentationsForPresenter = async (
+  presenterId: string,
+  client: SupabaseClient<Database> = supabase
+) => {
+  const { data, error } = await client
+    .from('all_presentations')
     .select()
     .contains('all_presenters', [presenterId])
     .order('scheduled_for', { ascending: true })
   if (error) throw error
   return data
 }
-
 
 export const getPublicPresentation = async (
   presentationId: string,
