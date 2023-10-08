@@ -52,6 +52,7 @@ const PresentersPage: NextPage<PageProps> = async ({ params }) => {
         return (
           <div key={year} className='mt-4 md:mt-0'>
             <h3 className='text-xl'>{year}</h3>
+            <div className='flex flex-col'>
             {presentationsInYear.map((p) => {
               return (
                 <LinkLikeText
@@ -63,6 +64,7 @@ const PresentersPage: NextPage<PageProps> = async ({ params }) => {
                 </LinkLikeText>
               );
             })}
+            </div>
           </div>
         );
       }
