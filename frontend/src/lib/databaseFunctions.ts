@@ -234,25 +234,32 @@ export const getPerson = async (
   userId: string,
   client: SupabaseClient<Database> = supabase
 ): Promise<PersonDisplayProps> => {
+  return (await getPeople([userId], client))[0]
+}
+
+export const getPeople = async (
+  userIds: string[],
+  client: SupabaseClient<Database> = supabase
+): Promise<Array<PersonDisplayProps & { id: string }>> => {
   return client
     .from('profiles')
     .select()
-    .eq('id', userId)
-    .single()
+    .in('id', userIds)
     .then(({ data, error }) => {
       if (error) throw error
-      const avatarUrl = data.avatar_url
-        ? getAvatarPublicUrl(data.avatar_url)
-        : null
-
-      const personProps: PersonDisplayProps = {
-        firstName: data.firstname ?? '',
-        lastName: data.lastname ?? '',
-        description:
-          data.bio ?? 'This presenter has not provided a description',
-        image: avatarUrl
-      }
-      return personProps
+      return data.map((person) => {
+        const avatarUrl = person.avatar_url
+          ? getAvatarPublicUrl(person.avatar_url)
+          : null
+        const personProps: PersonDisplayProps = {
+          firstName: person.firstname,
+          lastName: person.lastname,
+          description:
+            person.bio ?? 'This presenter has not provided a description',
+          image: avatarUrl
+        }
+        return { ...personProps, id: person.id }
+      })
     })
 }
 
