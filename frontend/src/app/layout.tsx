@@ -23,7 +23,7 @@ export default function RootLayout({
 
           <div style={{ flex: '1 0 auto', display: 'flex' }}>
             {/* w: 100% for up to small (i.e. xs), 80% for larger than "md" */}
-            <div className='max-w-screen-lg w-full md:w-4/5 mx-auto flex flex-col'>
+            <div className='max-w-screen-lg w-[85%] md:w-4/5 mx-auto flex flex-col'>
               {children}
             </div>
           </div>
