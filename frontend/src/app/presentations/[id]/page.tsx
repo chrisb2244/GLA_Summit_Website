@@ -7,6 +7,7 @@ import { getPerson, getPublicPresentation } from '@/lib/databaseFunctions'
 import { createAnonServerClient } from '@/lib/supabaseClient'
 import { getSessionDurationInMinutes } from '@/lib/utils'
 import type { NextPage, Route } from 'next'
+import { notFound } from 'next/navigation'
 import { redirect } from 'next/navigation'
 
 type PageProps = {
@@ -83,6 +84,8 @@ const PresentationsForYearPage: NextPage<PageProps> = async ({ params }) => {
         speakerNames: data.all_presenters_names,
         ...schedule
       }
+    }, (error) => {
+      notFound()
     }
   )
 
