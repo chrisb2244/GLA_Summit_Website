@@ -35,7 +35,7 @@
   ],
   "settings": {
     "next": {
-      "dirs": ["src/Components", "src/pages", "__tests__", "src/EmailTemplates"]
+      "dirs": ["src", "__tests__"]
     }
   },
   "ignorePatterns": [
