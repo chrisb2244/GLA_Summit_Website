@@ -1,22 +1,22 @@
-'use client'
+'use client';
 
-import { FormField, FormFieldIndicator, TextArea } from '@/Components/Form'
-import { Button } from '@/Components/Form/Button'
-import { ProfileModel } from '@/lib/databaseModels'
-import React from 'react'
-import { useForm } from 'react-hook-form'
-import { SubmitForm } from './ProfileFormServerActions'
-import { useRouter } from 'next/navigation'
+import { FormField, FormFieldIndicator, TextArea } from '@/Components/Form';
+import { Button } from '@/Components/Form/Button';
+import { ProfileModel } from '@/lib/databaseModels';
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import { SubmitForm } from './ProfileFormServerActions';
+import { useRouter } from 'next/navigation';
 
-type ProfileData = ProfileModel['Row']
+type ProfileData = ProfileModel['Row'];
 
 type ProfileFormProps = {
-  profile: ProfileData
-  email: string
-}
+  profile: ProfileData;
+  email: string;
+};
 
 // avatar_url is handled separately. Don't consider updated_at.
-type ProfileFormData = Omit<ProfileData, 'updated_at' | 'avatar_url'>
+type ProfileFormData = Omit<ProfileData, 'updated_at' | 'avatar_url'>;
 
 export const ProfileForm: React.FC<ProfileFormProps> = (props) => {
   const {
@@ -26,32 +26,32 @@ export const ProfileForm: React.FC<ProfileFormProps> = (props) => {
   } = useForm<ProfileFormData>({
     defaultValues: props.profile,
     mode: 'all'
-  })
-  const router = useRouter()
+  });
+  const router = useRouter();
 
   // Only allow submitting if not currently submitting, and the form is changed.
-  const submitButtonDisabled = isSubmitting || !isDirty
+  const submitButtonDisabled = isSubmitting || !isDirty;
 
   const clientSideSubmitAction = async (formData: FormData) => {
-    const isValid = await trigger()
+    const isValid = await trigger();
     if (!isValid) {
-      return
+      return;
     }
-    const changedValuesFormData = new FormData()
+    const changedValuesFormData = new FormData();
     Array.from(formData.entries()).forEach(([name, value]) => {
       // If 'name' is not a valid key, then this is undefined, and the '??' returns false.
-      const isChanged = dirtyFields[name as keyof ProfileFormData] ?? false
+      const isChanged = dirtyFields[name as keyof ProfileFormData] ?? false;
       if (isChanged || name === 'id') {
-        changedValuesFormData.append(name, value)
+        changedValuesFormData.append(name, value);
       }
-    })
+    });
     await SubmitForm(changedValuesFormData).then(
       (updatedProfile) => {
-        router.refresh()
+        router.refresh();
       },
       (err) => console.error(err)
-    )
-  }
+    );
+  };
 
   return (
     <form action={clientSideSubmitAction}>
@@ -97,5 +97,5 @@ export const ProfileForm: React.FC<ProfileFormProps> = (props) => {
         </Button>
       </div>
     </form>
-  )
-}
+  );
+};

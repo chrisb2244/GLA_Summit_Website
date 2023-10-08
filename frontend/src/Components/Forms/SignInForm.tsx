@@ -1,21 +1,21 @@
-'use client'
+'use client';
 
-import { myLog } from '@/lib/utils'
-import { Button } from '../Form/Button'
-import { FormField } from '../Form'
-import { SubmitHandler, useForm } from 'react-hook-form'
-import React from 'react'
+import { myLog } from '@/lib/utils';
+import { Button } from '../Form/Button';
+import { FormField } from '../Form';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import React from 'react';
 
 export type SignInFormValues = {
-  email: string
-}
+  email: string;
+};
 
 type SignInFormProps = {
-  onSubmit: SubmitHandler<SignInFormValues>
-}
+  onSubmit: SubmitHandler<SignInFormValues>;
+};
 
 export const SignInForm = (props: SignInFormProps) => {
-  const { onSubmit } = props
+  const { onSubmit } = props;
 
   const {
     register,
@@ -23,7 +23,7 @@ export const SignInForm = (props: SignInFormProps) => {
     formState: { errors }
   } = useForm<SignInFormValues>({
     mode: 'onSubmit'
-  })
+  });
 
   return (
     <form
@@ -46,5 +46,5 @@ export const SignInForm = (props: SignInFormProps) => {
       />
       <Button type='submit'>Log In</Button>
     </form>
-  )
-}
+  );
+};

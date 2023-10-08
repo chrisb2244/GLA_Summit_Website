@@ -1,10 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./src/app/**/*.{js,ts,jsx,tsx}",
-    "./src/pages/**/*.{js,ts,jsx,tsx}",
-    "./src/Components/**/*.{js,ts,jsx,tsx}",
-    "./src/EmailTemplates/**/*.{js,ts,jsx,tsx}"
+    './src/app/**/*.{js,ts,jsx,tsx}',
+    './src/pages/**/*.{js,ts,jsx,tsx}',
+    './src/Components/**/*.{js,ts,jsx,tsx}',
+    './src/EmailTemplates/**/*.{js,ts,jsx,tsx}'
   ],
   theme: {
     screens: {
@@ -16,12 +16,13 @@ module.exports = {
     },
     extend: {
       boxShadow: {
-        'DEFAULT': '0px 5px 5px -3px rgba(0,0,0,0.2),0px 8px 10px 1px rgba(0,0,0,0.14),0px 3px 14px 2px rgba(0,0,0,0.12)'
+        DEFAULT:
+          '0px 5px 5px -3px rgba(0,0,0,0.2),0px 8px 10px 1px rgba(0,0,0,0.14),0px 3px 14px 2px rgba(0,0,0,0.12)'
       },
       colors: {
-        'primaryc': '#5837b9',
-        'secondaryc': '#a25bcd',
-        'primaryc.light': '#795fc7',
+        primaryc: '#5837b9',
+        secondaryc: '#a25bcd',
+        'primaryc.light': '#795fc7'
       },
       fontSize: {
         // xs: {
@@ -34,13 +35,11 @@ module.exports = {
         //   'h1s': '6.2125rem'
         // },
         // lg: {
-          'h1s': ['6.8552rem', '1.167'],
-          'h4s': ['2.4291rem', '1.235']
+        h1s: ['6.8552rem', '1.167'],
+        h4s: ['2.4291rem', '1.235']
         // },
-      },
-    },
+      }
+    }
   },
-  plugins: [
-    require('@tailwindcss/typography')
-  ],
-}
+  plugins: [require('@tailwindcss/typography')]
+};

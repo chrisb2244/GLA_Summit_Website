@@ -1,53 +1,53 @@
-'use client'
-import { Popover, Transition } from '@headlessui/react'
-import { mdiLogout, mdiMonitorAccount, mdiVoteOutline } from '@mdi/js'
-import { Icon } from '@mdi/react'
-import React, { PropsWithChildren, useEffect, useState } from 'react'
-import NextLink from 'next/link'
-import { useProfileImage } from '@/lib/profileImage'
-import { getProfileInfo, type User } from '@/lib/databaseFunctions'
-import type { ProfileModel } from '@/lib/databaseModels'
-import { Route } from 'next'
-import { UserIcon } from './UserIcon'
+'use client';
+import { Popover, Transition } from '@headlessui/react';
+import { mdiLogout, mdiMonitorAccount, mdiVoteOutline } from '@mdi/js';
+import { Icon } from '@mdi/react';
+import React, { PropsWithChildren, useEffect, useState } from 'react';
+import NextLink from 'next/link';
+import { useProfileImage } from '@/lib/profileImage';
+import { getProfileInfo, type User } from '@/lib/databaseFunctions';
+import type { ProfileModel } from '@/lib/databaseModels';
+import { Route } from 'next';
+import { UserIcon } from './UserIcon';
 
 type UserMenuProps = {
-  user: User
-  isOrganizer?: boolean
-  signOut: () => void
-}
+  user: User;
+  isOrganizer?: boolean;
+  signOut: () => void;
+};
 
 type UserMenuEntry = {
-  title: string
-  href: Route | undefined
-  imgObj: React.JSX.Element
-  clickFn?: () => void
-}
+  title: string;
+  href: Route | undefined;
+  imgObj: React.JSX.Element;
+  clickFn?: () => void;
+};
 
 export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
   props
 ) => {
-  const userId = props.user.id
-  const { isOrganizer, signOut } = props
+  const userId = props.user.id;
+  const { isOrganizer, signOut } = props;
 
-  const [profile, setProfile] = useState<ProfileModel['Insert'] | null>(null)
+  const [profile, setProfile] = useState<ProfileModel['Insert'] | null>(null);
   useEffect(() => {
     getProfileInfo(props.user)
       .then(setProfile)
       .catch((e) => {
-        console.log(e)
-      })
-  }, [props.user])
-  const { src: avatarSrc } = useProfileImage(userId) ?? {}
+        console.log(e);
+      });
+  }, [props.user]);
+  const { src: avatarSrc } = useProfileImage(userId) ?? {};
   // console.log({ avatarSrc, imgLoading })
 
-  const email = props.user.email
+  const email = props.user.email;
   const ListIcon = (props: { path: string }) => {
     return (
       <div className='inline-flex min-w-[36px] flex-shrink-0 text-black text-opacity-50'>
         <Icon path={props.path} size={1} />
       </div>
-    )
-  }
+    );
+  };
 
   const menuObjs: UserMenuEntry[] = [
     {
@@ -70,7 +70,7 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
       imgObj: <ListIcon path={mdiLogout} />,
       clickFn: signOut
     }
-  ]
+  ];
 
   const organizerMenuObjs: UserMenuEntry[] = isOrganizer
     ? [
@@ -80,21 +80,21 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
           imgObj: <ListIcon path={mdiVoteOutline} />
         }
       ]
-    : []
+    : [];
 
   const WrapperElement: React.FC<
     PropsWithChildren<{ href: Route | undefined }>
   > = ({ href, children }) => {
     if (typeof href !== 'undefined') {
-      return <NextLink href={href}>{children}</NextLink>
+      return <NextLink href={href}>{children}</NextLink>;
     } else {
-      return <div>{children}</div>
+      return <div>{children}</div>;
     }
-  }
+  };
 
   const buttonText = profile
     ? profile.firstname + ' ' + profile.lastname
-    : email
+    : email;
 
   return (
     <Popover className='pr-4'>
@@ -123,15 +123,15 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
                           <li
                             className='flex h-8 flex-row px-4 py-[6px]'
                             onClick={() => {
-                              clickFn?.()
-                              close()
+                              clickFn?.();
+                              close();
                             }}
                           >
                             {imgObj}
                             <p className='tracking-[0.00938em]'>{title}</p>
                           </li>
                         </WrapperElement>
-                      )
+                      );
                     })}
                 </ul>
               </div>
@@ -140,5 +140,5 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
         </Popover.Panel>
       </Transition>
     </Popover>
-  )
-}
+  );
+};

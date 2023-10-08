@@ -1,19 +1,19 @@
-import { Icon } from '@mdi/react'
-import { mdiAccountCircle } from '@mdi/js'
-import NextImage from 'next/image'
+import { Icon } from '@mdi/react';
+import { mdiAccountCircle } from '@mdi/js';
+import NextImage from 'next/image';
 
 type UserIconProps = {
-  src?: string
-  size?: 'large' | 'small'
-  text?: string
-}
+  src?: string;
+  size?: 'large' | 'small';
+  text?: string;
+};
 
 export const UserIcon = (props: UserIconProps) => {
-  const { src, size = 'large', text } = props
-  const pxSz = size === 'large' ? 48 : 24
-  const dummyIconSize = size === 'large' ? 1.5 : 1
+  const { src, size = 'large', text } = props;
+  const pxSz = size === 'large' ? 48 : 24;
+  const dummyIconSize = size === 'large' ? 1.5 : 1;
 
-  const DummyIcon = <Icon path={mdiAccountCircle} size={dummyIconSize} />
+  const DummyIcon = <Icon path={mdiAccountCircle} size={dummyIconSize} />;
 
   const icon =
     typeof src !== 'undefined' ? (
@@ -26,14 +26,14 @@ export const UserIcon = (props: UserIconProps) => {
       />
     ) : (
       DummyIcon
-    )
+    );
 
   const wrappedIcon = (
     <div className='inline-flex flex-shrink-0 text-opacity-50'>{icon}</div>
-  )
+  );
 
   if (typeof text === 'undefined') {
-    return wrappedIcon
+    return wrappedIcon;
   }
 
   return (
@@ -41,5 +41,5 @@ export const UserIcon = (props: UserIconProps) => {
       <span>{text}</span>
       {wrappedIcon}
     </span>
-  )
-}
+  );
+};

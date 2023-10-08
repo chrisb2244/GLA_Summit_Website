@@ -1,35 +1,35 @@
-'use client'
-import { Box, Paper, PaperProps, Typography } from '@mui/material'
-import { PresentationType, SummitYear } from '@/lib/databaseModels'
-import Link from 'next/link'
-import { TimestampSpan } from './Utilities/TimestampSpan'
+'use client';
+import { Box, Paper, PaperProps, Typography } from '@mui/material';
+import { PresentationType, SummitYear } from '@/lib/databaseModels';
+import Link from 'next/link';
+import { TimestampSpan } from './Utilities/TimestampSpan';
 
 export type Presenter = {
-  firstname: string
-  lastname: string
-}
+  firstname: string;
+  lastname: string;
+};
 export type Presentation = {
-  title: string
-  abstract: string
-  speakers: Presenter | Presenter[]
-  speakerNames: string | string[]
-  presentationId: string
-  year: SummitYear
-  scheduledFor: string | null
-  presentationType: PresentationType
-}
+  title: string;
+  abstract: string;
+  speakers: Presenter | Presenter[];
+  speakerNames: string | string[];
+  presentationId: string;
+  year: SummitYear;
+  scheduledFor: string | null;
+  presentationType: PresentationType;
+};
 
 export type PresentationProps = {
-  presentation: Presentation
-  paperProps?: PaperProps
-}
+  presentation: Presentation;
+  paperProps?: PaperProps;
+};
 
 export const PresentationSummary = (props: PresentationProps) => {
-  const { presentation: pres, paperProps } = props
+  const { presentation: pres, paperProps } = props;
 
   const speakerLine = Array.isArray(pres.speakerNames)
     ? pres.speakerNames.join(', ')
-    : pres.speakerNames
+    : pres.speakerNames;
 
   // prettier-ignore
   const durationElem = (
@@ -62,10 +62,10 @@ export const PresentationSummary = (props: PresentationProps) => {
           }}
         >
           {pres.abstract.split('\r\n').map((p, idx) => {
-            return <Typography key={`p${idx}`}>{p}</Typography>
+            return <Typography key={`p${idx}`}>{p}</Typography>;
           })}
         </Box>
       </Box>
     </Paper>
-  )
-}
+  );
+};

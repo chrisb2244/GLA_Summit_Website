@@ -1,26 +1,26 @@
-import type { SignInOptions, SignInReturn } from '@/lib/sessionContext'
-import { SignInForm, SignInFormValues } from '../Forms/SignInForm'
-import { CenteredDialog } from '../Layout/CenteredDialog'
-import { SubmitHandler } from 'react-hook-form'
+import type { SignInOptions, SignInReturn } from '@/lib/sessionContext';
+import { SignInForm, SignInFormValues } from '../Forms/SignInForm';
+import { CenteredDialog } from '../Layout/CenteredDialog';
+import { SubmitHandler } from 'react-hook-form';
 
 type SignInProps = {
-  open: boolean
-  setClosed: () => void
-  switchToRegistration: () => void
-  onSubmit: SubmitHandler<SignInFormValues>
-}
+  open: boolean;
+  setClosed: () => void;
+  switchToRegistration: () => void;
+  onSubmit: SubmitHandler<SignInFormValues>;
+};
 
 export type SignInFunction = (
   email: string,
   options?: SignInOptions | undefined
-) => Promise<SignInReturn>
+) => Promise<SignInReturn>;
 
 export const UserSignIn: React.FC<SignInProps> = (props) => {
-  const { open, setClosed, switchToRegistration, onSubmit } = props
+  const { open, setClosed, switchToRegistration, onSubmit } = props;
 
   return (
     <CenteredDialog open={open} onClose={setClosed} dialogId='loginDialog'>
-      <div className='flex flex-col space-y-1 px-4 text-sm items-center text-center pb-4'>
+      <div className='flex flex-col items-center space-y-1 px-4 pb-4 text-center text-sm'>
         <p>
           In order to sign in, enter the email address you used to register for
           this website.
@@ -34,8 +34,8 @@ export const UserSignIn: React.FC<SignInProps> = (props) => {
           <a
             className='link'
             onClick={(ev) => {
-              ev.preventDefault()
-              switchToRegistration()
+              ev.preventDefault();
+              switchToRegistration();
             }}
           >
             Join Now
@@ -44,5 +44,5 @@ export const UserSignIn: React.FC<SignInProps> = (props) => {
       </div>
       <SignInForm onSubmit={onSubmit} />
     </CenteredDialog>
-  )
-}
+  );
+};

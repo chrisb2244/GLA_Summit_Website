@@ -1,5 +1,5 @@
-import { EmailProps } from '@/Components/Form/Person'
-import type { FormData } from '@/Components/Forms/PresentationSubmissionForm'
+import { EmailProps } from '@/Components/Form/Person';
+import type { FormData } from '@/Components/Forms/PresentationSubmissionForm';
 import {
   Box,
   Paper,
@@ -8,35 +8,35 @@ import {
   TableCell,
   TableRow,
   Typography
-} from '@mui/material'
+} from '@mui/material';
 import {
   FormRow,
   HorizontalDivider,
   buildSubmitterName
-} from './emailComponents'
+} from './emailComponents';
 
 export const FormSubmissionEmail: React.FC<{
-  data: FormData
-  headerText: JSX.Element
+  data: FormData;
+  headerText: JSX.Element;
 }> = ({ data, headerText }) => {
-  const submitterName = buildSubmitterName(data)
-  let typeText = ''
+  const submitterName = buildSubmitterName(data);
+  let typeText = '';
   switch (data.presentationType) {
     case '7x7': {
-      typeText = '7x7 (7 minutes)'
-      break
+      typeText = '7x7 (7 minutes)';
+      break;
     }
     case '15 minutes': {
-      typeText = 'Short Length (15 minutes)'
-      break
+      typeText = 'Short Length (15 minutes)';
+      break;
     }
     case 'full length': {
-      typeText = 'Full Length (45 minutes)'
-      break
+      typeText = 'Full Length (45 minutes)';
+      break;
     }
     case 'panel': {
-      typeText = 'Panel Discussion'
-      break
+      typeText = 'Panel Discussion';
+      break;
     }
   }
 
@@ -74,17 +74,17 @@ export const FormSubmissionEmail: React.FC<{
         </Box>
       </Paper>
     </Box>
-  )
-}
+  );
+};
 
 const OtherPresenterRows: React.FC<{ presenters: EmailProps[] }> = ({
   presenters
 }) => {
-  const nRows = presenters.length
+  const nRows = presenters.length;
   if (nRows === 0) {
-    return <FormRow label='Other Presenters:' value='None' />
+    return <FormRow label='Other Presenters:' value='None' />;
   }
-  const otherRows = presenters.slice(1)
+  const otherRows = presenters.slice(1);
   return (
     <TableRow>
       <TableCell rowSpan={nRows}>
@@ -100,8 +100,8 @@ const OtherPresenterRows: React.FC<{ presenters: EmailProps[] }> = ({
               <Typography>{p.email}</Typography>
             </TableCell>
           </TableRow>
-        )
+        );
       })}
     </TableRow>
-  )
-}
+  );
+};

@@ -1,4 +1,4 @@
-import { Button, Paper, MenuItem, TextFieldProps, Box } from '@mui/material'
+import { Button, Paper, MenuItem, TextFieldProps, Box } from '@mui/material';
 import {
   of,
   UseFormRegister,
@@ -6,46 +6,47 @@ import {
   FieldErrors,
   UseFieldArrayRemove,
   FieldArrayWithId
-} from 'react-hook-form'
-import { EmailArrayFormComponent, FormField, Person } from '@/Components/Form'
-import type { EmailProps, PersonProps } from '@/Components/Form'
-import { StackedBoxes } from '../Layout/StackedBoxes'
+} from 'react-hook-form';
+import { EmailArrayFormComponent, FormField, Person } from '@/Components/Form';
+import type { EmailProps, PersonProps } from '@/Components/Form';
+import { StackedBoxes } from '../Layout/StackedBoxes';
 
-
-import { PresentationType } from '@/lib/databaseModels'
+import { PresentationType } from '@/lib/databaseModels';
 
 export type FormData = {
-  submitter: PersonProps
-  otherPresenters: EmailProps[]
-  title: string
-  abstract: string
-  learningPoints: string
-  presentationType: PresentationType
-  timeWindows: { windowStartTime: Date; windowEndTime: Date }[]
-  isFinal: boolean
-}
+  submitter: PersonProps;
+  otherPresenters: EmailProps[];
+  title: string;
+  abstract: string;
+  learningPoints: string;
+  presentationType: PresentationType;
+  timeWindows: { windowStartTime: Date; windowEndTime: Date }[];
+  isFinal: boolean;
+};
 
 export type PresentationLockedStatus = {
-  isCopresenter: boolean
-  isSubmitted: boolean
-} //'unlocked' | 'copresenter' | 'submitted'
+  isCopresenter: boolean;
+  isSubmitted: boolean;
+}; //'unlocked' | 'copresenter' | 'submitted'
 export const isLocked = (status: PresentationLockedStatus) => {
-  return status.isCopresenter || status.isSubmitted
-}
+  return status.isCopresenter || status.isSubmitted;
+};
 
 type PresentationFormCoreProps = {
-  register: UseFormRegister<FormData>
-  errors: FieldErrors<FormData>
-  addPresenter: UseFieldArrayAppend<FormData, 'otherPresenters'>
-  removePresenter: UseFieldArrayRemove
-  otherPresenters: FieldArrayWithId<FormData, 'otherPresenters'>[]
-  submitter: PersonProps
-  displayLabels?: boolean
-  initialPresentationType?: PresentationType
-  lockStatuses?: PresentationLockedStatus
-}
+  register: UseFormRegister<FormData>;
+  errors: FieldErrors<FormData>;
+  addPresenter: UseFieldArrayAppend<FormData, 'otherPresenters'>;
+  removePresenter: UseFieldArrayRemove;
+  otherPresenters: FieldArrayWithId<FormData, 'otherPresenters'>[];
+  submitter: PersonProps;
+  displayLabels?: boolean;
+  initialPresentationType?: PresentationType;
+  lockStatuses?: PresentationLockedStatus;
+};
 
-export const PresentationSubmissionFormCore: React.FC<React.PropsWithChildren<PresentationFormCoreProps>> = ({
+export const PresentationSubmissionFormCore: React.FC<
+  React.PropsWithChildren<PresentationFormCoreProps>
+> = ({
   register,
   errors,
   addPresenter,
@@ -56,8 +57,8 @@ export const PresentationSubmissionFormCore: React.FC<React.PropsWithChildren<Pr
   displayLabels = false,
   lockStatuses = { isCopresenter: false, isSubmitted: false }
 }) => {
-  const locked = isLocked(lockStatuses)
-  const displayLocked = locked ? { display: 'none' } : {}
+  const locked = isLocked(lockStatuses);
+  const displayLocked = locked ? { display: 'none' } : {};
   const lockProps = locked
     ? {
         InputProps: {
@@ -65,9 +66,9 @@ export const PresentationSubmissionFormCore: React.FC<React.PropsWithChildren<Pr
         },
         variant: 'filled' as TextFieldProps['variant']
       }
-    : {}
+    : {};
 
-    return (
+  return (
     <>
       <Paper>
         <Box px={1} py={2} mb={1}>
@@ -93,10 +94,10 @@ export const PresentationSubmissionFormCore: React.FC<React.PropsWithChildren<Pr
       <Button
         fullWidth
         onClick={() => {
-          addPresenter({})
+          addPresenter({});
         }}
         variant='outlined'
-        sx={{ mb: 1, ...displayLocked}}
+        sx={{ mb: 1, ...displayLocked }}
       >
         Add Presenter
       </Button>
@@ -200,5 +201,5 @@ export const PresentationSubmissionFormCore: React.FC<React.PropsWithChildren<Pr
         </StackedBoxes>
       </Paper>
     </>
-  )
-}
+  );
+};

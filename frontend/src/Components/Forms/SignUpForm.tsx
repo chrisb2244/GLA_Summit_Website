@@ -1,21 +1,21 @@
-'use client'
+'use client';
 
-import { myLog } from '@/lib/utils'
-import { Button } from '../Form/Button'
-import { Person, PersonProps } from '../Form'
-import { SubmitHandler, TypedFieldPath, useForm } from 'react-hook-form'
-import React from 'react'
+import { myLog } from '@/lib/utils';
+import { Button } from '../Form/Button';
+import { Person, PersonProps } from '../Form';
+import { SubmitHandler, TypedFieldPath, useForm } from 'react-hook-form';
+import React from 'react';
 
 type SignUpFormProps = {
-  onSubmit: SubmitHandler<PersonProps>
-}
+  onSubmit: SubmitHandler<PersonProps>;
+};
 
 function EMPTY<T>() {
-  return '' as TypedFieldPath<T, T>
+  return '' as TypedFieldPath<T, T>;
 }
 
 export const SignUpForm = (props: SignUpFormProps) => {
-  const { onSubmit } = props
+  const { onSubmit } = props;
 
   const {
     register,
@@ -23,7 +23,7 @@ export const SignUpForm = (props: SignUpFormProps) => {
     formState: { errors }
   } = useForm<PersonProps>({
     mode: 'onSubmit'
-  })
+  });
 
   return (
     <form
@@ -39,5 +39,5 @@ export const SignUpForm = (props: SignUpFormProps) => {
       />
       <Button type='submit'>Register</Button>
     </form>
-  )
-}
+  );
+};

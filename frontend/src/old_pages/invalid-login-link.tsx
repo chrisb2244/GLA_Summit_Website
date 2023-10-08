@@ -1,12 +1,12 @@
-import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
-import { Box, Typography } from '@mui/material'
-import ErrorIcon from '@mui/icons-material/NoEncryptionGmailerrorredTwoTone'
-import type { NextPage } from 'next'
+import { StackedBoxes } from '@/Components/Layout/StackedBoxes';
+import { Box, Typography } from '@mui/material';
+import ErrorIcon from '@mui/icons-material/NoEncryptionGmailerrorredTwoTone';
+import type { NextPage } from 'next';
 
 const InvalidLoginLinkPage: NextPage = () => {
   const T = (props: { children: React.ReactNode }) => (
     <Typography textAlign='center'>{props.children}</Typography>
-  )
+  );
 
   return (
     <StackedBoxes>
@@ -38,7 +38,7 @@ const InvalidLoginLinkPage: NextPage = () => {
         </T>
       </Box>
     </StackedBoxes>
-  )
-}
+  );
+};
 
-export default InvalidLoginLinkPage
+export default InvalidLoginLinkPage;

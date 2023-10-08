@@ -1,23 +1,25 @@
-import { Box, Button, Container, Dialog } from '@mui/material'
+import { Box, Button, Container, Dialog } from '@mui/material';
 
 export type PopupProps = {
-  open: boolean
-  setClosed: () => void
-  onResolve: (response: boolean) => void
-  children?: React.ReactNode
-}
+  open: boolean;
+  setClosed: () => void;
+  onResolve: (response: boolean) => void;
+  children?: React.ReactNode;
+};
 
-export const ConfirmationPopup: React.FC<React.PropsWithChildren<PopupProps>> = (props) => {
+export const ConfirmationPopup: React.FC<
+  React.PropsWithChildren<PopupProps>
+> = (props) => {
   const buttonDisplayProps = {
     mb: { xs: 1, md: 0 },
     mx: 1,
     flexGrow: 1
-  }
+  };
 
   const resolveFn = (response: boolean) => {
-    props.setClosed()
-    props.onResolve(response)
-  }
+    props.setClosed();
+    props.onResolve(response);
+  };
 
   return (
     <>
@@ -45,5 +47,5 @@ export const ConfirmationPopup: React.FC<React.PropsWithChildren<PopupProps>> = 
         </Container>
       </Dialog>
     </>
-  )
-}
+  );
+};

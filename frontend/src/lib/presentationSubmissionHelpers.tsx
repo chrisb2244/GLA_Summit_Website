@@ -1,9 +1,12 @@
-import type { FormData } from '@/Components/Forms/PresentationSubmissionForm'
-import { FormSubmissionEmail } from '@/EmailTemplates/FormSubmissionEmail'
-import { buildSubmitterName, P } from '@/EmailTemplates/emailComponents'
-import { PersonProps } from '@/Components/Form/Person'
-import { adminAddNewPresentationSubmission, adminUpdateExistingPresentationSubmission } from './databaseFunctions'
-import { submissionsForYear } from './databaseModels'
+import type { FormData } from '@/Components/Forms/PresentationSubmissionForm';
+import { FormSubmissionEmail } from '@/EmailTemplates/FormSubmissionEmail';
+import { buildSubmitterName, P } from '@/EmailTemplates/emailComponents';
+import { PersonProps } from '@/Components/Form/Person';
+import {
+  adminAddNewPresentationSubmission,
+  adminUpdateExistingPresentationSubmission
+} from './databaseFunctions';
+import { submissionsForYear } from './databaseModels';
 
 export const uploadPresentationData = async (
   formData: FormData,
@@ -18,16 +21,19 @@ export const uploadPresentationData = async (
     learning_points: formData.learningPoints,
     presentation_type: formData.presentationType,
     year: submissionsForYear
-  }
+  };
   if (typeof presentationId === 'undefined') {
-    return adminAddNewPresentationSubmission(content)
+    return adminAddNewPresentationSubmission(content);
   } else {
-    return adminUpdateExistingPresentationSubmission({...content, id: presentationId})
+    return adminUpdateExistingPresentationSubmission({
+      ...content,
+      id: presentationId
+    });
   }
-}
+};
 
 export const EmailToSubmitter: React.FC<{ data: FormData }> = ({ data }) => {
-  const isSubmitted = data.isFinal
+  const isSubmitted = data.isFinal;
 
   const introText = isSubmitted ? (
     <P sx={{ textAlign: 'justify' }}>
@@ -40,27 +46,27 @@ export const EmailToSubmitter: React.FC<{ data: FormData }> = ({ data }) => {
       Please feel free to edit it as you need until you&apos;re ready to submit
       it via the &quot;My Presentations&quot; page.
     </P>
-  )
+  );
   const headerText = (
     <>
       {introText}
       <P>The data you submitted is shown below.</P>
     </>
-  )
-  return <FormSubmissionEmail data={data} headerText={headerText} />
-}
+  );
+  return <FormSubmissionEmail data={data} headerText={headerText} />;
+};
 
 export const EmailToExistingOtherPresenter: React.FC<{
-  data: FormData
-  receiver: PersonProps
+  data: FormData;
+  receiver: PersonProps;
 }> = ({ data, receiver }) => {
-  const submitterName = buildSubmitterName(data)
-  const recipFName = receiver.firstName
-  const recipLName = receiver.lastName
+  const submitterName = buildSubmitterName(data);
+  const recipFName = receiver.firstName;
+  const recipLName = receiver.lastName;
   const recipientName =
     typeof recipFName === 'undefined' && typeof recipLName === 'undefined'
       ? receiver.email
-      : [recipFName, recipLName].join(' ')
+      : [recipFName, recipLName].join(' ');
 
   const headerText = (
     <>
@@ -72,16 +78,16 @@ export const EmailToExistingOtherPresenter: React.FC<{
         https://glasummit.org
       </P>
     </>
-  )
+  );
 
-  return <FormSubmissionEmail data={data} headerText={headerText} />
-}
+  return <FormSubmissionEmail data={data} headerText={headerText} />;
+};
 
 export const EmailToNewOtherPresenter: React.FC<{
-  data: FormData
-  email: string
+  data: FormData;
+  email: string;
 }> = ({ data, email }) => {
-  const submitterName = buildSubmitterName(data)
+  const submitterName = buildSubmitterName(data);
 
   const headerText = (
     <>
@@ -110,7 +116,7 @@ export const EmailToNewOtherPresenter: React.FC<{
         remove you (and optionally your created account).
       </P>
     </>
-  )
+  );
 
-  return <FormSubmissionEmail data={data} headerText={headerText} />
-}
+  return <FormSubmissionEmail data={data} headerText={headerText} />;
+};

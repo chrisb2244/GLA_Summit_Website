@@ -1,11 +1,16 @@
-import { TableCell, TableRow, Typography, TypographyProps } from '@mui/material'
-import type { FormData } from '@/Components/Forms/PresentationSubmissionForm'
+import {
+  TableCell,
+  TableRow,
+  Typography,
+  TypographyProps
+} from '@mui/material';
+import type { FormData } from '@/Components/Forms/PresentationSubmissionForm';
 
 export type Recipient = {
-  email: string
-  firstName?: string
-  lastName?: string
-}
+  email: string;
+  firstName?: string;
+  lastName?: string;
+};
 
 export const FormRow: React.FC<{ label: string; value: string }> = ({
   label,
@@ -20,8 +25,8 @@ export const FormRow: React.FC<{ label: string; value: string }> = ({
         <Typography sx={{ whiteSpace: 'pre-line' }}>{value}</Typography>
       </TableCell>
     </TableRow>
-  )
-}
+  );
+};
 
 export const HorizontalDivider: React.FC = () => {
   return (
@@ -32,13 +37,14 @@ export const HorizontalDivider: React.FC = () => {
         borderStyle: 'solid'
       }}
     />
-  )
-}
+  );
+};
 
-export const P: React.FC<React.PropsWithChildren<TypographyProps>> = ({ children, ...props }) => (
-  <Typography {...props}>{children}</Typography>
-)
+export const P: React.FC<React.PropsWithChildren<TypographyProps>> = ({
+  children,
+  ...props
+}) => <Typography {...props}>{children}</Typography>;
 
 export const buildSubmitterName = (data: FormData) => {
-  return `${data.submitter.firstName} ${data.submitter.lastName}`
-}
+  return `${data.submitter.firstName} ${data.submitter.lastName}`;
+};

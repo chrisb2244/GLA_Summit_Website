@@ -1,63 +1,65 @@
-'use client'
-import { Paper, Box, Typography } from '@mui/material'
-import { PersonDisplay, PersonDisplayProps } from '@/Components/PersonDisplay'
-import { StackedBoxes } from './StackedBoxes'
-import { mdiCalendar, mdiStarPlusOutline, mdiStarRemoveOutline } from '@mdi/js'
-import Icon from '@mdi/react'
-import { useEffect, useState } from 'react'
-import { logErrorToDb } from '@/lib/utils'
+'use client';
+import { Paper, Box, Typography } from '@mui/material';
+import { PersonDisplay, PersonDisplayProps } from '@/Components/PersonDisplay';
+import { StackedBoxes } from './StackedBoxes';
+import { mdiCalendar, mdiStarPlusOutline, mdiStarRemoveOutline } from '@mdi/js';
+import Icon from '@mdi/react';
+import { useEffect, useState } from 'react';
+import { logErrorToDb } from '@/lib/utils';
 import {
   User,
   createClientComponentClient
-} from '@supabase/auth-helpers-nextjs'
-import { TimestampSpan } from '../Utilities/TimestampSpan'
+} from '@supabase/auth-helpers-nextjs';
+import { TimestampSpan } from '../Utilities/TimestampSpan';
 
 export type Presentation = {
-  title: string
-  abstract: string
-  speakerNames: string[]
-  speakers: PersonDisplayProps[]
-} & Schedule
+  title: string;
+  abstract: string;
+  speakerNames: string[];
+  speakers: PersonDisplayProps[];
+} & Schedule;
 
 export type Schedule =
   | {
-      sessionStart: string
-      sessionEnd: string
+      sessionStart: string;
+      sessionEnd: string;
     }
   | {
-      sessionStart: null
-      sessionEnd: null
-    }
+      sessionStart: null;
+      sessionEnd: null;
+    };
 
 type PresentationDisplayProps = {
-  presentation: Presentation
-  timeZoneName?: string
-  presentationId: string
-  dateToStringFn?: (datetime: string) => string
-  withFavouritesButton?: boolean
-}
+  presentation: Presentation;
+  timeZoneName?: string;
+  presentationId: string;
+  dateToStringFn?: (datetime: string) => string;
+  withFavouritesButton?: boolean;
+};
 
-export const PresentationDisplay: React.FC<React.PropsWithChildren<PresentationDisplayProps>> = (
-  props
-) => {
-  const { presentation, presentationId } = props
-  const timeZoneName = props.timeZoneName ?? 'JST'
-  const dateToStringFn = props.dateToStringFn ?? ((utcDateString) => {
-    const date = new Date(utcDateString)
-    const formatter = new Intl.DateTimeFormat(undefined, {
-      timeZone: 'JST',
-      hour: 'numeric',
-      minute: '2-digit',
-      second: undefined,
-      dateStyle: undefined,
-      hour12: false
-    })
-    return formatter.format(date)
-  })
-  const showFavouritesButton = props.withFavouritesButton ?? true
+export const PresentationDisplay: React.FC<
+  React.PropsWithChildren<PresentationDisplayProps>
+> = (props) => {
+  const { presentation, presentationId } = props;
+  const timeZoneName = props.timeZoneName ?? 'JST';
+  const dateToStringFn =
+    props.dateToStringFn ??
+    ((utcDateString) => {
+      const date = new Date(utcDateString);
+      const formatter = new Intl.DateTimeFormat(undefined, {
+        timeZone: 'JST',
+        hour: 'numeric',
+        minute: '2-digit',
+        second: undefined,
+        dateStyle: undefined,
+        hour12: false
+      });
+      return formatter.format(date);
+    });
+  const showFavouritesButton = props.withFavouritesButton ?? true;
 
   // const { user } = useSession()
-  const user = null
+  const user = null;
 
   // const [isFavourite, setFavourite] = useState(false)
   // useEffect(() => {
@@ -73,7 +75,7 @@ export const PresentationDisplay: React.FC<React.PropsWithChildren<PresentationD
   //     })
   // }, [presentationId, supabase])
 
-  let scheduleInfo = <></>
+  let scheduleInfo = <></>;
 
   if (presentation.sessionStart !== null) {
     scheduleInfo = (
@@ -87,7 +89,7 @@ export const PresentationDisplay: React.FC<React.PropsWithChildren<PresentationD
           day: '2-digit'
         }}
       />
-    )
+    );
   }
 
   const downloadButton = (
@@ -97,7 +99,7 @@ export const PresentationDisplay: React.FC<React.PropsWithChildren<PresentationD
         <span className='prose pl-1'>Download ICS file</span>
       </div>
     </a>
-  )
+  );
 
   // const handleFavouriteClick = () => {
   //   if (user === null) {
@@ -161,7 +163,7 @@ export const PresentationDisplay: React.FC<React.PropsWithChildren<PresentationD
           {/* {favouriteButton} */}
           <Box>
             {presentation.abstract.split('\r\n').map((p, idx) => {
-              return <Typography key={`p${idx}`}>{p}</Typography>
+              return <Typography key={`p${idx}`}>{p}</Typography>;
             })}
           </Box>
         </Box>
@@ -173,9 +175,9 @@ export const PresentationDisplay: React.FC<React.PropsWithChildren<PresentationD
               useDefaultIconImage
               key={`${personProps.lastName}_${personProps.firstName}`}
             />
-          )
+          );
         })}
       </StackedBoxes>
     </Paper>
-  )
-}
+  );
+};

@@ -1,18 +1,18 @@
-import NextImage from 'next/image'
-import GLA_Logo from '@/media/GLA-logo-spinnable.svg'
+import NextImage from 'next/image';
+import GLA_Logo from '@/media/GLA-logo-spinnable.svg';
 
 type WaitingIndicatorProps = {
-  scale?: number
-  maxLength?: number
-  children?: React.ReactNode
-}
+  scale?: number;
+  maxLength?: number;
+  children?: React.ReactNode;
+};
 
 export const WaitingIndicator: React.FC<WaitingIndicatorProps> = ({
   scale = 0.3,
   maxLength = 300
 }) => {
-  const width = typeof screen === 'undefined' ? 0 : screen.width
-  const length = Math.min(scale * width, maxLength)
+  const width = typeof screen === 'undefined' ? 0 : screen.width;
+  const length = Math.min(scale * width, maxLength);
 
   return (
     <div className='relative z-[100]'>
@@ -28,5 +28,5 @@ export const WaitingIndicator: React.FC<WaitingIndicatorProps> = ({
         />
       </div>
     </div>
-  )
-}
+  );
+};

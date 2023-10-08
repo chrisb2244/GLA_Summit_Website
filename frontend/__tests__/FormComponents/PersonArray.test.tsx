@@ -1,23 +1,23 @@
-import { render, waitFor, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { useForm, of, useFieldArray } from 'react-hook-form'
-import { PersonArrayFormComponent } from '@/Components/Form/PersonArray'
-import type { PersonProps } from '@/Components/Form/Person'
+import { render, waitFor, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { useForm, of, useFieldArray } from 'react-hook-form';
+import { PersonArrayFormComponent } from '@/Components/Form/PersonArray';
+import type { PersonProps } from '@/Components/Form/Person';
 
 type FormData = {
-  people: PersonProps[]
-}
+  people: PersonProps[];
+};
 
-const Form = (props: {addlabel?: string}): JSX.Element => {
+const Form = (props: { addlabel?: string }): JSX.Element => {
   const {
     register,
     control,
     formState: { errors }
-  } = useForm<FormData>()
+  } = useForm<FormData>();
   const { fields, append, remove } = useFieldArray<FormData, 'people'>({
     name: 'people',
     control
-  })
+  });
   return (
     <>
       <PersonArrayFormComponent<FormData>
@@ -29,73 +29,73 @@ const Form = (props: {addlabel?: string}): JSX.Element => {
       />
       <button
         onClick={() => {
-          append({})
+          append({});
         }}
       >
         {props.addlabel ?? 'Add Presenter'}
       </button>
     </>
-  )
-}
+  );
+};
 describe('PersonArray', () => {
   const renderForm = (addLabel?: string): { button: HTMLElement } => {
-    const view = render(<Form addlabel={addLabel}/>)
+    const view = render(<Form addlabel={addLabel} />);
     // eslint-disable-next-line testing-library/prefer-screen-queries
-    const button = view.getByRole('button')
-    return { button }
-  }
+    const button = view.getByRole('button');
+    return { button };
+  };
 
   it('initially has zero Persons', () => {
-    render(<Form />)
-    const inputs = screen.queryAllByRole('textbox')
-    expect(inputs).toHaveLength(0)
-  })
+    render(<Form />);
+    const inputs = screen.queryAllByRole('textbox');
+    expect(inputs).toHaveLength(0);
+  });
 
   it('initially has a button to add a Person', () => {
-    const { button } = renderForm()
-    expect(button).toHaveTextContent('Add')
-  })
+    const { button } = renderForm();
+    expect(button).toHaveTextContent('Add');
+  });
 
   it('allows a different label for the add button', () => {
-    const label = 'other label for button'
-    const { button } = renderForm(label)
-    expect(button).toHaveTextContent(label)
-  })
+    const label = 'other label for button';
+    const { button } = renderForm(label);
+    expect(button).toHaveTextContent(label);
+  });
 
   it('adds a person when the Add button is clicked', async () => {
-    const { button } = renderForm()
-    await userEvent.click(button)
+    const { button } = renderForm();
+    await userEvent.click(button);
 
-    const inputs = screen.queryAllByRole('textbox')
-    await waitFor(() => expect(inputs).toHaveLength(3)) // firstName, lastName, email
-  })
+    const inputs = screen.queryAllByRole('textbox');
+    await waitFor(() => expect(inputs).toHaveLength(3)); // firstName, lastName, email
+  });
 
   it('has a Delete button when a Person exists', async () => {
-    const { button: addButton } = renderForm()
-    await userEvent.click(addButton)
+    const { button: addButton } = renderForm();
+    await userEvent.click(addButton);
 
     const deleteButtonCandidates = screen
       .getAllByRole('button')
       .filter((elem) => {
-        return elem !== addButton
-      })
+        return elem !== addButton;
+      });
 
-    await waitFor(() => expect(deleteButtonCandidates).toHaveLength(1))
-    await waitFor(() => expect(deleteButtonCandidates[0]).toBeVisible())
-  })
+    await waitFor(() => expect(deleteButtonCandidates).toHaveLength(1));
+    await waitFor(() => expect(deleteButtonCandidates[0]).toBeVisible());
+  });
 
   it('has a functioning Delete button', async () => {
-    const { button: addButton } = renderForm()
-    userEvent.click(addButton)
+    const { button: addButton } = renderForm();
+    userEvent.click(addButton);
 
     const deleteButton = screen
       .getAllByRole('button')
-      .filter((elem) => elem !== addButton)[0]
-    userEvent.click(deleteButton)
+      .filter((elem) => elem !== addButton)[0];
+    userEvent.click(deleteButton);
 
-    const inputs = screen.queryAllByRole('textbox')
-    await waitFor(() => expect(inputs).toHaveLength(0))
-  })
+    const inputs = screen.queryAllByRole('textbox');
+    await waitFor(() => expect(inputs).toHaveLength(0));
+  });
 
   // const hasFirstName = inputs.some((elem) => elem.id === 'person.firstName')
   // const hasLastName = inputs.some((elem) => elem.id === 'person.lastName')
@@ -122,4 +122,4 @@ describe('PersonArray', () => {
   //   fireEvent.blur(firstName)
   //   await waitFor(() => expect(firstName).toBeInvalid())
   // })
-})
+});

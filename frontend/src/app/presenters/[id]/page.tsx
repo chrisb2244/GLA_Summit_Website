@@ -1,52 +1,52 @@
-import { PersonDisplay } from '@/Components/PersonDisplay'
-import { LinkLikeText } from '@/Components/Utilities/LinkLikeText'
+import { PersonDisplay } from '@/Components/PersonDisplay';
+import { LinkLikeText } from '@/Components/Utilities/LinkLikeText';
 import {
   getPerson,
   getPublicPresentations,
   getPublicPresentationsForPresenter
-} from '@/lib/databaseFunctions'
-import { splitByYear } from '@/lib/presentationArrayFunctions'
-import { createAnonServerClient } from '@/lib/supabaseClient'
-import { NextPage } from 'next'
-import { notFound } from 'next/navigation'
+} from '@/lib/databaseFunctions';
+import { splitByYear } from '@/lib/presentationArrayFunctions';
+import { createAnonServerClient } from '@/lib/supabaseClient';
+import { NextPage } from 'next';
+import { notFound } from 'next/navigation';
 
 type PageProps = {
   params: {
-    id: string
-  }
-}
+    id: string;
+  };
+};
 
-export const revalidate = 600
+export const revalidate = 600;
 
 export async function generateStaticParams(): Promise<{ id: string }[]> {
-  const supabase = createAnonServerClient()
+  const supabase = createAnonServerClient();
   return await getPublicPresentations(supabase).then((presentationsData) => {
     return presentationsData.flatMap((d) => {
       return d.all_presenters.map((presenterId) => {
         return {
           id: presenterId
-        }
-      })
-    })
-  })
+        };
+      });
+    });
+  });
 }
 
 const PresentersPage: NextPage<PageProps> = async ({ params }) => {
-  const presenterId = params.id
+  const presenterId = params.id;
   if (typeof presenterId !== 'string') {
-    notFound()
+    notFound();
   }
 
-  const supabase = createAnonServerClient()
+  const supabase = createAnonServerClient();
 
   try {
-    const presenter = await getPerson(presenterId, supabase)
+    const presenter = await getPerson(presenterId, supabase);
     const presenterPresentations = await getPublicPresentationsForPresenter(
       presenterId,
       supabase
-    )
+    );
 
-    const presentationsByYear = splitByYear(presenterPresentations)
+    const presentationsByYear = splitByYear(presenterPresentations);
     const presentationElements = presentationsByYear.map(
       ([year, presentationsInYear]) => {
         return (
@@ -61,22 +61,22 @@ const PresentersPage: NextPage<PageProps> = async ({ params }) => {
                 >
                   {p.title}
                 </LinkLikeText>
-              )
+              );
             })}
           </div>
-        )
+        );
       }
-    )
+    );
 
     return (
       <div className='my-4'>
         <PersonDisplay {...presenter} stripContainer />
         {presentationElements}
       </div>
-    )
+    );
   } catch (e) {
-    notFound()
+    notFound();
   }
-}
+};
 
-export default PresentersPage
+export default PresentersPage;

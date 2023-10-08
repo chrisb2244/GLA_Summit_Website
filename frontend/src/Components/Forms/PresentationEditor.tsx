@@ -1,4 +1,4 @@
-import { MySubmissionsModel } from '@/lib/databaseModels'
+import { MySubmissionsModel } from '@/lib/databaseModels';
 import {
   Box,
   Button,
@@ -7,58 +7,64 @@ import {
   CardContent,
   CardHeader,
   Collapse
-} from '@mui/material'
-import { useState } from 'react'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import { useFieldArray, useForm } from 'react-hook-form'
-import { PresentationSubmissionConfirmationPopup } from '@/Components/Form'
-import type { PersonProps } from '@/Components/Form'
-import { isLocked, PresentationLockedStatus, PresentationSubmissionFormCore } from './PresentationSubmissionFormCore'
-import type { FormData } from './PresentationSubmissionFormCore'
-import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
+} from '@mui/material';
+import { useState } from 'react';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { useFieldArray, useForm } from 'react-hook-form';
+import { PresentationSubmissionConfirmationPopup } from '@/Components/Form';
+import type { PersonProps } from '@/Components/Form';
+import {
+  isLocked,
+  PresentationLockedStatus,
+  PresentationSubmissionFormCore
+} from './PresentationSubmissionFormCore';
+import type { FormData } from './PresentationSubmissionFormCore';
+import { StackedBoxes } from '@/Components/Layout/StackedBoxes';
 
 type PresentationEditorProps = {
-  presentation: MySubmissionsModel
-  submitter: PersonProps
-  lockStatuses?: PresentationLockedStatus
-  deleteCallback: () => Promise<void>
-  updateCallback: (formData: FormData) => Promise<void>
-}
+  presentation: MySubmissionsModel;
+  submitter: PersonProps;
+  lockStatuses?: PresentationLockedStatus;
+  deleteCallback: () => Promise<void>;
+  updateCallback: (formData: FormData) => Promise<void>;
+};
 
-export const PresentationEditor: React.FC<React.PropsWithChildren<PresentationEditorProps>> = ({
+export const PresentationEditor: React.FC<
+  React.PropsWithChildren<PresentationEditorProps>
+> = ({
   presentation,
   submitter,
-  lockStatuses = {isCopresenter: false, isSubmitted: false},
+  lockStatuses = { isCopresenter: false, isSubmitted: false },
   updateCallback,
   deleteCallback
 }) => {
-  const [expanded, setExpanded] = useState(false)
-  const handleExpandClick = () => setExpanded(!expanded)
-  const [submittedData, setShowConfirmation] = useState<FormData | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const locked = isLocked(lockStatuses)
+  const [expanded, setExpanded] = useState(false);
+  const handleExpandClick = () => setExpanded(!expanded);
+  const [submittedData, setShowConfirmation] = useState<FormData | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const locked = isLocked(lockStatuses);
 
   const deleteDraft = async () => {
     // Consider a confirmation dialog?
     if (!locked) {
-      await deleteCallback()
+      await deleteCallback();
     }
-  }
+  };
 
   const saveDraft = (formData: FormData) => {
     if (!locked) {
-      setIsSubmitting(true)
-      updateCallback(formData).then(() => setIsSubmitting(false))
+      setIsSubmitting(true);
+      updateCallback(formData).then(() => setIsSubmitting(false));
     }
-  }
+  };
 
   const submitPresentation = (formData: FormData) => {
     // Submission is handled via callback from the ConfirmationPopup
     if (!locked) {
-      const fDataFinal = { ...formData, isFinal: true }
-      setShowConfirmation(fDataFinal)
+      const fDataFinal = { ...formData, isFinal: true };
+      setShowConfirmation(fDataFinal);
     }
-  }
+  };
 
   const confirmationPopup = (
     <PresentationSubmissionConfirmationPopup
@@ -66,20 +72,20 @@ export const PresentationEditor: React.FC<React.PropsWithChildren<PresentationEd
       setClosed={() => setShowConfirmation(null)}
       onResolve={(confirmed) => {
         if (confirmed) {
-          const formData = submittedData
+          const formData = submittedData;
           if (formData != null) {
-            setIsSubmitting(true)
-            updateCallback(formData).then(() => setIsSubmitting(false))
+            setIsSubmitting(true);
+            updateCallback(formData).then(() => setIsSubmitting(false));
           }
         }
       }}
     />
-  )
+  );
   const otherPresenters = presentation.all_emails
     .filter((e) => e !== submitter.email)
     .map((e) => {
-      return { email: e }
-    })
+      return { email: e };
+    });
 
   const {
     register,
@@ -98,7 +104,7 @@ export const PresentationEditor: React.FC<React.PropsWithChildren<PresentationEd
       title: presentation.title,
       timeWindows: []
     }
-  })
+  });
 
   const {
     fields: otherPresenterFields,
@@ -107,15 +113,23 @@ export const PresentationEditor: React.FC<React.PropsWithChildren<PresentationEd
   } = useFieldArray<FormData, 'otherPresenters'>({
     name: 'otherPresenters',
     control
-  })
+  });
 
   return (
     <>
       <Card>
-        <CardActionArea onClick={handleExpandClick} sx={{backgroundColor: lockStatuses.isSubmitted ? 'lightgrey' : undefined}}>
+        <CardActionArea
+          onClick={handleExpandClick}
+          sx={{
+            backgroundColor: lockStatuses.isSubmitted ? 'lightgrey' : undefined
+          }}
+        >
           <CardHeader
-            sx={{'> .MuiCardHeader-action': {alignSelf: 'center'}}}
-            title={[presentation.title, lockStatuses.isCopresenter ? '(Copresenter)' : ''].join(' ')}
+            sx={{ '> .MuiCardHeader-action': { alignSelf: 'center' } }}
+            title={[
+              presentation.title,
+              lockStatuses.isCopresenter ? '(Copresenter)' : ''
+            ].join(' ')}
             action={
               <ExpandMoreIcon
                 aria-expanded={expanded}
@@ -181,5 +195,5 @@ export const PresentationEditor: React.FC<React.PropsWithChildren<PresentationEd
       </Card>
       {confirmationPopup}
     </>
-  )
-}
+  );
+};

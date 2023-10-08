@@ -3,7 +3,7 @@
 // import { PresentationSubmissionForm } from '@/Components/Forms/PresentationSubmissionForm'
 // import type { PersonProps } from '@/Components/Form/Person'
 // import { RegistrationPopup } from '@/Components/SigninRegistration/RegistrationPopup'
-import { Box, Typography } from '@mui/material'
+import { Box, Typography } from '@mui/material';
 
 const PresentationSubmissionFormPage = (): JSX.Element => {
   // const [submitter, setSubmitter] = useState<PersonProps | null>(null)
@@ -50,7 +50,7 @@ const PresentationSubmissionFormPage = (): JSX.Element => {
       </Box>
       {/* <PresentationSubmissionForm submitter={submitter} /> */}
     </>
-  )
-}
+  );
+};
 
-export default PresentationSubmissionFormPage
+export default PresentationSubmissionFormPage;

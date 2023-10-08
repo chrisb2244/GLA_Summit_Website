@@ -1,21 +1,25 @@
 // import nodemailer from 'nodemailer'
-import Mailgun from 'mailgun.js'
-import FormDataPackage from 'form-data'
-import type { MessagesSendResult } from 'mailgun.js/interfaces/Messages'
+import Mailgun from 'mailgun.js';
+import FormDataPackage from 'form-data';
+import type { MessagesSendResult } from 'mailgun.js/interfaces/Messages';
 // import type { Options } from 'nodemailer/lib/mailer'
 
-const MG_API_KEY = process.env.MG_API_KEY as string
+const MG_API_KEY = process.env.MG_API_KEY as string;
 
-const mailgun = new Mailgun(FormDataPackage)
-const mg = mailgun.client({ username: 'api', key: MG_API_KEY, url: 'https://api.mailgun.net' })
+const mailgun = new Mailgun(FormDataPackage);
+const mg = mailgun.client({
+  username: 'api',
+  key: MG_API_KEY,
+  url: 'https://api.mailgun.net'
+});
 
 export type EmailContent = {
-  to: string | string[]
-  subject: string
-  bodyPlain: string
-  body?: string
-  from?: string
-}
+  to: string | string[];
+  subject: string;
+  bodyPlain: string;
+  body?: string;
+  from?: string;
+};
 
 // export const sendMail = async (emailContent: EmailContent) => {
 //   const { to, subject, body, bodyPlain } = emailContent
@@ -37,20 +41,26 @@ export type EmailContent = {
 // }
 
 export const sendMailApi = async (emailContent: EmailContent) => {
-  const { to, subject, body, bodyPlain } = emailContent
-  const from = emailContent.from ?? process.env.EMAIL_FROM_MG
+  const { to, subject, body, bodyPlain } = emailContent;
+  const from = emailContent.from ?? process.env.EMAIL_FROM_MG;
 
   return mg.messages
-    .create('mg.glasummit.org', {to, subject, text: bodyPlain, html: body, from})
+    .create('mg.glasummit.org', {
+      to,
+      subject,
+      text: bodyPlain,
+      html: body,
+      from
+    })
     .then((msg) => {
-      return msg
+      return msg;
     })
     .catch((err) => {
       const response: MessagesSendResult = {
         status: 500,
         message: err,
-        details: "Some error occurred when trying to send mail"
-      }
-      return response
-    })
-}
+        details: 'Some error occurred when trying to send mail'
+      };
+      return response;
+    });
+};

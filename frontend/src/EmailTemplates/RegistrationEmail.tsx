@@ -1,12 +1,12 @@
-import { PersonProps } from '@/Components/Form/Person'
-import { Box } from '@mui/material'
-import { P } from './emailComponents'
+import { PersonProps } from '@/Components/Form/Person';
+import { Box } from '@mui/material';
+import { P } from './emailComponents';
 
 export const RegistrationEmail: React.FC<{
-  person: PersonProps
-  registrationLink: string
+  person: PersonProps;
+  registrationLink: string;
 }> = ({ person, registrationLink }) => {
-  const name = [person.firstName, person.lastName].join(' ')
+  const name = [person.firstName, person.lastName].join(' ');
 
   const headerText = (
     <>
@@ -33,7 +33,7 @@ export const RegistrationEmail: React.FC<{
         contact@glasummit.org
       </P>
     </>
-  )
+  );
 
   return (
     <Box>
@@ -52,5 +52,5 @@ export const RegistrationEmail: React.FC<{
       </Box>
       {/* Maybe put a banner here at the bottom? */}
     </Box>
-  )
-}
+  );
+};

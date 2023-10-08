@@ -1,6 +1,6 @@
-import useSWRImmutable from 'swr/immutable'
-import type { KeyedMutator, ScopedMutator } from 'swr/dist/types'
-import { downloadAvatar, uploadAvatar } from './databaseFunctions'
+import useSWRImmutable from 'swr/immutable';
+import type { KeyedMutator, ScopedMutator } from 'swr/dist/types';
+import { downloadAvatar, uploadAvatar } from './databaseFunctions';
 
 export const uploadProfileImage = async (
   remoteFilePath: string,
@@ -9,27 +9,35 @@ export const uploadProfileImage = async (
   mutate: ScopedMutator,
   originalProfileURL: string | null
 ) => {
-  await uploadAvatar(remoteFilePath, localFile, userId, originalProfileURL)
-    .then(() => {
-      mutate(userId)
-    })
-}
+  await uploadAvatar(
+    remoteFilePath,
+    localFile,
+    userId,
+    originalProfileURL
+  ).then(() => {
+    mutate(userId);
+  });
+};
 
 export const useProfileImage = (
   userId: string | null
-): { loading: boolean; src: string; mutate: KeyedMutator<Blob | null> } | null => {
+): {
+  loading: boolean;
+  src: string;
+  mutate: KeyedMutator<Blob | null>;
+} | null => {
   const { data, error, isValidating, mutate } = useSWRImmutable(
     userId,
     downloadAvatar
-  )
-  if (error) throw error
+  );
+  if (error) throw error;
 
   if (!!data) {
     return {
       loading: isValidating,
       src: URL.createObjectURL(data), // 'blob:http://localhost:3000/some-Hexademical-Bits-Here'
       mutate
-    }
+    };
   }
-  return null
-}
+  return null;
+};

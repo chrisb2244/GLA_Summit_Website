@@ -1,48 +1,48 @@
-import { SummitYear } from '@/lib/databaseModels'
-import { myLog } from '@/lib/utils'
+import { SummitYear } from '@/lib/databaseModels';
+import { myLog } from '@/lib/utils';
 
 export type PresentationPlottingInfo = {
   style: {
-    top: number
-    height: number
-    left: number
-    width: number
-  }
-  title: string
-  link: string
-  id: string
-}
+    top: number;
+    height: number;
+    left: number;
+    width: number;
+  };
+  title: string;
+  link: string;
+  id: string;
+};
 
 export type ContainerHint = {
-  title: string
-  abstract: string
-  container_id: string
-  presentation_ids: string[]
-  year: SummitYear
-}
+  title: string;
+  abstract: string;
+  container_id: string;
+  presentation_ids: string[];
+  year: SummitYear;
+};
 
 type PresentationPlottingHints = {
-  startOffsetMinutes: number
-  durationMinutes: number
-  leftFraction: number
-  widthFraction: number
-  title: string
-  link: string
-  id: string
-}
+  startOffsetMinutes: number;
+  durationMinutes: number;
+  leftFraction: number;
+  widthFraction: number;
+  title: string;
+  link: string;
+  id: string;
+};
 
 export type PresentationSlot = {
-  startTime: Date
-  endTime: Date
-  durationMinutes: number
-  title: string
-  link: string
-  id: string
-}
+  startTime: Date;
+  endTime: Date;
+  durationMinutes: number;
+  title: string;
+  link: string;
+  id: string;
+};
 
 type SlotWithContainers = PresentationSlot & {
-  container?: boolean
-}
+  container?: boolean;
+};
 
 const findOverlappingPresentations = (
   p: SlotWithContainers,
@@ -52,9 +52,9 @@ const findOverlappingPresentations = (
     (a) =>
       a.startTime.getTime() < p.endTime.getTime() &&
       a.endTime.getTime() > p.startTime.getTime()
-  )
-  return overlappingPresentations
-}
+  );
+  return overlappingPresentations;
+};
 
 export const applyTimeScaling = (
   plotAreas: PresentationPlottingHints[],
@@ -72,9 +72,9 @@ export const applyTimeScaling = (
         top: pa.startOffsetMinutes * pixelsPerMinute,
         height: pa.durationMinutes * pixelsPerMinute
       }
-    }
-  })
-}
+    };
+  });
+};
 
 export const calculatePositioningInfo = (
   presentations: PresentationSlot[],
@@ -82,7 +82,7 @@ export const calculatePositioningInfo = (
   containerHints?: ContainerHint[]
 ): PresentationPlottingHints[] => {
   // Use containerHints to filter out 7x7, 15 minutes, etc
-  let sessionBlocks: SlotWithContainers[] = presentations
+  let sessionBlocks: SlotWithContainers[] = presentations;
   if (typeof containerHints !== 'undefined' && containerHints.length !== 0) {
     const presentationIdToContainerIdMap = containerHints
       .map((ch) => {
@@ -90,50 +90,50 @@ export const calculatePositioningInfo = (
           .map((presId) => {
             return {
               [presId]: ch.container_id
-            }
+            };
           })
           .reduce((mapVals, entry) => {
             return {
               ...mapVals,
               ...entry
-            }
-          })
+            };
+          });
       })
       .reduce((mapVals, entry) => {
         return {
           ...mapVals,
           ...entry
-        }
-      })
+        };
+      });
 
-    const usedContainerIds = new Set<string>()
+    const usedContainerIds = new Set<string>();
     sessionBlocks = sessionBlocks.filter((presentation) => {
       const thisPresentationIsInAContainer = Object.keys(
         presentationIdToContainerIdMap
-      ).includes(presentation.id)
+      ).includes(presentation.id);
       if (thisPresentationIsInAContainer) {
-        usedContainerIds.add(presentationIdToContainerIdMap[presentation.id])
+        usedContainerIds.add(presentationIdToContainerIdMap[presentation.id]);
       }
-      return !thisPresentationIsInAContainer
-    })
+      return !thisPresentationIsInAContainer;
+    });
 
     usedContainerIds.forEach((containerId) => {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const container = containerHints.find(
         (ch) => ch.container_id === containerId
-      )!
+      )!;
 
       const { minStartCount, maxEndCount } = container.presentation_ids.reduce(
         ({ minStartCount, maxEndCount }, current) => {
-          const presentation = presentations.find((p) => p.id === current)
+          const presentation = presentations.find((p) => p.id === current);
           if (typeof presentation === 'undefined') {
             myLog(
               `Unexpected unfound presentationId ${current} in containerId ${container}`
-            )
+            );
             return {
               minStartCount,
               maxEndCount
-            }
+            };
           }
           return {
             minStartCount: Math.min(
@@ -141,16 +141,16 @@ export const calculatePositioningInfo = (
               presentation.startTime.getTime()
             ),
             maxEndCount: Math.max(maxEndCount, presentation.endTime.getTime())
-          }
+          };
         },
         {
           maxEndCount: 0,
           minStartCount: new Date(Date.UTC(2999, 1, 1)).getTime()
         }
-      )
+      );
 
-      const startTime = new Date(minStartCount)
-      const endTime = new Date(maxEndCount)
+      const startTime = new Date(minStartCount);
+      const endTime = new Date(maxEndCount);
 
       sessionBlocks.push({
         id: containerId,
@@ -160,8 +160,8 @@ export const calculatePositioningInfo = (
         title: container.title,
         link: '', // fix?
         container: true
-      })
-    })
+      });
+    });
   }
 
   const buildHint = (
@@ -178,40 +178,40 @@ export const calculatePositioningInfo = (
         (p.startTime.getTime() - startTimeCount) / (1000 * 60),
       leftFraction,
       widthFraction
-    }
-  }
+    };
+  };
 
   return sessionBlocks
     .map((p) => {
       const overlappingPresentations = findOverlappingPresentations(
         p,
         sessionBlocks
-      )
-      const widthFraction = 1 / overlappingPresentations.length
-      const colIdx = overlappingPresentations.findIndex((c) => c.id === p.id)
+      );
+      const widthFraction = 1 / overlappingPresentations.length;
+      const colIdx = overlappingPresentations.findIndex((c) => c.id === p.id);
       if (colIdx === -1) {
-        return null
+        return null;
       }
-      const leftFraction = colIdx * widthFraction
+      const leftFraction = colIdx * widthFraction;
       if (p.container && typeof containerHints !== 'undefined') {
-        const container = containerHints.find((c) => c.container_id === p.id)
+        const container = containerHints.find((c) => c.container_id === p.id);
         if (typeof container === 'undefined') {
           // Can't get here - containers are pushed into sessionBlocks
-          return null
+          return null;
         }
-        const containedPresentationIds = container.presentation_ids
+        const containedPresentationIds = container.presentation_ids;
 
         const containedPresentations = containedPresentationIds.map(
           (containedId) =>
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             presentations.find((pres) => pres.id === containedId)!
-        )
+        );
         return containedPresentations.map((containedP) =>
           buildHint(containedP, leftFraction, widthFraction)
-        )
+        );
       }
-      return buildHint(p, leftFraction, widthFraction)
+      return buildHint(p, leftFraction, widthFraction);
     })
     .flat()
-    .flatMap((v) => (v ? [v] : [])) // filter null values
-}
+    .flatMap((v) => (v ? [v] : [])); // filter null values
+};

@@ -18,7 +18,7 @@ module.exports = {
         destination: '/presentation-list',
         permanent: true
       }
-    ]
+    ];
   },
   async headers() {
     return [
@@ -33,6 +33,6 @@ module.exports = {
           }
         ]
       }
-    ]
+    ];
   }
-}
+};

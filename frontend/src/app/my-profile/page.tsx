@@ -1,38 +1,38 @@
-import { Database } from '@/lib/sb_databaseModels'
-import { createServerComponentClient } from '@/lib/supabaseServer'
+import { Database } from '@/lib/sb_databaseModels';
+import { createServerComponentClient } from '@/lib/supabaseServer';
 
-import React, { PropsWithChildren } from 'react'
-import { ProfileImage } from './ProfileImage'
-import { ProfileForm } from './ProfileForm'
+import React, { PropsWithChildren } from 'react';
+import { ProfileImage } from './ProfileImage';
+import { ProfileForm } from './ProfileForm';
 
 const ProfilePage = async () => {
-  const supabase = createServerComponentClient()
-  const user = (await supabase.auth.getSession()).data.session?.user
+  const supabase = createServerComponentClient();
+  const user = (await supabase.auth.getSession()).data.session?.user;
 
   const Wrapper: React.FC<PropsWithChildren> = (props) => {
-    return <div className='mb-4 flex flex-col'>{props.children}</div>
-  }
+    return <div className='mb-4 flex flex-col'>{props.children}</div>;
+  };
 
   if (typeof user === 'undefined') {
     return (
       <Wrapper>
         <p>This page requires that you be logged-in.</p>
       </Wrapper>
-    )
+    );
   }
 
-  const userId = user.id
+  const userId = user.id;
   const { data, error } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', userId)
-    .single()
+    .single();
   if (error) {
     return (
       <Wrapper>
         <p>Unable to load profile...</p>
       </Wrapper>
-    )
+    );
   }
 
   return (
@@ -49,7 +49,7 @@ const ProfilePage = async () => {
         </div>
       </div>
     </Wrapper>
-  )
-}
+  );
+};
 
-export default ProfilePage
+export default ProfilePage;

@@ -1,5 +1,5 @@
-import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
-import { Button } from '@/Components/Form/Button'
+import { StackedBoxes } from '@/Components/Layout/StackedBoxes';
+import { Button } from '@/Components/Form/Button';
 
 const LabVIEW_Python_Page = () => {
   /*
@@ -25,15 +25,13 @@ const LabVIEW_Python_Page = () => {
         <li>With Sam Taggart moderating discussion</li>
       </ul>
     </div>
-  )
+  );
 
   // The Box here prevents going to the very edge on smaller screens
   return (
     <StackedBoxes>
-      <h3 className='text-center'>
-        LabVIEW and Python - A Discussion
-      </h3>
-      <div className='prose max-w-screen-lg mx-auto'>
+      <h3 className='text-center'>LabVIEW and Python - A Discussion</h3>
+      <div className='prose mx-auto max-w-screen-lg'>
         <p>
           In recent years, LabVIEW has gained better and better support for
           interoperability with some text-based languages, such as Python and
@@ -77,7 +75,7 @@ const LabVIEW_Python_Page = () => {
         </a>
       </div>
     </StackedBoxes>
-  )
-}
+  );
+};
 
-export default LabVIEW_Python_Page
+export default LabVIEW_Python_Page;

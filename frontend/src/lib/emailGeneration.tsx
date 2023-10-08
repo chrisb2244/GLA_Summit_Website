@@ -1,10 +1,9 @@
-import { CssBaseline, ThemeProvider } from '@mui/material'
-import { renderToString } from 'react-dom/server'
-import { CacheProvider } from '@emotion/react'
-import createEmotionCache from 'src/createEmotionCache'
-import createEmotionServer from '@emotion/server/create-instance'
-import { theme } from 'src/theme'
-
+import { CssBaseline, ThemeProvider } from '@mui/material';
+import { renderToString } from 'react-dom/server';
+import { CacheProvider } from '@emotion/react';
+import createEmotionCache from 'src/createEmotionCache';
+import createEmotionServer from '@emotion/server/create-instance';
+import { theme } from 'src/theme';
 
 export const generateBody = (
   emailComponent: JSX.Element,
@@ -14,13 +13,13 @@ export const generateBody = (
     `The non-HTML version of this email has reduced content - if you're ` +
     `seeing this and want more content in future emails, please contact ` +
     `web@glasummit.org and let us know that non-HTML-rendered emails are ` +
-    `important to you!`
+    `important to you!`;
 
   return {
     body: generateHTMLBody(emailComponent),
     bodyPlain: plainText + footer
-  }
-}
+  };
+};
 
 function renderFullPage(html: string, css: string) {
   return `
@@ -33,13 +32,13 @@ function renderFullPage(html: string, css: string) {
         <div id="root">${html}</div>
       </body>
     </html>
-  `
+  `;
 }
 
 const generateHTMLBody = (emailComponent: JSX.Element) => {
-  const cache = createEmotionCache()
+  const cache = createEmotionCache();
   const { extractCriticalToChunks, constructStyleTagsFromChunks } =
-    createEmotionServer(cache)
+    createEmotionServer(cache);
 
   const renderTarget = (
     <CacheProvider value={cache}>
@@ -48,10 +47,10 @@ const generateHTMLBody = (emailComponent: JSX.Element) => {
         {emailComponent}
       </ThemeProvider>
     </CacheProvider>
-  )
-  const html = renderToString(renderTarget)
-  const chunks = extractCriticalToChunks(html)
-  const styles = constructStyleTagsFromChunks(chunks)
+  );
+  const html = renderToString(renderTarget);
+  const chunks = extractCriticalToChunks(html);
+  const styles = constructStyleTagsFromChunks(chunks);
 
-  return renderFullPage(html, styles)
-}
+  return renderFullPage(html, styles);
+};

@@ -1,44 +1,45 @@
-import { Box, Container, Stack, Typography } from '@mui/material'
-import { PresentationEditor } from '../Forms/PresentationEditor'
-import { PersonProps } from '../Form/Person'
+import { Box, Container, Stack, Typography } from '@mui/material';
+import { PresentationEditor } from '../Forms/PresentationEditor';
+import { PersonProps } from '../Form/Person';
 import {
   FormData,
   PresentationLockedStatus
-} from '@/Components/Forms/PresentationSubmissionFormCore'
-import { deletePresentation, getMyPresentations } from '@/lib/databaseFunctions'
-import type { MySubmissionsModel } from '@/lib/databaseModels'
-import type { KeyedMutator } from 'swr'
+} from '@/Components/Forms/PresentationSubmissionFormCore';
+import {
+  deletePresentation,
+  getMyPresentations
+} from '@/lib/databaseFunctions';
+import type { MySubmissionsModel } from '@/lib/databaseModels';
+import type { KeyedMutator } from 'swr';
 
 type UserPresentationsProps = {
-  presentations: MySubmissionsModel[]
-  userId: string
-  mutate: KeyedMutator<MySubmissionsModel[]>
-}
+  presentations: MySubmissionsModel[];
+  userId: string;
+  mutate: KeyedMutator<MySubmissionsModel[]>;
+};
 
-export const UserPresentations: React.FC<React.PropsWithChildren<UserPresentationsProps>> = ({
-  presentations,
-  userId,
-  mutate
-}) => {
+export const UserPresentations: React.FC<
+  React.PropsWithChildren<UserPresentationsProps>
+> = ({ presentations, userId, mutate }) => {
   if (presentations.length === 0) {
-    return <p>You don&apos;t have any draft or submitted presentations</p>
+    return <p>You don&apos;t have any draft or submitted presentations</p>;
   }
 
   const presentationToEditorComponent = (p: MySubmissionsModel) => {
-    const isCopresenter = p.submitter_id !== userId
-    const isSubmitted = p.is_submitted
+    const isCopresenter = p.submitter_id !== userId;
+    const isSubmitted = p.is_submitted;
     const lockStatus: PresentationLockedStatus = {
       isCopresenter,
       isSubmitted
-    }
+    };
     const submitterIdx = p.all_presenters_ids.findIndex(
       (id) => p.submitter_id === id
-    )
+    );
     const submitter: PersonProps = {
       email: p.all_emails[submitterIdx],
       firstName: p.all_firstnames[submitterIdx],
       lastName: p.all_lastnames[submitterIdx]
-    }
+    };
     return (
       <PresentationEditor
         presentation={p}
@@ -50,12 +51,12 @@ export const UserPresentations: React.FC<React.PropsWithChildren<UserPresentatio
             () => {
               return deletePresentation(p.presentation_id).then(() =>
                 getMyPresentations()
-              )
+              );
             },
             {
               revalidate: false
             }
-          )
+          );
         }}
         updateCallback={async (formData: FormData) => {
           fetch('/api/handlePresentationSubmission', {
@@ -69,21 +70,21 @@ export const UserPresentations: React.FC<React.PropsWithChildren<UserPresentatio
               sendEmails: false,
               presentationId: p.presentation_id
             })
-          })
+          });
           mutate(() => {
-            return getMyPresentations()
-          })
+            return getMyPresentations();
+          });
         }}
       />
-    )
-  }
+    );
+  };
 
   const draftList = presentations
     .filter((p) => !p.is_submitted)
-    .map(presentationToEditorComponent)
+    .map(presentationToEditorComponent);
   const submittedList = presentations
     .filter((p) => p.is_submitted)
-    .map(presentationToEditorComponent)
+    .map(presentationToEditorComponent);
 
   return (
     <Container>
@@ -113,6 +114,6 @@ export const UserPresentations: React.FC<React.PropsWithChildren<UserPresentatio
         </Box>
       </Stack>
     </Container>
-  )
-}
+  );
+};
 // }

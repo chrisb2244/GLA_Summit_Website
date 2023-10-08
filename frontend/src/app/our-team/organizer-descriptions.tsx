@@ -22,7 +22,7 @@ const TomMcQuillan = (
       Summit, is also on the committee for GDevCon.
     </p>
   </>
-)
+);
 
 const OliverWachno = (
   <>
@@ -39,7 +39,7 @@ const OliverWachno = (
       providing the beer.
     </p>
   </>
-)
+);
 
 const ChristianButcher = (
   <>
@@ -56,7 +56,7 @@ const ChristianButcher = (
       Week conferences, the first GDevCon, and the 2020 GLA Summit.
     </p>
   </>
-)
+);
 
 const SreejithSreenivasan = (
   <>
@@ -71,7 +71,7 @@ const SreejithSreenivasan = (
       groups and CLA summits.
     </p>
   </>
-)
+);
 
 const SamTaggart = (
   <>
@@ -97,7 +97,7 @@ const SamTaggart = (
       adventurers.
     </p>
   </>
-)
+);
 
 const WilliamRichards = (
   <>
@@ -119,7 +119,7 @@ const WilliamRichards = (
       motorsports, dance, and music.
     </p>
   </>
-)
+);
 
 const MichalRadziwon = (
   <>
@@ -143,7 +143,7 @@ const MichalRadziwon = (
       drum, and can bake the yummiest chocolate cake ever!
     </p>
   </>
-)
+);
 
 const AmandaBacala = (
   <>
@@ -162,7 +162,7 @@ const AmandaBacala = (
       trails.
     </p>
   </>
-)
+);
 
 const MartinLentz = (
   <>
@@ -185,12 +185,13 @@ const MartinLentz = (
       tent.
     </p>
   </>
-)
+);
 
 const QuentinAlldredge = (
   <>
     <p>
-      Quentin goes by &ldquo;Q&rdquo; for both the Star Trek and James Bond connotations.
+      Quentin goes by &ldquo;Q&rdquo; for both the Star Trek and James Bond
+      connotations.
     </p>
     <p>
       Q graduated from Utah State University with a B.S. and M.S. in Mechanical
@@ -212,7 +213,7 @@ const QuentinAlldredge = (
       is involved in the LabVIEW Community.
     </p>
   </>
-)
+);
 
 export const descriptions = {
   TomMcQuillan: TomMcQuillan,
@@ -225,4 +226,4 @@ export const descriptions = {
   AmandaBacala: AmandaBacala,
   MartinLentz: MartinLentz,
   QuentinAlldredge: QuentinAlldredge
-}
+};

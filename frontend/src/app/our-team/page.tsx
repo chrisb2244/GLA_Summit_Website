@@ -1,16 +1,16 @@
-import { PersonDisplay } from '@/Components/PersonDisplay'
-import { descriptions } from './organizer-descriptions'
-import Image_OW from '@/media/OliWachno.jpg'
-import Image_TM from '@/media/TomMcQuillan.png'
-import Image_CB from '@/media/ChristianButcher.jpg'
-import Image_SS from '@/media/SreejithSreenivasan.jpg'
-import Image_ST from '@/media/SamTaggart.jpg'
-import Image_WR from '@/media/WilliamRichards.jpg'
-import Image_MR from '@/media/MichalRadziwon.jpg'
-import Image_AB from '@/media/AmandaBacala.webp'
-import Image_ML from '@/media/MartinLentz.jpg'
-import Image_QA from '@/media/QuentinAlldredge.webp'
-import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
+import { PersonDisplay } from '@/Components/PersonDisplay';
+import { descriptions } from './organizer-descriptions';
+import Image_OW from '@/media/OliWachno.jpg';
+import Image_TM from '@/media/TomMcQuillan.png';
+import Image_CB from '@/media/ChristianButcher.jpg';
+import Image_SS from '@/media/SreejithSreenivasan.jpg';
+import Image_ST from '@/media/SamTaggart.jpg';
+import Image_WR from '@/media/WilliamRichards.jpg';
+import Image_MR from '@/media/MichalRadziwon.jpg';
+import Image_AB from '@/media/AmandaBacala.webp';
+import Image_ML from '@/media/MartinLentz.jpg';
+import Image_QA from '@/media/QuentinAlldredge.webp';
+import { StackedBoxes } from '@/Components/Layout/StackedBoxes';
 
 const OurTeam = () => {
   return (
@@ -81,7 +81,7 @@ const OurTeam = () => {
         image={Image_QA}
       />
     </StackedBoxes>
-  )
-}
+  );
+};
 
-export default OurTeam
+export default OurTeam;

@@ -1,6 +1,6 @@
-import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
-import NextLink from 'next/link'
-import { Button } from '@/Components/Form/Button'
+import { StackedBoxes } from '@/Components/Layout/StackedBoxes';
+import NextLink from 'next/link';
+import { Button } from '@/Components/Form/Button';
 
 const Open_Source_Page = () => {
   /*
@@ -30,15 +30,13 @@ const Open_Source_Page = () => {
         <li>With Michał Radziwon moderating discussion</li>
       </ul>
     </div>
-  )
+  );
 
   // The Box here prevents going to the very edge on smaller screens
   return (
     <StackedBoxes>
-      <h3 className='text-center'>
-        How to make Open-Source more worthwhile?
-      </h3>
-      <div className='prose max-w-screen-lg mx-auto'>
+      <h3 className='text-center'>How to make Open-Source more worthwhile?</h3>
+      <div className='prose mx-auto max-w-screen-lg'>
         <p>
           One of the things that keeps the software community alive is the
           sharing and reuse of code. However, the LabVIEW community has
@@ -90,7 +88,7 @@ const Open_Source_Page = () => {
         </a>
       </div>
     </StackedBoxes>
-  )
-}
+  );
+};
 
-export default Open_Source_Page
+export default Open_Source_Page;

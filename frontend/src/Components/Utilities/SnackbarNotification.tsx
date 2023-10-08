@@ -1,17 +1,19 @@
-import { Snackbar, IconButton, Box } from '@mui/material'
-import type { SnackbarOrigin } from '@mui/material'
-import CloseIcon from '@mui/icons-material/Close'
-import { useState } from 'react'
+import { Snackbar, IconButton, Box } from '@mui/material';
+import type { SnackbarOrigin } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import { useState } from 'react';
 
 type NotificationProps = {
-  open?: boolean
-  anchorOrigin?: SnackbarOrigin
-  maxWidth?: string
-  children?: React.ReactNode
-}
+  open?: boolean;
+  anchorOrigin?: SnackbarOrigin;
+  maxWidth?: string;
+  children?: React.ReactNode;
+};
 
-export const SnackbarNotification: React.FC<React.PropsWithChildren<NotificationProps>> = (props) => {
-  const [open, setOpen] = useState(props.open)
+export const SnackbarNotification: React.FC<
+  React.PropsWithChildren<NotificationProps>
+> = (props) => {
+  const [open, setOpen] = useState(props.open);
 
   return (
     <Snackbar
@@ -35,5 +37,5 @@ export const SnackbarNotification: React.FC<React.PropsWithChildren<Notification
         </>
       }
     />
-  )
-}
+  );
+};

@@ -1,21 +1,21 @@
-import NI_Logo from '@/media/NI-Logo.png'
-import GCentral_Logo from '@/media/GCentral-logo-color.svg'
-import SAS_Logo from '@/media/SAS-Logo.png'
-import CorgiBytes_Logo from '@/media/corgibytes-logo.png'
-import HeartWare_Dev_Logo from '@/media/heartware-dev-logo.png' // #1e143e_bg
+import NI_Logo from '@/media/NI-Logo.png';
+import GCentral_Logo from '@/media/GCentral-logo-color.svg';
+import SAS_Logo from '@/media/SAS-Logo.png';
+import CorgiBytes_Logo from '@/media/corgibytes-logo.png';
+import HeartWare_Dev_Logo from '@/media/heartware-dev-logo.png'; // #1e143e_bg
 
-import Link from 'next/link'
-import NextImage, { type StaticImageData } from 'next/image'
+import Link from 'next/link';
+import NextImage, { type StaticImageData } from 'next/image';
 
 export const SponsorBar: React.FC<React.PropsWithChildren<unknown>> = () => {
   type Supporter = {
-    title: string
-    href: string
-    src: string | StaticImageData
-    width: number
-    height: number
-    imgWrapperCName?: string
-  }
+    title: string;
+    href: string;
+    src: string | StaticImageData;
+    width: number;
+    height: number;
+    imgWrapperCName?: string;
+  };
 
   const supporters: Array<Supporter> = [
     {
@@ -47,15 +47,20 @@ export const SponsorBar: React.FC<React.PropsWithChildren<unknown>> = () => {
       width: 100,
       height: 100
     }
-  ]
+  ];
 
   const supporterElements = supporters.map((s) => {
     return (
       <>
-        <h5 className='px-4 text-lg md:row-span-1 flex mx-auto' key={`${s.title}-heading`}>{s.title}</h5>
+        <h5
+          className='mx-auto flex px-4 text-lg md:row-span-1'
+          key={`${s.title}-heading`}
+        >
+          {s.title}
+        </h5>
         <a
           href={s.href}
-          className='p-4 md:p-0 md:px-4 md:row-start-2 flex m-auto'
+          className='m-auto flex p-4 md:row-start-2 md:p-0 md:px-4'
           key={`${s.title}-link`}
         >
           <div className={`my-auto max-h-[100px] ${s.imgWrapperCName ?? ''}`}>
@@ -69,26 +74,26 @@ export const SponsorBar: React.FC<React.PropsWithChildren<unknown>> = () => {
           </div>
         </a>
       </>
-    )
-  })
+    );
+  });
 
   return (
     <div className='flex flex-col items-center justify-center'>
       <div className='px-8 py-4 shadow-lg'>
         <Link href='https://www.ni.com' className='py-4'>
-          <div className='flex xs:flex-col-reverse md:flex-row items-center justify-center w-fit'>
+          <div className='flex w-fit items-center justify-center xs:flex-col-reverse md:flex-row'>
             <NextImage src={NI_Logo} width={180} height={180} alt='NI Logo' />
             <h5 className='px-4 text-xl'>Sponsored by NI</h5>
           </div>
         </Link>
       </div>
 
-      <div className='px-8 py-2 shadow-lg mt-2 flex flex-col justify-center items-center'>
+      <div className='mt-2 flex flex-col items-center justify-center px-8 py-2 shadow-lg'>
         <h5>Supported by:</h5>
-        <div className='flex flex-col pt-4 align-middle md:grid md:grid-rows-[4rem, 1fr]'>
+        <div className='md:grid-rows-[4rem, 1fr] flex flex-col pt-4 align-middle md:grid'>
           {supporterElements}
         </div>
       </div>
     </div>
-  )
-}
+  );
+};

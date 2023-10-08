@@ -1,16 +1,16 @@
-import { type FieldError, UseFormRegisterReturn } from 'react-hook-form'
-import { type VariantProps, cva } from 'class-variance-authority'
-import type { HTMLInputTypeAttribute, HTMLProps } from 'react'
-import React from 'react'
+import { type FieldError, UseFormRegisterReturn } from 'react-hook-form';
+import { type VariantProps, cva } from 'class-variance-authority';
+import type { HTMLInputTypeAttribute, HTMLProps } from 'react';
+import React from 'react';
 
 // Define separately for use styling the label and the error message
-const errorTextClassNames = 'text-red-700'
+const errorTextClassNames = 'text-red-700';
 
 const inputAlways = [
   'px-4 pt-3 pb-1 peer border focus-visible:outline-none',
   'border-t-0 focus:border-t-0 placeholder-shown:border-t-0',
   'text-lg border-gray-400 box-border'
-].join(' ')
+].join(' ');
 
 const inputFieldStyles = cva(inputAlways, {
   variants: {
@@ -27,7 +27,7 @@ const inputFieldStyles = cva(inputAlways, {
       true: ''
     }
   }
-})
+});
 
 // IMPORTANT:
 // The peer selectors require that the input is before the label in the DOM.
@@ -36,7 +36,7 @@ const placeholderShownClassNames = [
   'peer-placeholder-shown:top-4',
   'peer-placeholder-shown:left-4',
   'before:peer-placeholder-shown:hidden'
-].join(' ')
+].join(' ');
 
 const labelAlways = [
   'absolute block z-[2] transition-all text-gray-700',
@@ -49,7 +49,7 @@ const labelAlways = [
   'before:peer-focus:top-2 before:peer-focus:-left-[2px]',
   'before:peer-focus:z-[-1] before:peer-focus:bg-white',
   'before:peer-focus:h-[1px] peer-placeholder-shown:text-gray-500'
-].join(' ')
+].join(' ');
 
 const labelStyles = cva(labelAlways, {
   variants: {
@@ -62,7 +62,7 @@ const labelStyles = cva(labelAlways, {
       undefined: placeholderShownClassNames
     }
   }
-})
+});
 
 const wrapperStyles = cva(
   'inline-flex flex-col relative align-top mt-2 mb-4 bg-inherit overflow-x-clip',
@@ -76,28 +76,28 @@ const wrapperStyles = cva(
       }
     }
   }
-)
+);
 
-type VariantPropTypes = VariantProps<typeof inputFieldStyles>
+type VariantPropTypes = VariantProps<typeof inputFieldStyles>;
 
 type FormProps = {
-  registerReturn: UseFormRegisterReturn
-  fieldError: FieldError | undefined
-  type?: HTMLInputTypeAttribute
-  placeholder?: string
-  hidden?: boolean
-}
+  registerReturn: UseFormRegisterReturn;
+  fieldError: FieldError | undefined;
+  type?: HTMLInputTypeAttribute;
+  placeholder?: string;
+  hidden?: boolean;
+};
 
 type FormFieldProps = FormProps &
   VariantPropTypes &
-  Omit<HTMLProps<HTMLInputElement>, 'type'>
+  Omit<HTMLProps<HTMLInputElement>, 'type'>;
 
 // This provides a wrapper for the TextField, providing the error behaviour.
 export const FormField: React.FC<FormFieldProps> = (props) => {
-  const { registerReturn, fieldError, fullWidth, ...inputProps } = props
-  const isError = typeof fieldError !== 'undefined'
-  const id = registerReturn.name
-  const placeholderVisible = typeof props.placeholder !== 'undefined'
+  const { registerReturn, fieldError, fullWidth, ...inputProps } = props;
+  const isError = typeof fieldError !== 'undefined';
+  const id = registerReturn.name;
+  const placeholderVisible = typeof props.placeholder !== 'undefined';
 
   // placeholder-shown implies the field is empty
   // focus should have the non-empty classNames
@@ -130,14 +130,14 @@ export const FormField: React.FC<FormFieldProps> = (props) => {
       </label>
       <ErrorMessage error={fieldError} />
     </div>
-  )
-}
+  );
+};
 
-type FormFieldIndicatorProps = VariantPropTypes & HTMLProps<HTMLInputElement>
+type FormFieldIndicatorProps = VariantPropTypes & HTMLProps<HTMLInputElement>;
 export const FormFieldIndicator: React.FC<FormFieldIndicatorProps> = (
   props
 ) => {
-  const { fullWidth, id, ...inputProps } = props
+  const { fullWidth, id, ...inputProps } = props;
 
   return (
     <div className={wrapperStyles({ fullWidth, hidden: props.hidden })}>
@@ -157,18 +157,18 @@ export const FormFieldIndicator: React.FC<FormFieldIndicatorProps> = (
         {props.label ?? id}
       </label>
     </div>
-  )
-}
+  );
+};
 
 type TextAreaProps = FormProps &
   VariantPropTypes &
-  HTMLProps<HTMLTextAreaElement>
+  HTMLProps<HTMLTextAreaElement>;
 
 export const TextArea: React.FC<TextAreaProps> = (props) => {
-  const { registerReturn, fieldError, fullWidth, ...inputProps } = props
-  const isError = typeof fieldError !== 'undefined'
-  const id = registerReturn.name
-  const placeholderVisible = typeof props.placeholder !== 'undefined'
+  const { registerReturn, fieldError, fullWidth, ...inputProps } = props;
+  const isError = typeof fieldError !== 'undefined';
+  const id = registerReturn.name;
+  const placeholderVisible = typeof props.placeholder !== 'undefined';
 
   return (
     <div className={wrapperStyles({ fullWidth, hidden: props.hidden })}>
@@ -193,17 +193,17 @@ export const TextArea: React.FC<TextAreaProps> = (props) => {
       </label>
       <ErrorMessage error={fieldError} />
     </div>
-  )
-}
+  );
+};
 
 const ErrorMessage = ({ error }: { error: FieldError | undefined }) => {
-  const isError = typeof error !== 'undefined'
+  const isError = typeof error !== 'undefined';
   return isError ? (
     <span className={errorTextClassNames} role='alert'>
       {error.message}
     </span>
-  ) : null
-}
+  ) : null;
+};
 
 // Element to provide a top border when the label moves upwards
 const topBorderElement = (
@@ -211,4 +211,4 @@ const topBorderElement = (
     className='absolute left-0 top-0 h-[1px] w-full bg-gray-400 peer-focus:block'
     aria-hidden
   />
-)
+);

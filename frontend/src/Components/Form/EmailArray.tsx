@@ -4,26 +4,26 @@ import type {
   FieldValues,
   TypedFieldPath,
   UseFormRegister
-} from 'react-hook-form'
-import { join } from 'react-hook-form'
-import { EmailFormComponent } from './Person'
-import type { EmailProps } from './Person'
-import { Box, Button, Paper } from '@mui/material'
+} from 'react-hook-form';
+import { join } from 'react-hook-form';
+import { EmailFormComponent } from './Person';
+import type { EmailProps } from './Person';
+import { Box, Button, Paper } from '@mui/material';
 
 type EmailArrayProps<FV extends FieldValues> = {
-  emailArray: EmailProps[]
-  arrayPath: TypedFieldPath<FV, EmailProps[]>
+  emailArray: EmailProps[];
+  arrayPath: TypedFieldPath<FV, EmailProps[]>;
   errors:
     | Merge<
         FieldError,
         (Merge<FieldError, FieldErrors<EmailProps>> | undefined)[]
       >
-    | undefined
-  register: UseFormRegister<FV>
-  removePresenter: (idx: number) => void
-  locked?: boolean
+    | undefined;
+  register: UseFormRegister<FV>;
+  removePresenter: (idx: number) => void;
+  locked?: boolean;
   // defaultValue?: Partial<EmailProps[]>
-}
+};
 
 export function EmailArrayFormComponent<FV extends FieldValues>(
   props: EmailArrayProps<FV>
@@ -35,7 +35,7 @@ export function EmailArrayFormComponent<FV extends FieldValues>(
     removePresenter,
     arrayPath,
     locked = false
-  } = props
+  } = props;
 
   return (
     <>
@@ -57,19 +57,19 @@ export function EmailArrayFormComponent<FV extends FieldValues>(
         </Box>
       ))}
     </>
-  )
+  );
 }
 
-const OtherEmail = <FV extends FieldValues,>(props: {
-  idx: number
-  path: TypedFieldPath<FV, EmailProps[]>
-  errors: FieldErrors<EmailProps> | undefined
-  register: UseFormRegister<FV>
-  remove: (idx: number) => void
-  defaultValue?: EmailProps
-  locked?: boolean
+const OtherEmail = <FV extends FieldValues>(props: {
+  idx: number;
+  path: TypedFieldPath<FV, EmailProps[]>;
+  errors: FieldErrors<EmailProps> | undefined;
+  register: UseFormRegister<FV>;
+  remove: (idx: number) => void;
+  defaultValue?: EmailProps;
+  locked?: boolean;
 }) => {
-  const hideIfLocked = props.locked ? { display: 'none' } : {}
+  const hideIfLocked = props.locked ? { display: 'none' } : {};
 
   return (
     <Box
@@ -87,14 +87,14 @@ const OtherEmail = <FV extends FieldValues,>(props: {
           locked={props.locked}
         />
       </Box>
-      <Box flexGrow={0} p={1} textAlign='center' {...hideIfLocked} >
+      <Box flexGrow={0} p={1} textAlign='center' {...hideIfLocked}>
         <Button onClick={() => props.remove(props.idx)} variant='outlined'>
           Remove
         </Button>
       </Box>
     </Box>
-  )
-}
+  );
+};
 
 type Merge<A, B> = {
   [K in keyof A | keyof B]?: K extends keyof A
@@ -105,5 +105,5 @@ type Merge<A, B> = {
       : A[K]
     : K extends keyof B
     ? B[K]
-    : never
-}
+    : never;
+};

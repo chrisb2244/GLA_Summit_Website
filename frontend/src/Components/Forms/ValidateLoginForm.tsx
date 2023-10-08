@@ -1,34 +1,34 @@
-'use client'
+'use client';
 
-import { verifyLogin } from '@/Components/SigninRegistration/SignInUpActions'
-import { useForm } from 'react-hook-form'
-import { FormField } from '../Form/FormField'
-import { Button } from '../Form/Button'
+import { verifyLogin } from '@/Components/SigninRegistration/SignInUpActions';
+import { useForm } from 'react-hook-form';
+import { FormField } from '../Form/FormField';
+import { Button } from '../Form/Button';
 
 type ValidateLoginFormProps = {
-  email?: string
-  showEmail?: boolean
-  onSubmitFn?: () => void
-}
+  email?: string;
+  showEmail?: boolean;
+  onSubmitFn?: () => void;
+};
 
 type ValidationFormData = {
-  email: string
-  verificationCode: string
-}
+  email: string;
+  verificationCode: string;
+};
 
 export const ValidateLoginForm = (props: ValidateLoginFormProps) => {
-  const hideEmail = typeof props.email !== 'undefined' && !props.showEmail
+  const hideEmail = typeof props.email !== 'undefined' && !props.showEmail;
 
   const onSubmit = async (data: ValidationFormData) => {
-    await verifyLogin(data)
-    props.onSubmitFn?.()
-  }
+    await verifyLogin(data);
+    props.onSubmitFn?.();
+  };
 
   const {
     register,
     handleSubmit,
     formState: { errors }
-  } = useForm<ValidationFormData>()
+  } = useForm<ValidationFormData>();
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col '>
@@ -50,5 +50,5 @@ export const ValidateLoginForm = (props: ValidateLoginFormProps) => {
       />
       <Button type='submit'>Submit</Button>
     </form>
-  )
-}
+  );
+};

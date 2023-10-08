@@ -1,29 +1,29 @@
 import {
   Presentation,
   PresentationSummary
-} from '@/Components/PresentationSummary'
-import { SummitYear } from '@/lib/databaseModels'
-import { ArrowForwardIosSharp } from '@mui/icons-material'
+} from '@/Components/PresentationSummary';
+import { SummitYear } from '@/lib/databaseModels';
+import { ArrowForwardIosSharp } from '@mui/icons-material';
 import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
   Box,
   Typography
-} from '@mui/material'
-import { useState } from 'react'
+} from '@mui/material';
+import { useState } from 'react';
 
 type YearGroupedPresentationsProps = {
-  year: SummitYear
-  presentations: Presentation[]
-  initiallyOpen?: boolean
-  disableAccordion?: boolean
-}
+  year: SummitYear;
+  presentations: Presentation[];
+  initiallyOpen?: boolean;
+  disableAccordion?: boolean;
+};
 
 export const YearGroupedPresentations: React.FC<
   React.PropsWithChildren<YearGroupedPresentationsProps>
 > = ({ year, presentations, initiallyOpen, disableAccordion }) => {
-  const [open, setOpen] = useState(initiallyOpen ?? false)
+  const [open, setOpen] = useState(initiallyOpen ?? false);
   const sortBySchedule = (a: Presentation, b: Presentation) => {
     // negative if a < b
     // Returns "smallest" first
@@ -32,34 +32,34 @@ export const YearGroupedPresentations: React.FC<
         -1 *
         (new Date(b.scheduledFor).getTime() -
           new Date(a.scheduledFor).getTime())
-      )
+      );
     } else if (b.scheduledFor !== null) {
-      return 1 // b has a scheduled time, a does not. b first.
+      return 1; // b has a scheduled time, a does not. b first.
     } else if (a.scheduledFor !== null) {
-      return -1 // a has a scheduled time, b does not. a first.
+      return -1; // a has a scheduled time, b does not. a first.
     } else {
-      return 0
+      return 0;
     }
-  }
+  };
 
   const sortByName = (a: Presentation, b: Presentation) => {
     const bPrimarySpeaker = Array.isArray(b.speakers)
       ? b.speakers[0]
-      : b.speakers
+      : b.speakers;
     const aPrimarySpeaker = Array.isArray(a.speakers)
       ? a.speakers[0]
-      : a.speakers
+      : a.speakers;
     return (
       -1 *
       ('' + bPrimarySpeaker.lastname).localeCompare(aPrimarySpeaker.lastname)
-    )
-  }
+    );
+  };
 
   const renderedPresentations = presentations
     .sort((a, b) => {
-      const bySchedule = sortBySchedule(a, b)
-      const byName = sortByName(a, b)
-      return byName !== 0 ? byName : bySchedule
+      const bySchedule = sortBySchedule(a, b);
+      const byName = sortByName(a, b);
+      return byName !== 0 ? byName : bySchedule;
     })
     .map((p) => {
       return (
@@ -74,8 +74,8 @@ export const YearGroupedPresentations: React.FC<
             }}
           />
         </Box>
-      )
-    })
+      );
+    });
 
   return disableAccordion ? (
     <Box>{renderedPresentations}</Box>
@@ -114,5 +114,5 @@ export const YearGroupedPresentations: React.FC<
         {renderedPresentations}
       </AccordionDetails>
     </Accordion>
-  )
-}
+  );
+};

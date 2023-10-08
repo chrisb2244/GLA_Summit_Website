@@ -1,16 +1,16 @@
-import { Button } from '@/Components/Form/Button'
-import { SummitYear } from '@/lib/databaseModels'
-import NextLink from 'next/link'
-import React from 'react'
+import { Button } from '@/Components/Form/Button';
+import { SummitYear } from '@/lib/databaseModels';
+import NextLink from 'next/link';
+import React from 'react';
 
 const PresentationListLayout = async ({
   children
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) => {
-  const showAgendaLink = true
+  const showAgendaLink = true;
 
-  const years: SummitYear[] = ['2022', '2021']
+  const years: SummitYear[] = ['2022', '2021'];
 
   return (
     <div>
@@ -36,14 +36,12 @@ const PresentationListLayout = async ({
             <NextLink key={y} href={`/presentation-list/${y}`}>
               <Button type='button'>{y}</Button>
             </NextLink>
-          )
+          );
         })}
       </div>
-      <div className='shadow'>
-        {children}
-      </div>
+      <div className='shadow'>{children}</div>
     </div>
-  )
-}
+  );
+};
 
-export default PresentationListLayout
+export default PresentationListLayout;

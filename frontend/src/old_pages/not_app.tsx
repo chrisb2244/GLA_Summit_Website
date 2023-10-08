@@ -1,22 +1,22 @@
-import Head from 'next/head'
-import { AppProps } from 'next/app'
-import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles'
-import CssBaseline from '@mui/material/CssBaseline'
-import { CacheProvider, EmotionCache } from '@emotion/react'
-import { theme } from '../theme'
-import createEmotionCache from '../createEmotionCache'
-import { AppFrame } from '../Components/Layout/AppFrame'
-import reportWebVitals from '../reportWebVitals'
-import { AuthProvider } from '@/lib/sessionContext'
-import { Fragment, useState } from 'react'
-import type { Database } from '@/lib/sb_databaseModels'
-import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs'
+import Head from 'next/head';
+import { AppProps } from 'next/app';
+import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import { CacheProvider, EmotionCache } from '@emotion/react';
+import { theme } from '../theme';
+import createEmotionCache from '../createEmotionCache';
+import { AppFrame } from '../Components/Layout/AppFrame';
+import reportWebVitals from '../reportWebVitals';
+import { AuthProvider } from '@/lib/sessionContext';
+import { Fragment, useState } from 'react';
+import type { Database } from '@/lib/sb_databaseModels';
+import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs';
 // import { setupServer } from 'msw/node'
 
-import '../spinningLogo.css'
-import '../GLA-generic.css'
-import '../global.css'
-import { MaintenanceModeProvider } from '@/lib/maintenanceModeContext'
+import '../spinningLogo.css';
+import '../GLA-generic.css';
+import '../global.css';
+import { MaintenanceModeProvider } from '@/lib/maintenanceModeContext';
 
 // declare module '@mui/styles/defaultTheme' {
 //   // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -24,18 +24,18 @@ import { MaintenanceModeProvider } from '@/lib/maintenanceModeContext'
 // }
 
 // Client-side cache, shared for the whole session of the user in the browser.
-const clientSideEmotionCache = createEmotionCache()
-const isMaintenancePage = process.env.NEXT_PUBLIC_MAINTENANCE_MODE === 'true'
+const clientSideEmotionCache = createEmotionCache();
+const isMaintenancePage = process.env.NEXT_PUBLIC_MAINTENANCE_MODE === 'true';
 
 interface MyAppProps extends AppProps {
-  emotionCache?: EmotionCache
+  emotionCache?: EmotionCache;
 }
 
 if (process.env.PLAYWRIGHT === '1') {
-  console.log('loading mocks')
-  import('../../playwright/mocks').then(({initMocks}) => {
-    initMocks().then(mock => mock.resetHandlers())
-  })
+  console.log('loading mocks');
+  import('../../playwright/mocks').then(({ initMocks }) => {
+    initMocks().then((mock) => mock.resetHandlers());
+  });
 }
 
 // export const requestInterceptor = (process.env.PLAYWRIGHT === '1' && typeof window === 'undefined')
@@ -56,10 +56,12 @@ const MyApp: React.FC<React.PropsWithChildren<MyAppProps>> = (props) => {
     Component,
     emotionCache = clientSideEmotionCache,
     pageProps: { ...pageProps }
-  } = props
+  } = props;
 
-  const AppFrameElem = isMaintenancePage ? Fragment : AppFrame
-  const [supabaseClient] = useState(() => createBrowserSupabaseClient<Database>())
+  const AppFrameElem = isMaintenancePage ? Fragment : AppFrame;
+  const [supabaseClient] = useState(() =>
+    createBrowserSupabaseClient<Database>()
+  );
 
   return (
     <CacheProvider value={emotionCache}>
@@ -81,12 +83,12 @@ const MyApp: React.FC<React.PropsWithChildren<MyAppProps>> = (props) => {
         </ThemeProvider>
       </StyledEngineProvider>
     </CacheProvider>
-  )
-}
+  );
+};
 
-export default MyApp
+export default MyApp;
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals()
+reportWebVitals();

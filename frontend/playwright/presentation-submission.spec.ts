@@ -1,38 +1,38 @@
-import { test, expect } from '@playwright/test'
-import { PresentationSubmissionPage } from './models/PresentationSubmissionPage'
+import { test, expect } from '@playwright/test';
+import { PresentationSubmissionPage } from './models/PresentationSubmissionPage';
 
 test.describe('logged-in tests for presentation submission', () => {
-  test.skip()
+  test.skip();
   test.use({
     storageState: async ({}, use) =>
       use('./session-states/signedInNormalUserState.json')
-  })
+  });
 
   test('Form fill testing', async ({ page }) => {
-    const formPage = new PresentationSubmissionPage(page)
-    await formPage.goto('/submit-presentation')
+    const formPage = new PresentationSubmissionPage(page);
+    await formPage.goto('/submit-presentation');
     // Wait for the login dialog to disappear (have saved session state)
-    await formPage.waitForFormLoad()
+    await formPage.waitForFormLoad();
 
-    expect(await formPage.hasVisibleForm()).toBeTruthy()
+    expect(await formPage.hasVisibleForm()).toBeTruthy();
 
-    const testTitle = 'Test presentation title'
+    const testTitle = 'Test presentation title';
     await formPage.fillFormData({
       title: testTitle,
       learningPoints: 'Blah', // This is invalid input - too short
       presentationType: '15 minutes',
       isFinal: true
-    })
+    });
 
-    expect(await formPage.titleInput.inputValue()).toEqual(testTitle)
-    expect(await formPage.isFinalInput.isChecked()).toEqual(true)
+    expect(await formPage.titleInput.inputValue()).toEqual(testTitle);
+    expect(await formPage.isFinalInput.isChecked()).toEqual(true);
 
     await formPage.fillFormData({
       isFinal: false
-    })
+    });
 
-    expect(await formPage.isFinalInput.isChecked()).toEqual(false)
-  })
+    expect(await formPage.isFinalInput.isChecked()).toEqual(false);
+  });
 
   // test('Switching tabs does not change form content', async ({ page, context }) => {
   //   const formPage = new PresentationSubmissionPage(page)
@@ -51,14 +51,13 @@ test.describe('logged-in tests for presentation submission', () => {
   //   })
 
   //   expect(await formPage.titleInput.inputValue()).toEqual(testTitle)
-    
 
   //   const otherPage = await context.newPage();
   //   await otherPage.goto("https://google.com");
   //   await otherPage.bringToFront();
-    
+
   //   await page.bringToFront();
   //   expect(await formPage.titleInput.inputValue()).toEqual(testTitle)
   //   expect(await formPage.abstractInput.textContent()).not.toEqual("")
   // })
-})
+});

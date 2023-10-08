@@ -1,18 +1,26 @@
-import { Box, Typography } from '@mui/material'
-import type { BoxProps, TypographyProps } from '@mui/material'
-import GLA_Logo from '@/media/GLA-logo.svg'
-import NextImage from 'next/image'
+import { Box, Typography } from '@mui/material';
+import type { BoxProps, TypographyProps } from '@mui/material';
+import GLA_Logo from '@/media/GLA-logo.svg';
+import NextImage from 'next/image';
 
-export const MaintenancePage: React.FC<React.PropsWithChildren<unknown>> = () => {
-  const TextElem: React.FC<React.PropsWithChildren<TypographyProps>> = ({ children, ...other }) => {
+export const MaintenancePage: React.FC<
+  React.PropsWithChildren<unknown>
+> = () => {
+  const TextElem: React.FC<React.PropsWithChildren<TypographyProps>> = ({
+    children,
+    ...other
+  }) => {
     return (
       <Typography textAlign='center' color='text.secondary' {...other}>
         {children}
       </Typography>
-    )
-  }
+    );
+  };
 
-  const PurpleBox: React.FC<React.PropsWithChildren<BoxProps>> = ({ children, ...other }) => {
+  const PurpleBox: React.FC<React.PropsWithChildren<BoxProps>> = ({
+    children,
+    ...other
+  }) => {
     return (
       <Box
         bgcolor='secondary.main'
@@ -25,12 +33,12 @@ export const MaintenancePage: React.FC<React.PropsWithChildren<unknown>> = () =>
       >
         {children}
       </Box>
-    )
-  }
+    );
+  };
 
   const imageProps = {
     'aria-label': 'logo'
-  }
+  };
 
   const logo = (
     <>
@@ -44,7 +52,7 @@ export const MaintenancePage: React.FC<React.PropsWithChildren<unknown>> = () =>
         />
       </Box>
     </>
-  )
+  );
 
   return (
     <>
@@ -71,5 +79,5 @@ export const MaintenancePage: React.FC<React.PropsWithChildren<unknown>> = () =>
         </PurpleBox>
       </Box>
     </>
-  )
-}
+  );
+};

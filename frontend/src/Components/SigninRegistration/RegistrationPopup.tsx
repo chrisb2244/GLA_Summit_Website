@@ -1,19 +1,19 @@
-'use client'
-import { useState } from 'react'
-import { NewUserRegistration } from './NewUserRegistration'
-import { UserSignIn } from './UserSignIn'
-import { ValidationCodePopup } from './ValidationCodePopup'
-import { SignInFormValues } from '../Forms/SignInForm'
-import { signIn, signUp } from './SignInUpActions'
-import { PersonProps } from '../Form'
+'use client';
+import { useState } from 'react';
+import { NewUserRegistration } from './NewUserRegistration';
+import { UserSignIn } from './UserSignIn';
+import { ValidationCodePopup } from './ValidationCodePopup';
+import { SignInFormValues } from '../Forms/SignInForm';
+import { signIn, signUp } from './SignInUpActions';
+import { PersonProps } from '../Form';
 
 export type RegistrationProps = {
-  open?: boolean
-  setClosed?: () => void
-  onSignInComplete?: () => void
-  initialState?: 'signup' | 'signin'
-  waitingSpinner: JSX.Element
-}
+  open?: boolean;
+  setClosed?: () => void;
+  onSignInComplete?: () => void;
+  initialState?: 'signup' | 'signin';
+  waitingSpinner: JSX.Element;
+};
 
 export const RegistrationPopup: React.FC<
   React.PropsWithChildren<RegistrationProps>
@@ -21,50 +21,50 @@ export const RegistrationPopup: React.FC<
   const {
     open = false,
     setClosed = () => {
-      return
+      return;
     },
     initialState = 'signup',
     waitingSpinner
-  } = props
+  } = props;
 
   const [state, setState] = useState<'signup' | 'signin' | 'validation'>(
     initialState
-  )
-  const [email, setEmail] = useState<string | null>(null)
+  );
+  const [email, setEmail] = useState<string | null>(null);
 
-  const [isWaiting, setIsWaiting] = useState(false)
+  const [isWaiting, setIsWaiting] = useState(false);
 
   const signInSubmitHandler = (data: SignInFormValues) => {
-    setIsWaiting(true)
+    setIsWaiting(true);
     signIn(data.email)
       .then((success) => {
         if (success) {
-          setEmail(data.email)
-          setState('validation')
+          setEmail(data.email);
+          setState('validation');
         } else {
           // Probably invalid email for login?
         }
       })
       .finally(() => {
-        setIsWaiting(false)
-      })
-  }
+        setIsWaiting(false);
+      });
+  };
 
   const signUpSubmitHandler = (data: PersonProps) => {
-    setIsWaiting(true)
+    setIsWaiting(true);
     signUp(data)
       .then((success) => {
         if (success) {
-          setEmail(data.email)
-          setState('validation')
+          setEmail(data.email);
+          setState('validation');
         } else {
           // Existing values? Unsure why would fail here.
         }
       })
       .finally(() => {
-        setIsWaiting(false)
-      })
-  }
+        setIsWaiting(false);
+      });
+  };
 
   // Use the state checks outside of the 'open' property to avoid rendering the unused dialog
   const elemToRender = isWaiting ? (
@@ -88,11 +88,11 @@ export const RegistrationPopup: React.FC<
       email={email ?? undefined}
       open={open}
       setClosed={() => {
-        setClosed()
-        props.onSignInComplete?.()
+        setClosed();
+        props.onSignInComplete?.();
       }}
     />
-  )
+  );
 
-  return elemToRender
-}
+  return elemToRender;
+};

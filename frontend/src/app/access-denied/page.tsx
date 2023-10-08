@@ -1,14 +1,14 @@
-import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
-import { mdiAlertCircle } from '@mdi/js'
-import Icon from '@mdi/react'
+import { StackedBoxes } from '@/Components/Layout/StackedBoxes';
+import { mdiAlertCircle } from '@mdi/js';
+import Icon from '@mdi/react';
 
 const AccessDeniedPage = () => {
   const T = (props: { children: string }) => {
-    return <p className='text-center'>{props.children}</p>
-  }
+    return <p className='text-center'>{props.children}</p>;
+  };
 
   return (
-    <div className='flex flex-col mb-auto'>
+    <div className='mb-auto flex flex-col'>
       <div className='md:h-8' />
       <StackedBoxes>
         <div className='flex justify-center'>
@@ -22,7 +22,7 @@ const AccessDeniedPage = () => {
         <T>If you still cannot access this page, contact web@glasummit.org</T>
       </StackedBoxes>
     </div>
-  )
-}
+  );
+};
 
-export default AccessDeniedPage
+export default AccessDeniedPage;

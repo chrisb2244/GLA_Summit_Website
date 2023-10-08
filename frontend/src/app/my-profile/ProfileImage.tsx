@@ -1,31 +1,31 @@
-'use client'
-import { uploadAvatar } from '@/lib/databaseFunctions'
-import { useProfileImage } from '@/lib/profileImage'
-import { ChangeEvent, useState } from 'react'
-import NextImage from 'next/image'
-import { FileButton } from '@/Components/Form/Button'
-import Icon from '@mdi/react'
-import { mdiAccountBox } from '@mdi/js'
+'use client';
+import { uploadAvatar } from '@/lib/databaseFunctions';
+import { useProfileImage } from '@/lib/profileImage';
+import { ChangeEvent, useState } from 'react';
+import NextImage from 'next/image';
+import { FileButton } from '@/Components/Form/Button';
+import Icon from '@mdi/react';
+import { mdiAccountBox } from '@mdi/js';
 
 type ProfileImageProps = {
-  userId: string
-  avatarUrl: string | null
-}
+  userId: string;
+  avatarUrl: string | null;
+};
 
 export const ProfileImage = (props: ProfileImageProps) => {
-  const { userId, avatarUrl } = props
-  const [uploading, setUploading] = useState(false)
+  const { userId, avatarUrl } = props;
+  const [uploading, setUploading] = useState(false);
 
-  const { src: profileImageSrc, mutate } = useProfileImage(userId) || {}
+  const { src: profileImageSrc, mutate } = useProfileImage(userId) || {};
 
   const imageUploadFn = async (file: File) => {
-    const remoteName = `${userId}_${Math.random()}.png`
-    setUploading(true)
+    const remoteName = `${userId}_${Math.random()}.png`;
+    setUploading(true);
     uploadAvatar(remoteName, file, userId, avatarUrl).finally(() => {
-      setUploading(false)
-      mutate?.()
-    })
-  }
+      setUploading(false);
+      mutate?.();
+    });
+  };
 
   // 900px is md size
   const avatar =
@@ -38,15 +38,20 @@ export const ProfileImage = (props: ProfileImageProps) => {
         sizes='(max-width: 900px) 80vw, 20vw'
       />
     ) : (
-      <Icon path={mdiAccountBox} color='grey' id='placeholder-profile-icon' title='Placeholder profile image' />
-    )
+      <Icon
+        path={mdiAccountBox}
+        color='grey'
+        id='placeholder-profile-icon'
+        title='Placeholder profile image'
+      />
+    );
 
   const changeHandler = (ev: ChangeEvent<HTMLInputElement>) => {
-    const fileList = ev.target.files
+    const fileList = ev.target.files;
     if (fileList != null && fileList[0] != null) {
-      imageUploadFn(fileList[0])
+      imageUploadFn(fileList[0]);
     }
-  }
+  };
 
   return (
     <>
@@ -63,5 +68,5 @@ export const ProfileImage = (props: ProfileImageProps) => {
         </FileButton>
       </div>
     </>
-  )
-}
+  );
+};

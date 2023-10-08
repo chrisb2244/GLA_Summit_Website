@@ -1,62 +1,60 @@
-import { ConfirmationPopup } from "@/Components/ConfirmationPopup";
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { ConfirmationPopup } from '@/Components/ConfirmationPopup';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
-const onCloseFn = jest.fn(() => {})
+const onCloseFn = jest.fn(() => {});
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const onResolveFn = jest.fn((value: boolean) => {})
+const onResolveFn = jest.fn((value: boolean) => {});
 
-const EmptyConfPopup = <ConfirmationPopup open setClosed={onCloseFn} onResolve={onResolveFn} />
+const EmptyConfPopup = (
+  <ConfirmationPopup open setClosed={onCloseFn} onResolve={onResolveFn} />
+);
 
 describe('ConfirmationPopup', () => {
   beforeEach(() => {
-    jest.resetAllMocks()
-  })
+    jest.resetAllMocks();
+  });
 
   it('contains two buttons', () => {
-    render(EmptyConfPopup)
-    expect(screen.getAllByRole('button')).toHaveLength(2)
-  })
+    render(EmptyConfPopup);
+    expect(screen.getAllByRole('button')).toHaveLength(2);
+  });
 
   it('contains the children elements', () => {
-    const children = (
-      <p>
-        Some dummy text...
-      </p>
-    )
+    const children = <p>Some dummy text...</p>;
     render(
       <ConfirmationPopup open setClosed={onCloseFn} onResolve={onResolveFn}>
         {children}
       </ConfirmationPopup>
-    )
-    expect(screen.getByText('Some dummy text...')).toBeVisible()
-  })
+    );
+    expect(screen.getByText('Some dummy text...')).toBeVisible();
+  });
 
   it('calls the setClosed function when resolved false', async () => {
-    render(EmptyConfPopup)
-    const cancelButton = screen.getByRole('button', {name: 'Cancel'})
-    await userEvent.click(cancelButton)
-    expect(onCloseFn).toBeCalledTimes(1)
-  })
+    render(EmptyConfPopup);
+    const cancelButton = screen.getByRole('button', { name: 'Cancel' });
+    await userEvent.click(cancelButton);
+    expect(onCloseFn).toBeCalledTimes(1);
+  });
 
   it('calls the setClosed function when resolved true', async () => {
-    render(EmptyConfPopup)
-    const submitButton = screen.getByRole('button', {name: 'Confirm'})
-    await userEvent.click(submitButton)
-    expect(onCloseFn).toBeCalledTimes(1)
-  })
+    render(EmptyConfPopup);
+    const submitButton = screen.getByRole('button', { name: 'Confirm' });
+    await userEvent.click(submitButton);
+    expect(onCloseFn).toBeCalledTimes(1);
+  });
 
   it('calls the onResolve function with true when confirmed', async () => {
-    render(EmptyConfPopup)
-    const submitButton = screen.getByRole('button', {name: 'Confirm'})
-    await userEvent.click(submitButton)
-    expect(onResolveFn).toHaveBeenCalledWith(true)
-  })
+    render(EmptyConfPopup);
+    const submitButton = screen.getByRole('button', { name: 'Confirm' });
+    await userEvent.click(submitButton);
+    expect(onResolveFn).toHaveBeenCalledWith(true);
+  });
 
   it('calls the onResolve function with false when cancelled', async () => {
-    render(EmptyConfPopup)
-    const cancelButton = screen.getByRole('button', {name: 'Cancel'})
-    await userEvent.click(cancelButton)
-    return expect(onResolveFn).toHaveBeenCalledWith(false)
-  })
-})
+    render(EmptyConfPopup);
+    const cancelButton = screen.getByRole('button', { name: 'Cancel' });
+    await userEvent.click(cancelButton);
+    return expect(onResolveFn).toHaveBeenCalledWith(false);
+  });
+});

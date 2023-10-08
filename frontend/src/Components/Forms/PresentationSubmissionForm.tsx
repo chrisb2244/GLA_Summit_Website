@@ -1,40 +1,40 @@
-import { Button, Typography, Checkbox, FormControlLabel } from '@mui/material'
-import { useForm, useFieldArray } from 'react-hook-form'
-import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
-import { PresentationType } from '@/lib/databaseModels'
-import { PresentationSubmissionConfirmationPopup } from '@/Components/Form'
-import type { EmailProps, PersonProps } from '@/Components/Form'
-import { myLog } from '@/lib/utils'
-import { PresentationSubmissionFormCore } from './PresentationSubmissionFormCore'
-import { useSession } from '@/lib/sessionContext'
+import { Button, Typography, Checkbox, FormControlLabel } from '@mui/material';
+import { useForm, useFieldArray } from 'react-hook-form';
+import { StackedBoxes } from '@/Components/Layout/StackedBoxes';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import { PresentationType } from '@/lib/databaseModels';
+import { PresentationSubmissionConfirmationPopup } from '@/Components/Form';
+import type { EmailProps, PersonProps } from '@/Components/Form';
+import { myLog } from '@/lib/utils';
+import { PresentationSubmissionFormCore } from './PresentationSubmissionFormCore';
+import { useSession } from '@/lib/sessionContext';
 
 type FormProps = {
-  submitter: PersonProps
-}
+  submitter: PersonProps;
+};
 
 export type FormData = {
-  submitter: PersonProps
-  otherPresenters: EmailProps[]
-  title: string
-  abstract: string
-  learningPoints: string
-  presentationType: PresentationType
-  timeWindows: { windowStartTime: Date; windowEndTime: Date }[]
-  isFinal: boolean
-}
+  submitter: PersonProps;
+  otherPresenters: EmailProps[];
+  title: string;
+  abstract: string;
+  learningPoints: string;
+  presentationType: PresentationType;
+  timeWindows: { windowStartTime: Date; windowEndTime: Date }[];
+  isFinal: boolean;
+};
 
-export const PresentationSubmissionForm: React.FC<React.PropsWithChildren<FormProps>> = ({
-  submitter
-}) => {
+export const PresentationSubmissionForm: React.FC<
+  React.PropsWithChildren<FormProps>
+> = ({ submitter }) => {
   const {
     register,
     control,
     handleSubmit,
     watch,
     formState: { errors }
-  } = useForm<FormData>({ mode: 'onTouched' })
+  } = useForm<FormData>({ mode: 'onTouched' });
 
   const {
     fields: otherPresenterFields,
@@ -43,7 +43,7 @@ export const PresentationSubmissionForm: React.FC<React.PropsWithChildren<FormPr
   } = useFieldArray<FormData, 'otherPresenters'>({
     name: 'otherPresenters',
     control
-  })
+  });
 
   // const {
   //   fields: timeWindowFields,
@@ -54,29 +54,29 @@ export const PresentationSubmissionForm: React.FC<React.PropsWithChildren<FormPr
   //   control
   // })
 
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isMounted, setIsMounted] = useState(false)
-  const { user } = useSession()
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const { user } = useSession();
   useEffect(() => {
-    setIsMounted(true)
-    return () => setIsMounted(false)
-  }, [])
-  const router = useRouter()
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
+  const router = useRouter();
 
-  const isFinal = watch('isFinal')
+  const isFinal = watch('isFinal');
 
-  const [showConfirmation, setShowConfirmation] = useState(false)
-  const [formData, setSubmittedFormData] = useState<FormData | null>(null)
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [formData, setSubmittedFormData] = useState<FormData | null>(null);
 
   const submitFormData = async (passedData?: FormData) => {
-    setIsSubmitting(true)
-    myLog('Submitting form data')
-    const data = passedData ?? formData
-    if(data == null) {
-      setIsSubmitting(false)
-      return
+    setIsSubmitting(true);
+    myLog('Submitting form data');
+    const data = passedData ?? formData;
+    if (data == null) {
+      setIsSubmitting(false);
+      return;
     }
-    myLog({ data })
+    myLog({ data });
 
     fetch('/api/handlePresentationSubmission', {
       method: 'POST',
@@ -89,41 +89,41 @@ export const PresentationSubmissionForm: React.FC<React.PropsWithChildren<FormPr
       })
     })
       .then(() => {
-        router.push('/my-presentations')
+        router.push('/my-presentations');
       })
       .finally(() => {
-        if (isMounted) setIsSubmitting(false)
-      })
-  }
+        if (isMounted) setIsSubmitting(false);
+      });
+  };
 
   const handleConfirmation = (result: boolean) => {
     if (result) {
-      myLog('Confirmed form submission - submitting form')
-      myLog({ formData })
+      myLog('Confirmed form submission - submitting form');
+      myLog({ formData });
 
-      submitFormData()
+      submitFormData();
     } else {
-      myLog('Cancelled form submission')
+      myLog('Cancelled form submission');
     }
-  }
+  };
   const confirmationPopup = (
     <PresentationSubmissionConfirmationPopup
       open={showConfirmation}
       setClosed={() => setShowConfirmation(false)}
       onResolve={handleConfirmation}
     />
-  )
+  );
 
   return (
     <>
       <form
         onSubmit={handleSubmit(async (data) => {
-          setSubmittedFormData(data)
+          setSubmittedFormData(data);
           if (data.isFinal) {
             // This uses a callback to handleConfirmation, which submits the form data (or doesn't)
-            setShowConfirmation(true)
+            setShowConfirmation(true);
           } else {
-            submitFormData(data)
+            submitFormData(data);
           }
         })}
       >
@@ -167,5 +167,5 @@ export const PresentationSubmissionForm: React.FC<React.PropsWithChildren<FormPr
       </form>
       {confirmationPopup}
     </>
-  )
-}
+  );
+};

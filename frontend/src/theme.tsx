@@ -1,4 +1,4 @@
-import { createTheme, responsiveFontSizes } from '@mui/material'
+import { createTheme, responsiveFontSizes } from '@mui/material';
 
 /*
 Color values
@@ -24,36 +24,38 @@ Font Sizes
 16pt Black Roboto - Uppercase
 16pt Regular Roboto
 */
-export const theme = responsiveFontSizes(createTheme({
-  palette: {
-    primary: {
-      main: '#5837b9'
-      // main: '#fff'
+export const theme = responsiveFontSizes(
+  createTheme({
+    palette: {
+      primary: {
+        main: '#5837b9'
+        // main: '#fff'
+      },
+      secondary: {
+        main: '#a25bcd'
+      },
+      background: {
+        // default: '#a25bcd'
+        default: '#fff'
+      },
+      text: {
+        // primary: '#fff',
+        primary: '#000',
+        // secondary: '#fff',
+        secondary: '#3e4342',
+        disabled: '#e7e9e8'
+      }
     },
-    secondary: {
-      main: '#a25bcd'
+    typography: {
+      fontFamily: 'Roboto',
+      fontSize: 16
     },
-    background: {
-      // default: '#a25bcd'
-      default: '#fff'
-    },
-    text: {
-      // primary: '#fff',
-      primary: '#000',
-      // secondary: '#fff',
-      secondary: '#3e4342',
-      disabled: '#e7e9e8'
-    }
-  },
-  typography: {
-    fontFamily: 'Roboto',
-    fontSize: 16
-  },
-  components: {
-    MuiPaper: {
-      defaultProps: {
-        elevation: 5
+    components: {
+      MuiPaper: {
+        defaultProps: {
+          elevation: 5
+        }
       }
     }
-  }
-}))
+  })
+);

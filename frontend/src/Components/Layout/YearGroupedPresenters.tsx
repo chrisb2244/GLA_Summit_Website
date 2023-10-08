@@ -1,20 +1,20 @@
-import type { SummitYear } from '@/lib/databaseModels'
-import { ArrowForwardIosSharp } from '@mui/icons-material'
+import type { SummitYear } from '@/lib/databaseModels';
+import { ArrowForwardIosSharp } from '@mui/icons-material';
 import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
   Box,
   Typography
-} from '@mui/material'
-import { useState } from 'react'
+} from '@mui/material';
+import { useState } from 'react';
 
 type YearGroupedPresenterProps = {
-  year: SummitYear
-  elements: JSX.Element[]
-  initiallyOpen?: boolean
-  disableAccordion?: boolean
-}
+  year: SummitYear;
+  elements: JSX.Element[];
+  initiallyOpen?: boolean;
+  disableAccordion?: boolean;
+};
 
 export const YearGroupedPresenters: React.FC<YearGroupedPresenterProps> = ({
   year,
@@ -22,7 +22,7 @@ export const YearGroupedPresenters: React.FC<YearGroupedPresenterProps> = ({
   initiallyOpen,
   disableAccordion
 }) => {
-  const [open, setOpen] = useState(initiallyOpen ?? false)
+  const [open, setOpen] = useState(initiallyOpen ?? false);
 
   return disableAccordion ? (
     <Box>{elements}</Box>
@@ -59,5 +59,5 @@ export const YearGroupedPresenters: React.FC<YearGroupedPresenterProps> = ({
       </AccordionSummary>
       <AccordionDetails sx={{ px: 1.5 }}>{elements}</AccordionDetails>
     </Accordion>
-  )
-}
+  );
+};

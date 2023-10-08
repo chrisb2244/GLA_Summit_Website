@@ -1,12 +1,12 @@
-import NextLink from 'next/link'
-import NextImage from 'next/image'
-import { MenuBar } from '@/Components/MenuBar/MenuBar'
-import { UserMenuButton } from '../../Components/User/UserMenuButton'
+import NextLink from 'next/link';
+import NextImage from 'next/image';
+import { MenuBar } from '@/Components/MenuBar/MenuBar';
+import { UserMenuButton } from '../../Components/User/UserMenuButton';
 
 export const Header = () => {
   const imageProps = {
     'aria-label': 'logo'
-  }
+  };
   const logo = (
     <div className='col-span-full h-full md:col-span-1'>
       <NextLink href='/' tabIndex={-1}>
@@ -39,7 +39,7 @@ export const Header = () => {
         </div>
       </NextLink>
     </div>
-  )
+  );
 
   return (
     <>
@@ -77,5 +77,5 @@ export const Header = () => {
         </div>
       </div>
     </>
-  )
-}
+  );
+};

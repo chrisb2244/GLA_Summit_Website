@@ -1,9 +1,9 @@
-import { VariantProps, cva } from 'class-variance-authority'
+import { VariantProps, cva } from 'class-variance-authority';
 import React, {
   PropsWithChildren,
   ButtonHTMLAttributes,
   InputHTMLAttributes
-} from 'react'
+} from 'react';
 
 const buttonStyles = cva(
   'p-2 border bg-gray-200 border-gray-400 focus:border-secondaryc focus:border-2 text-base text-center shadow-md focus-within:outline-none',
@@ -17,34 +17,38 @@ const buttonStyles = cva(
       }
     }
   }
-)
+);
 
-type VariantStyleProps = VariantProps<typeof buttonStyles>
-type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & VariantStyleProps
+type VariantStyleProps = VariantProps<typeof buttonStyles>;
+type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & VariantStyleProps;
 
 export const Button: React.FC<PropsWithChildren<ButtonProps>> = (props) => {
-  const { children, fullWidth, disabled, ...buttonProps } = props
+  const { children, fullWidth, disabled, ...buttonProps } = props;
   return (
-    <button {...buttonProps} disabled={disabled} className={buttonStyles({ fullWidth, disabled })}>
+    <button
+      {...buttonProps}
+      disabled={disabled}
+      className={buttonStyles({ fullWidth, disabled })}
+    >
       {children}
     </button>
-  )
-}
+  );
+};
 
 type InputProps = Omit<
   InputHTMLAttributes<HTMLInputElement>,
   'type' | 'hidden'
 > &
-  VariantStyleProps & { id: string }
+  VariantStyleProps & { id: string };
 
 export const FileButton: React.FC<PropsWithChildren<InputProps>> = (props) => {
-  const { children, fullWidth, ...inputProps } = props
-  const id = inputProps.id
+  const { children, fullWidth, ...inputProps } = props;
+  const id = inputProps.id;
 
   return (
     <label htmlFor={id} role='button' className={buttonStyles({ fullWidth })}>
       {children}
       <input type='file' {...inputProps} className='hidden' />
     </label>
-  )
-}
+  );
+};

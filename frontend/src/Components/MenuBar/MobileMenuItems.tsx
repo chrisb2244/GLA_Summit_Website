@@ -1,14 +1,12 @@
-'use client'
+'use client';
 // Needs useClient for the Popover component
-import { Popover, Transition } from '@headlessui/react'
-import { mdiMenu } from '@mdi/js'
-import { Icon } from '@mdi/react'
-import NextLink from 'next/link'
-import { MenuElement } from './MenuBar'
+import { Popover, Transition } from '@headlessui/react';
+import { mdiMenu } from '@mdi/js';
+import { Icon } from '@mdi/react';
+import NextLink from 'next/link';
+import { MenuElement } from './MenuBar';
 
-export const MobileMenuItems = (props: {
-  menuElements: MenuElement[]
-}) => {
+export const MobileMenuItems = (props: { menuElements: MenuElement[] }) => {
   return (
     <Popover>
       <Popover.Button aria-haspopup aria-label='menu toggle button'>
@@ -22,20 +20,25 @@ export const MobileMenuItems = (props: {
         leaveFrom='transform scale-100 opacity-100'
         leaveTo='transform scale-90 opacity-0'
       >
-        <Popover.Panel className='absolute rounded shadow bg-white text-black text-opacity-75 mt-2 -left-2 p-2'>
+        <Popover.Panel className='absolute -left-2 mt-2 rounded bg-white p-2 text-black text-opacity-75 shadow'>
           {({ close }) => (
             <>
-              <div className='rotate-45 rounded-none shadow-none w-3 h-3 absolute -top-[6px] left-[14px] bg-white' />
-              <div className='list-none cursor-pointer w-max max-w-[80vw]'>
+              <div className='absolute -top-[6px] left-[14px] h-3 w-3 rotate-45 rounded-none bg-white shadow-none' />
+              <div className='w-max max-w-[80vw] cursor-pointer list-none'>
                 <ul>
                   {props.menuElements.map(({ title, link }) => {
                     return (
-                      <NextLink href={link} key={title} prefetch={false} role='menuitem'>
-                        <li className='py-[6px] px-4' onClick={() => close()}>
+                      <NextLink
+                        href={link}
+                        key={title}
+                        prefetch={false}
+                        role='menuitem'
+                      >
+                        <li className='px-4 py-[6px]' onClick={() => close()}>
                           <p className='tracking-[0.00938em]'>{title}</p>
                         </li>
                       </NextLink>
-                    )
+                    );
                   })}
                 </ul>
               </div>
@@ -44,5 +47,5 @@ export const MobileMenuItems = (props: {
         </Popover.Panel>
       </Transition>
     </Popover>
-  )
-}
+  );
+};

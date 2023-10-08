@@ -1,8 +1,8 @@
-import { Box } from '@mui/material'
-import { P } from './emailComponents'
+import { Box } from '@mui/material';
+import { P } from './emailComponents';
 
 export const SignInEmail: React.FC<{
-  link: string
+  link: string;
 }> = ({ link }) => {
   const headerText = (
     <>
@@ -18,7 +18,7 @@ export const SignInEmail: React.FC<{
         {link}
       </P>
     </>
-  )
+  );
 
   return (
     <Box>
@@ -37,5 +37,5 @@ export const SignInEmail: React.FC<{
       </Box>
       {/* Maybe put a banner here at the bottom? */}
     </Box>
-  )
-}
+  );
+};

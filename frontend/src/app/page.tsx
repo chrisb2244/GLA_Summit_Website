@@ -1,19 +1,19 @@
-import { StackedBoxes } from '@/Components/Layout/StackedBoxes'
-import { SponsorBar } from './_rootElements/SponsorBar'
-import React, { ReactNode } from 'react'
+import { StackedBoxes } from '@/Components/Layout/StackedBoxes';
+import { SponsorBar } from './_rootElements/SponsorBar';
+import React, { ReactNode } from 'react';
 // import { Countdown } from './_rootElements/Countdown'
 
 export default function Page() {
   const P = (
     props: { children?: ReactNode } & React.HTMLAttributes<HTMLParagraphElement>
   ) => {
-    const { className: classNameProps, ...other } = props
+    const { className: classNameProps, ...other } = props;
     return (
       <p className={`prose text-justify ${classNameProps ?? ''}`} {...other}>
         {props.children}
       </p>
-    )
-  }
+    );
+  };
 
   // The month value is 0-based (so 10 -> November)
   // const eventStart = new Date(Date.UTC(2022, 10, 14, 12, 0, 0))
@@ -82,5 +82,5 @@ export default function Page() {
       </StackedBoxes>
       {/* <SponsorBar /> */}
     </div>
-  )
+  );
 }

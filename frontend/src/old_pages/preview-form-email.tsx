@@ -2,13 +2,13 @@
 // import { FormSubmissionEmail } from "@/lib/presentationSubmissionHelpers";
 // import { NextPage } from "next";
 
-import { NextPage } from "next"
+import { NextPage } from 'next';
 
 // const PreviewFormEmailPage: NextPage = (props) => {
 //   const formData: FormData = {
 //     title: 'Example Title',
-//     abstract: 'A great abstract takes some time to write... Oh no, I still need more characters. Really, even more?\n' 
-//     + '\n' 
+//     abstract: 'A great abstract takes some time to write... Oh no, I still need more characters. Really, even more?\n'
+//     + '\n'
 //     + `Let's also have multiple lines, and some quotes... "blah blah"`,
 //     learningPoints: 'Lots and lots of stuff... really, lots.\nLots and lots of stuff... really, lots.\n',
 //     submitter: {
@@ -35,8 +35,8 @@ import { NextPage } from "next"
 // export default PreviewFormEmailPage
 
 const dummy: NextPage = () => {
-  return <></>
-}
+  return <></>;
+};
 
 export default dummy;
 

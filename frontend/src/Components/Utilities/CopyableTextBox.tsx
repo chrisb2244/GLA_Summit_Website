@@ -1,39 +1,39 @@
-'use client'
+'use client';
 
-import { IconButton, Tooltip } from '@mui/material'
-import CopyIcon from '@mui/icons-material/ContentCopy'
-import { useState, ReactNode } from 'react'
+import { IconButton, Tooltip } from '@mui/material';
+import CopyIcon from '@mui/icons-material/ContentCopy';
+import { useState, ReactNode } from 'react';
 
 export const CopyableTextBox = (props: {
-  children: ReactNode
-  copyString: string
+  children: ReactNode;
+  copyString: string;
 }) => {
-  const { children, copyString } = props
-  const [displayCopy, setDisplayCopy] = useState(false)
-  const [domRect, setDomRect] = useState<DOMRect | null>(null)
+  const { children, copyString } = props;
+  const [displayCopy, setDisplayCopy] = useState(false);
+  const [domRect, setDomRect] = useState<DOMRect | null>(null);
 
   const copyToClipboard = async (text: string) => {
     if ('clipboard' in navigator) {
-      return await navigator.clipboard.writeText(text)
+      return await navigator.clipboard.writeText(text);
     } else {
       // Workaround for IE
-      return document.execCommand('copy', true, text)
+      return document.execCommand('copy', true, text);
     }
-  }
+  };
 
   const onRefLoad = (elem: HTMLButtonElement) => {
     if (elem === null) {
-      return
+      return;
     }
-    const newRect = elem.getBoundingClientRect()
+    const newRect = elem.getBoundingClientRect();
     if (
       displayCopy &&
       !elem.hidden &&
       (domRect === null || newRect.x !== domRect.x)
     ) {
-      setDomRect(newRect)
+      setDomRect(newRect);
     }
-  }
+  };
 
   const tooltip = (
     <Tooltip
@@ -56,13 +56,13 @@ export const CopyableTextBox = (props: {
         aria-label='copy'
         aria-hidden={!displayCopy}
         onClick={() => {
-          copyToClipboard(copyString)
+          copyToClipboard(copyString);
         }}
       >
         <CopyIcon fontSize='small' />
       </IconButton>
     </Tooltip>
-  )
+  );
 
   return (
     <div
@@ -73,5 +73,5 @@ export const CopyableTextBox = (props: {
       {tooltip}
       {children}
     </div>
-  )
-}
+  );
+};

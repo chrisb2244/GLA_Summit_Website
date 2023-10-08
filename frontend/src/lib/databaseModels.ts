@@ -1,10 +1,10 @@
-import { Database } from './sb_databaseModels'
+import { Database } from './sb_databaseModels';
 
-export type PresentationType = Database['public']['Enums']['presentation_type']
+export type PresentationType = Database['public']['Enums']['presentation_type'];
 
-export type SummitYear = Database['public']['Enums']['summit_year']
-export const currentDisplayYear: SummitYear = '2022'
-export const submissionsForYear: SummitYear = '2023'
+export type SummitYear = Database['public']['Enums']['summit_year'];
+export const currentDisplayYear: SummitYear = '2022';
+export const submissionsForYear: SummitYear = '2023';
 
 // Awkward typing code to check that years are exhaustively covered
 // This prevents an issue in which updating the database type (e.g. to add another year)
@@ -18,44 +18,44 @@ type IfEquals<T, U, Y = unknown, N = never> = (<G>() => G extends T
   ? 1
   : 2) extends <G>() => G extends U ? 1 : 2
   ? Y
-  : N
+  : N;
 
 declare const exactType: <T, U>(
   a: T & IfEquals<T, U>,
   b: U & IfEquals<T, U>
-) => IfEquals<T, U>
-const summityears = ['2020', '2021', '2022', '2023'] as const
-declare let dummyYear: SummitYear
-declare let summitCandidateYear: (typeof summityears)[number]
+) => IfEquals<T, U>;
+const summityears = ['2020', '2021', '2022', '2023'] as const;
+declare let dummyYear: SummitYear;
+declare let summitCandidateYear: (typeof summityears)[number];
 // The check is placed inside a function to prevent being called
 // at runtime when importing the file.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const checkTypeValid = () => exactType(summitCandidateYear, dummyYear)
+const checkTypeValid = () => exactType(summitCandidateYear, dummyYear);
 
 export function isSummitYear(year: string): year is SummitYear {
   // The check here is against SummitYear, not the type of summityears.
-  return summityears.includes(year as SummitYear)
+  return summityears.includes(year as SummitYear);
 }
 
 // These types need to be indexed for ['Row'], in most cases.
 // The parent element is exported to allow easier use with Updates and Inserts
-export type ProfileModel = Database['public']['Tables']['profiles']
+export type ProfileModel = Database['public']['Tables']['profiles'];
 export type PresentationPresentersModel =
-  Database['public']['Tables']['presentation_presenters']
+  Database['public']['Tables']['presentation_presenters'];
 
 // These types aren't used for insertion or updating, so export the Row directly
 export type AllPresentationsModel =
-  Database['public']['Views']['all_presentations']['Row']
+  Database['public']['Views']['all_presentations']['Row'];
 export type MySubmissionsModel =
-  Database['public']['Views']['my_submissions']['Row']
+  Database['public']['Views']['my_submissions']['Row'];
 
 export type PresentationSubmissionsModel = {
-  id: string
-  submitter_id: string
-  updated_at: string
-  title: string
-  abstract: string
-  learning_points: string | null
-  is_submitted: boolean
-  presentation_type: PresentationType
-}
+  id: string;
+  submitter_id: string;
+  updated_at: string;
+  title: string;
+  abstract: string;
+  learning_points: string | null;
+  is_submitted: boolean;
+  presentation_type: PresentationType;
+};
