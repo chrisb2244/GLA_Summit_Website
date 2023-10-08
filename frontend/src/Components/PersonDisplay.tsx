@@ -98,7 +98,7 @@ export const PersonDisplay: React.FC<
       <div
         className={`flex flex-col ${md_direction} justify-around content-center `}
       >
-        <div className={`w-full md:w-3/5 ${paddingCName} my-auto items-center`}>
+        <div className={`flex-grow ${paddingCName} my-auto items-center`}>
           <TitleComponent>
             {props.firstName} {props.lastName}
           </TitleComponent>
@@ -107,7 +107,7 @@ export const PersonDisplay: React.FC<
           </div>
         </div>
         <div
-          className={`relative w-full md:w-[30%] min-h-[200px] my-auto ${paddingCName} ${imgDispCName} flex flex-row justify-center`}
+          className={`relative flex-shrink-0 w-full md:w-[30%] min-h-[200px] my-auto ${paddingCName} ${imgDispCName} flex flex-row justify-center`}
         >
           {imageElem}
         </div>

@@ -1,7 +1,7 @@
-import React, { DOMAttributes, PropsWithChildren } from 'react'
+import React, { AnchorHTMLAttributes, PropsWithChildren } from 'react'
 
 export const LinkLikeText: React.FC<
-  PropsWithChildren<{ className?: string } & DOMAttributes<HTMLAnchorElement>>
+  PropsWithChildren<{ className?: string } & AnchorHTMLAttributes<HTMLAnchorElement>>
 > = ({ children, className, ...otherProps }) => {
   return (
     <a
