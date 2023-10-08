@@ -90,15 +90,15 @@ export const PersonDisplay: React.FC<
       return <h4 className='text-3xl'>{children}</h4>
     }
   }
-  const paddingCName = props.stripContainer ? 'p-0' : 'p-4'
+
   const imgDispCName = isDefaultImage ? 'max-sm:hidden' : ''
 
   return (
     <div className={props.stripContainer ? '' : 'rounded shadow'}>
       <div
-        className={`flex flex-col ${md_direction} justify-around content-center `}
+        className={`flex flex-col ${md_direction} justify-around content-center p-4`}
       >
-        <div className={`flex-grow ${paddingCName} my-auto items-center`}>
+        <div className={`flex-grow my-auto items-center`}>
           <TitleComponent>
             {props.firstName} {props.lastName}
           </TitleComponent>
@@ -107,7 +107,7 @@ export const PersonDisplay: React.FC<
           </div>
         </div>
         <div
-          className={`relative flex-shrink-0 w-full md:w-[30%] min-h-[200px] my-auto ${paddingCName} ${imgDispCName} flex flex-row justify-center`}
+          className={`relative flex-shrink-0 w-full md:w-[30%] min-h-[200px] my-auto ${imgDispCName} flex flex-row justify-center`}
         >
           {imageElem}
         </div>
