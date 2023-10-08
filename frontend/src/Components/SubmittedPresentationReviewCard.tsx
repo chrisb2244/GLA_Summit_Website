@@ -29,9 +29,7 @@ type SubmittedPresentationReviewCardProps = {
   presentationInfo: PresentationReviewInfo
 }
 
-export const SubmittedPresentationReviewCard: React.FC<
-  SubmittedPresentationReviewCardProps
-> = (props) => {
+export const SubmittedPresentationReviewCard: React.FC<React.PropsWithChildren<SubmittedPresentationReviewCardProps>> = (props) => {
   const getName = (person: PersonInfo) => {
     return [person.firstname, person.lastname].filter(s => s.trim().length !== 0).join(' ')
   }

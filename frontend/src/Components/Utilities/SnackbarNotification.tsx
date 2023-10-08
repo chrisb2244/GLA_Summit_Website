@@ -10,7 +10,7 @@ type NotificationProps = {
   children?: React.ReactNode
 }
 
-export const SnackbarNotification: React.FC<NotificationProps> = (props) => {
+export const SnackbarNotification: React.FC<React.PropsWithChildren<NotificationProps>> = (props) => {
   const [open, setOpen] = useState(props.open)
 
   return (

@@ -21,7 +21,7 @@ export type RegistrationData = {
   type: RegistrationType
 }
 
-export const MentoringForm: React.FC<FormProps> = ({
+export const MentoringForm: React.FC<React.PropsWithChildren<FormProps>> = ({
   defaultEntry,
   registered,
   registrationFn

@@ -25,7 +25,7 @@ export type FormData = {
   isFinal: boolean
 }
 
-export const PresentationSubmissionForm: React.FC<FormProps> = ({
+export const PresentationSubmissionForm: React.FC<React.PropsWithChildren<FormProps>> = ({
   submitter
 }) => {
   const {

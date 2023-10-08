@@ -1,5 +1,3 @@
-const { lineHeight } = require('@mui/system');
-
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -17,9 +15,13 @@ module.exports = {
       xl: '1536px'
     },
     extend: {
+      boxShadow: {
+        'DEFAULT': '0px 5px 5px -3px rgba(0,0,0,0.2),0px 8px 10px 1px rgba(0,0,0,0.14),0px 3px 14px 2px rgba(0,0,0,0.12)'
+      },
       colors: {
         'primaryc': '#5837b9',
         'secondaryc': '#a25bcd',
+        'primaryc.light': '#795fc7',
       },
       fontSize: {
         // xs: {

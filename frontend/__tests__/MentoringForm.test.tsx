@@ -155,9 +155,9 @@ describe('MentoringForm', () => {
     // userEvent.type(lastNameInput, existingPerson.lastName)
 
     const submitButton = screen.getByRole('button')
-    userEvent.click(submitButton)
-
+    
     await waitFor(() => {
+      userEvent.click(submitButton)
       expect(lastNameInput).toBeInvalid()
     })
     expect(submitFn).toBeCalledTimes(0)

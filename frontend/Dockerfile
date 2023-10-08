@@ -1,4 +1,4 @@
-FROM node:16.13.0
+FROM node:18.16.0
 
 RUN mkdir /usr/app && chown -R node:node /usr/app/
 WORKDIR /usr/app
@@ -13,5 +13,7 @@ RUN npm install
 ENV PATH /usr/app/node_modules/.bin:$PATH
 
 COPY --chown=node:node next.config.js next-env.d.ts .env.local .env ./
+# ENV PLAYWRIGHT 1
 COPY --chown=node:node postcss.config.js tailwind.config.js ./
+ENV NODE_OPTIONS=--max_old_space_size=3000
 CMD ["npm", "run", "dev"]

@@ -1,14 +1,14 @@
-import type { PresentationYear } from '@/Components/PresentationSummary'
+import type { SummitYear } from '@/lib/databaseModels'
 
 type SplittablePresentations<T> = T & {
-  year: PresentationYear
+  year: SummitYear
 }
 
-type EntriesType<T> = [PresentationYear, SplittablePresentations<T>[]][]
+type EntriesType<T> = [SummitYear, SplittablePresentations<T>[]][]
 
 export function splitByYear<T>(presentations: SplittablePresentations<T>[]) {
   const groupedPresentationProps: {
-    [key in PresentationYear]?: SplittablePresentations<T>[]
+    [key in SummitYear]?: SplittablePresentations<T>[]
   } = {
     '2023': presentations.filter((p) => p.year === '2023'),
     '2022': presentations.filter((p) => p.year === '2022'),

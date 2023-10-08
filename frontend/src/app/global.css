@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  [data-nextjs-scroll-focus-boundary] {
+    display: contents;
+  }
+}
+
+@layer components {
+  .link {
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    cursor: pointer;
+    color: rgb(88 55 185);
+  }
+  .link:hover {
+    text-decoration-thickness: 2px;
+    color: rgb(162 91 205);
+  }
+}

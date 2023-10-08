@@ -6,9 +6,7 @@ type NotificationDialogPopupProps = {
   children?: React.ReactNode
 }
 
-export const NotificationDialogPopup: React.FC<
-  NotificationDialogPopupProps
-> = ({ open, onClose, children }) => {
+export const NotificationDialogPopup: React.FC<React.PropsWithChildren<NotificationDialogPopupProps>> = ({ open, onClose, children }) => {
   return (
     <Dialog open={open} onClose={onClose}>
       <Container maxWidth='md' sx={{ p: 2 }}>

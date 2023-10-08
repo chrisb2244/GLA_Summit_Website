@@ -41,6 +41,7 @@
   "ignorePatterns": [
     "reportWebVitals.ts",
     "react-app-env.d.ts",
-    "jest.config.ts"
+    "jest.config.ts",
+    "src/old_pages"
   ]
 }

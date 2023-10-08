@@ -30,6 +30,6 @@ describe('Countdown', () => {
     act(() => {
       jest.advanceTimersByTime(1200)
     })
-    expect(screen.getByTitle('countdown')).toHaveStyle('display: flex')
+    expect(screen.getByTitle('countdown')).toHaveClass('flex')
   })
 })

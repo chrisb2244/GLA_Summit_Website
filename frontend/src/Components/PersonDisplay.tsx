@@ -1,23 +1,9 @@
-import { ReactNode, Fragment, ReactElement } from 'react'
-import Image, { StaticImageData } from 'next/future/image'
+import { ReactNode, ReactElement } from 'react'
+import Image, { StaticImageData } from 'next/image'
 import { mdiAccount } from '@mdi/js'
 import Icon from '@mdi/react'
-// import NextLink from 'next/link'
-import { Link } from '@/lib/link'
-
-const MyPaper = ({ children }: { children?: ReactNode }) => {
-  return (
-    <div
-      className='rounded'
-      style={{
-        boxShadow:
-          'rgb(0 0 0 / 20%) 0px 3px 5px -1px, rgb(0 0 0 / 14%) 0px 5px 8px 0px, rgb(0 0 0 / 12%) 0px 1px 14px 0px'
-      }}
-    >
-      {children}
-    </div>
-  )
-}
+import NextLink from 'next/link'
+import type { Route } from 'next'
 
 export interface PersonDisplayProps {
   firstName: string
@@ -27,7 +13,7 @@ export interface PersonDisplayProps {
   imageSide?: 'left' | 'right'
   useDefaultIconImage?: boolean
   stripContainer?: boolean
-  pageLink?: string
+  pageLink?: Route
 }
 
 export const PersonDisplay: React.FC<
@@ -68,16 +54,15 @@ export const PersonDisplay: React.FC<
         fill
         src={props.image}
         alt={`Image of ${props.firstName} ${props.lastName}`}
-        style={{
-          objectFit: 'contain'
-        }}
+        className='object-contain'
+        sizes='(max-width: 899px) 100vw, 30vw'
       />
     )
   } else {
     // No image
     if (props.useDefaultIconImage) {
       isDefaultImage = true
-      imageElem = <Icon path={mdiAccount} />
+      imageElem = <Icon path={mdiAccount} size={8} />
     }
   }
 
@@ -94,41 +79,39 @@ export const PersonDisplay: React.FC<
     descriptionElem = props.description
   }
 
-  const OuterElem = props.stripContainer ? Fragment : MyPaper
-
   const TitleComponent = ({ children }: { children?: ReactNode }) => {
     if (typeof pageLink !== 'undefined') {
       return (
-        <Link href={pageLink}>
-          <h4 className='text-4xl underline'>{children}</h4>
-        </Link>
+        <NextLink href={pageLink}>
+          <span className='text-3xl link pr-1'>{children}</span>
+        </NextLink>
       )
     } else {
-      return <h4 className='text-4xl'>{children}</h4>
+      return <h4 className='text-3xl'>{children}</h4>
     }
   }
   const paddingCName = props.stripContainer ? 'p-0' : 'p-4'
   const imgDispCName = isDefaultImage ? 'max-sm:hidden' : ''
 
   return (
-    <OuterElem>
+    <div className={props.stripContainer ? '' : 'rounded shadow'}>
       <div
-        className={`flex flex-col ${md_direction} justify-around content-center`}
+        className={`flex flex-col ${md_direction} justify-around content-center `}
       >
-        <div className={`w-full md:w-3/5 ${paddingCName} items-center`}>
+        <div className={`w-full md:w-3/5 ${paddingCName} my-auto items-center`}>
           <TitleComponent>
             {props.firstName} {props.lastName}
           </TitleComponent>
-          <div className='text-justify whitespace-pre-wrap text-lg my-4 space-y-4'>
+          <div className='my-4 space-y-4 whitespace-pre-wrap text-justify text-lg'>
             {descriptionElem}
           </div>
         </div>
         <div
-          className={`w-full md:w-[30%] min-h-[200px] ${paddingCName}  my-4 ${imgDispCName} flex flex-row justify-center relative`}
+          className={`relative w-full md:w-[30%] min-h-[200px] my-auto ${paddingCName} ${imgDispCName} flex flex-row justify-center`}
         >
           {imageElem}
         </div>
       </div>
-    </OuterElem>
+    </div>
   )
 }

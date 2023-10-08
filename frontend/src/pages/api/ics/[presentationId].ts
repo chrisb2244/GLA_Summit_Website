@@ -1,5 +1,5 @@
 import type { NextApiHandler } from 'next'
-import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs'
+import { createPagesServerClient } from '@supabase/auth-helpers-nextjs'
 import { Database } from '@/lib/sb_databaseModels'
 import { createEvent } from 'ics'
 import type { EventAttributes, DateArray } from 'ics'
@@ -16,7 +16,7 @@ const dateToDateArray = (d: Date): DateArray => {
 }
 
 const handler: NextApiHandler = async (req, res) => {
-  const supabase = createServerSupabaseClient<Database>({ req, res })
+  const supabase = createPagesServerClient<Database>({ req, res })
   const { presentationId } = req.query as { presentationId: string }
 
   // Basic sanitization - id should be a hex string with "-" characters

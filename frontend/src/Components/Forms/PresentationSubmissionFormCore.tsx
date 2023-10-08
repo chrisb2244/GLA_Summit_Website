@@ -45,9 +45,7 @@ type PresentationFormCoreProps = {
   lockStatuses?: PresentationLockedStatus
 }
 
-export const PresentationSubmissionFormCore: React.FC<
-  PresentationFormCoreProps
-> = ({
+export const PresentationSubmissionFormCore: React.FC<React.PropsWithChildren<PresentationFormCoreProps>> = ({
   register,
   errors,
   addPresenter,
@@ -110,10 +108,10 @@ export const PresentationSubmissionFormCore: React.FC<
             })}
             placeholder='Presentation Title'
             fullWidth
-            sx={{ mt: 2 }}
+            // sx={{ mt: 2 }}
             fieldError={errors.title}
             label='Title'
-            hiddenLabel={!displayLabels}
+            // hiddenLabel={!displayLabels}
             {...lockProps}
           />
           <FormField
@@ -131,10 +129,10 @@ export const PresentationSubmissionFormCore: React.FC<
             fieldError={errors.abstract}
             placeholder='Presentation Abstract'
             fullWidth
-            multiline
+            // multiline
             rows={5}
             label='Abstract'
-            hiddenLabel={!displayLabels}
+            // hiddenLabel={!displayLabels}
             {...lockProps}
           />
           <FormField
@@ -148,20 +146,20 @@ export const PresentationSubmissionFormCore: React.FC<
             fieldError={errors.learningPoints}
             placeholder='What is the most important thing attendees would learn from your presentation?'
             fullWidth
-            multiline
+            // multiline
             rows={3}
             label='Learning Points'
-            hiddenLabel={!displayLabels}
+            // hiddenLabel={!displayLabels}
             {...lockProps}
           />
           <FormField
             registerReturn={register('presentationType')}
             fieldError={errors.presentationType}
             fullWidth
-            select
+            // select
             defaultValue={initialPresentationType}
             label='Presentation Type'
-            hiddenLabel={!displayLabels}
+            // hiddenLabel={!displayLabels}
             {...lockProps}
           >
             <MenuItem key='full length' value='full length'>

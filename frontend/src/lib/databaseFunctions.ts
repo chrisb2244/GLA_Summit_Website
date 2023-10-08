@@ -1,6 +1,6 @@
 import { PersonDisplayProps } from '@/Components/PersonDisplay'
 import type { NewUserInformation } from '@/Components/SigninRegistration/NewUserRegistration'
-import { PostgrestError, User as SB_User } from '@supabase/supabase-js'
+import { PostgrestError, User as SB_User, SupabaseClient } from '@supabase/supabase-js'
 import { AllPresentationsModel, ProfileModel } from './databaseModels'
 import { Database } from './sb_databaseModels'
 import { supabase, createAdminClient } from './supabaseClient'
@@ -292,9 +292,10 @@ export const getPublicPresentationsForPresenter = async (presenterId: string) =>
 
 
 export const getPublicPresentation = async (
-  presentationId: string
+  presentationId: string,
+  client: SupabaseClient<Database> = supabase
 ): Promise<AllPresentationsModel> => {
-  return supabase
+  return client
     .from('all_presentations')
     .select()
     .eq('presentation_id', presentationId)
@@ -322,6 +323,7 @@ export const getMyPresentations = async () => {
       error: errorPresData,
       desc: 'Failed to fetch presentation details for this user'
     })
+    throw errorPresData
   }
   return data ?? []
 }

@@ -11,6 +11,7 @@ const handler: NextApiHandler = async (req, res) => {
   // 'data''s required/optional contents are unclear... But it might be a signup only
   // password might also be signup only (README.md in github.com/supabase/gotrue)
   // data looks to have the same format as the 'data' object accepted by signUp.
+  
   const bodyData = req.body.bodyData as GenerateLinkBody
   if (typeof bodyData === 'undefined') {
     return res
@@ -19,7 +20,10 @@ const handler: NextApiHandler = async (req, res) => {
   }
   const type = bodyData.type
 
-  return generateSupabaseLinks(bodyData)
+  // return generateSupabaseLinks(bodyData)
+  // const fnPromise = IS_TEST_ONLY_DO_NOT_SEND_EMAILS ? dummyGenerateLinks(type) : generateSupabaseLinks(bodyData)
+  const fnPromise = generateSupabaseLinks(bodyData)
+  return fnPromise
     .then(({ data, error, linkType }) => {
       if (error) throw error
       if (typeof data.properties.action_link === 'undefined') {
@@ -86,8 +90,9 @@ const handler: NextApiHandler = async (req, res) => {
         user
       }
     })
-    .then(({ status, user }) => {
-      console.log({ status, user })
+    // .then(({ status, user }) => {
+    .then(({ user }) => {
+      // console.log({ status, user })
       // if (status.accepted.includes(bodyData.email)) {
       return res.status(201).json({ user, session: null, error: null })
       // } else {

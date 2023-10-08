@@ -3,8 +3,8 @@ import type { BoxProps, TypographyProps } from '@mui/material'
 import GLA_Logo from '@/media/GLA-logo.svg'
 import NextImage from 'next/image'
 
-export const MaintenancePage: React.FC = () => {
-  const TextElem: React.FC<TypographyProps> = ({ children, ...other }) => {
+export const MaintenancePage: React.FC<React.PropsWithChildren<unknown>> = () => {
+  const TextElem: React.FC<React.PropsWithChildren<TypographyProps>> = ({ children, ...other }) => {
     return (
       <Typography textAlign='center' color='text.secondary' {...other}>
         {children}
@@ -12,7 +12,7 @@ export const MaintenancePage: React.FC = () => {
     )
   }
 
-  const PurpleBox: React.FC<BoxProps> = ({ children, ...other }) => {
+  const PurpleBox: React.FC<React.PropsWithChildren<BoxProps>> = ({ children, ...other }) => {
     return (
       <Box
         bgcolor='secondary.main'
@@ -40,6 +40,7 @@ export const MaintenancePage: React.FC = () => {
           {...imageProps}
           height={200}
           style={{ pointerEvents: 'none' }}
+          alt='GLA Logo'
         />
       </Box>
     </>

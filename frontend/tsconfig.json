@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "target": "ES2015",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -23,8 +27,24 @@
       "@/EmailTemplates/*": ["src/EmailTemplates/*"],
       "@/media/*": ["public/media/*"]
     },
-    "incremental": true
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
-  "include": ["src", "__tests__", "playwright", "next-env.d.ts", "playwright.config.ts"],
-  "exclude": ["node_modules", "src/tsconfig.json"]
+  "include": [
+    "src",
+    "__tests__",
+    "playwright",
+    "next-env.d.ts",
+    "playwright.config.ts",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "./tsconfig.json",
+    "src/old_pages"
+  ]
 }

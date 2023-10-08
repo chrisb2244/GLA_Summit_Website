@@ -1,146 +1,144 @@
-import {
-  Avatar,
-  Tooltip,
-  IconButton,
-  Menu,
-  MenuItem,
-  ListItemIcon
-} from '@mui/material'
-import {
-  Logout as LogoutIcon,
-  CoPresentOutlined as PresentationsIcon
-} from '@mui/icons-material'
-import { useState } from 'react'
-import Link from 'next/link'
-import { useSession } from '@/lib/sessionContext'
+'use client'
+import { Popover, Transition } from '@headlessui/react'
+import { mdiLogout, mdiMonitorAccount, mdiVoteOutline } from '@mdi/js'
+import { Icon } from '@mdi/react'
+import React, { PropsWithChildren, useEffect, useState } from 'react'
+import NextLink from 'next/link'
 import { useProfileImage } from '@/lib/profileImage'
-import type { User } from '@/lib/databaseFunctions'
+import { getProfileInfo, type User } from '@/lib/databaseFunctions'
+import type { ProfileModel } from '@/lib/databaseModels'
+import { Route } from 'next'
+import { UserIcon } from './UserIcon'
 
 type UserMenuProps = {
   user: User
+  isOrganizer?: boolean
+  signOut: () => void
 }
 
-export const UserMenu: React.FC<UserMenuProps> = (props) => {
-  // Tools to handle clicking on and off the Avatar
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
-  const open = Boolean(anchorEl)
-  const handleClick = (ev: React.MouseEvent<HTMLElement>): void => {
-    setAnchorEl(ev.currentTarget)
+type UserMenuEntry = {
+  title: string
+  href: Route | undefined
+  imgObj: React.JSX.Element
+  clickFn?: () => void
+}
+
+export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
+  props
+) => {
+  const userId = props.user.id
+  const { isOrganizer, signOut } = props
+
+  const [profile, setProfile] = useState<ProfileModel['Insert'] | null>(null)
+  useEffect(() => {
+    getProfileInfo(props.user)
+      .then(setProfile)
+      .catch((e) => {
+        console.log(e)
+      })
+  }, [props.user])
+  const { src: avatarSrc } = useProfileImage(userId) ?? {}
+  // console.log({ avatarSrc, imgLoading })
+
+  const email = props.user.email
+  const ListIcon = (props: { path: string }) => {
+    return (
+      <div className='inline-flex min-w-[36px] flex-shrink-0 text-black text-opacity-50'>
+        <Icon path={props.path} size={1} />
+      </div>
+    )
   }
-  const handleClose = (): void => setAnchorEl(null)
 
-  const { isOrganizer, signOut, profile } = useSession()
-  const userId = profile ? profile.id : null
-  const avatarSrc = useProfileImage(userId)?.src
+  const menuObjs: UserMenuEntry[] = [
+    {
+      title: 'My Profile',
+      href: '/my-profile',
+      imgObj: (
+        <div className='min-w-[36px]'>
+          <UserIcon src={avatarSrc} size='small' />
+        </div>
+      )
+    },
+    {
+      title: 'My Presentations',
+      href: '/my-presentations',
+      imgObj: <ListIcon path={mdiMonitorAccount} />
+    },
+    {
+      title: 'Logout',
+      href: undefined, // '/api/logout',
+      imgObj: <ListIcon path={mdiLogout} />,
+      clickFn: signOut
+    }
+  ]
 
-  const userAvatar = (
-    <Avatar sx={{ width: 48, height: 48 }} src={avatarSrc}>
-      {profile ? profile.firstname + ' ' + profile.lastname : props.user?.email}
-    </Avatar>
-  )
+  const organizerMenuObjs: UserMenuEntry[] = isOrganizer
+    ? [
+        {
+          title: 'Submission Review',
+          href: '/review-submissions',
+          imgObj: <ListIcon path={mdiVoteOutline} />
+        }
+      ]
+    : []
+
+  const WrapperElement: React.FC<
+    PropsWithChildren<{ href: Route | undefined }>
+  > = ({ href, children }) => {
+    if (typeof href !== 'undefined') {
+      return <NextLink href={href}>{children}</NextLink>
+    } else {
+      return <div>{children}</div>
+    }
+  }
+
+  const buttonText = profile
+    ? profile.firstname + ' ' + profile.lastname
+    : email
 
   return (
-    <>
-      <Tooltip title='Account Settings'>
-        <IconButton
-          onClick={handleClick}
-          size='small'
-          sx={{ ml: 2 }}
-          aria-haspopup='true'
-          aria-controls={open ? 'account-menu' : undefined}
-          aria-expanded={open ? 'true' : undefined}
-        >
-          {userAvatar}
-        </IconButton>
-      </Tooltip>
-      <Menu
-        anchorEl={anchorEl}
-        id='account-menu'
-        open={open}
-        onClick={handleClose}
-        onClose={handleClose}
-        PaperProps={{
-          elevation: 0,
-          sx: {
-            overflow: 'visible',
-            filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
-            mt: 1.5,
-            '& .MuiAvatar-root': {
-              width: 32,
-              height: 32,
-              ml: -0.5,
-              mr: 1
-            },
-            '&:before': {
-              content: '""',
-              display: 'block',
-              position: 'absolute',
-              top: 0,
-              right: 14,
-              width: 10,
-              height: 10,
-              bgcolor: 'background.paper',
-              transform: 'translateY(-50%) rotate(45deg)',
-              zIndex: 0
-            }
-          }
-        }}
-        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+    <Popover className='pr-4'>
+      <Popover.Button aria-haspopup aria-label=''>
+        <UserIcon src={avatarSrc} size='large' text={buttonText} />
+      </Popover.Button>
+      <Transition
+        enter='transition duration-250 ease-in'
+        enterFrom='transform scale-90 opacity-0'
+        enterTo='transform scale-100 opacity-100'
+        leave='transition duration-150 ease-out'
+        leaveFrom='transform scale-100 opacity-100'
+        leaveTo='transform scale-90 opacity-0'
       >
-        <Link href='/my-profile' passHref>
-          <MenuItem>
+        <Popover.Panel className='absolute right-0 mt-2 rounded bg-white p-2 text-black text-opacity-75 shadow'>
+          {({ close }) => (
             <>
-              {userAvatar}
-              My Profile
+              <div className='absolute -top-[6px] right-4 h-3 w-3 rotate-45 rounded-none bg-white' />
+              <div className='relative w-max max-w-[80vw] cursor-pointer list-none'>
+                <ul>
+                  {menuObjs
+                    .concat(organizerMenuObjs)
+                    .map(({ title, href, imgObj, clickFn }) => {
+                      return (
+                        <WrapperElement href={href} key={title}>
+                          <li
+                            className='flex h-8 flex-row px-4 py-[6px]'
+                            onClick={() => {
+                              clickFn?.()
+                              close()
+                            }}
+                          >
+                            {imgObj}
+                            <p className='tracking-[0.00938em]'>{title}</p>
+                          </li>
+                        </WrapperElement>
+                      )
+                    })}
+                </ul>
+              </div>
             </>
-          </MenuItem>
-        </Link>
-        {isOrganizer && (
-          <Link href='' passHref>
-            <MenuItem>Yay, I&apos;m an organizer...</MenuItem>
-          </Link>
-        )}
-        <Link href='/my-presentations' passHref>
-          <MenuItem>
-            <>
-              <ListItemIcon>
-                <PresentationsIcon />
-              </ListItemIcon>
-              My Presentations
-            </>
-          </MenuItem>
-        </Link>
-        {/* <Link href='/my-presentations' passHref>
-          <MenuItem>
-            <>
-              <ListItemIcon>
-                <Icon sx={{ textAlign: 'center' }}>
-                  <img
-                    style={{
-                      display: 'flex',
-                      height: 'inherit',
-                      width: 'inherit'
-                    }}
-                    src={Pres1.src}
-                  />
-                </Icon>
-              </ListItemIcon>
-              My Presentations
-            </>
-          </MenuItem>
-        </Link> */}
-        <MenuItem
-          onClick={() => {
-            void signOut()
-          }}
-        >
-          <ListItemIcon>
-            <LogoutIcon fontSize='small' />
-          </ListItemIcon>
-          Logout
-        </MenuItem>
-      </Menu>
-    </>
+          )}
+        </Popover.Panel>
+      </Transition>
+    </Popover>
   )
 }
