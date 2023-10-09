@@ -2,7 +2,7 @@ import {
   Presentation,
   PresentationSummary,
   Presenter
-} from '@/Components/PresentationSummary';
+} from './PresentationSummary';
 import { createAnonServerClient } from '@/lib/supabaseClient';
 import {
   sortPresentationsByPresenterName,

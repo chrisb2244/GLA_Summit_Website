@@ -1,6 +1,6 @@
 import { PresentationType, SummitYear } from '@/lib/databaseModels';
 import Link from 'next/link';
-import { TimestampSpan } from './Utilities/TimestampSpan';
+import { TimestampSpan } from '@/Components/Utilities/TimestampSpan';
 
 export type Presenter = {
   firstname: string;
@@ -44,7 +44,7 @@ export const PresentationSummary = (props: PresentationProps) => {
   return (
     // <Paper {...paperProps}>
     <div className='flex flex-col border-2 p-4'>
-      <Link href={`/presentations/${pres.presentationId}`}>{pres.title}</Link>
+      <Link href={`/presentations/${pres.presentationId}`} className='link'>{pres.title}</Link>
       <div className='mb-0 [&>*]:-my-1'>
         <span className='italic'>{speakerLine}</span>
         <TimestampSpan utcValue={pres.scheduledFor} />
