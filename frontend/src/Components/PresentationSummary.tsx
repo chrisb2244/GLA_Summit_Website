@@ -1,5 +1,3 @@
-'use client';
-import { Box, Paper, PaperProps, Typography } from '@mui/material';
 import { PresentationType, SummitYear } from '@/lib/databaseModels';
 import Link from 'next/link';
 import { TimestampSpan } from './Utilities/TimestampSpan';
@@ -21,11 +19,10 @@ export type Presentation = {
 
 export type PresentationProps = {
   presentation: Presentation;
-  paperProps?: PaperProps;
 };
 
 export const PresentationSummary = (props: PresentationProps) => {
-  const { presentation: pres, paperProps } = props;
+  const { presentation: pres } = props;
 
   const speakerLine = Array.isArray(pres.speakerNames)
     ? pres.speakerNames.join(', ')
@@ -33,7 +30,7 @@ export const PresentationSummary = (props: PresentationProps) => {
 
   // prettier-ignore
   const durationElem = (
-    <Typography variant='subtitle2' fontStyle='italic'>
+    <span className='italic prose-sm'>
       {
         pres.presentationType === "full length" ? '45 minutes' :
         pres.presentationType === "15 minutes" ? '15 minutes' :
@@ -41,31 +38,24 @@ export const PresentationSummary = (props: PresentationProps) => {
         pres.presentationType === 'panel' ? 'Panel discussion' :
         'Quiz'
       }
-    </Typography>
+    </span>
   )
 
   return (
-    <Paper {...paperProps}>
-      <Box p={2}>
-        <Link href={`/presentations/${pres.presentationId}`}>{pres.title}</Link>
-        <Typography variant='subtitle1' fontStyle='italic'>
-          {speakerLine}
-        </Typography>
+    // <Paper {...paperProps}>
+    <div className='flex flex-col border-2 p-4'>
+      <Link href={`/presentations/${pres.presentationId}`}>{pres.title}</Link>
+      <div className='mb-0 [&>*]:-my-1'>
+        <span className='italic'>{speakerLine}</span>
         <TimestampSpan utcValue={pres.scheduledFor} />
         {durationElem}
-        <Box
-          sx={{
-            display: '-webkit-box',
-            WebkitLineClamp: 7,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden'
-          }}
-        >
-          {pres.abstract.split('\r\n').map((p, idx) => {
-            return <Typography key={`p${idx}`}>{p}</Typography>;
-          })}
-        </Box>
-      </Box>
-    </Paper>
+      </div>
+      <div className='line-clamp-4 prose-p:my-1'>
+        {pres.abstract.split(/\r?\n/).map((p, idx) => {
+          return <p key={`p${idx}`}>{p}</p>;
+        })}
+      </div>
+    </div>
+    // </Paper>
   );
 };

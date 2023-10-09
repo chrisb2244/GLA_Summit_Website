@@ -14,7 +14,7 @@ const PresentationListLayout = async ({
 
   return (
     <div>
-      <div className='text-center'>
+      <div className='prose mx-auto text-center [&>*]:my-2'>
         <p>
           Presentations below are grouped by year, and sorted by the first
           speaker&apos;s name.
@@ -39,7 +39,7 @@ const PresentationListLayout = async ({
           );
         })}
       </div>
-      <div className='shadow'>{children}</div>
+      <div className='shadow prose max-w-none'>{children}</div>
     </div>
   );
 };

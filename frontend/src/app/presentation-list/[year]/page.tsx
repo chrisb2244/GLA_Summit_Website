@@ -1,4 +1,3 @@
-import { StackedBoxes } from '@/Components/Layout/StackedBoxes';
 import {
   Presentation,
   PresentationSummary,
@@ -57,7 +56,7 @@ const PresentationsForYearPage = async (props: PageProps) => {
     })
     .map((p) => {
       return (
-        <div key={p.title} className='pb-2'>
+        <div key={p.title}>
           <PresentationSummary presentation={p} />
         </div>
       );
@@ -65,8 +64,8 @@ const PresentationsForYearPage = async (props: PageProps) => {
 
   return (
     <>
-      <h3 className='py-1 text-center text-lg'>{year} Presentations</h3>
-      <StackedBoxes>{presentations}</StackedBoxes>
+      <h3 className='py-1 text-center'>{year} Presentations</h3>
+      <div className='mx-4 flex flex-col space-y-4'>{presentations}</div>
     </>
   );
 };

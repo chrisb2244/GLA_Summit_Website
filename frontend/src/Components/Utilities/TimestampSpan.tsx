@@ -67,9 +67,9 @@ export const TimestampSpan = (props: TimestampSpanProps) => {
   }, [format, utcValue]);
 
   return (
-    <div className='flex flex-col text-sm italic'>
+    <span className='flex flex-col prose-sm italic'>
       {localTimeElem}
       {displayUTC && utcSpan !== localTimeElem ? utcSpan : null}
-    </div>
+    </span>
   );
 };
