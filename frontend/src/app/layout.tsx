@@ -4,6 +4,15 @@ import { roboto } from './font-workaround';
 
 import './global.css';
 import '../GLA-generic.css';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: {
+    template: '%s | GLA Summit 2024',
+    default: 'GLA Summit 2024'
+  },
+  description: 'A global online LabVIEW conference'
+};
 
 export default function RootLayout({
   children
@@ -13,7 +22,6 @@ export default function RootLayout({
   return (
     <html lang='en' className={roboto.className}>
       <head>
-        <title>GLA Summit 2024</title>
         <meta name='viewport' content='initial-scale=1, width=device-width' />
       </head>
 
