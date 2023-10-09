@@ -1,5 +1,4 @@
 import { PersonDisplay } from '@/Components/PersonDisplay';
-import { LinkLikeText } from '@/Components/Utilities/LinkLikeText';
 import {
   getPerson,
   getPublicPresentations,
@@ -8,6 +7,7 @@ import {
 import { splitByYear } from '@/lib/presentationArrayFunctions';
 import { createAnonServerClient } from '@/lib/supabaseClient';
 import { NextPage } from 'next';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 type PageProps = {
@@ -55,13 +55,13 @@ const PresentersPage: NextPage<PageProps> = async ({ params }) => {
             <div className='flex flex-col'>
             {presentationsInYear.map((p) => {
               return (
-                <LinkLikeText
+                <Link
                   href={`/presentations/${p.presentation_id}`}
-                  className='ml-2 text-lg'
+                  className='ml-2 text-lg link'
                   key={p.presentation_id}
                 >
                   {p.title}
-                </LinkLikeText>
+                </Link>
               );
             })}
             </div>
