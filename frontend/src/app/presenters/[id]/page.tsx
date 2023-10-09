@@ -51,7 +51,7 @@ const PresentersPage: NextPage<PageProps> = async ({ params }) => {
       ([year, presentationsInYear]) => {
         return (
           <div key={year} className='mt-4 md:mt-0'>
-            <h3 className='text-xl'>{year}</h3>
+            <h4 className='text-xl'>{year}</h4>
             <div className='flex flex-col'>
             {presentationsInYear.map((p) => {
               return (
@@ -71,7 +71,7 @@ const PresentersPage: NextPage<PageProps> = async ({ params }) => {
     );
 
     return (
-      <div className='my-4'>
+      <div className='my-4 prose max-w-none'>
         <PersonDisplay {...presenter} stripContainer />
         {presentationElements}
       </div>

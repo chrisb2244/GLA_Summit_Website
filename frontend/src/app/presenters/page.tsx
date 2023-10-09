@@ -28,16 +28,23 @@ const PresentersListPage = async () => {
 
   const presenterElements = people.map(({ id, ...person }) => {
     return (
-      <PersonDisplay
-        key={id}
-        {...person}
-        pageLink={`/presenters/${id}` as Route}
-        useDefaultIconImage
-      />
+      <div className='border p-4 shadow-sm [&_p]:line-clamp-6'>
+        <PersonDisplay
+          key={id}
+          {...person}
+          pageLink={`/presenters/${id}` as Route}
+          useDefaultIconImage
+          stripContainer
+        />
+      </div>
     );
   });
 
-  return <div className='flex flex-col space-y-2'>{presenterElements}</div>;
+  return (
+    <div className='prose flex max-w-none flex-col space-y-2'>
+      {presenterElements}
+    </div>
+  );
 };
 
 export default PresentersListPage;
