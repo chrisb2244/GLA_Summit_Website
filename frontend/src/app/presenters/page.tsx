@@ -28,9 +28,8 @@ const PresentersListPage = async () => {
 
   const presenterElements = people.map(({ id, ...person }) => {
     return (
-      <div className='border p-4 shadow-sm [&_p]:line-clamp-6'>
+      <div className='border p-4 shadow-sm [&_p]:line-clamp-6' key={id}>
         <PersonDisplay
-          key={id}
           {...person}
           pageLink={`/presenters/${id}` as Route}
           useDefaultIconImage
