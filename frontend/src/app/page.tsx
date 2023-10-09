@@ -1,20 +1,8 @@
 import { StackedBoxes } from '@/Components/Layout/StackedBoxes';
 import { SponsorBar } from './_rootElements/SponsorBar';
-import React, { ReactNode } from 'react';
 // import { Countdown } from './_rootElements/Countdown'
 
 export default function Page() {
-  const P = (
-    props: { children?: ReactNode } & React.HTMLAttributes<HTMLParagraphElement>
-  ) => {
-    const { className: classNameProps, ...other } = props;
-    return (
-      <p className={`prose text-justify ${classNameProps ?? ''}`} {...other}>
-        {props.children}
-      </p>
-    );
-  };
-
   // The month value is 0-based (so 10 -> November)
   // const eventStart = new Date(Date.UTC(2022, 10, 14, 12, 0, 0))
   // const eventEnd = new Date(Date.UTC(2022, 10, 15, 12, 0, 0))
@@ -45,41 +33,38 @@ export default function Page() {
   // ) : null
 
   return (
-    <div className='mx-auto'>
-      <StackedBoxes>
-        <P>
-          The GLA Summit Organizers are excited to announce the next GLA Summit,
-          scheduled for 25-26 March 2024!
-        </P>
-        <P>
-          We are excited to welcome advanced LabVIEW developers and Architects
-          (certified or self-proclaimed) from around the world to network and
-          participate in an inclusive, all-digital, free event.
-        </P>
-        <P>
-          Recordings of previous presentations are available via the{' '}
-          <a
-            href='https://www.youtube.com/c/GlobalLabVIEWArchitects'
-            className='underline'
-          >
-            GLA Summit YouTube channel
-          </a>{' '}
-          - we hope that you are as excited as we are to have these great
-          resources available to rewatch!
-        </P>
-        <P>
-          Many parts of the website are currently being updated and refactored
-          to improve our ability to deliver a smooth experience with logins,
-          presentation submissions and submission review, amongst other
-          features.
-        </P>
-        <P>
-          If there&apos;s something you&apos;d like to see in a future version,
-          please feel free to let us know at{' '}
-          <a href='mailto:web@glasummit.org'>web@glasummit.org</a> and
-          we&apos;ll be happy to consider it!
-        </P>
-      </StackedBoxes>
+    <div className='prose-base prose mx-auto max-w-2xl text-justify xl:max-w-3xl'>
+      <p className='prose-lg text-center'>
+        The GLA Summit Organizers are excited to announce the next GLA Summit,
+        scheduled for 25-26 March 2024!
+      </p>
+      <p>
+        We are excited to welcome advanced LabVIEW developers and Architects
+        (certified or self-proclaimed) from around the world to network and
+        participate in an inclusive, all-digital, free event.
+      </p>
+      <p>
+        Recordings of previous presentations are available via the{' '}
+        <a
+          href='https://www.youtube.com/c/GlobalLabVIEWArchitects'
+          className='underline'
+        >
+          GLA Summit YouTube channel
+        </a>{' '}
+        - we hope that you are as excited as we are to have these great
+        resources available to rewatch!
+      </p>
+      <p>
+        Many parts of the website are currently being updated and refactored to
+        improve our ability to deliver a smooth experience with logins,
+        presentation submissions and submission review, amongst other features.
+      </p>
+      <p>
+        If there&apos;s something you&apos;d like to see in a future version,
+        please feel free to let us know at{' '}
+        <a href='mailto:web@glasummit.org'>web@glasummit.org</a> and we&apos;ll
+        be happy to consider it!
+      </p>
       {/* <SponsorBar /> */}
     </div>
   );
