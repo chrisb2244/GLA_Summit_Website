@@ -1,7 +1,5 @@
 'use client';
-import { Paper, Box, Typography } from '@mui/material';
 import { PersonDisplay, PersonDisplayProps } from '@/Components/PersonDisplay';
-import { StackedBoxes } from './StackedBoxes';
 import { mdiCalendar, mdiStarPlusOutline, mdiStarRemoveOutline } from '@mdi/js';
 import Icon from '@mdi/react';
 import { useEffect, useState } from 'react';
@@ -96,7 +94,7 @@ export const PresentationDisplay: React.FC<
     <a href={`/api/ics/${presentationId}`} target='_blank' rel='noreferrer'>
       <div className='flex flex-row items-center'>
         <Icon path={mdiCalendar} size={1} />
-        <span className='prose pl-1'>Download ICS file</span>
+        <span className='pl-1'>Download ICS file</span>
       </div>
     </a>
   );
@@ -150,34 +148,34 @@ export const PresentationDisplay: React.FC<
   // ) : null
 
   return (
-    <Paper>
-      <StackedBoxes>
-        <Box width={{ xs: '100%', md: '95%' }} marginX='auto' mt={1}>
-          <Typography variant='h3' gutterBottom>
-            {presentation.title}
-          </Typography>
+    <div className='border-2 shadow-sm mt-1 mb-6'>
+      <div className='prose mx-auto flex max-w-none flex-col space-y-4 w-11/12'>
+        <div className='flex flex-col'>
+          <h2 className='mt-4 mb-0'>{presentation.title}</h2>
           <div className='flex flex-col py-2 md:flex-row md:justify-between'>
             {scheduleInfo}
             {downloadButton}
           </div>
           {/* {favouriteButton} */}
-          <Box>
-            {presentation.abstract.split('\r\n').map((p, idx) => {
-              return <Typography key={`p${idx}`}>{p}</Typography>;
+          <div className='prose-p:my-1'>
+            {presentation.abstract.split(/\r?\n/).map((p, idx) => {
+              return <p key={`p${idx}`}>{p}</p>;
             })}
-          </Box>
-        </Box>
-        {presentation.speakers.map((personProps) => {
-          return (
-            <PersonDisplay
-              {...personProps}
-              stripContainer
-              useDefaultIconImage
-              key={`${personProps.lastName}_${personProps.firstName}`}
-            />
-          );
-        })}
-      </StackedBoxes>
-    </Paper>
+          </div>
+        </div>
+        <div>
+          {presentation.speakers.map((personProps) => {
+            return (
+              <PersonDisplay
+                {...personProps}
+                stripContainer
+                useDefaultIconImage
+                key={`${personProps.lastName}_${personProps.firstName}`}
+              />
+            );
+          })}
+        </div>
+      </div>
+    </div>
   );
 };

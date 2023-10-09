@@ -82,32 +82,34 @@ export const PersonDisplay: React.FC<
   const TitleComponent = ({ children }: { children?: ReactNode }) => {
     if (typeof pageLink !== 'undefined') {
       return (
-        <NextLink href={pageLink}>
-          <span className='link pr-1 text-3xl'>{children}</span>
+        <NextLink href={pageLink} className='link'>
+          {children}
         </NextLink>
       );
     } else {
-      return <h4 className='text-3xl'>{children}</h4>;
+      return <>{children}</>;
     }
   };
 
   const imgDispCName = isDefaultImage ? 'max-sm:hidden' : '';
 
   return (
-    <div className={props.stripContainer ? '' : 'rounded shadow'}>
+    <div className={`${props.stripContainer ? '' : 'rounded shadow-md'}`}>
       <div
-        className={`flex flex-col ${md_direction} content-center justify-around p-4`}
+        className={`flex flex-col ${md_direction} my-2 content-center justify-around space-x-4`}
       >
         <div className={`my-auto flex-grow items-center`}>
-          <TitleComponent>
-            {props.firstName} {props.lastName}
-          </TitleComponent>
-          <div className='my-4 space-y-4 whitespace-pre-wrap text-justify text-lg'>
+          <h3 className='my-0'>
+            <TitleComponent>
+              {props.firstName} {props.lastName}
+            </TitleComponent>
+          </h3>
+          <div className='space-y-4 whitespace-pre-wrap text-justify'>
             {descriptionElem}
           </div>
         </div>
         <div
-          className={`relative my-auto min-h-[200px] w-full flex-shrink-0 md:w-[30%] ${imgDispCName} flex flex-row justify-center`}
+          className={`not-prose relative w-full flex-shrink-0 align-middle md:w-[30%] ${imgDispCName} flex flex-row justify-center`}
         >
           {imageElem}
         </div>
