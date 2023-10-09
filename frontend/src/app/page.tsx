@@ -47,7 +47,7 @@ export default function Page() {
         Recordings of previous presentations are available via the{' '}
         <a
           href='https://www.youtube.com/c/GlobalLabVIEWArchitects'
-          className='underline'
+          className='link'
         >
           GLA Summit YouTube channel
         </a>{' '}
@@ -62,7 +62,7 @@ export default function Page() {
       <p>
         If there&apos;s something you&apos;d like to see in a future version,
         please feel free to let us know at{' '}
-        <a href='mailto:web@glasummit.org'>web@glasummit.org</a> and we&apos;ll
+        <a href='mailto:web@glasummit.org' className='link'>web@glasummit.org</a> and we&apos;ll
         be happy to consider it!
       </p>
       {/* <SponsorBar /> */}
