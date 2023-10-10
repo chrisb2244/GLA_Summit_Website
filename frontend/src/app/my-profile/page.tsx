@@ -1,4 +1,3 @@
-import { Database } from '@/lib/sb_databaseModels';
 import { createServerComponentClient } from '@/lib/supabaseServer';
 
 import React, { PropsWithChildren } from 'react';
@@ -7,13 +6,13 @@ import { ProfileForm } from './ProfileForm';
 
 const ProfilePage = async () => {
   const supabase = createServerComponentClient();
-  const user = (await supabase.auth.getSession()).data.session?.user;
+  const user = (await supabase.auth.getUser()).data.user;
 
   const Wrapper: React.FC<PropsWithChildren> = (props) => {
     return <div className='mb-4 flex flex-col'>{props.children}</div>;
   };
 
-  if (typeof user === 'undefined') {
+  if (user === null) {
     return (
       <Wrapper>
         <p>This page requires that you be logged-in.</p>
