@@ -15,11 +15,19 @@ export const supabase = createClientComponentClient<Database>();
 // This is only going to be available on the server - the lack of
 // a "NEXT_PUBLIC" prefix makes the necessary key unavailable in the browser.
 export const createAdminClient = () =>
-  createClient<Database>(supabaseUrl, supabaseServiceKey);
+  createClient<Database>(supabaseUrl, supabaseServiceKey, {
+    auth: {
+      persistSession: false,
+      detectSessionInUrl: false,
+      autoRefreshToken: false
+    }
+  });
 
 export const createAnonServerClient = () =>
   createClient<Database>(supabaseUrl, supabaseAnonKey, {
     auth: {
-      persistSession: false
+      persistSession: false,
+      detectSessionInUrl: false,
+      autoRefreshToken: false
     }
   });
