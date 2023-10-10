@@ -27,17 +27,6 @@ export const getUser = async () => {
   });
 };
 
-export const getIsOrganizer = async (user: User) => {
-  const supabase = createServerActionClient();
-
-  return await supabase
-    .from('organizers')
-    .select()
-    .eq('id', user.id)
-    .maybeSingle()
-    .then((v) => v.data !== null);
-};
-
 export const verifyLogin = async (data: {
   email: string;
   verificationCode: string;
