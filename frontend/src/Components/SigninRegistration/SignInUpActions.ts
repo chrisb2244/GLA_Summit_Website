@@ -2,7 +2,7 @@
 import 'server-only'; // Poison the module for client code.
 
 import { generateSupabaseLinks } from '@/lib/generateSupabaseLinks';
-import { createServerActionClient } from '@supabase/auth-helpers-nextjs';
+import { createServerActionClient } from '@/lib/supabaseServer';
 import { cookies } from 'next/headers';
 import { randomBytes } from 'crypto';
 import { sendMailApi } from '@/lib/sendMail';
@@ -14,11 +14,11 @@ export const mailUser = async () => {
 };
 
 export const signOut = async () => {
-  await createServerActionClient({ cookies }).auth.signOut();
+  await createServerActionClient().auth.signOut();
 };
 
 export const getUser = async () => {
-  const supabase = createServerActionClient({ cookies });
+  const supabase = createServerActionClient();
   return await supabase.auth.getUser().then(({ data, error }) => {
     if (error) {
       return null;
@@ -27,22 +27,11 @@ export const getUser = async () => {
   });
 };
 
-export const getIsOrganizer = async (user: User) => {
-  const supabase = createServerActionClient({ cookies });
-
-  return supabase
-    .from('organizers')
-    .select()
-    .eq('id', user.id)
-    .maybeSingle()
-    .then((v) => v.data !== null);
-};
-
 export const verifyLogin = async (data: {
   email: string;
   verificationCode: string;
 }) => {
-  return createServerActionClient({ cookies })
+  return await createServerActionClient()
     .auth.verifyOtp({
       email: data.email,
       token: data.verificationCode,
