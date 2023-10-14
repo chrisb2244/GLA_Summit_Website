@@ -30,25 +30,9 @@ export const PersonDisplay: React.FC<
   let imageElem = null;
   if (
     typeof props.image !== 'undefined' &&
-    props.image !== null &&
-    typeof props.image !== 'string'
+    props.image !== null
   ) {
-    // Static image file
-    imageElem = (
-      <Image
-        src={props.image}
-        alt={`Image of ${props.firstName} ${props.lastName}`}
-        style={{
-          maxWidth: '100%',
-          maxHeight: '100%',
-          height: 'auto',
-          width: '100%',
-          objectFit: 'contain'
-        }}
-      />
-    );
-  } else if (typeof props.image !== 'undefined' && props.image !== null) {
-    // Image by URL
+    // Static image file or by URL
     imageElem = (
       <Image
         fill
