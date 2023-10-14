@@ -25,9 +25,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // NEXT_PUBLIC_VERCEL_URL should be defined in .env.local for local testing
     return [];
   }
-  const baseUrl = baseUrlInitial.startsWith('http')
+  const detectedBaseUrl = baseUrlInitial.startsWith('http')
     ? baseUrlInitial
     : `https://${baseUrlInitial}`;
+
+  const deploymentType = process.env.NEXT_PUBLIC_VERCEL_ENV as
+    | 'production'
+    | 'preview'
+    | 'development'
+    | undefined;
+  const baseUrl =
+    deploymentType === 'production' ? 'https://www.glasummit.org' : detectedBaseUrl;
 
   /* 
     / - homepage (weekly)
