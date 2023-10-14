@@ -19,6 +19,16 @@ type Entry = {
 };
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const baseUrlInitial = process.env.NEXT_PUBLIC_VERCEL_URL;
+  if (typeof baseUrlInitial !== 'string') {
+    // Give up generating an accurate sitemap
+    // NEXT_PUBLIC_VERCEL_URL should be defined in .env.local for local testing
+    return [];
+  }
+  const baseUrl = baseUrlInitial.startsWith('http')
+    ? baseUrlInitial
+    : `https://${baseUrlInitial}`;
+
   /* 
     / - homepage (weekly)
     /{access-denied,api,logs,media,my-presentations,my-profile,review-submissions,validateLogin} - don't add these, add noindex to them
@@ -30,7 +40,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   */
   const generateEntry = (relUrl: string, frequency?: Frequency): Entry => {
     return {
-      url: 'https://glasummit.org' + relUrl,
+      url: baseUrl + relUrl,
       changeFrequency: frequency
     };
   };
@@ -65,14 +75,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         })
       : [];
 
-  const presenterIds = (await getPresenterIds()).map(({id}) => id);
+  const presenterIds = (await getPresenterIds()).map(({ id }) => id);
   const presenterInfo = await getPeople(presenterIds);
 
-  const presenterEntries = presenterInfo.map(({id, updated_at}) => {
+  const presenterEntries = presenterInfo.map(({ id, updated_at }) => {
     return {
-      ...generateEntry(`/presenters/${id}`, "monthly"),
+      ...generateEntry(`/presenters/${id}`, 'monthly'),
       lastModified: new Date(updated_at)
-    }
+    };
   });
 
   return [...staticEntries, ...presentationEntries, ...presenterEntries];
