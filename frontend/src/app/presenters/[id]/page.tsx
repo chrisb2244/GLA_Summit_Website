@@ -6,7 +6,7 @@ import {
 } from '@/lib/databaseFunctions';
 import { splitByYear } from '@/lib/presentationArrayFunctions';
 import { createAnonServerClient } from '@/lib/supabaseClient';
-import { NextPage } from 'next';
+import { Metadata, NextPage, ResolvingMetadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
@@ -20,6 +20,21 @@ export const revalidate = 600;
 
 export async function generateStaticParams(): Promise<{ id: string }[]> {
   return await getPresenterIds();
+}
+
+export async function generateMetadata(
+  { params }: PageProps,
+  _parent: ResolvingMetadata
+): Promise<Metadata> {
+  const { id } = params;
+  try {
+    const supabase = createAnonServerClient();
+    const { firstName, lastName } = await getPerson(id, supabase);
+    
+    return { title: `${firstName} ${lastName}` };
+  } catch (error) {
+    return {};
+  }
 }
 
 const PresentersPage: NextPage<PageProps> = async ({ params }) => {
