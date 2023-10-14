@@ -31,7 +31,7 @@ export default function RootLayout({
 
           <div style={{ flex: '1 0 auto', display: 'flex' }}>
             {/* w: 100% for up to small (i.e. xs), 80% for larger than "md" */}
-            <div className='mx-auto flex w-[85%] max-w-screen-lg flex-col md:w-4/5'>
+            <div className='mx-auto mb-8 flex w-[85%] max-w-screen-lg flex-col md:w-4/5'>
               {children}
             </div>
           </div>
