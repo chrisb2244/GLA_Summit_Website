@@ -22,13 +22,9 @@ const AccessDeniedPage = () => {
         <div className='flex justify-center'>
           <Icon path={mdiAlertCircle} size={2} />
         </div>
-        <T>You do not have access to this page.</T>
+        <T>You need to be logged in to access this page.</T>
         <T>
-          If you believe you should have access, please check you are signed in,
-          and with the correct account.
-        </T>
-        <T>
-          If you still cannot access this page, contact{' '}
+          If you are logged in and still cannot access this page, contact{' '}
           <a className='link' href='mailto:web@glasummit.org'>
             web@glasummit.org
           </a>
