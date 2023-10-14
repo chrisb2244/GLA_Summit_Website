@@ -392,6 +392,7 @@ export interface Database {
           all_lastnames: string[];
           all_presenters_ids: string[];
           is_submitted: boolean;
+          year: Database['public']['Enums']['summit_year'];
           learning_points: string;
           presentation_id: string;
           presentation_type: Database['public']['Enums']['presentation_type'];
