@@ -363,8 +363,8 @@ export const getAcceptedPresentationIds = async (): Promise<string[]> => {
   return data.map((d) => d.id);
 };
 
-export const getMyPresentations = async () => {
-  const { data, error: errorPresData } = await supabase
+export const getMyPresentations = async (client: SupabaseClient<Database> = supabase) => {
+  const { data, error: errorPresData } = await client
     .from('my_submissions')
     .select();
   if (errorPresData) {
