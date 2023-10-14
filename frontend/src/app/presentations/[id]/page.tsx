@@ -3,7 +3,7 @@ import {
   Schedule
 } from '@/Components/Layout/PresentationDisplay';
 import { PersonDisplayProps } from '@/Components/PersonDisplay';
-import { getPerson, getPublicPresentation } from '@/lib/databaseFunctions';
+import { getPerson, getPresentationIds, getPublicPresentation } from '@/lib/databaseFunctions';
 import { createAnonServerClient } from '@/lib/supabaseClient';
 import { getSessionDurationInMinutes } from '@/lib/utils';
 import type { NextPage, Route } from 'next';
@@ -19,14 +19,7 @@ type PageProps = {
 export const revalidate = 600;
 
 export async function generateStaticParams(): Promise<{ id: string }[]> {
-  const supabase = createAnonServerClient();
-  const { data, error } = await supabase
-    .from('accepted_presentations')
-    .select('id');
-  if (error) {
-    return [];
-  }
-  return data;
+  return getPresentationIds();
 }
 
 const PresentationsForYearPage: NextPage<PageProps> = async ({ params }) => {
