@@ -3,10 +3,14 @@ import {
   Schedule
 } from '@/Components/Layout/PresentationDisplay';
 import { PersonDisplayProps } from '@/Components/PersonDisplay';
-import { getPerson, getPresentationIds, getPublicPresentation } from '@/lib/databaseFunctions';
+import {
+  getPerson,
+  getPresentationIds,
+  getPublicPresentation
+} from '@/lib/databaseFunctions';
 import { createAnonServerClient } from '@/lib/supabaseClient';
 import { getSessionDurationInMinutes } from '@/lib/utils';
-import type { NextPage, Route } from 'next';
+import type { Metadata, NextPage, ResolvingMetadata, Route } from 'next';
 import { notFound } from 'next/navigation';
 import { redirect } from 'next/navigation';
 
@@ -20,6 +24,20 @@ export const revalidate = 600;
 
 export async function generateStaticParams(): Promise<{ id: string }[]> {
   return getPresentationIds();
+}
+
+export async function generateMetadata(
+  { params }: PageProps,
+  _parent: ResolvingMetadata
+): Promise<Metadata> {
+  const { id } = params;
+  try {
+    const supabase = createAnonServerClient();
+    const title = (await getPublicPresentation(id, supabase)).title;
+    return { title };
+  } catch (error) {
+    return {};
+  }
 }
 
 const PresentationsForYearPage: NextPage<PageProps> = async ({ params }) => {
