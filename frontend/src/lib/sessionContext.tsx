@@ -8,7 +8,7 @@ import React, {
 import type { Session, SupabaseClient, User } from '@supabase/supabase-js';
 import type { AuthError } from '@supabase/supabase-js';
 import { ProfileModel } from './databaseModels';
-import { defaultTimezoneInfo, myLog, TimezoneInfo } from './utils';
+import { defaultTimezoneInfo, myLog, TimezoneInfo } from './utils.tsx';
 import { GenerateLinkBody } from '@/lib/generateSupabaseLinks';
 import type { NewUserInformation } from '@/Components/SigninRegistration/NewUserRegistration';
 import {

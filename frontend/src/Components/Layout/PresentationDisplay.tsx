@@ -3,7 +3,7 @@ import { PersonDisplay, PersonDisplayProps } from '@/Components/PersonDisplay';
 import { mdiCalendar, mdiStarPlusOutline, mdiStarRemoveOutline } from '@mdi/js';
 import Icon from '@mdi/react';
 import { useEffect, useState } from 'react';
-import { logErrorToDb } from '@/lib/utils';
+import { logErrorToDb, formatTextToPs } from '@/lib/utils';
 import {
   User,
   createClientComponentClient
@@ -158,9 +158,7 @@ export const PresentationDisplay: React.FC<
           </div>
           {/* {favouriteButton} */}
           <div className='prose-p:my-1'>
-            {presentation.abstract.split(/\r?\n/).map((p, idx) => {
-              return <p key={`p${idx}`}>{p}</p>;
-            })}
+            {formatTextToPs(presentation.abstract)}
           </div>
         </div>
         <div>

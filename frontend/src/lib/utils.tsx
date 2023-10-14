@@ -157,3 +157,9 @@ export const sortPresentationsByPresenterName = (
     -1 * ('' + bPrimarySpeaker.lastname).localeCompare(aPrimarySpeaker.lastname)
   );
 };
+
+export const formatTextToPs = (text: string, extraClassNames?: string) => {
+  return text.split(/\r?\n/).map((para, idx) => {
+    return <p key={`p${idx}`} className={extraClassNames}>{para}</p>;
+  })
+}

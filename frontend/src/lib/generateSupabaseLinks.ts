@@ -11,7 +11,7 @@ import {
   adminUpdateExistingProfile,
   checkForExistingUser
 } from './databaseFunctions';
-import { logErrorToDb, myLog } from './utils';
+import { logErrorToDb, myLog } from './utils.tsx';
 import { createServerActionClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 
