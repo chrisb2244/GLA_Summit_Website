@@ -1,7 +1,7 @@
 import { PersonDisplay } from '@/Components/PersonDisplay';
 import {
   getPerson,
-  getPublicPresentations,
+  getPresenterIds,
   getPublicPresentationsForPresenter
 } from '@/lib/databaseFunctions';
 import { splitByYear } from '@/lib/presentationArrayFunctions';
@@ -19,16 +19,7 @@ type PageProps = {
 export const revalidate = 600;
 
 export async function generateStaticParams(): Promise<{ id: string }[]> {
-  const supabase = createAnonServerClient();
-  return await getPublicPresentations(supabase).then((presentationsData) => {
-    return presentationsData.flatMap((d) => {
-      return d.all_presenters.map((presenterId) => {
-        return {
-          id: presenterId
-        };
-      });
-    });
-  });
+  return await getPresenterIds();
 }
 
 const PresentersPage: NextPage<PageProps> = async ({ params }) => {
