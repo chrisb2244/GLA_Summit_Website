@@ -1,6 +1,13 @@
 import { StackedBoxes } from '@/Components/Layout/StackedBoxes';
 import { SponsorBar } from './_rootElements/SponsorBar';
+import { Metadata } from 'next';
 // import { Countdown } from './_rootElements/Countdown'
+
+export const metadata: Metadata = {
+  title: {
+    absolute: 'GLA Summit 2024'
+  }
+};
 
 export default function Page() {
   // The month value is 0-based (so 10 -> November)
@@ -62,8 +69,10 @@ export default function Page() {
       <p>
         If there&apos;s something you&apos;d like to see in a future version,
         please feel free to let us know at{' '}
-        <a href='mailto:web@glasummit.org' className='link'>web@glasummit.org</a> and we&apos;ll
-        be happy to consider it!
+        <a href='mailto:web@glasummit.org' className='link'>
+          web@glasummit.org
+        </a>{' '}
+        and we&apos;ll be happy to consider it!
       </p>
       {/* <SponsorBar /> */}
     </div>

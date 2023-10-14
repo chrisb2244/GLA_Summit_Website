@@ -8,7 +8,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | GLA Summit 2024',
+    template: '%s | GLA Summit',
     default: 'GLA Summit 2024'
   },
   description: 'A global online LabVIEW conference'
