@@ -43,6 +43,7 @@ export const SubmitForm = async (formData: FormData) => {
         // this will break the typechecking code.
         // It can actually happen if the formData contains other elements, though...
         // Ignore this case.
+        /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
         const dummyVal: never = assumedValidName;
         break;
       }

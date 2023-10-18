@@ -3,11 +3,10 @@ import 'server-only'; // Poison the module for client code.
 
 import { generateSupabaseLinks } from '@/lib/generateSupabaseLinks';
 import { createServerActionClient } from '@/lib/supabaseServer';
-import { cookies } from 'next/headers';
 import { randomBytes } from 'crypto';
 import { sendMailApi } from '@/lib/sendMail';
 import { PersonProps } from '../Form';
-import { User, UserMetadata } from '@supabase/supabase-js';
+import { UserMetadata } from '@supabase/supabase-js';
 
 export const mailUser = async () => {
   // Send email

@@ -9,8 +9,8 @@ import {
   getPublicPresentation
 } from '@/lib/databaseFunctions';
 import { createAnonServerClient } from '@/lib/supabaseClient';
-import { getSessionDurationInMinutes } from '@/lib/utils';
-import type { Metadata, NextPage, ResolvingMetadata, Route } from 'next';
+import { getSessionDurationInMinutes, myLog } from '@/lib/utils';
+import type { Metadata, NextPage, Route } from 'next';
 import { notFound } from 'next/navigation';
 import { redirect } from 'next/navigation';
 
@@ -26,11 +26,8 @@ export async function generateStaticParams(): Promise<{ id: string }[]> {
   return getPresentationIds();
 }
 
-export async function generateMetadata(
-  { params }: PageProps,
-  _parent: ResolvingMetadata
-): Promise<Metadata> {
-  const { id } = params;
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
+  const { id } = props.params;
   try {
     const supabase = createAnonServerClient();
     const title = (await getPublicPresentation(id, supabase)).title;
@@ -97,6 +94,7 @@ const PresentationsForYearPage: NextPage<PageProps> = async ({ params }) => {
       };
     },
     (error) => {
+      myLog(error)
       notFound();
     }
   );

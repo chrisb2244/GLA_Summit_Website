@@ -1,7 +1,6 @@
 'use client';
 import { useState } from 'react';
 import { RegistrationPopup } from './RegistrationPopup';
-import { useRouter } from 'next/navigation';
 
 type SignInUpButtonProps = {
   waitingSpinner: JSX.Element;

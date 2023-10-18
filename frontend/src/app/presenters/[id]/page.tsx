@@ -6,7 +6,7 @@ import {
 } from '@/lib/databaseFunctions';
 import { splitByYear } from '@/lib/presentationArrayFunctions';
 import { createAnonServerClient } from '@/lib/supabaseClient';
-import { Metadata, NextPage, ResolvingMetadata } from 'next';
+import { Metadata, NextPage } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
@@ -22,15 +22,12 @@ export async function generateStaticParams(): Promise<{ id: string }[]> {
   return await getPresenterIds();
 }
 
-export async function generateMetadata(
-  { params }: PageProps,
-  _parent: ResolvingMetadata
-): Promise<Metadata> {
-  const { id } = params;
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
+  const { id } = props.params;
   try {
     const supabase = createAnonServerClient();
     const { firstName, lastName } = await getPerson(id, supabase);
-    
+
     return { title: `${firstName} ${lastName}` };
   } catch (error) {
     return {};
@@ -59,17 +56,17 @@ const PresentersPage: NextPage<PageProps> = async ({ params }) => {
           <div key={year} className='mt-4 md:mt-0'>
             <h4 className='text-xl'>{year}</h4>
             <div className='flex flex-col'>
-            {presentationsInYear.map((p) => {
-              return (
-                <Link
-                  href={`/presentations/${p.presentation_id}`}
-                  className='ml-2 text-lg link'
-                  key={p.presentation_id}
-                >
-                  {p.title}
-                </Link>
-              );
-            })}
+              {presentationsInYear.map((p) => {
+                return (
+                  <Link
+                    href={`/presentations/${p.presentation_id}`}
+                    className='link ml-2 text-lg'
+                    key={p.presentation_id}
+                  >
+                    {p.title}
+                  </Link>
+                );
+              })}
             </div>
           </div>
         );
@@ -77,7 +74,7 @@ const PresentersPage: NextPage<PageProps> = async ({ params }) => {
     );
 
     return (
-      <div className='my-4 prose max-w-none'>
+      <div className='prose my-4 max-w-none'>
         <PersonDisplay {...presenter} stripContainer />
         {presentationElements}
       </div>
