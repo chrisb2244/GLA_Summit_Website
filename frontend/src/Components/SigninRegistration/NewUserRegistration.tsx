@@ -27,9 +27,9 @@ export const NewUserRegistration: React.FC<
       }}
       dialogId='registerDialog'
     >
-      <div className='flex flex-col items-center space-y-2 px-2 pb-4 text-center text-sm'>
-        <p>
-          {'Already registered?\u00A0'}
+      <div className='prose-sm prose flex flex-col items-center space-y-2 px-2 pb-4 text-center'>
+        <div>
+          <span>Already registered? </span>
           <a
             className='link'
             onClick={(ev) => {
@@ -39,32 +39,27 @@ export const NewUserRegistration: React.FC<
           >
             Sign In
           </a>
-        </p>
+        </div>
         <p>
           Please fill out the information below. You will receive an email with
           a verification link - click the link to automatically sign into the
           site.
         </p>
-        <div className='my-2 rounded bg-red-600 py-2 text-white'>
-          <p>
+        {/* <div className='my-2 rounded bg-red-600 py-2 text-white'>
+          <span>
             In order to attend the conference, the required registration can be
             found at{' '}
-            {
-              <a
-                href={'https://hopin.com/events/gla-summit-2022'}
-                className='underline'
-              >
-                https://hopin.com/events/gla-summit-2022
-              </a>
-            }
-          </p>
-        </div>
+          </span>
+          <a href={'https://hopin.com/events/gla-summit-2022'} className='link'>
+            https://hopin.com/events/gla-summit-2022
+          </a>
+        </div> */}
         <p>
           This site is currently mostly focused on presentation submission,
           although last year&apos;s presentations can be found at{' '}
           {
             <NextLink href={'/presentation-list'}>
-              <span className='cursor-pointer underline'>
+              <span className='link'>
                 https://glasummit.org/presentations
               </span>
             </NextLink>

@@ -54,7 +54,7 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
       title: 'My Profile',
       href: '/my-profile',
       imgObj: (
-        <div className='min-w-[36px]'>
+        <div className='flex min-w-[36px] flex-row align-middle'>
           <UserIcon src={avatarSrc} size='small' />
         </div>
       )
@@ -121,14 +121,14 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
                       return (
                         <WrapperElement href={href} key={title}>
                           <li
-                            className='flex h-8 flex-row px-4 py-[6px]'
+                            className='flex h-8 flex-row items-center px-4 py-[6px]'
                             onClick={() => {
                               clickFn?.();
                               close();
                             }}
                           >
                             {imgObj}
-                            <p className='tracking-[0.00938em]'>{title}</p>
+                            <p className='prose'>{title}</p>
                           </li>
                         </WrapperElement>
                       );

@@ -20,15 +20,17 @@ export const UserSignIn: React.FC<SignInProps> = (props) => {
 
   return (
     <CenteredDialog open={open} onClose={setClosed} dialogId='loginDialog'>
-      <div className='flex flex-col items-center space-y-1 px-4 pb-4 text-center text-sm'>
-        <p>
-          In order to sign in, enter the email address you used to register for
-          this website.
-        </p>
-        <p>
-          Once completed, you will receive an email with a single-use
-          verification code.
-        </p>
+      <div className='prose-sm prose flex max-w-none flex-col items-center px-4 pb-4 text-center'>
+        <div className='pb-0.5 prose-p:my-0'>
+          <p>
+            In order to sign in, enter the email address you used to register
+            for this website.
+          </p>
+          <p>
+            Once completed, you will receive an email with a single-use
+            verification code.
+          </p>
+        </div>
         <p>
           <span>{'Not registered?\u00A0'}</span>
           <a

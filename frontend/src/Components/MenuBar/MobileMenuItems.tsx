@@ -35,7 +35,7 @@ export const MobileMenuItems = (props: { menuElements: MenuElement[] }) => {
                         role='menuitem'
                       >
                         <li className='px-4 py-[6px]' onClick={() => close()}>
-                          <p className='tracking-[0.00938em]'>{title}</p>
+                          <p className='prose'>{title}</p>
                         </li>
                       </NextLink>
                     );

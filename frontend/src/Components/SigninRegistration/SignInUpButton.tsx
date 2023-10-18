@@ -21,7 +21,7 @@ export const SignInUpButton: React.FC<SignInUpButtonProps> = (props) => {
           setDialogOpen(true);
         }}
       >
-        <span className='line-height-[28px] p-2 text-[18px]'>
+        <span className='prose-lg prose p-2 text-white '>
           Sign In / Register
         </span>
       </button>
