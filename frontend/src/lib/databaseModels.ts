@@ -1,7 +1,8 @@
 import { Database } from './sb_databaseModels';
 
 export type PresentationType = Database['public']['Enums']['presentation_type'];
-export type MyPresentationSubmissionType = Database['public']['Views']['my_submissions']['Row'];
+export type MyPresentationSubmissionType =
+  Database['public']['Views']['my_submissions']['Row'];
 
 export type SummitYear = Database['public']['Enums']['summit_year'];
 export const currentDisplayYear: SummitYear = '2022';

@@ -59,9 +59,7 @@ export const NewUserRegistration: React.FC<
           although last year&apos;s presentations can be found at{' '}
           {
             <NextLink href={'/presentation-list'}>
-              <span className='link'>
-                https://glasummit.org/presentations
-              </span>
+              <span className='link'>https://glasummit.org/presentations</span>
             </NextLink>
           }
           .

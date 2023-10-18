@@ -160,6 +160,10 @@ export const sortPresentationsByPresenterName = (
 
 export const formatTextToPs = (text: string, extraClassNames?: string) => {
   return text.split(/\r?\n/).map((para, idx) => {
-    return <p key={`p${idx}`} className={extraClassNames}>{para}</p>;
-  })
-}
+    return (
+      <p key={`p${idx}`} className={extraClassNames}>
+        {para}
+      </p>
+    );
+  });
+};

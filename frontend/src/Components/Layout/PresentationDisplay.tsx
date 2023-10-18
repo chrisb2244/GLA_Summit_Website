@@ -148,10 +148,10 @@ export const PresentationDisplay: React.FC<
   // ) : null
 
   return (
-    <div className='border-2 shadow-sm mt-1 mb-6'>
-      <div className='prose mx-auto flex max-w-none flex-col space-y-4 w-11/12'>
+    <div className='mb-6 mt-1 border-2 shadow-sm'>
+      <div className='prose mx-auto flex w-11/12 max-w-none flex-col space-y-4'>
         <div className='flex flex-col'>
-          <h2 className='mt-4 mb-0'>{presentation.title}</h2>
+          <h2 className='mb-0 mt-4'>{presentation.title}</h2>
           <div className='flex flex-col py-2 md:flex-row md:justify-between'>
             {scheduleInfo}
             {downloadButton}

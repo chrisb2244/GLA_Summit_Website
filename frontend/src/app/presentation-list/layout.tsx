@@ -39,7 +39,7 @@ const PresentationListLayout = async ({
           );
         })}
       </div>
-      <div className='shadow prose max-w-none'>{children}</div>
+      <div className='prose max-w-none shadow'>{children}</div>
     </div>
   );
 };

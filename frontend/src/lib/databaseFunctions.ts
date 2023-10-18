@@ -7,7 +7,11 @@ import {
 } from '@supabase/supabase-js';
 import { AllPresentationsModel, ProfileModel } from './databaseModels';
 import { Database } from './sb_databaseModels';
-import { supabase, createAdminClient, createAnonServerClient } from './supabaseClient';
+import {
+  supabase,
+  createAdminClient,
+  createAnonServerClient
+} from './supabaseClient';
 import { defaultTimezoneInfo, myLog } from './utils';
 
 export type User = SB_User;
@@ -105,7 +109,7 @@ export const getPresenterIds = async () => {
       });
     });
   });
-}
+};
 
 export const getPresentationIds = async () => {
   const supabase = createAnonServerClient();
@@ -116,7 +120,7 @@ export const getPresentationIds = async () => {
     return [];
   }
   return data;
-}
+};
 
 /* ------------------ Client side functions ---------------------------- */
 export const clientUpdateExistingProfile = async (
@@ -264,7 +268,7 @@ export const getPerson = async (
 export const getPeople = async (
   userIds: string[],
   client: SupabaseClient<Database> = supabase
-): Promise<Array<PersonDisplayProps & { id: string, updated_at: string }>> => {
+): Promise<Array<PersonDisplayProps & { id: string; updated_at: string }>> => {
   return client
     .from('profiles')
     .select()
@@ -280,7 +284,7 @@ export const getPeople = async (
           lastName: person.lastname,
           description:
             person.bio ?? 'This presenter has not provided a description',
-          image: avatarUrl,
+          image: avatarUrl
         };
         return { ...personProps, id: person.id, updated_at: person.updated_at };
       });
@@ -363,7 +367,9 @@ export const getAcceptedPresentationIds = async (): Promise<string[]> => {
   return data.map((d) => d.id);
 };
 
-export const getMyPresentations = async (client: SupabaseClient<Database> = supabase) => {
+export const getMyPresentations = async (
+  client: SupabaseClient<Database> = supabase
+) => {
   const { data, error: errorPresData } = await client
     .from('my_submissions')
     .select();

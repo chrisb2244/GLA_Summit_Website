@@ -19,4 +19,4 @@ export const createServerActionClient = () => {
 export const createRouteHandlerClient = () => {
   const cookieStore = cookies();
   return sbRouteHandlerClient<Database>({ cookies: () => cookieStore });
-}
+};

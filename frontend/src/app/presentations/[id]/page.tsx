@@ -94,7 +94,7 @@ const PresentationsForYearPage: NextPage<PageProps> = async ({ params }) => {
       };
     },
     (error) => {
-      myLog(error)
+      myLog(error);
       notFound();
     }
   );

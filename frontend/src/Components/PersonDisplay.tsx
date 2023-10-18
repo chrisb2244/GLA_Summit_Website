@@ -29,10 +29,7 @@ export const PersonDisplay: React.FC<
 
   let isDefaultImage = false;
   let imageElem = null;
-  if (
-    typeof props.image !== 'undefined' &&
-    props.image !== null
-  ) {
+  if (typeof props.image !== 'undefined' && props.image !== null) {
     // Static image file or by URL
     imageElem = (
       <Image
