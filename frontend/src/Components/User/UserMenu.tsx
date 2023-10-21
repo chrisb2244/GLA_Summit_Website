@@ -88,7 +88,7 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
     if (typeof href !== 'undefined') {
       return <NextLink href={href}>{children}</NextLink>;
     } else {
-      return <div>{children}</div>;
+      return <button>{children}</button>;
     }
   };
 
@@ -128,7 +128,7 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
                             }}
                           >
                             {imgObj}
-                            <p className='prose'>{title}</p>
+                            <span className='prose'>{title}</span>
                           </li>
                         </WrapperElement>
                       );
