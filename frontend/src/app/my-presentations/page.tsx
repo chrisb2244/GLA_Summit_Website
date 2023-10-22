@@ -102,6 +102,25 @@ const MyPresentationsPage = async () => {
     );
   };
 
+  const pastPresentationSubmissions =
+    years.length > 0 ? (
+      <div className='flex flex-col space-y-2'>
+        {years.map((y) => {
+          const presentationsInYear = presentationsByYear[y];
+          return (
+            <div key={y} className='flex flex-col space-y-1'>
+              <h4 className='my-1'>{y}</h4>
+              {presentationsInYear.map((p) => renderPresentationSubmission(p))}
+            </div>
+          );
+        })}
+      </div>
+    ) : (
+      <div>
+        <p>You do not have any previous submissions</p>
+      </div>
+    );
+
   return (
     <div className='prose mx-auto max-w-none'>
       <div>
@@ -115,20 +134,8 @@ const MyPresentationsPage = async () => {
       </div>
 
       <div>
-        <h3>Your Presentation Submissions</h3>
-        <div className='flex flex-col space-y-2'>
-          {years.map((y) => {
-            const presentationsInYear = presentationsByYear[y];
-            return (
-              <div key={y} className='flex flex-col space-y-1'>
-                <h4 className='my-1'>{y}</h4>
-                {presentationsInYear.map((p) =>
-                  renderPresentationSubmission(p)
-                )}
-              </div>
-            );
-          })}
-        </div>
+        <h3>Submitted Presentations</h3>
+        {pastPresentationSubmissions}
       </div>
     </div>
   );
