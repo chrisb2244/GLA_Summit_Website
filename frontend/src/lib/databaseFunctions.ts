@@ -15,6 +15,7 @@ import {
 import { defaultTimezoneInfo, myLog } from './utils';
 
 export type User = SB_User;
+type Client = SupabaseClient<Database>;
 
 export const checkForExistingUser = async (
   email: string
@@ -176,8 +177,8 @@ export const queryTimezonePreferences = async (user: User) => {
   }
 };
 
-export const getProfileInfo = async (user: User) => {
-  return supabase
+export const getProfileInfo = async (user: User, client: Client = supabase) => {
+  return client
     .from('profiles')
     .select('id, firstname, lastname, bio, website, avatar_url')
     .eq('id', user.id)
@@ -260,14 +261,14 @@ export const deleteAvatar = async (remotePath: string) => {
 
 export const getPerson = async (
   userId: string,
-  client: SupabaseClient<Database> = supabase
+  client: Client = supabase
 ): Promise<PersonDisplayProps> => {
   return (await getPeople([userId], client))[0];
 };
 
 export const getPeople = async (
   userIds: string[],
-  client: SupabaseClient<Database> = supabase
+  client: Client = supabase
 ): Promise<Array<PersonDisplayProps & { id: string; updated_at: string }>> => {
   return client
     .from('profiles')
@@ -291,9 +292,7 @@ export const getPeople = async (
     });
 };
 
-export const getPublicProfileIds = async (
-  client: SupabaseClient<Database> = supabase
-) => {
+export const getPublicProfileIds = async (client: Client = supabase) => {
   return client
     .from('public_profiles')
     .select('id')
@@ -305,7 +304,7 @@ export const getPublicProfileIds = async (
 };
 
 export const getPublicProfiles = async (
-  client: SupabaseClient<Database> = supabase
+  client: Client = supabase
 ): Promise<ProfileModel['Row'][]> => {
   return getPublicProfileIds()
     .then((ids) => {
@@ -321,9 +320,7 @@ export const getPublicProfiles = async (
     });
 };
 
-export const getPublicPresentations = async (
-  client: SupabaseClient<Database> = supabase
-) => {
+export const getPublicPresentations = async (client: Client = supabase) => {
   const { data, error } = await client
     .from('all_presentations')
     .select()
@@ -333,7 +330,7 @@ export const getPublicPresentations = async (
 };
 export const getPublicPresentationsForPresenter = async (
   presenterId: string,
-  client: SupabaseClient<Database> = supabase
+  client: Client = supabase
 ) => {
   const { data, error } = await client
     .from('all_presentations')
@@ -346,7 +343,7 @@ export const getPublicPresentationsForPresenter = async (
 
 export const getPublicPresentation = async (
   presentationId: string,
-  client: SupabaseClient<Database> = supabase
+  client: Client = supabase
 ): Promise<AllPresentationsModel> => {
   return client
     .from('all_presentations')
@@ -367,9 +364,7 @@ export const getAcceptedPresentationIds = async (): Promise<string[]> => {
   return data.map((d) => d.id);
 };
 
-export const getMyPresentations = async (
-  client: SupabaseClient<Database> = supabase
-) => {
+export const getMyPresentations = async (client: Client = supabase) => {
   const { data, error: errorPresData } = await client
     .from('my_submissions')
     .select();
