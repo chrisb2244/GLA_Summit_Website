@@ -12,7 +12,7 @@ export const ValidationCodePopup = (props: ValidationCodePopupProps) => {
     <>
       <p className='prose text-center'>
         An email has been sent to <span className='font-bold'>{email}</span>.
-        Please copy the code from that email into the boxes below to sign in.
+        Please copy the code from that email into the box below to sign in.
       </p>
       <ValidateLoginForm email={email} onSubmitFn={onSubmit} />
     </>
