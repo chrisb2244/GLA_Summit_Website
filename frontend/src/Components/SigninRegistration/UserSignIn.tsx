@@ -12,7 +12,7 @@ export type SignInFunction = (
   options?: SignInOptions | undefined
 ) => Promise<SignInReturn>;
 
-export const UserSignIn: React.FC<SignInProps> = (props) => {
+export const UserSignIn = (props: SignInProps) => {
   const { switchToRegistration, onSubmit } = props;
 
   return (
@@ -30,15 +30,9 @@ export const UserSignIn: React.FC<SignInProps> = (props) => {
         </div>
         <p>
           <span>{'Not registered?\u00A0'}</span>
-          <a
-            className='link'
-            onClick={(ev) => {
-              ev.preventDefault();
-              switchToRegistration();
-            }}
-          >
+          <button className='link' onClick={switchToRegistration}>
             Join Now
-          </a>
+          </button>
         </p>
       </div>
       <SignInForm onSubmit={onSubmit} />

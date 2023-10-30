@@ -1,4 +1,3 @@
-import { Typography } from '@mui/material';
 import { ValidateLoginForm } from '../Forms/ValidateLoginForm';
 
 type ValidationCodePopupProps = {
@@ -6,17 +5,15 @@ type ValidationCodePopupProps = {
   email?: string;
 };
 
-export const ValidationCodePopup: React.FC<ValidationCodePopupProps> = (
-  props
-) => {
+export const ValidationCodePopup = (props: ValidationCodePopupProps) => {
   const { onSubmit, email } = props;
 
   return (
     <>
-      <Typography>
-        An email has been sent to <b>{email}</b>. Please copy the code from that
-        email into the boxes below to sign in.
-      </Typography>
+      <p className='prose text-center'>
+        An email has been sent to <span className='font-bold'>{email}</span>.
+        Please copy the code from that email into the boxes below to sign in.
+      </p>
       <ValidateLoginForm email={email} onSubmitFn={onSubmit} />
     </>
   );

@@ -13,24 +13,17 @@ export type NewUserInformation = {
   lastname: string;
 };
 
-export const NewUserRegistration: React.FC<
-  React.PropsWithChildren<UserRegistrationProps>
-> = (props) => {
+export const NewUserRegistration = (props: UserRegistrationProps) => {
   const { switchToSignIn, onSubmit } = props;
+
   return (
     <>
       <div className='prose-sm prose flex flex-col items-center space-y-2 px-2 pb-4 text-center'>
         <div>
           <span>Already registered? </span>
-          <a
-            className='link'
-            onClick={(ev) => {
-              ev.preventDefault();
-              switchToSignIn();
-            }}
-          >
+          <button className='link' onClick={switchToSignIn}>
             Sign In
-          </a>
+          </button>
         </div>
         <p>
           Please fill out the information below. You will receive an email with
