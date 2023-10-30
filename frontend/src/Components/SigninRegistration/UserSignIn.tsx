@@ -1,11 +1,8 @@
 import type { SignInOptions, SignInReturn } from '@/lib/sessionContext';
 import { SignInForm, SignInFormValues } from '../Forms/SignInForm';
-import { CenteredDialog } from '../Layout/CenteredDialog';
 import { SubmitHandler } from 'react-hook-form';
 
 type SignInProps = {
-  open: boolean;
-  setClosed: () => void;
   switchToRegistration: () => void;
   onSubmit: SubmitHandler<SignInFormValues>;
 };
@@ -16,10 +13,10 @@ export type SignInFunction = (
 ) => Promise<SignInReturn>;
 
 export const UserSignIn: React.FC<SignInProps> = (props) => {
-  const { open, setClosed, switchToRegistration, onSubmit } = props;
+  const { switchToRegistration, onSubmit } = props;
 
   return (
-    <CenteredDialog open={open} onClose={setClosed} dialogId='loginDialog'>
+    <>
       <div className='prose-sm prose flex max-w-none flex-col items-center px-4 pb-4 text-center'>
         <div className='pb-0.5 prose-p:my-0'>
           <p>
@@ -45,6 +42,6 @@ export const UserSignIn: React.FC<SignInProps> = (props) => {
         </p>
       </div>
       <SignInForm onSubmit={onSubmit} />
-    </CenteredDialog>
+    </>
   );
 };

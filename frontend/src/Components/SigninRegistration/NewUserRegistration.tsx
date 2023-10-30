@@ -1,12 +1,9 @@
 import type { SubmitHandler } from 'react-hook-form';
 import { PersonProps } from '../Form/Person';
 import NextLink from 'next/link';
-import { CenteredDialog } from '../Layout/CenteredDialog';
 import { SignUpForm } from '../Forms/SignUpForm';
 
 type UserRegistrationProps = {
-  open: boolean;
-  setClosed: () => void;
   switchToSignIn: () => void;
   onSubmit: SubmitHandler<PersonProps>;
 };
@@ -18,15 +15,10 @@ export type NewUserInformation = {
 
 export const NewUserRegistration: React.FC<
   React.PropsWithChildren<UserRegistrationProps>
-> = ({ open, setClosed, ...props }) => {
+> = (props) => {
+  const { switchToSignIn, onSubmit } = props;
   return (
-    <CenteredDialog
-      open={open}
-      onClose={() => {
-        setClosed();
-      }}
-      dialogId='registerDialog'
-    >
+    <>
       <div className='prose-sm prose flex flex-col items-center space-y-2 px-2 pb-4 text-center'>
         <div>
           <span>Already registered? </span>
@@ -34,7 +26,7 @@ export const NewUserRegistration: React.FC<
             className='link'
             onClick={(ev) => {
               ev.preventDefault();
-              props.switchToSignIn();
+              switchToSignIn();
             }}
           >
             Sign In
@@ -65,7 +57,7 @@ export const NewUserRegistration: React.FC<
           .
         </p>
       </div>
-      <SignUpForm onSubmit={props.onSubmit} />
-    </CenteredDialog>
+      <SignUpForm onSubmit={onSubmit} />
+    </>
   );
 };
