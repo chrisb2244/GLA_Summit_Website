@@ -2,6 +2,7 @@ import NextLink from 'next/link';
 import NextImage from 'next/image';
 import { MenuBar } from '@/Components/MenuBar/MenuBar';
 import { UserMenuButton } from '../../Components/User/UserMenuButton';
+import { Suspense } from 'react';
 
 export const Header = () => {
   const imageProps = {
@@ -73,7 +74,9 @@ export const Header = () => {
           }}
         >
           <MenuBar />
-          <UserMenuButton />
+          <Suspense>
+            <UserMenuButton />
+          </Suspense>
         </div>
       </div>
     </>
