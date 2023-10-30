@@ -67,32 +67,34 @@ export const RegistrationPopup: React.FC<
   };
 
   // Use the state checks outside of the 'open' property to avoid rendering the unused dialog
-  const elemToRender = isWaiting ? (
-    waitingSpinner
-  ) : state === 'signup' ? (
-    <NewUserRegistration
-      open={open}
-      setClosed={setClosed}
-      switchToSignIn={() => setState('signin')}
-      onSubmit={signUpSubmitHandler}
-    />
-  ) : state === 'signin' ? (
-    <UserSignIn
-      open={open}
-      setClosed={setClosed}
-      switchToRegistration={() => setState('signup')}
-      onSubmit={signInSubmitHandler}
-    />
-  ) : (
-    <ValidationCodePopup
-      email={email ?? undefined}
-      open={open}
-      setClosed={() => {
-        setClosed();
-        props.onSignInComplete?.();
-      }}
-    />
-  );
+  const elemToRender = open ? (
+    isWaiting ? (
+      waitingSpinner
+    ) : state === 'signup' ? (
+      <NewUserRegistration
+        open={open}
+        setClosed={setClosed}
+        switchToSignIn={() => setState('signin')}
+        onSubmit={signUpSubmitHandler}
+      />
+    ) : state === 'signin' ? (
+      <UserSignIn
+        open={open}
+        setClosed={setClosed}
+        switchToRegistration={() => setState('signup')}
+        onSubmit={signInSubmitHandler}
+      />
+    ) : (
+      <ValidationCodePopup
+        email={email ?? undefined}
+        open={open}
+        setClosed={() => {
+          setClosed();
+          props.onSignInComplete?.();
+        }}
+      />
+    )
+  ) : null;
 
   return elemToRender;
 };
