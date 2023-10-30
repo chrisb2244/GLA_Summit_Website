@@ -4,18 +4,16 @@ import { RegistrationPopup } from './RegistrationPopup';
 
 type SignInUpButtonProps = {
   waitingSpinner: JSX.Element;
-  onSignInComplete?: () => void;
 };
 
 export const SignInUpButton: React.FC<SignInUpButtonProps> = (props) => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const { waitingSpinner, onSignInComplete } = props;
+  const { waitingSpinner } = props;
 
   return (
     <>
       <button
         className='flex h-full px-2 hover:bg-secondaryc'
-        color='warning' // TODO: warning isn't a colour
         onClick={() => {
           setDialogOpen(true);
         }}
@@ -27,10 +25,8 @@ export const SignInUpButton: React.FC<SignInUpButtonProps> = (props) => {
       <RegistrationPopup
         open={dialogOpen}
         setClosed={() => {
-          console.log('closed dialog');
           setDialogOpen(false);
         }}
-        onSignInComplete={onSignInComplete}
         waitingSpinner={waitingSpinner}
       />
     </>

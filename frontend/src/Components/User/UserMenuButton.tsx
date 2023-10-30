@@ -8,11 +8,6 @@ import { User } from '@supabase/supabase-js';
 export async function UserMenuButton() {
   const supabase = createServerComponentClient();
 
-  const updateUserClient = async () => {
-    'use server';
-    console.log('Updating user login...');
-  };
-
   const user = (await supabase.auth.getUser()).data.user;
 
   const getIsOrganizer = async (user: User | null) => {
@@ -34,10 +29,7 @@ export async function UserMenuButton() {
   const idleSpinner = <WaitingIndicator />;
   const button =
     user == null ? (
-      <SignInUpButton
-        waitingSpinner={idleSpinner}
-        onSignInComplete={updateUserClient}
-      />
+      <SignInUpButton waitingSpinner={idleSpinner} />
     ) : (
       <UserMenu user={user} isOrganizer={isOrganizer} signOut={signOut} />
     );
