@@ -1,3 +1,5 @@
+'use client';
+
 import { Database } from '@/lib/sb_databaseModels';
 import {
   Card,

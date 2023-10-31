@@ -1,25 +1,24 @@
-'use client';
-import type { NextPage } from 'next';
-import { useEffect, useState } from 'react';
 import {
   PresentationReviewInfo,
   SubmittedPresentationReviewCard
 } from '@/Components/SubmittedPresentationReviewCard';
+import { createServerComponentClient } from '@/lib/supabaseServer';
+import { submissionsForYear } from '@/lib/databaseModels';
 
-const ReviewSubmissionsPage: NextPage = () => {
-  const [submittedPresentations, setSubmittedPresentations] = useState<
-    PresentationReviewInfo[]
-  >([]);
-  useEffect(() => {
-    fetch('/api/presentation_submissions').then((res) => {
-      res.json().then((jsonValue) => {
-        const { presentationSubmissions } = jsonValue as {
-          presentationSubmissions: PresentationReviewInfo[];
+const ReviewSubmissionsPage = async () => {
+  const supabase = createServerComponentClient();
+  const { data, error } = await supabase.rpc('get_reviewable_submissions', {
+    target_year: submissionsForYear
+  });
+
+  const submittedPresentations: PresentationReviewInfo[] = error
+    ? []
+    : data.map((d) => {
+        return {
+          ...d,
+          submitter: d.presenters.filter((p) => p.id === d.submitter_id)[0]
         };
-        setSubmittedPresentations(presentationSubmissions);
       });
-    });
-  }, []);
 
   const listElems = submittedPresentations
     .sort((a, b) => {
