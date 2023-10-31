@@ -1,20 +1,12 @@
 'use client';
-import { StackedBoxes } from '@/Components/Layout/StackedBoxes';
-import { Typography } from '@mui/material';
-import ErrorIcon from '@mui/icons-material/NoEncryptionGmailerrorredTwoTone';
 import type { NextPage } from 'next';
 import { useEffect, useState } from 'react';
 import {
   PresentationReviewInfo,
   SubmittedPresentationReviewCard
 } from '@/Components/SubmittedPresentationReviewCard';
-import { Box } from '@mui/system';
 
 const ReviewSubmissionsPage: NextPage = () => {
-  const T: React.FC<React.PropsWithChildren<unknown>> = ({ children }) => (
-    <Typography textAlign='center'>{children}</Typography>
-  );
-
   const [submittedPresentations, setSubmittedPresentations] = useState<
     PresentationReviewInfo[]
   >([]);
@@ -45,13 +37,12 @@ const ReviewSubmissionsPage: NextPage = () => {
     });
 
   return (
-    <StackedBoxes>
-      <T>
-        <ErrorIcon fontSize='large' sx={{ mt: 5 }} />
-      </T>
-      <T>{`Here's a list of ${submittedPresentations.length} presentations!!!`}</T>
-      <Box sx={{ '> *': { m: 0.5, p: 0.5 } }}>{listElems}</Box>
-    </StackedBoxes>
+    <div className='mx-auto mt-4'>
+      <p className='prose text-center'>
+        {`Here's a list of ${submittedPresentations.length} presentations!!!`}
+      </p>
+      <div className='flex flex-col space-y-1'>{listElems}</div>
+    </div>
   );
 };
 
