@@ -4,6 +4,7 @@ import React, {
   ButtonHTMLAttributes,
   InputHTMLAttributes
 } from 'react';
+import { useFormStatus } from 'react-dom';
 
 const buttonStyles = cva(
   'p-2 border bg-gray-200 border-gray-400 focus:border-secondaryc focus:border-2 text-base text-center shadow-md focus-within:outline-none',
@@ -32,6 +33,18 @@ export const Button: React.FC<PropsWithChildren<ButtonProps>> = (props) => {
     >
       {children}
     </button>
+  );
+};
+
+export const SubmitButton = (props: {
+  staticText: string;
+  pendingText: string;
+}) => {
+  const { pending } = useFormStatus();
+  return (
+    <Button type='submit' fullWidth disabled={pending}>
+      {pending ? props.pendingText : props.staticText}
+    </Button>
   );
 };
 
