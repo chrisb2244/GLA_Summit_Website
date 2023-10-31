@@ -44,11 +44,12 @@ const labelAlways = [
   'peer-focus:text-sm peer-focus:-top-2 peer-focus:left-2',
   'before:w-[105%] before:absolute before:flex before:top-2',
   'before:-left-[2px] before:z-[-1] before:bg-white',
-  'before:h-[1px] before:peer-focus:w-[105%]',
+  'before:h-[10px] before:rounded-b before:peer-focus:w-[105%]',
   'before:peer-focus:absolute before:peer-focus:flex',
   'before:peer-focus:top-2 before:peer-focus:-left-[2px]',
   'before:peer-focus:z-[-1] before:peer-focus:bg-white',
-  'before:peer-focus:h-[1px] peer-placeholder-shown:text-gray-500'
+  'before:peer-focus:h-[10px] before:peer-focus:rounded-b',
+  'peer-placeholder-shown:text-gray-500'
 ].join(' ');
 
 const labelStyles = cva(labelAlways, {
