@@ -21,7 +21,8 @@ const buttonStyles = cva(
 );
 
 type VariantStyleProps = VariantProps<typeof buttonStyles>;
-type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & VariantStyleProps;
+type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'className'> &
+  VariantStyleProps;
 
 export const Button: React.FC<PropsWithChildren<ButtonProps>> = (props) => {
   const { children, fullWidth, disabled, ...buttonProps } = props;
@@ -36,13 +37,16 @@ export const Button: React.FC<PropsWithChildren<ButtonProps>> = (props) => {
   );
 };
 
-export const SubmitButton = (props: {
+type SubmitButtonProps = {
   staticText: string;
   pendingText: string;
-}) => {
+};
+
+export const SubmitButton = (props: SubmitButtonProps & ButtonProps) => {
+  const { staticText, pendingText, ...buttonProps } = props;
   const { pending } = useFormStatus();
   return (
-    <Button type='submit' fullWidth disabled={pending}>
+    <Button type='submit' fullWidth disabled={pending} {...buttonProps}>
       {pending ? props.pendingText : props.staticText}
     </Button>
   );
