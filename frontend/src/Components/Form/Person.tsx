@@ -1,5 +1,4 @@
-import { Box, TextField, Typography } from '@mui/material';
-import type { Breakpoint, SxProps, Theme } from '@mui/material';
+import { TextField } from '@mui/material';
 import {
   join,
   UseFormRegister,
@@ -7,6 +6,7 @@ import {
   FieldErrors,
   FieldValues
 } from 'react-hook-form';
+import { FormField } from './FormField';
 
 export type PersonProps = {
   firstName: string;
@@ -21,8 +21,7 @@ export function Person<FV extends FieldValues>(props: {
   defaultValue?: PersonProps;
   locked?: boolean;
   heading?: string;
-  splitSize?: Breakpoint | null;
-  sx?: SxProps<Theme>;
+  splitSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | null;
 }) {
   const { register, path, defaultValue, locked, heading } = props;
   // Default to 'md' if not specified. Allow null to prevent splitting regardless of size
@@ -48,9 +47,9 @@ export function Person<FV extends FieldValues>(props: {
   let headElem = null;
   if (typeof heading !== 'undefined') {
     headElem = (
-      <Box px={1} mb={1}>
-        <Typography variant='body2'>{heading}</Typography>
-      </Box>
+      <div className='mb-2 px-2'>
+        <span className='prose-sm prose'>{heading}</span>
+      </div>
     );
   }
   let displayProps = {};
@@ -81,15 +80,19 @@ export function Person<FV extends FieldValues>(props: {
     };
   };
 
+  // prettier-ignore
+  const splitSizeClassnames = splitSize === null ? '' : 
+    splitSize === "xs" ? "xs:flex-row xs:pb-2" :
+    splitSize === "sm" ? "sm:flex-row sm:pb-2" :
+    splitSize === "md" ? "md:flex-row md:pb-2" :
+    splitSize === "lg" ? "lg:flex-row lg:pb-2" :
+    splitSize === "xl" ? "xl:flex-row xl:pb-2" :
+    ''
+
   return (
-    <Box sx={props.sx}>
+    <div>
       {headElem}
-      <Box
-        flexDirection={
-          splitSize === null ? 'column' : { xs: 'column', [splitSize]: 'row' }
-        }
-        pb={splitSize === null ? 0 : { xs: 0, [splitSize]: 1 }}
-      >
+      <div className={`flex flex-col ${splitSizeClassnames}`}>
         <TextField
           {...register(join(path, 'firstName'), {
             required: 'Required',
@@ -108,8 +111,8 @@ export function Person<FV extends FieldValues>(props: {
           {...fieldProps('lastName')}
           {...displayProps}
         />
-      </Box>
-      <Box>
+      </div>
+      <div>
         <TextField
           {...register(join(path, 'email'), {
             required: 'Required',
@@ -122,8 +125,8 @@ export function Person<FV extends FieldValues>(props: {
           {...fieldProps('email')}
           {...displayProps}
         />
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }
 
@@ -138,46 +141,34 @@ export function EmailFormComponent<FV extends FieldValues>(props: {
   defaultValue?: EmailProps;
   locked?: boolean;
   heading?: string;
-  sx?: SxProps<Theme>;
 }) {
   const { register, path, defaultValue, locked, heading } = props;
 
   let headElem = null;
   if (typeof heading !== 'undefined') {
     headElem = (
-      <Box px={1}>
-        <Typography variant='body2'>{heading}</Typography>
-      </Box>
+      <div className='px-2'>
+        <span className='prose-sm prose'>{heading}</span>
+      </div>
     );
-  }
-  let displayProps = {};
-  if (locked ?? false) {
-    displayProps = {
-      ...displayProps,
-      variant: 'filled',
-      InputProps: { readOnly: true }
-    };
   }
 
   const fieldProps = (field: keyof EmailProps) => {
     const error = props.errors?.[field];
-    const isError = !!error;
     return {
       defaultValue: defaultValue?.[field],
-      placeholder: 'Co-presenter Email',
       label: 'Co-presenter Email',
-      error: isError,
-      helperText: error?.message,
-      FormHelperTextProps: { role: isError ? 'alert' : undefined }
+      fieldError: error,
+      helperText: error?.message
     };
   };
 
   return (
-    <Box sx={props.sx}>
+    <div>
       {headElem}
-      <Box>
-        <TextField
-          {...register(join(path, 'email'), {
+      <div>
+        <FormField
+          registerReturn={register(join(path, 'email'), {
             required: 'Required',
             pattern: {
               value: /^\S+@\S+\.\S+$/i,
@@ -186,9 +177,9 @@ export function EmailFormComponent<FV extends FieldValues>(props: {
           })}
           fullWidth
           {...fieldProps('email')}
-          {...displayProps}
+          readOnly={locked}
         />
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }

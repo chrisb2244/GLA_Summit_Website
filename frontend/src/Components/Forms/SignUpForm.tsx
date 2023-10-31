@@ -30,13 +30,15 @@ export const SignUpForm = (props: SignUpFormProps) => {
       onSubmit={handleSubmit(onSubmit, (e) => myLog(e))}
       className='flex flex-col'
     >
-      <Person<PersonProps>
-        register={register}
-        path={EMPTY()}
-        errors={errors}
-        splitSize={null}
-        sx={{ pb: 2 }}
-      />
+      <div className='pb-4'>
+        <Person<PersonProps>
+          heading='Submitter'
+          register={register}
+          path={EMPTY()}
+          errors={errors}
+          splitSize={null}
+        />
+      </div>
       <Button type='submit'>Register</Button>
     </form>
   );
