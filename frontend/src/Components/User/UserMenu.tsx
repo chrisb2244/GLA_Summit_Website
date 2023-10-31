@@ -9,11 +9,12 @@ import { getProfileInfo, type User } from '@/lib/databaseFunctions';
 import type { ProfileModel } from '@/lib/databaseModels';
 import { Route } from 'next';
 import { UserIcon } from './UserIcon';
+import { useRouter } from 'next/navigation';
 
 type UserMenuProps = {
   user: User;
   isOrganizer?: boolean;
-  signOut: () => void;
+  signOut: () => Promise<void>;
 };
 
 type UserMenuEntry = {
@@ -49,6 +50,8 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
     );
   };
 
+  const router = useRouter();
+
   const menuObjs: UserMenuEntry[] = [
     {
       title: 'My Profile',
@@ -68,7 +71,9 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
       title: 'Logout',
       href: undefined, // '/api/logout',
       imgObj: <ListIcon path={mdiLogout} />,
-      clickFn: signOut
+      clickFn: () => {
+        signOut().then(router.refresh);
+      }
     }
   ];
 

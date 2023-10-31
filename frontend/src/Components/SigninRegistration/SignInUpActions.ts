@@ -7,6 +7,7 @@ import { randomBytes } from 'crypto';
 import { sendMailApi } from '@/lib/sendMail';
 import { PersonProps } from '../Form';
 import { UserMetadata } from '@supabase/supabase-js';
+import { revalidatePath } from 'next/cache';
 
 export const mailUser = async () => {
   // Send email
@@ -14,6 +15,7 @@ export const mailUser = async () => {
 
 export const signOut = async () => {
   await createServerActionClient().auth.signOut();
+  revalidatePath('/');
 };
 
 export const getUser = async () => {
