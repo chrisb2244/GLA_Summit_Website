@@ -129,15 +129,15 @@ export function EmailFormComponent<FV extends FieldValues>(props: {
     return {
       defaultValue: defaultValue?.[field],
       label: 'Co-presenter Email',
-      fieldError: error,
-      helperText: error?.message
+      fieldError: error
+      // helperText: error?.message
     };
   };
 
   return (
-    <div>
+    <div className='flex flex-1'>
       {headElem}
-      <div>
+      <div className='flex flex-1'>
         <FormField
           registerReturn={register(join(path, 'email'), {
             required: 'Required',
