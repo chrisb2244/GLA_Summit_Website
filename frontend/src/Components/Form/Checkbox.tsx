@@ -45,12 +45,13 @@ export const Checkbox = forwardRef(
           {...inputProps}
         />
         <label id={`${id}-label`} htmlFor={id} className={'mr-2'}>
-          {props.label ?? id}
+          {label ?? id}
         </label>
       </div>
     );
   }
 );
+Checkbox.displayName = 'Checkbox';
 
 const inputStyles = cva('h-6 w-6 flex-shrink-0 m-2 accent-secondaryc', {
   variants: {}

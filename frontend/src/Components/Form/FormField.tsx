@@ -79,6 +79,38 @@ const wrapperStyles = cva(
   }
 );
 
+const extractSidePadding = (cname?: string) => {
+  return cname
+    ? cname.match(/(p[lr]?\-[0-9]+)/g)?.reduce((s, ns) => `${s} ${ns}`, '')
+    : '';
+};
+const calculateBorderMargin = (cname?: string) => {
+  return extractSidePadding(cname)?.replaceAll(/p/g, 'm');
+};
+const calculateLabelPadding = (cname?: string) => {
+  const rawPadding = extractSidePadding(cname);
+
+  // Statically include these values (for pl-1, pl-2, pl-3, pl-4)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const commonClassnames = 'pl-[6px] pl-[10px] pl-[14px] pl-[18px]';
+
+  if (typeof rawPadding === 'undefined') {
+    return '';
+  }
+  return rawPadding.split(' ').reduce((s, ns) => {
+    const detectedLeftPaddingScale = ns.match(/pl-([0-9]+)/);
+    // If not a left padding element, just add before:m for each p.
+    if (detectedLeftPaddingScale === null) {
+      return `${s} ${ns} ${ns.replace(/p/, 'before:m')}`;
+    }
+    // each scale is worth 4px
+    // Need to subtract 2px from this for the before:-left-2px class...
+    // and add 2px for the padding-left
+    const padScale = Number.parseInt(detectedLeftPaddingScale[1]);
+    return `${s} pl-[${4 * padScale + 2}px] before:ml-[${4 * padScale - 2}px]`;
+  }, '');
+};
+
 type VariantPropTypes = VariantProps<typeof inputFieldStyles>;
 
 type FormProps = {
@@ -95,10 +127,19 @@ type FormFieldProps = FormProps &
 
 // This provides a wrapper for the TextField, providing the error behaviour.
 export const FormField: React.FC<FormFieldProps> = (props) => {
-  const { registerReturn, fieldError, fullWidth, ...inputProps } = props;
+  const {
+    registerReturn,
+    fieldError,
+    fullWidth,
+    className: pCN,
+    ...inputProps
+  } = props;
   const isError = typeof fieldError !== 'undefined';
   const id = registerReturn.name;
   const placeholderVisible = typeof props.placeholder !== 'undefined';
+
+  const labelPadding = calculateLabelPadding(pCN);
+  const borderMargin = calculateBorderMargin(pCN);
 
   // placeholder-shown implies the field is empty
   // focus should have the non-empty classNames
@@ -106,7 +147,12 @@ export const FormField: React.FC<FormFieldProps> = (props) => {
   // IMPORTANT:
   // The peer selectors require that the input is before the label in the DOM.
   return (
-    <div className={wrapperStyles({ fullWidth, hidden: props.hidden })}>
+    <div
+      className={`${pCN ?? ''} ${wrapperStyles({
+        fullWidth,
+        hidden: props.hidden
+      })}`}
+    >
       <input
         id={id}
         type={props.type ?? 'text'}
@@ -119,13 +165,16 @@ export const FormField: React.FC<FormFieldProps> = (props) => {
         {...registerReturn}
         {...inputProps}
       />
-      {topBorderElement}
+      <TopBorderElement paddingElems={borderMargin} />
       {/* <div className='bg-inherit absolute h-2 -top-2 w-24 left-2 ' aria-hidden></div>
       <div className='bg-white absolute h-2 top-0 w-24 left-2 ' aria-hidden></div> */}
       <label
         id={`${id}-label`}
         htmlFor={id}
-        className={labelStyles({ isError, placeholderVisible })}
+        className={`${labelPadding} ${labelStyles({
+          isError,
+          placeholderVisible
+        })}`}
       >
         {props.label ?? id}
       </label>
@@ -138,10 +187,15 @@ type FormFieldIndicatorProps = VariantPropTypes & HTMLProps<HTMLInputElement>;
 export const FormFieldIndicator: React.FC<FormFieldIndicatorProps> = (
   props
 ) => {
-  const { fullWidth, id, ...inputProps } = props;
+  const { fullWidth, id, className: pCN, ...inputProps } = props;
+
+  const labelPadding = calculateLabelPadding(pCN);
+  const borderMargin = calculateBorderMargin(pCN);
 
   return (
-    <div className={wrapperStyles({ fullWidth, hidden: props.hidden })}>
+    <div
+      className={`${pCN} ${wrapperStyles({ fullWidth, hidden: props.hidden })}`}
+    >
       <input
         id={id}
         type={props.type ?? 'text'}
@@ -153,8 +207,12 @@ export const FormFieldIndicator: React.FC<FormFieldIndicatorProps> = (
         disabled
         {...inputProps}
       />
-      {topBorderElement}
-      <label id={`${id}-label`} htmlFor={id} className={labelStyles()}>
+      <TopBorderElement paddingElems={borderMargin} />
+      <label
+        id={`${id}-label`}
+        htmlFor={id}
+        className={`${labelPadding} ${labelStyles()}`}
+      >
         {props.label ?? id}
       </label>
     </div>
@@ -184,7 +242,7 @@ export const TextArea: React.FC<TextAreaProps> = (props) => {
         {...registerReturn}
         {...inputProps}
       />
-      {topBorderElement}
+      <TopBorderElement />
       <label
         id={`${id}-label`}
         htmlFor={id}
@@ -207,9 +265,9 @@ const ErrorMessage = ({ error }: { error: FieldError | undefined }) => {
 };
 
 // Element to provide a top border when the label moves upwards
-const topBorderElement = (
-  <div
-    className='absolute left-0 top-0 h-[1px] w-full bg-gray-400 peer-focus:block'
-    aria-hidden
-  />
-);
+const TopBorderElement = (props: { paddingElems?: string }) => {
+  const className = `${
+    props.paddingElems ?? ''
+  } absolute left-0 right-0 top-0 h-[1px] bg-gray-400 peer-focus:block`;
+  return <div className={className} aria-hidden />;
+};

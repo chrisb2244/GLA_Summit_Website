@@ -1,4 +1,3 @@
-import { TextField } from '@mui/material';
 import {
   join,
   UseFormRegister,
@@ -6,7 +5,8 @@ import {
   FieldErrors,
   FieldValues
 } from 'react-hook-form';
-import { FormField } from './FormField';
+import { FormField, FormFieldIndicator } from './FormField';
+import { cva } from 'class-variance-authority';
 
 export type PersonProps = {
   firstName: string;
@@ -28,22 +28,6 @@ export function Person<FV extends FieldValues>(props: {
   const splitSize =
     typeof props.splitSize !== 'undefined' ? props.splitSize : 'md';
 
-  const halfWidthSx = (side: 'left' | 'right', pVal = '5px') => {
-    if (splitSize === null) {
-      return {
-        width: '100%',
-        paddingBottom: 1
-      };
-    } else {
-      return {
-        width: { xs: '100%', [splitSize]: '50%' },
-        paddingInlineEnd: { xs: 0, [splitSize]: side === 'left' ? pVal : 0 },
-        paddingInlineStart: { xs: 0, [splitSize]: side === 'right' ? pVal : 0 },
-        paddingBottom: 1
-      };
-    }
-  };
-
   let headElem = null;
   if (typeof heading !== 'undefined') {
     headElem = (
@@ -51,14 +35,6 @@ export function Person<FV extends FieldValues>(props: {
         <span className='prose-sm prose'>{heading}</span>
       </div>
     );
-  }
-  let displayProps = {};
-  if (locked ?? false) {
-    displayProps = {
-      ...displayProps,
-      variant: 'filled',
-      InputProps: { readOnly: true }
-    };
   }
 
   const labels = {
@@ -71,14 +47,17 @@ export function Person<FV extends FieldValues>(props: {
     const error = props.errors?.[field];
     const isError = !!error;
     return {
+      fieldError: error,
       defaultValue: defaultValue?.[field],
-      placeholder: labels[field],
+      // placeholder: labels[field],
       label: labels[field],
-      error: isError,
-      helperText: error?.message,
-      FormHelperTextProps: { role: isError ? 'alert' : undefined }
+      error: isError
+      // helperText: error?.message,
+      // FormHelperTextProps: { role: isError ? 'alert' : undefined }
     };
   };
+
+  const Component = locked ? FormFieldIndicator : FormField;
 
   // prettier-ignore
   const splitSizeClassnames = splitSize === null ? '' : 
@@ -93,28 +72,26 @@ export function Person<FV extends FieldValues>(props: {
     <div>
       {headElem}
       <div className={`flex flex-col ${splitSizeClassnames}`}>
-        <TextField
-          {...register(join(path, 'firstName'), {
+        <Component
+          registerReturn={register(join(path, 'firstName'), {
             required: 'Required',
             maxLength: 80
           })}
-          sx={halfWidthSx('left')}
+          className={halfWidthStyles({ splitSize, side: 'left' })}
           {...fieldProps('firstName')}
-          {...displayProps}
         />
-        <TextField
-          {...register(join(path, 'lastName'), {
+        <Component
+          registerReturn={register(join(path, 'lastName'), {
             required: 'Required',
             maxLength: 100
           })}
-          sx={halfWidthSx('right')}
+          className={halfWidthStyles({ splitSize, side: 'right' })}
           {...fieldProps('lastName')}
-          {...displayProps}
         />
       </div>
       <div>
-        <TextField
-          {...register(join(path, 'email'), {
+        <Component
+          registerReturn={register(join(path, 'email'), {
             required: 'Required',
             pattern: {
               value: /^\S+@\S+\.\S+$/i,
@@ -123,7 +100,6 @@ export function Person<FV extends FieldValues>(props: {
           })}
           fullWidth
           {...fieldProps('email')}
-          {...displayProps}
         />
       </div>
     </div>
@@ -183,3 +159,98 @@ export function EmailFormComponent<FV extends FieldValues>(props: {
     </div>
   );
 }
+
+const halfWidthStyles = cva('pb-1 w-full px-0', {
+  variants: {
+    side: {
+      left: '',
+      right: '',
+      undefined: '',
+      null: ''
+    },
+    splitSize: {
+      xs: '',
+      sm: '',
+      md: '',
+      lg: '',
+      xl: ''
+    }
+  },
+  compoundVariants: [
+    {
+      side: ['left', 'right'],
+      splitSize: 'xs',
+      class: 'xs:w-1/2'
+    },
+    {
+      side: ['left', 'right'],
+      splitSize: 'sm',
+      class: 'sm:w-1/2'
+    },
+    {
+      side: ['left', 'right'],
+      splitSize: 'md',
+      class: 'md:w-1/2'
+    },
+    {
+      side: ['left', 'right'],
+      splitSize: 'lg',
+      class: 'lg:w-1/2'
+    },
+    {
+      side: ['left', 'right'],
+      splitSize: 'xl',
+      class: 'xl:w-1/2'
+    },
+    {
+      side: 'left',
+      splitSize: 'xs',
+      class: 'xs:pr-2'
+    },
+    {
+      side: 'left',
+      splitSize: 'sm',
+      class: 'sm:pr-2'
+    },
+    {
+      side: 'left',
+      splitSize: 'md',
+      class: 'md:pr-2'
+    },
+    {
+      side: 'left',
+      splitSize: 'lg',
+      class: 'lg:pr-2'
+    },
+    {
+      side: 'left',
+      splitSize: 'xl',
+      class: 'xl:pr-2'
+    },
+    {
+      side: 'right',
+      splitSize: 'xs',
+      class: 'xs:pl-2'
+    },
+    {
+      side: 'right',
+      splitSize: 'sm',
+      class: 'sm:pl-2'
+    },
+    {
+      side: 'right',
+      splitSize: 'md',
+      class: 'md:pl-2'
+    },
+    {
+      side: 'right',
+      splitSize: 'lg',
+      class: 'lg:pl-2'
+    },
+    {
+      side: 'right',
+      splitSize: 'xl',
+      class: 'xl:pl-2'
+    }
+  ]
+});

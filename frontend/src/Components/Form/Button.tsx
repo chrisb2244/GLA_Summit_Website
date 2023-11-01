@@ -47,7 +47,7 @@ export const SubmitButton = (props: SubmitButtonProps & ButtonProps) => {
   const { pending } = useFormStatus();
   return (
     <Button type='submit' fullWidth disabled={pending} {...buttonProps}>
-      {pending ? props.pendingText : props.staticText}
+      {pending ? pendingText : staticText}
     </Button>
   );
 };
