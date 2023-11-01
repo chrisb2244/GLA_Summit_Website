@@ -99,7 +99,6 @@ const calculateLabelPadding = (cname?: string) => {
     const detectedLeftPaddingScale = ns.match(
       /((xs|sm|md|lg|xl):)?pl-([0-9]+)/
     );
-    console.log({ s, ns, detectedLeftPaddingScale });
     // If not a left padding element, just add before:m for each p.
     if (detectedLeftPaddingScale === null) {
       return `${s} ${ns} ${ns.replace(/p/, 'before:m')}`;
@@ -187,11 +186,16 @@ export const FormField: React.FC<FormFieldProps> = (props) => {
   );
 };
 
-type FormFieldIndicatorProps = VariantPropTypes & HTMLProps<HTMLInputElement>;
-export const FormFieldIndicator: React.FC<FormFieldIndicatorProps> = (
-  props
-) => {
-  const { fullWidth, id, className: pCN, ...inputProps } = props;
+export const FormFieldIndicator: React.FC<FormFieldProps> = (props) => {
+  const {
+    fullWidth,
+    registerReturn,
+    fieldError,
+    className: pCN,
+    ...inputProps
+  } = props;
+
+  const id = registerReturn.name;
 
   const labelPadding = calculateLabelPadding(pCN);
   const borderMargin = calculateBorderMargin(pCN);
