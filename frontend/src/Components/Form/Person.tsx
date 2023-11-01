@@ -6,13 +6,22 @@ import {
   FieldValues
 } from 'react-hook-form';
 import { FormField, FormFieldIndicator } from './FormField';
-import { cva } from 'class-variance-authority';
 
 export type PersonProps = {
   firstName: string;
   lastName: string;
   email: string;
 };
+
+// Statically include these values
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const dummyClassNames = `
+xs:w-1/2 xs:pr-2 xs:pl-2 xs:mr-2 xs:ml-2 xs:before:ml-[6px] xs:pl-[10px] xs:flex-row
+sm:w-1/2 sm:pr-2 sm:pl-2 sm:mr-2 sm:ml-2 sm:before:ml-[6px] sm:pl-[10px] sm:flex-row
+md:w-1/2 md:pr-2 md:pl-2 md:mr-2 md:ml-2 md:before:ml-[6px] md:pl-[10px] md:flex-row
+lg:w-1/2 lg:pr-2 lg:pl-2 lg:mr-2 lg:ml-2 lg:before:ml-[6px] lg:pl-[10px] lg:flex-row
+xl:w-1/2 xl:pr-2 xl:pl-2 xl:mr-2 xl:ml-2 xl:before:ml-[6px] xl:pl-[10px] xl:flex-row
+`;
 
 export function Person<FV extends FieldValues>(props: {
   register: UseFormRegister<FV>;
@@ -45,39 +54,25 @@ export function Person<FV extends FieldValues>(props: {
 
   const fieldProps = (field: keyof PersonProps) => {
     const error = props.errors?.[field];
-    const isError = !!error;
     return {
       fieldError: error,
       defaultValue: defaultValue?.[field],
-      // placeholder: labels[field],
-      label: labels[field],
-      error: isError
-      // helperText: error?.message,
-      // FormHelperTextProps: { role: isError ? 'alert' : undefined }
+      label: labels[field]
     };
   };
 
   const Component = locked ? FormFieldIndicator : FormField;
 
-  // prettier-ignore
-  const splitSizeClassnames = splitSize === null ? '' : 
-    splitSize === "xs" ? "xs:flex-row xs:pb-2" :
-    splitSize === "sm" ? "sm:flex-row sm:pb-2" :
-    splitSize === "md" ? "md:flex-row md:pb-2" :
-    splitSize === "lg" ? "lg:flex-row lg:pb-2" :
-    splitSize === "xl" ? "xl:flex-row xl:pb-2" :
-    ''
-
   return (
     <div>
       {headElem}
-      <div className={`flex flex-col ${splitSizeClassnames}`}>
+      <div className={`flex flex-col ${splitSize}:flex-row`}>
         <Component
           registerReturn={register(join(path, 'firstName'), {
             required: 'Required',
             maxLength: 80
           })}
-          className={halfWidthStyles({ splitSize, side: 'left' })}
+          className={`w-full px-0 ${splitSize}:w-1/2 ${splitSize}:pr-2`}
           {...fieldProps('firstName')}
         />
         <Component
@@ -85,7 +80,7 @@ export function Person<FV extends FieldValues>(props: {
             required: 'Required',
             maxLength: 100
           })}
-          className={halfWidthStyles({ splitSize, side: 'right' })}
+          className={`w-full px-0 ${splitSize}:w-1/2 ${splitSize}:pl-2`}
           {...fieldProps('lastName')}
         />
       </div>
@@ -159,98 +154,3 @@ export function EmailFormComponent<FV extends FieldValues>(props: {
     </div>
   );
 }
-
-const halfWidthStyles = cva('pb-1 w-full px-0', {
-  variants: {
-    side: {
-      left: '',
-      right: '',
-      undefined: '',
-      null: ''
-    },
-    splitSize: {
-      xs: '',
-      sm: '',
-      md: '',
-      lg: '',
-      xl: ''
-    }
-  },
-  compoundVariants: [
-    {
-      side: ['left', 'right'],
-      splitSize: 'xs',
-      class: 'xs:w-1/2'
-    },
-    {
-      side: ['left', 'right'],
-      splitSize: 'sm',
-      class: 'sm:w-1/2'
-    },
-    {
-      side: ['left', 'right'],
-      splitSize: 'md',
-      class: 'md:w-1/2'
-    },
-    {
-      side: ['left', 'right'],
-      splitSize: 'lg',
-      class: 'lg:w-1/2'
-    },
-    {
-      side: ['left', 'right'],
-      splitSize: 'xl',
-      class: 'xl:w-1/2'
-    },
-    {
-      side: 'left',
-      splitSize: 'xs',
-      class: 'xs:pr-2'
-    },
-    {
-      side: 'left',
-      splitSize: 'sm',
-      class: 'sm:pr-2'
-    },
-    {
-      side: 'left',
-      splitSize: 'md',
-      class: 'md:pr-2'
-    },
-    {
-      side: 'left',
-      splitSize: 'lg',
-      class: 'lg:pr-2'
-    },
-    {
-      side: 'left',
-      splitSize: 'xl',
-      class: 'xl:pr-2'
-    },
-    {
-      side: 'right',
-      splitSize: 'xs',
-      class: 'xs:pl-2'
-    },
-    {
-      side: 'right',
-      splitSize: 'sm',
-      class: 'sm:pl-2'
-    },
-    {
-      side: 'right',
-      splitSize: 'md',
-      class: 'md:pl-2'
-    },
-    {
-      side: 'right',
-      splitSize: 'lg',
-      class: 'lg:pl-2'
-    },
-    {
-      side: 'right',
-      splitSize: 'xl',
-      class: 'xl:pl-2'
-    }
-  ]
-});

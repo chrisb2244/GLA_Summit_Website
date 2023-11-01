@@ -81,7 +81,9 @@ const wrapperStyles = cva(
 
 const extractSidePadding = (cname?: string) => {
   return cname
-    ? cname.match(/(p[lr]?\-[0-9]+)/g)?.reduce((s, ns) => `${s} ${ns}`, '')
+    ? cname.match(/(((xs|sm|md|lg|xl):)?p[lr]?\-[0-9]+)/g)?.reduce((s, ns) => {
+        return `${s} ${ns}`;
+      }, '')
     : '';
 };
 const calculateBorderMargin = (cname?: string) => {
@@ -90,15 +92,14 @@ const calculateBorderMargin = (cname?: string) => {
 const calculateLabelPadding = (cname?: string) => {
   const rawPadding = extractSidePadding(cname);
 
-  // Statically include these values (for pl-1, pl-2, pl-3, pl-4)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const commonClassnames = 'pl-[6px] pl-[10px] pl-[14px] pl-[18px]';
-
   if (typeof rawPadding === 'undefined') {
     return '';
   }
   return rawPadding.split(' ').reduce((s, ns) => {
-    const detectedLeftPaddingScale = ns.match(/pl-([0-9]+)/);
+    const detectedLeftPaddingScale = ns.match(
+      /((xs|sm|md|lg|xl):)?pl-([0-9]+)/
+    );
+    console.log({ s, ns, detectedLeftPaddingScale });
     // If not a left padding element, just add before:m for each p.
     if (detectedLeftPaddingScale === null) {
       return `${s} ${ns} ${ns.replace(/p/, 'before:m')}`;
@@ -106,8 +107,11 @@ const calculateLabelPadding = (cname?: string) => {
     // each scale is worth 4px
     // Need to subtract 2px from this for the before:-left-2px class...
     // and add 2px for the padding-left
-    const padScale = Number.parseInt(detectedLeftPaddingScale[1]);
-    return `${s} pl-[${4 * padScale + 2}px] before:ml-[${4 * padScale - 2}px]`;
+    const padScale = Number.parseInt(detectedLeftPaddingScale[3]);
+    const sizePrefix = detectedLeftPaddingScale[1];
+    return `${s} ${sizePrefix}pl-[${
+      4 * padScale + 2
+    }px] ${sizePrefix}before:ml-[${4 * padScale - 2}px]`;
   }, '');
 };
 
