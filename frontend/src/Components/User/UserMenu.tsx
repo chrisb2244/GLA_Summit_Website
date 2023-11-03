@@ -2,13 +2,13 @@
 import { Popover, Transition } from '@headlessui/react';
 import { mdiLogout, mdiMonitorAccount, mdiVoteOutline } from '@mdi/js';
 import { Icon } from '@mdi/react';
-import React, { PropsWithChildren, useEffect, useState } from 'react';
+import React, { PropsWithChildren, Suspense, useEffect, useState } from 'react';
 import NextLink from 'next/link';
 import { useProfileImage } from '@/lib/profileImage';
 import { getProfileInfo, type User } from '@/lib/databaseFunctions';
 import type { ProfileModel } from '@/lib/databaseModels';
 import { Route } from 'next';
-import { UserIcon } from './UserIcon';
+import { DefaultUserIcon, UserIcon } from './UserIcon';
 import { useRouter } from 'next/navigation';
 
 type UserMenuProps = {
@@ -104,7 +104,9 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
   return (
     <Popover className='pr-4'>
       <Popover.Button aria-haspopup aria-label=''>
-        <UserIcon src={avatarSrc} size='large' text={buttonText} />
+        <Suspense fallback={<DefaultUserIcon size='large' text={buttonText} />}>
+          <UserIcon src={avatarSrc} size='large' text={buttonText} />
+        </Suspense>
       </Popover.Button>
       <Transition
         enter='transition duration-250 ease-in'
