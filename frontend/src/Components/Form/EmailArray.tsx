@@ -80,8 +80,12 @@ const OtherEmail = <FV extends FieldValues>(props: {
           locked={props.locked}
         />
       </div>
-      <div className={`flex flex-grow-0 p-2 text-center ${hiddenIfLocked}`}>
-        <Button onClick={() => props.remove(props.idx)}>Remove</Button>
+      <div
+        className={`ml-auto flex w-1/2 text-center sm:ml-0 sm:w-auto sm:flex-grow-0 sm:p-2 ${hiddenIfLocked}`}
+      >
+        <Button onClick={() => props.remove(props.idx)} fullWidth>
+          Remove
+        </Button>
       </div>
     </div>
   );
