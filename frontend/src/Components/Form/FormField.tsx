@@ -4,7 +4,9 @@ import type { HTMLInputTypeAttribute, HTMLProps } from 'react';
 import React from 'react';
 
 // Define separately for use styling the label and the error message
-const errorTextClassNames = 'text-red-700';
+const errorTextColor = 'text-red-700';
+const errorTextClassName =
+  'text-red-700 absolute top-0 left-2 text-sm sm:text-base';
 
 const inputAlways = [
   'px-4 pt-3 pb-1 peer border focus-visible:outline-none',
@@ -55,7 +57,7 @@ const labelAlways = [
 const labelStyles = cva(labelAlways, {
   variants: {
     isError: {
-      true: errorTextClassNames
+      true: errorTextColor
     },
     placeholderVisible: {
       true: '',
@@ -66,7 +68,7 @@ const labelStyles = cva(labelAlways, {
 });
 
 const wrapperStyles = cva(
-  'inline-flex flex-col relative align-top mt-2 mb-4 bg-inherit overflow-x-clip',
+  'inline-flex flex-col relative align-top mt-2 mb-5 bg-inherit overflow-x-clip',
   {
     variants: {
       fullWidth: {
@@ -266,9 +268,11 @@ export const TextArea: React.FC<TextAreaProps> = (props) => {
 const ErrorMessage = ({ error }: { error: FieldError | undefined }) => {
   const isError = typeof error !== 'undefined';
   return isError ? (
-    <span className={errorTextClassNames} role='alert'>
-      {error.message}
-    </span>
+    <div className='relative h-0'>
+      <span className={errorTextClassName} role='alert'>
+        {error.message}
+      </span>
+    </div>
   ) : null;
 };
 
