@@ -33,7 +33,7 @@ export const Select = forwardRef(
 );
 Select.displayName = 'Select';
 
-const selectStyles = cva('border border-gray-400 box-border p-2', {
+const selectStyles = cva('my-2 border border-gray-400 box-border p-2', {
   variants: {
     fullWidth: {
       true: 'w-full'
