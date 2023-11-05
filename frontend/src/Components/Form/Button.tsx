@@ -4,7 +4,6 @@ import React, {
   ButtonHTMLAttributes,
   InputHTMLAttributes
 } from 'react';
-import { useFormStatus } from 'react-dom';
 
 const buttonStyles = cva(
   'p-2 border bg-gray-200 border-gray-400 focus:border-secondaryc focus:border-2 text-base text-center shadow-md focus-within:outline-none',
@@ -21,7 +20,10 @@ const buttonStyles = cva(
 );
 
 type VariantStyleProps = VariantProps<typeof buttonStyles>;
-type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'className'> &
+export type ButtonProps = Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  'className'
+> &
   VariantStyleProps;
 
 export const Button: React.FC<PropsWithChildren<ButtonProps>> = (props) => {
@@ -34,21 +36,6 @@ export const Button: React.FC<PropsWithChildren<ButtonProps>> = (props) => {
     >
       {children}
     </button>
-  );
-};
-
-type SubmitButtonProps = {
-  staticText: string;
-  pendingText: string;
-};
-
-export const SubmitButton = (props: SubmitButtonProps & ButtonProps) => {
-  const { staticText, pendingText, ...buttonProps } = props;
-  const { pending } = useFormStatus();
-  return (
-    <Button type='submit' fullWidth disabled={pending} {...buttonProps}>
-      {pending ? pendingText : staticText}
-    </Button>
   );
 };
 
