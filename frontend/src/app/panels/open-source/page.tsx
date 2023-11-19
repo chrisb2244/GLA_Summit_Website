@@ -82,7 +82,7 @@ const Open_Source_Page = () => {
       </div> */}
       <div className='mx-auto'>
         <a href={'/full-agenda'}>
-          <Button fullWidth className='bg-primaryc'>
+          <Button fullWidth color='bg-primaryc'>
             <span className='text-center'>Go to the agenda</span>
           </Button>
         </a>
