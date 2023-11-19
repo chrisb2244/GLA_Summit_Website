@@ -2,8 +2,7 @@ import { Button, Typography, Box, Tabs, Tab } from '@mui/material';
 import { of, useForm } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 
-import { Person } from '@/Components/Form';
-import type { PersonProps } from '@/Components/Form';
+import { Person, type PersonProps } from '@/Components/Form/Person';
 
 type FormProps = {
   defaultEntry?: PersonProps;

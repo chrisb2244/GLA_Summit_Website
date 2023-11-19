@@ -7,8 +7,10 @@ import {
   UseFieldArrayRemove,
   FieldArrayWithId
 } from 'react-hook-form';
-import { EmailArrayFormComponent, FormField, Person } from '@/Components/Form';
-import type { EmailProps, PersonProps } from '@/Components/Form';
+import { Person } from '@/Components/Form/Person';
+import { FormField } from '@/Components/Form/FormField';
+import { EmailArrayFormComponent } from '@/Components/Form/EmailArray';
+import type { EmailProps, PersonProps } from '@/Components/Form/Person';
 import { StackedBoxes } from '../Layout/StackedBoxes';
 
 import { PresentationType } from '@/lib/databaseModels';

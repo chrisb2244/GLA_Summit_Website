@@ -5,7 +5,7 @@ import { UserSignIn } from './UserSignIn';
 import { ValidationCodePopup } from './ValidationCodePopup';
 import { SignInFormValues } from '../Forms/SignInForm';
 import { signIn, signUp } from './SignInUpActions';
-import { PersonProps } from '../Form';
+import { PersonProps } from '../Form/Person';
 import { CenteredDialog } from '../Layout/CenteredDialog';
 
 export type RegistrationProps = {

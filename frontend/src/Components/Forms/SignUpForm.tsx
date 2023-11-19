@@ -2,7 +2,7 @@
 
 import { myLog } from '@/lib/utils';
 import { Button } from '../Form/Button';
-import { Person, PersonProps } from '../Form';
+import { Person, PersonProps } from '../Form/Person';
 import { SubmitHandler, TypedFieldPath, useForm } from 'react-hook-form';
 import React from 'react';
 

@@ -1,6 +1,10 @@
 'use client';
 
-import { FormField, FormFieldIndicator, TextArea } from '@/Components/Form';
+import {
+  FormField,
+  FormFieldIndicator,
+  TextArea
+} from '@/Components/Form/FormField';
 import { Button } from '@/Components/Form/Button';
 import { ProfileModel } from '@/lib/databaseModels';
 import React from 'react';

@@ -5,7 +5,7 @@ import { generateSupabaseLinks } from '@/lib/generateSupabaseLinks';
 import { createServerActionClient } from '@/lib/supabaseServer';
 import { randomBytes } from 'crypto';
 import { sendMailApi } from '@/lib/sendMail';
-import { PersonProps } from '../Form';
+import { PersonProps } from '../Form/Person';
 import { UserMetadata } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
 
