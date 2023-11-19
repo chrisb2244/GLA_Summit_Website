@@ -1,14 +1,8 @@
 'use client';
 
-import { Database } from '@/lib/sb_databaseModels';
-import {
-  Card,
-  CardActionArea,
-  CardContent,
-  Collapse,
-  Typography
-} from '@mui/material';
-import { useState } from 'react';
+import { PresentationType } from '@/lib/databaseModels';
+import { Disclosure, Transition } from '@headlessui/react';
+import { formatTextToPs } from '@/lib/utils';
 
 export type PersonInfo = {
   id: string;
@@ -23,7 +17,7 @@ export type PresentationReviewInfo = {
   presenters: PersonInfo[];
   learning_points: string;
   presentation_id: string;
-  presentation_type: Database['public']['Enums']['presentation_type'];
+  presentation_type: PresentationType;
   updated_at: string;
 };
 
@@ -41,21 +35,36 @@ export const SubmittedPresentationReviewCard: React.FC<
   };
 
   const p = props.presentationInfo;
-  const [expanded, setExpanded] = useState(false);
+
   return (
-    <Card>
-      <CardActionArea onClick={() => setExpanded(!expanded)}>
-        <Typography>{p.title}</Typography>
-        <Typography>{`Submitter: ${getName(p.submitter)}`}</Typography>
-      </CardActionArea>
-      <Collapse in={expanded}>
-        <CardContent>
-          <Typography>{`Presenters: ${p.presenters
-            .map(getName)
-            .join(', ')}`}</Typography>
-          <Typography>{p.abstract}</Typography>
-        </CardContent>
-      </Collapse>
-    </Card>
+    <div className='prose w-full max-w-full rounded-lg shadow'>
+      <Disclosure>
+        <Disclosure.Button
+          // as='div' {/* This is required to put buttons in the Button */}
+          className='w-full rounded-lg bg-gray-100 ui-open:rounded-b-none ui-open:bg-gray-200'
+        >
+          <div className='flex flex-row'>
+            <div className='mx-2 my-1 flex-1'>
+              <h3 className='my-0 text-inherit'>{p.title}</h3>
+              <span className='italic'>{`Submitter: ${getName(
+                p.submitter
+              )}`}</span>
+            </div>
+            {/* <div>
+              <button>Vote Up</button>
+              <button>Vote Down</button>
+            </div> */}
+          </div>
+        </Disclosure.Button>
+        <Transition>
+          <Disclosure.Panel className='rounded-b-lg bg-gray-100'>
+            <span>{`Presenters: ${p.presenters.map(getName).join(', ')}`}</span>
+            <div className='mt-2 prose-p:my-0'>
+              {formatTextToPs(p.abstract)}
+            </div>
+          </Disclosure.Panel>
+        </Transition>
+      </Disclosure>
+    </div>
   );
 };

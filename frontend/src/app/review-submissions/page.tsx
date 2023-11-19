@@ -36,11 +36,11 @@ const ReviewSubmissionsPage = async () => {
     });
 
   return (
-    <div className='mx-auto mt-4'>
-      <p className='prose text-center'>
+    <div className='mx-auto mt-4 w-full max-w-screen-md'>
+      <p className='prose mx-auto text-center'>
         {`Here's a list of ${submittedPresentations.length} presentations!!!`}
       </p>
-      <div className='flex flex-col space-y-1'>{listElems}</div>
+      <div className='flex flex-col space-y-2'>{listElems}</div>
     </div>
   );
 };
