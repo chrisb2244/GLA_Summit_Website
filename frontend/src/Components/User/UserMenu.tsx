@@ -4,15 +4,16 @@ import { mdiLogout, mdiMonitorAccount, mdiVoteOutline } from '@mdi/js';
 import { Icon } from '@mdi/react';
 import React, { PropsWithChildren, Suspense, useEffect, useState } from 'react';
 import NextLink from 'next/link';
-import { useProfileImage } from '@/lib/profileImage';
-import { getProfileInfo, type User } from '@/lib/databaseFunctions';
+import type { User } from '@/lib/databaseFunctions';
 import type { ProfileModel } from '@/lib/databaseModels';
 import { Route } from 'next';
 import { DefaultUserIcon, UserIcon } from './UserIcon';
 import { useRouter } from 'next/navigation';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 type UserMenuProps = {
   user: User;
+  profile: ProfileModel['Row'] | null;
   isOrganizer?: boolean;
   signOut: () => Promise<void>;
 };
@@ -27,19 +28,23 @@ type UserMenuEntry = {
 export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
   props
 ) => {
-  const userId = props.user.id;
-  const { isOrganizer, signOut } = props;
+  const { isOrganizer, profile, signOut } = props;
 
-  const [profile, setProfile] = useState<ProfileModel['Insert'] | null>(null);
+  const [avatarSrc, setAvatarSrc] = useState<string | undefined>(undefined);
   useEffect(() => {
-    getProfileInfo(props.user)
-      .then(setProfile)
-      .catch((e) => {
-        console.log(e);
+    const url = props.profile?.avatar_url;
+    if (typeof url === 'undefined' || url === null) {
+      return;
+    }
+    const supabase = createClientComponentClient();
+    supabase.storage
+      .from('avatars')
+      .download(url)
+      .then(({ data, error }) => {
+        if (error || data === null) return null;
+        setAvatarSrc(URL.createObjectURL(data));
       });
-  }, [props.user]);
-  const { src: avatarSrc } = useProfileImage(userId) ?? {};
-  // console.log({ avatarSrc, imgLoading })
+  }, [props.profile?.avatar_url]);
 
   const email = props.user.email;
   const ListIcon = (props: { path: string }) => {
