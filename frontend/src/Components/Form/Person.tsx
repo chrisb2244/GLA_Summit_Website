@@ -1,9 +1,8 @@
 import {
-  join,
   UseFormRegister,
-  TypedFieldPath,
   FieldErrors,
-  FieldValues
+  FieldValues,
+  Path
 } from 'react-hook-form';
 import { FormField, FormFieldIndicator } from './FormField';
 
@@ -23,16 +22,39 @@ lg:w-1/2 lg:pr-2 lg:pl-2 lg:mr-2 lg:ml-2 lg:before:ml-[6px] lg:pl-[10px] lg:flex
 xl:w-1/2 xl:pr-2 xl:pl-2 xl:mr-2 xl:ml-2 xl:before:ml-[6px] xl:pl-[10px] xl:flex-row
 `;
 
-export function Person<FV extends FieldValues>(props: {
-  register: UseFormRegister<FV>;
-  path: TypedFieldPath<FV, PersonProps>;
+type SharedProps = {
   errors: FieldErrors<PersonProps> | undefined;
   defaultValue?: PersonProps;
   locked?: boolean;
   heading?: string;
   splitSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | null;
-}) {
-  const { register, path, defaultValue, locked, heading } = props;
+};
+
+type PropsInNestedPerson<KeyName, FV extends FieldValues> = {
+  register: UseFormRegister<FV>;
+  path: KeyName;
+} & SharedProps;
+
+type PropsInStandalonePerson = {
+  register: UseFormRegister<PersonProps>;
+  path?: undefined;
+} & SharedProps;
+
+/* prettier-ignore */
+type PersonTypeProps<FV extends FieldValues, K = keyof FV> =
+  FV extends PersonProps
+    ? PropsInStandalonePerson
+    : K extends keyof FV
+      ? FV[K] extends PersonProps
+        ? PropsInNestedPerson<K, FV>
+        : never
+      : never
+
+export function Person<FV extends FieldValues>(props: PersonTypeProps<FV>) {
+  const { defaultValue, locked, heading } = props;
+  const register = props.register as UseFormRegister<FV>;
+  const path =
+    typeof props.path !== 'undefined' ? `${String(props.path)}.` : '';
   // Default to 'md' if not specified. Allow null to prevent splitting regardless of size
   const splitSize =
     typeof props.splitSize !== 'undefined' ? props.splitSize : 'md';
@@ -41,7 +63,7 @@ export function Person<FV extends FieldValues>(props: {
   if (typeof heading !== 'undefined') {
     headElem = (
       <div className='mb-2 px-2'>
-        <span className='prose-sm prose'>{heading}</span>
+        <span className='prose prose-sm'>{heading}</span>
       </div>
     );
   }
@@ -68,7 +90,7 @@ export function Person<FV extends FieldValues>(props: {
       {headElem}
       <div className={`flex flex-col ${splitSize}:flex-row`}>
         <Component
-          registerReturn={register(join(path, 'firstName'), {
+          registerReturn={register(`${path}firstName` as Path<FV>, {
             required: 'Required',
             maxLength: 80
           })}
@@ -76,7 +98,7 @@ export function Person<FV extends FieldValues>(props: {
           {...fieldProps('firstName')}
         />
         <Component
-          registerReturn={register(join(path, 'lastName'), {
+          registerReturn={register(`${path}lastName` as Path<FV>, {
             required: 'Required',
             maxLength: 100
           })}
@@ -86,7 +108,7 @@ export function Person<FV extends FieldValues>(props: {
       </div>
       <div>
         <Component
-          registerReturn={register(join(path, 'email'), {
+          registerReturn={register(`${path}email` as Path<FV>, {
             required: 'Required',
             pattern: {
               value: /^\S+@\S+\.\S+$/i,
@@ -107,39 +129,31 @@ export type EmailProps = {
 
 export function EmailFormComponent<FV extends FieldValues>(props: {
   register: UseFormRegister<FV>;
-  path: TypedFieldPath<FV, EmailProps>;
-  errors: FieldErrors<PersonProps> | undefined;
+  path?: string;
+  errors: FieldErrors<EmailProps> | undefined;
   defaultValue?: EmailProps;
   locked?: boolean;
   heading?: string;
+  label?: string;
 }) {
-  const { register, path, defaultValue, locked, heading } = props;
+  const { register, defaultValue, locked, heading, label } = props;
+  const path = props.path ? `${props.path}.` : '';
 
   let headElem = null;
   if (typeof heading !== 'undefined') {
     headElem = (
       <div className='px-2'>
-        <span className='prose-sm prose'>{heading}</span>
+        <span className='prose prose-sm'>{heading}</span>
       </div>
     );
   }
-
-  const fieldProps = (field: keyof EmailProps) => {
-    const error = props.errors?.[field];
-    return {
-      defaultValue: defaultValue?.[field],
-      label: 'Co-presenter Email',
-      fieldError: error
-      // helperText: error?.message
-    };
-  };
 
   return (
     <div className='flex flex-1'>
       {headElem}
       <div className='flex flex-1'>
         <FormField
-          registerReturn={register(join(path, 'email'), {
+          registerReturn={register(`${path}email` as Path<FV>, {
             required: 'Required',
             pattern: {
               value: /^\S+@\S+\.\S+$/i,
@@ -147,7 +161,9 @@ export function EmailFormComponent<FV extends FieldValues>(props: {
             }
           })}
           fullWidth
-          {...fieldProps('email')}
+          fieldError={props.errors?.email}
+          label={label}
+          defaultValue={defaultValue?.email}
           readOnly={locked}
         />
       </div>

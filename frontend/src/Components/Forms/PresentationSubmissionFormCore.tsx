@@ -1,6 +1,5 @@
 import { Button, Paper, MenuItem, TextFieldProps, Box } from '@mui/material';
 import {
-  of,
   UseFormRegister,
   UseFieldArrayAppend,
   FieldErrors,
@@ -79,7 +78,7 @@ export const PresentationSubmissionFormCore: React.FC<
             defaultValue={submitter}
             errors={errors.submitter}
             register={register}
-            path={of('submitter')}
+            path={'submitter'}
             locked={true}
             splitSize='sm'
           />
@@ -87,7 +86,7 @@ export const PresentationSubmissionFormCore: React.FC<
       </Paper>
       <EmailArrayFormComponent<FormData>
         emailArray={otherPresenters}
-        arrayPath={of('otherPresenters')}
+        arrayPath={'otherPresenters'}
         errors={errors.otherPresenters}
         register={register}
         removePresenter={removePresenter}
@@ -96,7 +95,7 @@ export const PresentationSubmissionFormCore: React.FC<
       <Button
         fullWidth
         onClick={() => {
-          addPresenter({});
+          addPresenter({ email: '' });
         }}
         variant='outlined'
         sx={{ mb: 1, ...displayLocked }}

@@ -1,18 +1,19 @@
 import type {
   FieldError,
   FieldErrors,
-  FieldValues,
-  TypedFieldPath,
-  UseFormRegister
+  UseFormRegister,
+  FieldValues
 } from 'react-hook-form';
-import { join } from 'react-hook-form';
 import { EmailFormComponent } from './Person';
 import type { EmailProps } from './Person';
 import { Button } from './Button';
 
-type EmailArrayProps<FV extends FieldValues> = {
+type EmailArrayProps<
+  KeyName extends keyof FV,
+  FV extends Record<KeyName, EmailProps[]>
+> = {
   emailArray: EmailProps[];
-  arrayPath: TypedFieldPath<FV, EmailProps[]>;
+  arrayPath: KeyName;
   errors:
     | Merge<
         FieldError,
@@ -25,8 +26,17 @@ type EmailArrayProps<FV extends FieldValues> = {
   // defaultValue?: Partial<EmailProps[]>
 };
 
+type EmailArrayTypeProps<
+  FV extends FieldValues,
+  K = keyof FV
+> = K extends keyof FV
+  ? FV[K] extends EmailProps[]
+    ? EmailArrayProps<K, FV>
+    : never
+  : never;
+
 export function EmailArrayFormComponent<FV extends FieldValues>(
-  props: EmailArrayProps<FV>
+  props: EmailArrayTypeProps<FV>
 ) {
   const {
     emailArray,
@@ -58,9 +68,12 @@ export function EmailArrayFormComponent<FV extends FieldValues>(
   );
 }
 
-const OtherEmail = <FV extends FieldValues>(props: {
+const OtherEmail = <
+  KeyName extends keyof FV,
+  FV extends Record<KeyName, EmailProps[]>
+>(props: {
   idx: number;
-  path: TypedFieldPath<FV, EmailProps[]>;
+  path: KeyName;
   errors: FieldErrors<EmailProps> | undefined;
   register: UseFormRegister<FV>;
   remove: (idx: number) => void;
@@ -73,7 +86,7 @@ const OtherEmail = <FV extends FieldValues>(props: {
     <div className='flex flex-col items-start justify-between sm:flex-row'>
       <div className='flex w-full flex-grow'>
         <EmailFormComponent
-          path={join(props.path, `${props.idx}`)}
+          path={`${String(props.path)}.[${props.idx}]`}
           register={props.register}
           errors={props.errors}
           defaultValue={props?.defaultValue}
