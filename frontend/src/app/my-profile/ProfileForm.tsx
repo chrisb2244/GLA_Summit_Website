@@ -60,7 +60,14 @@ export const ProfileForm: React.FC<ProfileFormProps> = (props) => {
   return (
     <form action={clientSideSubmitAction}>
       <div className='px-4'>
-        <FormFieldIndicator fullWidth label='Email' value={props.email} />
+        <FormFieldIndicator
+          registerReturn={{ name: 'email' }}
+          fieldError={undefined}
+          fullWidth
+          label='Email'
+          value={props.email}
+          name='email'
+        />
       </div>
       <div className='grid grid-cols-[1fr_8px_1fr] px-4'>
         <div className='col-span-3 col-start-1 md:col-span-1'>
