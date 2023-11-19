@@ -21,6 +21,7 @@
       "@/pages/*": ["src/pages/*"],
       "@/lib/*": ["src/lib/*"],
       "@/EmailTemplates/*": ["src/EmailTemplates/*"],
+      "@/actions/*": ["src/actions/*"],
       "@/media/*": ["public/media/*"]
     },
     "incremental": true,
