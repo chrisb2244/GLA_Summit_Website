@@ -1,4 +1,6 @@
-import { getMyPresentations } from '@/lib/databaseFunctions';
+import { PersonProps } from '@/Components/Form/Person';
+import { PresentationSubmissionForm } from '@/Components/Forms/PresentationSubmissionForm';
+import { getMyPresentations, getProfileInfo } from '@/lib/databaseFunctions';
 import {
   MyPresentationSubmissionType,
   SummitYear,
@@ -6,6 +8,7 @@ import {
 } from '@/lib/databaseModels';
 import { createServerComponentClient } from '@/lib/supabaseServer';
 import { formatTextToPs } from '@/lib/utils';
+import { User } from '@supabase/supabase-js';
 import { Metadata } from 'next';
 import NextLink from 'next/link';
 
@@ -18,13 +21,29 @@ export const metadata: Metadata = {
 const MyPresentationsPage = async () => {
   const supabase = createServerComponentClient();
 
-  // const {
-  //   data: { user },
-  //   error
-  // } = await supabase.auth.getUser();
-  // if (error) {
-  //   console.error({ m: 'Error fetching user', error });
-  // }
+  const {
+    data: { user },
+    error
+  } = await supabase.auth.getUser();
+  if (error) {
+    console.error({ m: 'Error fetching user', error });
+  }
+
+  const getSubmitter = async (
+    user: User | null
+  ): Promise<PersonProps | null> => {
+    if (user === null || typeof user.email === 'undefined') {
+      return null;
+    }
+    const { firstname, lastname } = await getProfileInfo(user, supabase);
+    return {
+      email: user.email,
+      firstName: firstname,
+      lastName: lastname
+    };
+  };
+
+  const submitter = await getSubmitter(user);
 
   const myPresentations = await getMyPresentations(supabase);
   const { submittedPresentations, draftPresentations } = myPresentations.reduce(
@@ -123,10 +142,14 @@ const MyPresentationsPage = async () => {
 
   return (
     <div className='prose mx-auto max-w-none'>
-      <div>
-        <p>The presentation submission page is currently being reworked!</p>
-        <p>We look forwards to being able to accept submissions soon.</p>
-      </div>
+      {submitter && (
+        <div>
+          {/* <p>The presentation submission page is currently being reworked!</p>
+        <p>We look forwards to being able to accept submissions soon.</p> */}
+          <h3>Submit a new Presentation</h3>
+          <PresentationSubmissionForm submitter={submitter} />
+        </div>
+      )}
 
       <div>
         <h3>Draft Submissions</h3>

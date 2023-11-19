@@ -4,7 +4,7 @@ import {
   Typography,
   TypographyProps
 } from '@mui/material';
-import type { FormData } from '@/Components/Forms/PresentationSubmissionForm';
+import type { FormData } from '@/Components/Forms/PresentationSubmissionForm_old';
 
 export type Recipient = {
   email: string;

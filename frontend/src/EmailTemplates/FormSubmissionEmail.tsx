@@ -1,5 +1,5 @@
 import { EmailProps } from '@/Components/Form/Person';
-import type { FormData } from '@/Components/Forms/PresentationSubmissionForm';
+import type { FormData } from '@/Components/Forms/PresentationSubmissionForm_old';
 import {
   Box,
   Paper,

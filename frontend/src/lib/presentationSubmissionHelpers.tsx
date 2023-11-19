@@ -1,4 +1,4 @@
-import type { FormData } from '@/Components/Forms/PresentationSubmissionForm';
+import type { FormData } from '@/Components/Forms/PresentationSubmissionForm_old';
 import { FormSubmissionEmail } from '@/EmailTemplates/FormSubmissionEmail';
 import { buildSubmitterName, P } from '@/EmailTemplates/emailComponents';
 import { PersonProps } from '@/Components/Form/Person';
