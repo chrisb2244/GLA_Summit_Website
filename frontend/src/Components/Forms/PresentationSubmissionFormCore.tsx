@@ -91,6 +91,7 @@ export const PresentationSubmissionFormCore: React.FC<
         register={register}
         removePresenter={removePresenter}
         locked={locked}
+        label='Co-presenter Email'
       />
       <Button
         fullWidth

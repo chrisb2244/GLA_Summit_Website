@@ -23,6 +23,7 @@ type EmailArrayProps<
   register: UseFormRegister<FV>;
   removePresenter: (idx: number) => void;
   locked?: boolean;
+  label: string;
   // defaultValue?: Partial<EmailProps[]>
 };
 
@@ -44,7 +45,8 @@ export function EmailArrayFormComponent<FV extends FieldValues>(
     register,
     removePresenter,
     arrayPath,
-    locked = false
+    locked = false,
+    label
   } = props;
 
   return (
@@ -60,6 +62,7 @@ export function EmailArrayFormComponent<FV extends FieldValues>(
               remove={removePresenter}
               defaultValue={p}
               locked={locked}
+              label={label}
             />
           </div>
         </div>
@@ -79,6 +82,7 @@ const OtherEmail = <
   remove: (idx: number) => void;
   defaultValue?: EmailProps;
   locked?: boolean;
+  label: string;
 }) => {
   const hiddenIfLocked = props.locked ? 'hidden' : '';
 
@@ -91,6 +95,7 @@ const OtherEmail = <
           errors={props.errors}
           defaultValue={props?.defaultValue}
           locked={props.locked}
+          label={props.label}
         />
       </div>
       <div
