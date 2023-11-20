@@ -32,7 +32,7 @@ export const SignInEmailFn = (nameString: string, otpValue: string) => {
                           </tr>
                         </tbody>
                       </table>
-                      <p style="font-size:14px;line-height:24px;margin:16px 0">Enter this value on the GLA Summit website where you initially triggered this login, or at <a href="https://glasummit.org/validateLogin" target="_blank" style="color:#a25bcd;text-decoration:underline">https://glasummit.org/validateLogin</a> if you closed the page.</p>
+                      <p style="font-size:14px;line-height:24px;margin:16px 0">If the dialog box on the GLA Summit website has closed, you can enter the code at <a href="https://glasummit.org/validateLogin" target="_blank" style="color:#a25bcd;text-decoration:underline">https://glasummit.org/validateLogin</a>.</p>
                     </td>
                   </tr>
                 </tbody>

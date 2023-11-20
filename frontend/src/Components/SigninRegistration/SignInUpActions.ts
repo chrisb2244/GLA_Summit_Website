@@ -9,6 +9,7 @@ import { PersonProps } from '../Form/Person';
 import { UserMetadata } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
 import { SignInEmailFn } from '@/EmailTemplates/SignInEmail';
+import { RegistrationEmailFn } from '@/EmailTemplates/RegistrationEmail';
 
 export const mailUser = async () => {
   // Send email
@@ -48,7 +49,6 @@ export const signIn = async (
   email: string,
   options?: { redirectTo?: string; scopes?: string; captchaToken?: string }
 ): Promise<boolean> => {
-  console.log('Generating signin link');
   return generateSupabaseLinks({
     type: 'magiclink',
     email,
@@ -86,7 +86,6 @@ export const signUp = async (
   redirectTo?: string
 ): Promise<boolean> => {
   // Sign up
-  console.log('Generating signup link');
   const password = randomBytes(32).toString('hex');
   const email = newUser.email;
 
@@ -102,18 +101,22 @@ export const signUp = async (
     },
     redirectTo
   }).then(({ data, error }) => {
-    console.log({ data, error, m: 'signup' });
+    // console.log({ data, error, m: 'signup' });
     if (error) {
       return false;
     }
     const subject = 'GLA Summit Website Signup';
     const otp = data.properties.email_otp;
     const plainText = otpEmailText(newUser.firstName, newUser.lastName, otp);
+    const html = RegistrationEmailFn(
+      `${newUser.firstName} ${newUser.lastName}`,
+      otp
+    );
     sendMailApi({
       to: email,
       subject,
       bodyPlain: plainText,
-      body: plainText
+      body: html
     });
     return true;
   });
