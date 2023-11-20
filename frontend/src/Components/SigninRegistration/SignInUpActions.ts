@@ -8,6 +8,7 @@ import { sendMailApi } from '@/lib/sendMail';
 import { PersonProps } from '../Form/Person';
 import { UserMetadata } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
+import { SignInEmailFn } from '@/EmailTemplates/SignInEmail';
 
 export const mailUser = async () => {
   // Send email
@@ -65,7 +66,8 @@ export const signIn = async (
       const mailResult = await sendMailApi({
         subject: 'Validation Code for GLA Summit Login',
         to: email,
-        bodyPlain: plainText //`Your One-Time Passcode is ${v.data.properties.email_otp}`
+        bodyPlain: plainText, //`Your One-Time Passcode is ${v.data.properties.email_otp}`
+        body: SignInEmailFn(`${firstName} ${lastName}`, properties.email_otp)
       });
       if (mailResult.status === 200) {
         return true;
