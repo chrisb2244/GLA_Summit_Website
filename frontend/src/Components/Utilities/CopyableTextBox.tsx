@@ -1,77 +1,39 @@
 'use client';
 
-import { IconButton, Tooltip } from '@mui/material';
-import CopyIcon from '@mui/icons-material/ContentCopy';
-import { useState, ReactNode } from 'react';
+import Icon from '@mdi/react';
+import { mdiContentCopy } from '@mdi/js';
+import { ReactNode } from 'react';
 
 export const CopyableTextBox = (props: {
   children: ReactNode;
   copyString: string;
 }) => {
   const { children, copyString } = props;
-  const [displayCopy, setDisplayCopy] = useState(false);
-  const [domRect, setDomRect] = useState<DOMRect | null>(null);
 
-  const copyToClipboard = async (text: string) => {
+  const copyToClipboard = async () => {
     if ('clipboard' in navigator) {
-      return await navigator.clipboard.writeText(text);
+      return await navigator.clipboard.writeText(copyString);
     } else {
       // Workaround for IE
-      return document.execCommand('copy', true, text);
+      return document.execCommand('copy', true, copyString);
     }
   };
-
-  const onRefLoad = (elem: HTMLButtonElement) => {
-    if (elem === null) {
-      return;
-    }
-    const newRect = elem.getBoundingClientRect();
-    if (
-      displayCopy &&
-      !elem.hidden &&
-      (domRect === null || newRect.x !== domRect.x)
-    ) {
-      setDomRect(newRect);
-    }
-  };
-
-  const tooltip = (
-    <Tooltip
-      title='Copy'
-      PopperProps={{
-        anchorEl: {
-          /* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */
-          getBoundingClientRect: () => domRect!
-        }
-      }}
-    >
-      <IconButton
-        ref={onRefLoad}
-        sx={{
-          display: displayCopy ? 'block' : 'none',
-          position: 'absolute',
-          right: 0,
-          top: 0
-        }}
-        aria-label='copy'
-        aria-hidden={!displayCopy}
-        onClick={() => {
-          copyToClipboard(copyString);
-        }}
-      >
-        <CopyIcon fontSize='small' />
-      </IconButton>
-    </Tooltip>
-  );
 
   return (
-    <div
-      onMouseEnter={() => setDisplayCopy(true)}
-      onMouseLeave={() => setDisplayCopy(false)}
-      className='relative'
-    >
-      {tooltip}
-      {children}
+    <div className='group relative'>
+      <div
+        className='invisible absolute right-4 top-4 hover:cursor-pointer hover:rounded-md hover:bg-secondaryc hover:bg-opacity-40 hover:p-1 group-hover:visible'
+        onClick={(ev) => {
+          ev.currentTarget.classList.add('animate-wiggle');
+          copyToClipboard();
+        }}
+        onAnimationEnd={(ev) => {
+          ev.currentTarget.classList.remove('animate-wiggle');
+        }}
+      >
+        <Icon path={mdiContentCopy} size={1} />
+      </div>
+      <div className=''>{children}</div>
     </div>
   );
 };

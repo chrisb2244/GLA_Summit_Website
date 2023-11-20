@@ -38,6 +38,15 @@ module.exports = {
         h1s: ['6.8552rem', '1.167'],
         h4s: ['2.4291rem', '1.235']
         // },
+      },
+      keyframes: {
+        wiggle: {
+          '0%, 100%': { transform: 'rotate(-3deg)' },
+          '50%': { transform: 'rotate(3deg)' }
+        }
+      },
+      animation: {
+        wiggle: 'wiggle 200ms ease-in-out'
       }
     }
   },
