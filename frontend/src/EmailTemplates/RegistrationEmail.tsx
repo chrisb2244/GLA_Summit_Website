@@ -3,7 +3,7 @@ const baseUrl = process.env.VERCEL_URL
   : '';
 
 export const RegistrationEmailFn = (nameString: string, otpValue: string) => {
-  const logoSrc = `${baseUrl}/public/logo.png`;
+  const logoSrc = `${baseUrl}/logo.png`;
 
   return `
   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
