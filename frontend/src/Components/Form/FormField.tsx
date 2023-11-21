@@ -20,7 +20,7 @@ const inputFieldStyles = cva(inputAlways, {
       true: 'w-full'
     },
     readOnly: {
-      true: 'text-gray-500',
+      true: 'text-gray-500 bg-gray-100',
       false: 'border-b-4 focus:border-b-secondaryc'
     },
     placeholderVisible: {
@@ -45,7 +45,7 @@ const labelAlways = [
   'text-sm -top-2 left-2 px-1 peer-focus:text-gray-700',
   'peer-focus:text-sm peer-focus:-top-2 peer-focus:left-2',
   'before:w-[105%] before:absolute before:flex before:top-2',
-  'before:-left-[2px] before:z-[-1] before:bg-white',
+  'before:-left-[2px] before:z-[-1]',
   'before:h-[10px] before:rounded-b before:peer-focus:w-[105%]',
   'before:peer-focus:absolute before:peer-focus:flex',
   'before:peer-focus:top-2 before:peer-focus:-left-[2px]',
@@ -63,6 +63,11 @@ const labelStyles = cva(labelAlways, {
       true: '',
       false: placeholderShownClassNames,
       undefined: placeholderShownClassNames
+    },
+    readOnly: {
+      true: 'before:bg-gray-100',
+      false: 'before:bg-white',
+      undefined: 'before:bg-white'
     }
   }
 });
@@ -214,14 +219,15 @@ export const FormFieldIndicator: React.FC<
           readOnly: true
         })}
         placeholder={props.placeholder ?? id}
-        disabled
+        readOnly
+        {...registerReturn}
         {...inputProps}
       />
       <TopBorderElement paddingElems={borderMargin} />
       <label
         id={`${id}-label`}
         htmlFor={id}
-        className={`${labelPadding} ${labelStyles()}`}
+        className={`${labelPadding} ${labelStyles({ readOnly: true })}`}
       >
         {props.label ?? id}
       </label>
