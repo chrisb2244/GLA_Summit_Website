@@ -1,50 +1,11 @@
-import {
-  TableCell,
-  TableRow,
-  Typography,
-  TypographyProps
-} from '@mui/material';
-import type { FormData } from '@/Components/Forms/PresentationSubmissionForm_old';
+const baseUrl = process.env.VERCEL_URL
+  ? `https://${process.env.VERCEL_URL}`
+  : '';
+const logoSrc = `${baseUrl}/logo.png`;
 
-export type Recipient = {
-  email: string;
-  firstName?: string;
-  lastName?: string;
-};
+export const LogoImg = `<img alt="GLA Summit Logo" src="${logoSrc}" width="123" height="123" style="display:block;outline:none;border:none;text-decoration:none;margin:0 auto" />`;
 
-export const FormRow: React.FC<{ label: string; value: string }> = ({
-  label,
-  value
-}) => {
-  return (
-    <TableRow>
-      <TableCell sx={{ width: '1px', whiteSpace: 'nowrap' }}>
-        <Typography>{label}</Typography>
-      </TableCell>
-      <TableCell>
-        <Typography sx={{ whiteSpace: 'pre-line' }}>{value}</Typography>
-      </TableCell>
-    </TableRow>
-  );
-};
-
-export const HorizontalDivider: React.FC = () => {
-  return (
-    <TableRow
-      sx={{
-        borderWidth: 2,
-        // borderColor: 'secondary.main',
-        borderStyle: 'solid'
-      }}
-    />
-  );
-};
-
-export const P: React.FC<React.PropsWithChildren<TypographyProps>> = ({
-  children,
-  ...props
-}) => <Typography {...props}>{children}</Typography>;
-
-export const buildSubmitterName = (data: FormData) => {
-  return `${data.submitter.firstName} ${data.submitter.lastName}`;
-};
+export const UnexpectedEmail = `
+<p style="font-size:12px;line-height:23px;margin:0;color:#444;letter-spacing:0;padding:0 32px;text-align:center">Not expecting this email?</p>
+<p style="font-size:12px;line-height:23px;margin:0;color:#444;letter-spacing:0;padding:0 32px;text-align:center">Contact <a href="mailto:web@glasummit.org" target="_blank" style="color:#a25bcd;text-decoration:underline">web@glasummit.org</a> if you did not request this code.</p>
+`;
