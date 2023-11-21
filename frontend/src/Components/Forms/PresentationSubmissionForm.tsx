@@ -79,10 +79,12 @@ export const PresentationSubmissionForm = (
         presentation.
       </p>
       <form
-        action={submitNewPresentation}
-        onSubmit={handleSubmit((d) => {
-          console.log(d);
-        })}
+        action={async (data: FormData) => {
+          const result = await submitNewPresentation(data);
+        }}
+        // onSubmit={handleSubmit((d) => {
+        //   console.log(d);
+        // })}
       >
         <div className='border border-gray-200 bg-gray-100 p-2 shadow-lg'>
           <Person<SubmissionFormData>
