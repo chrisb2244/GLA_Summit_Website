@@ -52,7 +52,8 @@ type PersonTypeProps<FV extends FieldValues, K = keyof FV> =
 
 export function Person<FV extends FieldValues>(props: PersonTypeProps<FV>) {
   const { defaultValue, locked, heading } = props;
-  const register = props.register as UseFormRegister<FV>;
+  const register = props.register;
+
   const path =
     typeof props.path !== 'undefined' ? `${String(props.path)}.` : '';
   // Default to 'md' if not specified. Allow null to prevent splitting regardless of size
@@ -90,7 +91,7 @@ export function Person<FV extends FieldValues>(props: PersonTypeProps<FV>) {
       {headElem}
       <div className={`flex flex-col ${splitSize}:flex-row`}>
         <Component
-          registerReturn={register(`${path}firstName` as Path<FV>, {
+          registerReturn={register(`${path}firstName`, {
             required: 'Required',
             maxLength: 80
           })}
@@ -98,7 +99,7 @@ export function Person<FV extends FieldValues>(props: PersonTypeProps<FV>) {
           {...fieldProps('firstName')}
         />
         <Component
-          registerReturn={register(`${path}lastName` as Path<FV>, {
+          registerReturn={register(`${path}lastName`, {
             required: 'Required',
             maxLength: 100
           })}
@@ -108,7 +109,7 @@ export function Person<FV extends FieldValues>(props: PersonTypeProps<FV>) {
       </div>
       <div>
         <Component
-          registerReturn={register(`${path}email` as Path<FV>, {
+          registerReturn={register(`${path}email`, {
             required: 'Required',
             pattern: {
               value: /^\S+@\S+\.\S+$/i,
@@ -126,47 +127,3 @@ export function Person<FV extends FieldValues>(props: PersonTypeProps<FV>) {
 export type EmailProps = {
   email: string;
 };
-
-export function EmailFormComponent<FV extends FieldValues>(props: {
-  register: UseFormRegister<FV>;
-  path?: string;
-  errors: FieldErrors<EmailProps> | undefined;
-  defaultValue?: EmailProps;
-  locked?: boolean;
-  heading?: string;
-  label?: string;
-}) {
-  const { register, defaultValue, locked, heading, label } = props;
-  const path = props.path ? `${props.path}.` : '';
-
-  let headElem = null;
-  if (typeof heading !== 'undefined') {
-    headElem = (
-      <div className='px-2'>
-        <span className='prose prose-sm'>{heading}</span>
-      </div>
-    );
-  }
-
-  return (
-    <div className='flex flex-1'>
-      {headElem}
-      <div className='flex flex-1'>
-        <FormField
-          registerReturn={register(`${path}email` as Path<FV>, {
-            required: 'Required',
-            pattern: {
-              value: /^\S+@\S+\.\S+$/i,
-              message: "This email doesn't match the expected pattern"
-            }
-          })}
-          fullWidth
-          fieldError={props.errors?.email}
-          label={label}
-          defaultValue={defaultValue?.email}
-          readOnly={locked}
-        />
-      </div>
-    </div>
-  );
-}

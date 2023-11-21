@@ -9,9 +9,6 @@ import { submitNewPresentation } from '@/actions/presentationSubmission';
 import { FormField, TextArea } from '../Form/FormField';
 import type { PresentationType } from '@/lib/databaseModels';
 import { Select } from '../Form/Select';
-import { EmailArrayFormComponent } from '../Form/EmailArray';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { PresentationSubmissionFormSchema } from './PresentationSubmissionFormSchema';
 
 type PresentationSubmissionFormProps = {
   submitter: PersonProps;
@@ -50,7 +47,6 @@ export const PresentationSubmissionForm = (
       presentationType: 'full length',
       otherPresenters: []
     }
-    // resolver: zodResolver(PresentationSubmissionFormSchema)
   });
 
   const {
@@ -97,14 +93,36 @@ export const PresentationSubmissionForm = (
             path={'submitter'}
             register={register}
           />
-          <EmailArrayFormComponent<SubmissionFormData>
-            arrayPath={'otherPresenters'}
-            emailArray={otherPresenterFields}
-            errors={errors.otherPresenters}
-            register={register}
-            removePresenter={removePresenter}
-            label='Co-presenter Email'
-          />
+          {otherPresenterFields.map((field, idx) => {
+            return (
+              <div className='pb-2' key={field.id}>
+                <div className='flex flex-col items-start justify-between sm:flex-row'>
+                  <div className='flex w-full flex-grow'>
+                    <div className='flex flex-1'>
+                      <div className='flex flex-1'>
+                        <FormField
+                          registerReturn={register(
+                            `otherPresenters.${idx}.email`
+                          )}
+                          fieldError={errors.otherPresenters?.[idx]?.email}
+                          fullWidth
+                          label='Co-presenter Email'
+                          defaultValue=''
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    className={`ml-auto flex w-1/2 text-center sm:ml-0 sm:w-auto sm:flex-grow-0 sm:p-2`}
+                  >
+                    <Button onClick={() => removePresenter(idx)} fullWidth>
+                      Remove
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
           <div className='mx-auto -mb-6 mt-1 w-1/2'>
             <Button
               type='button'
