@@ -34,8 +34,9 @@ export const PresentationSubmissionForm = (
     register,
     formState: { errors },
     control,
-    handleSubmit,
-    watch
+    setFocus,
+    watch,
+    trigger
   } = useForm<SubmissionFormData>({
     mode: 'onTouched',
     defaultValues: {
@@ -80,7 +81,19 @@ export const PresentationSubmissionForm = (
       </p>
       <form
         action={async (data: FormData) => {
-          const result = await submitNewPresentation(data);
+          const formValid = await trigger();
+          if (formValid) {
+            const result = await submitNewPresentation(data);
+          } else {
+            const firstError = Object.entries(errors).find(([field, err]) => {
+              return err !== null && typeof err !== 'undefined';
+            });
+            if (typeof firstError?.[0] === 'string') {
+              setFocus(firstError[0] as keyof SubmissionFormData, {
+                shouldSelect: true
+              });
+            }
+          }
         }}
         // onSubmit={handleSubmit((d) => {
         //   console.log(d);
