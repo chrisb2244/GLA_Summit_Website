@@ -1,5 +1,5 @@
 import { EmailProps } from '@/Components/Form/Person';
-import type { FormData } from '@/Components/Forms/PresentationSubmissionForm_old';
+import type { SubmissionFormData } from '@/Components/Forms/PresentationSubmissionForm';
 import { LogoImg, UnexpectedEmail } from './emailComponents';
 import { PresentationType } from '@/lib/databaseModels';
 
@@ -58,7 +58,7 @@ const PresentationTypeToString = (presentationType: PresentationType) => {
 };
 
 export const FormSubmissionEmailFn = (
-  formData: FormData,
+  formData: SubmissionFormData,
   nameString: string
 ) => {
   const {
@@ -152,7 +152,7 @@ export const FormSubmissionEmailFn = (
 };
 
 export const NewCopresenterEmailFn = (
-  formData: FormData,
+  formData: SubmissionFormData,
   nameString: string,
   otpString: string
 ) => {

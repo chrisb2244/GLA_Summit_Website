@@ -14,7 +14,7 @@ type PresentationSubmissionFormProps = {
   submitter: PersonProps;
 };
 
-type SubmissionFormData = {
+export type SubmissionFormData = {
   submitter: PersonProps;
   otherPresenters: EmailProps[];
   isFinal: boolean;

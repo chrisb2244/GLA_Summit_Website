@@ -5,8 +5,8 @@ import { PersonProps } from '@/Components/Form/Person';
 import {
   adminAddNewPresentationSubmission,
   adminUpdateExistingPresentationSubmission
-} from './databaseFunctions';
-import { submissionsForYear } from './databaseModels';
+} from '../lib/databaseFunctions';
+import { submissionsForYear } from '../lib/databaseModels';
 
 export const uploadPresentationData = async (
   formData: FormData,
