@@ -8,9 +8,9 @@ import {
 } from 'react-hook-form';
 import { Person } from '@/Components/Form/Person';
 import { FormField } from '@/Components/Form/FormField';
-import { EmailArrayFormComponent } from '@/Components/Form/EmailArray';
+// import { EmailArrayFormComponent } from '@/Components/Form/EmailArray';
 import type { EmailProps, PersonProps } from '@/Components/Form/Person';
-import { StackedBoxes } from '../Layout/StackedBoxes';
+import { StackedBoxes } from '../Components/Layout/StackedBoxes';
 
 import { PresentationType } from '@/lib/databaseModels';
 
@@ -84,7 +84,7 @@ export const PresentationSubmissionFormCore: React.FC<
           />
         </Box>
       </Paper>
-      <EmailArrayFormComponent<FormData>
+      {/* <EmailArrayFormComponent<FormData>
         emailArray={otherPresenters}
         arrayPath={'otherPresenters'}
         errors={errors.otherPresenters}
@@ -92,7 +92,7 @@ export const PresentationSubmissionFormCore: React.FC<
         removePresenter={removePresenter}
         locked={locked}
         label='Co-presenter Email'
-      />
+      /> */}
       <Button
         fullWidth
         onClick={() => {

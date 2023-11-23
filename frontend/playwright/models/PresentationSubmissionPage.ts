@@ -1,4 +1,4 @@
-import type { FormData as SubmissionData } from '../../src/Components/Forms/PresentationSubmissionForm_old';
+import type { FormData as SubmissionData } from '../../src/old_pages/PresentationSubmissionForm_old';
 import type { Locator, Page } from '@playwright/test';
 
 type PresentationFormData = Omit<

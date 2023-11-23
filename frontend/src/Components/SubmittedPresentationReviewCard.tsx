@@ -68,6 +68,7 @@ export const SubmittedPresentationReviewCard: React.FC<
                 return (
                   <span
                     className={nameString === 'Unknown User' ? 'italic' : ''}
+                    key={`rev-presname-${idx}`}
                   >
                     {nameString + (idx !== arr.length - 1 ? ', ' : '')}
                   </span>

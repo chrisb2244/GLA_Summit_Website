@@ -1,6 +1,6 @@
 import { Box, Container, Stack, Typography } from '@mui/material';
-import { PresentationEditor } from '../Forms/PresentationEditor';
-import { PersonProps } from '../Form/Person';
+import { PresentationEditor } from './PresentationEditor';
+import { PersonProps } from '../Components/Form/Person';
 import {
   FormData,
   PresentationLockedStatus
