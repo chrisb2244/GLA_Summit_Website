@@ -15,6 +15,7 @@ export type Presentation = {
   abstract: string;
   speakerNames: string[];
   speakers: PersonDisplayProps[];
+  isPrivate?: boolean;
 } & Schedule;
 
 export type Schedule =
@@ -73,7 +74,7 @@ export const PresentationDisplay: React.FC<
   //     })
   // }, [presentationId, supabase])
 
-  let scheduleInfo = <></>;
+  let scheduleInfo = <div className='flex flex-grow'>Unscheduled</div>;
 
   if (presentation.sessionStart !== null) {
     scheduleInfo = (
@@ -155,6 +156,14 @@ export const PresentationDisplay: React.FC<
           <div className='flex flex-col py-2 md:flex-row md:justify-between'>
             {scheduleInfo}
             {downloadButton}
+          </div>
+          <div>
+            {presentation.isPrivate ? (
+              <div className='italic text-red-400'>
+                This presentation view is private to you. Presenter links may
+                direct to invalid pages.
+              </div>
+            ) : null}
           </div>
           {/* {favouriteButton} */}
           <div className='prose-p:my-1'>
