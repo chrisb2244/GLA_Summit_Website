@@ -6,7 +6,7 @@ export type MyPresentationSubmissionType =
 
 export type SummitYear = Database['public']['Enums']['summit_year'];
 export const currentDisplayYear: SummitYear = '2022';
-export const submissionsForYear: SummitYear = '2023';
+export const submissionsForYear: SummitYear = '2024';
 
 // Awkward typing code to check that years are exhaustively covered
 // This prevents an issue in which updating the database type (e.g. to add another year)
@@ -26,7 +26,7 @@ declare const exactType: <T, U>(
   a: T & IfEquals<T, U>,
   b: U & IfEquals<T, U>
 ) => IfEquals<T, U>;
-const summityears = ['2020', '2021', '2022', '2023'] as const;
+const summityears = ['2020', '2021', '2022', '2024'] as const;
 declare let dummyYear: SummitYear;
 declare let summitCandidateYear: (typeof summityears)[number];
 // The check is placed inside a function to prevent being called

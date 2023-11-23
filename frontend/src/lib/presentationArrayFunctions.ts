@@ -10,7 +10,7 @@ export function splitByYear<T>(presentations: SplittablePresentations<T>[]) {
   const groupedPresentationProps: {
     [key in SummitYear]?: SplittablePresentations<T>[];
   } = {
-    '2023': presentations.filter((p) => p.year === '2023'),
+    '2024': presentations.filter((p) => p.year === '2024'),
     '2022': presentations.filter((p) => p.year === '2022'),
     '2021': presentations.filter((p) => p.year === '2021'),
     '2020': presentations.filter((p) => p.year === '2020')

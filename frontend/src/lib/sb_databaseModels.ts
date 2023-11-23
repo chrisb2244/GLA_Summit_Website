@@ -500,7 +500,7 @@ export interface Database {
         | '15 minutes'
         | 'quiz'
         | 'session-container';
-      summit_year: '2020' | '2021' | '2022' | '2023';
+      summit_year: '2020' | '2021' | '2022' | '2024';
     };
     CompositeTypes: {
       presenter_info: {
