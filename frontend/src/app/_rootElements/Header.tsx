@@ -73,7 +73,7 @@ export const Header = () => {
           }}
         >
           <MenuBar />
-          <UserMenuButton />
+          {/* <UserMenuButton /> */}
         </div>
       </div>
     </>

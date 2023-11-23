@@ -40,10 +40,18 @@ export default function Page() {
   // ) : null
 
   return (
-    <div className='prose-base prose mx-auto max-w-2xl text-justify xl:max-w-3xl'>
+    <div className='prose prose-base mx-auto max-w-2xl text-justify xl:max-w-3xl'>
       <p className='prose-lg text-center'>
         The GLA Summit Organizers are excited to announce the next GLA Summit,
         scheduled for 25-26 March 2024!
+      </p>
+      <p className='text-center text-red-600'>
+        The website is currently undergoing maintenance. Features including but
+        not limited to login, registration and presentation submission will not
+        work.
+      </p>
+      <p className='text-center text-red-600'>
+        This maintenance should be completed within approximately one hour.
       </p>
       <p>
         We are excited to welcome advanced LabVIEW developers and Architects
