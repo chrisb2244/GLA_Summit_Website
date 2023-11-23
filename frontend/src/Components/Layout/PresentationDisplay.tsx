@@ -1,13 +1,9 @@
-'use client';
 import { PersonDisplay, PersonDisplayProps } from '@/Components/PersonDisplay';
-import { mdiCalendar, mdiStarPlusOutline, mdiStarRemoveOutline } from '@mdi/js';
+import { mdiCalendar } from '@mdi/js';
+// import {  mdiStarPlusOutline, mdiStarRemoveOutline } from '@mdi/js';
 import Icon from '@mdi/react';
-import { useEffect, useState } from 'react';
-import { logErrorToDb, formatTextToPs } from '@/lib/utils';
-import {
-  User,
-  createClientComponentClient
-} from '@supabase/auth-helpers-nextjs';
+import { formatTextToPs } from '@/lib/utils';
+// import { logErrorToDb } from '@/lib/utils';
 import { TimestampSpan } from '../Utilities/TimestampSpan';
 
 export type Presentation = {
@@ -40,25 +36,25 @@ export const PresentationDisplay: React.FC<
   React.PropsWithChildren<PresentationDisplayProps>
 > = (props) => {
   const { presentation, presentationId } = props;
-  const timeZoneName = props.timeZoneName ?? 'JST';
-  const dateToStringFn =
-    props.dateToStringFn ??
-    ((utcDateString) => {
-      const date = new Date(utcDateString);
-      const formatter = new Intl.DateTimeFormat(undefined, {
-        timeZone: 'JST',
-        hour: 'numeric',
-        minute: '2-digit',
-        second: undefined,
-        dateStyle: undefined,
-        hour12: false
-      });
-      return formatter.format(date);
-    });
-  const showFavouritesButton = props.withFavouritesButton ?? true;
+  // const timeZoneName = props.timeZoneName ?? 'JST';
+  // const dateToStringFn =
+  //   props.dateToStringFn ??
+  //   ((utcDateString) => {
+  //     const date = new Date(utcDateString);
+  //     const formatter = new Intl.DateTimeFormat(undefined, {
+  //       timeZone: 'JST',
+  //       hour: 'numeric',
+  //       minute: '2-digit',
+  //       second: undefined,
+  //       dateStyle: undefined,
+  //       hour12: false
+  //     });
+  //     return formatter.format(date);
+  //   });
+  // const showFavouritesButton = props.withFavouritesButton ?? true;
 
   // const { user } = useSession()
-  const user = null;
+  // const user = null;
 
   // const [isFavourite, setFavourite] = useState(false)
   // useEffect(() => {
