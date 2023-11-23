@@ -1,10 +1,16 @@
 'use server';
 import { PresentationSubmissionFormSchema } from '@/Components/Forms/PresentationSubmissionFormSchema';
-import { adminAddNewPresentationSubmission } from '@/lib/databaseFunctions';
+import {
+  FormSubmissionEmailFn,
+  NewCopresenterEmailFn
+} from '@/EmailTemplates/FormSubmissionEmail';
 import { submissionsForYear } from '@/lib/databaseModels';
-import { uploadPresentationData } from '@/lib/presentationSubmissionHelpers';
+import { sendMailApi } from '@/lib/sendMail';
 import { createAdminClient } from '@/lib/supabaseClient';
 import { createServerActionClient } from '@/lib/supabaseServer';
+import { myLog } from '@/lib/utils';
+import { AuthError } from '@supabase/supabase-js';
+import { randomBytes } from 'crypto';
 
 export const submitNewPresentation = async (
   data: FormData
@@ -34,27 +40,27 @@ export const submitNewPresentation = async (
         }
       };
     }
-    // const { data: insertedData, error: insertionError } = await supabase
-    //   .from('presentation_submissions')
-    //   .insert({
-    //     title,
-    //     abstract,
-    //     learning_points: learningPoints,
-    //     submitter_id,
-    //     year: submissionsForYear,
-    //     is_submitted: isFinal,
-    //     presentation_type: presentationType
-    //   })
-    //   .select()
-    //   .single();
+    const { data: insertedData, error: insertionError } = await supabase
+      .from('presentation_submissions')
+      .insert({
+        title,
+        abstract,
+        learning_points: learningPoints,
+        submitter_id,
+        year: submissionsForYear,
+        is_submitted: isFinal,
+        presentation_type: presentationType
+      })
+      .select()
+      .single();
 
-    // if (insertionError) {
-    //   return {
-    //     success: false,
-    //     error: { hint: insertionError.hint }
-    //   };
-    // }
-    // const presentationId = insertedData.id;
+    if (insertionError) {
+      return {
+        success: false,
+        error: { hint: insertionError.hint }
+      };
+    }
+    const presentation_id = insertedData.id;
 
     // Lookup which presenters already have accounts and which are new
     const { data: existingPresenters, error: lookupOthersError } =
@@ -80,6 +86,135 @@ export const submitNewPresentation = async (
       newPresenterEmails,
       existingPresenters
     });
+
+    // Create new accounts for 'newPresenterEmails'
+    type NewPresenterCreationReturn =
+      | NewPresenterSuccessReturn
+      | NewPresenterFailureReturn;
+    type NewPresenterSuccessReturn = {
+      success: true;
+      id: string;
+      otpLink: string;
+      email: string;
+    };
+    type NewPresenterFailureReturn = { success: false; error: AuthError };
+    const newPresenterIds = await Promise.all(
+      newPresenterEmails.map(
+        async (email): Promise<NewPresenterCreationReturn> => {
+          const randomPassword = randomBytes(32).toString('hex');
+          const { data: newUser, error: newPresenterCreationError } =
+            await supabaseAdmin.auth.admin.generateLink({
+              type: 'signup',
+              email,
+              password: randomPassword,
+              options: {
+                data: {
+                  firstname: '',
+                  lastname: ''
+                }
+              }
+            });
+          if (newPresenterCreationError) {
+            return {
+              success: false as const,
+              error: newPresenterCreationError
+            };
+          }
+          return {
+            success: true as const,
+            id: newUser.user.id,
+            otpLink: newUser.properties.email_otp,
+            email
+          };
+        }
+      )
+    );
+
+    const successfullyCreatedNewPresenters = newPresenterIds.filter(
+      (r) => r.success
+    ) as NewPresenterSuccessReturn[];
+    const failedToCreateNewPresenters = newPresenterIds.filter(
+      (r) => !r.success
+    ) as NewPresenterFailureReturn[];
+    console.log({ failedToCreateNewPresenters });
+
+    // Update presentation_presenters
+    const idArray = [
+      submitter_id,
+      ...existingPresenters.map((p) => p.id),
+      ...successfullyCreatedNewPresenters.map((p) => p.id)
+    ];
+    const presentationPresenterData = idArray.map((presenter_id) => {
+      return { presenter_id, presentation_id };
+    });
+    await supabaseAdmin
+      .from('presentation_presenters')
+      .upsert(presentationPresenterData);
+
+    // Send emails to each user
+    const dataForEmails = {
+      ...parsedData.data,
+      otherPresenters: parsedData.data.otherPresenters.map((e) => {
+        return { email: e };
+      }),
+      timeWindows: []
+    };
+    // Submitter
+    const submitterNameString = `${submitter.firstName} ${submitter.lastName}`;
+    const submitterEmailPromise = sendMailApi({
+      to: submitter.email,
+      subject: 'GLA Summit: Thank you for submitting a presentation',
+      ...FormSubmissionEmailFn(dataForEmails, submitterNameString)
+    });
+
+    // Existing Copresenters
+    const existingPresenterEmailPromises = existingPresenters.map(
+      async ({ id, email }) => {
+        // Since they exist, there should always be a profile entry via the db trigger.
+        const { data } = await supabaseAdmin
+          .from('profiles')
+          .select('firstname, lastname')
+          .eq('id', id)
+          .single();
+        let nameString = email;
+        if (data !== null) {
+          // Could be two empty strings if profile not completed after being added as a copresenter previously.
+          const candidateNameString = `${data.firstname} ${data.lastname}`;
+          if (candidateNameString.trim().length !== 0) {
+            nameString = candidateNameString;
+          }
+        }
+        return sendMailApi({
+          to: email,
+          subject: 'GLA Summit: You have been added as a co-presenter!',
+          ...FormSubmissionEmailFn(dataForEmails, nameString)
+        });
+      }
+    );
+
+    // New Copresenters
+    const newPresenterEmailPromises = successfullyCreatedNewPresenters.map(
+      ({ email, otpLink }) => {
+        return sendMailApi({
+          to: email,
+          subject: 'GLA Summit: You have been added as a co-presenter!',
+          ...NewCopresenterEmailFn(dataForEmails, email, otpLink)
+        });
+      }
+    );
+
+    const allEmailPromises = await Promise.all([
+      ...[submitterEmailPromise],
+      ...existingPresenterEmailPromises,
+      ...newPresenterEmailPromises
+    ]);
+    const successfulEmails = allEmailPromises.filter(
+      (result) => result.status === 200
+    );
+    const unsuccessfulEmails = allEmailPromises.filter(
+      (result) => result.status !== 200
+    );
+    console.log({ successfulEmails, unsuccessfulEmails });
 
     return new Promise((r) => {
       const returnValue = {
