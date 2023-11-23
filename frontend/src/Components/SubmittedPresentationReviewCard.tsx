@@ -29,9 +29,12 @@ export const SubmittedPresentationReviewCard: React.FC<
   React.PropsWithChildren<SubmittedPresentationReviewCardProps>
 > = (props) => {
   const getName = (person: PersonInfo) => {
-    return [person.firstname, person.lastname]
+    const joinedNamesOmitEmpty = [person.firstname, person.lastname]
       .filter((s) => s.trim().length !== 0)
       .join(' ');
+    return joinedNamesOmitEmpty.trim().length !== 0
+      ? joinedNamesOmitEmpty
+      : 'Unknown User';
   };
 
   const p = props.presentationInfo;
@@ -58,7 +61,19 @@ export const SubmittedPresentationReviewCard: React.FC<
         </Disclosure.Button>
         <Transition>
           <Disclosure.Panel className='rounded-b-lg bg-gray-100'>
-            <span>{`Presenters: ${p.presenters.map(getName).join(', ')}`}</span>
+            <span>
+              {'Presenters: '}
+              {p.presenters.map((name, idx, arr) => {
+                const nameString = getName(name);
+                return (
+                  <span
+                    className={nameString === 'Unknown User' ? 'italic' : ''}
+                  >
+                    {nameString + (idx !== arr.length - 1 ? ', ' : '')}
+                  </span>
+                );
+              })}
+            </span>
             <div className='mt-2 prose-p:my-0'>
               {formatTextToPs(p.abstract)}
             </div>
