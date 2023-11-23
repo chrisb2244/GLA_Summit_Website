@@ -3,8 +3,8 @@ import { PresentationSubmissionForm } from '@/Components/Forms/PresentationSubmi
 import { getMyPresentations, getProfileInfo } from '@/lib/databaseFunctions';
 import {
   MyPresentationSubmissionType,
-  SummitYear,
-  submissionsForYear
+  SummitYear
+  // submissionsForYear
 } from '@/lib/databaseModels';
 import { createServerComponentClient } from '@/lib/supabaseServer';
 import { formatTextToPs } from '@/lib/utils';
@@ -85,23 +85,23 @@ const MyPresentationsPage = async () => {
     }
   );
 
-  const activeDrafts = draftPresentations.filter(
-    (p) => p.year === submissionsForYear
-  );
-  const draftEntries =
-    activeDrafts.length === 0 ? (
-      <div>
-        <p>You have no active draft submissions</p>
-      </div>
-    ) : (
-      activeDrafts.map((p) => {
-        return (
-          <div key={p.presentation_id}>
-            <h4>{p.title}</h4>
-          </div>
-        );
-      })
-    );
+  // const activeDrafts = draftPresentations.filter(
+  //   (p) => p.year === submissionsForYear
+  // );
+  // const draftEntries =
+  //   activeDrafts.length === 0 ? (
+  //     <div>
+  //       <p>You have no active draft submissions</p>
+  //     </div>
+  //   ) : (
+  //     activeDrafts.map((p) => {
+  //       return (
+  //         <div key={p.presentation_id}>
+  //           <h4>{p.title}</h4>
+  //         </div>
+  //       );
+  //     })
+  //   );
 
   const presentationsByYear = submittedPresentations.reduce(
     (existingSet, newElem) => {
@@ -175,10 +175,10 @@ const MyPresentationsPage = async () => {
         </div>
       )}
 
-      <div>
+      {/* <div>
         <h3>Draft Submissions</h3>
         {draftEntries}
-      </div>
+      </div> */}
 
       <div>
         <h3>Submitted Presentations</h3>

@@ -41,7 +41,7 @@ export const PresentationSubmissionForm = (
     mode: 'onTouched',
     defaultValues: {
       submitter: props.submitter,
-      isFinal: false,
+      isFinal: true,
       title: '',
       abstract: '',
       learningPoints: '',
@@ -220,7 +220,7 @@ export const PresentationSubmissionForm = (
             />
           </div>
           <div className='flex flex-col space-y-1'>
-            <Checkbox label={readyLabel} {...register('isFinal')} />
+            {/* <Checkbox label={readyLabel} {...register('isFinal')} /> */}
             <SubmitButton
               staticText={staticSubmitText}
               pendingText={pendingSubmitText}
