@@ -179,7 +179,7 @@ export const PresentationSubmissionForm = (
                 }
               })}
               fieldError={errors.abstract}
-              placeholder='Presentation Abstract'
+              placeholder='Presentation Abstract - What are you going to talk about?'
               fullWidth
               rows={5}
               label='Abstract'
