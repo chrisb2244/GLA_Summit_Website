@@ -117,7 +117,15 @@ export const PresentationSubmissionForm = (
                       <div className='flex flex-1'>
                         <FormField
                           registerReturn={register(
-                            `otherPresenters.${idx}.email`
+                            `otherPresenters.${idx}.email`,
+                            {
+                              required: 'Required',
+                              pattern: {
+                                value: /^\S+@\S+\.\S+$/i,
+                                message:
+                                  "This email doesn't match the expected pattern"
+                              }
+                            }
                           )}
                           fieldError={errors.otherPresenters?.[idx]?.email}
                           fullWidth
