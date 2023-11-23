@@ -1,10 +1,5 @@
-import {
-  UseFormRegister,
-  FieldErrors,
-  FieldValues,
-  Path
-} from 'react-hook-form';
-import { FormField, FormFieldIndicator } from './FormField';
+import { UseFormRegister, FieldErrors, FieldValues } from 'react-hook-form';
+import { FormField } from './FormField';
 
 export type PersonProps = {
   firstName: string;
@@ -80,17 +75,16 @@ export function Person<FV extends FieldValues>(props: PersonTypeProps<FV>) {
     return {
       fieldError: error,
       defaultValue: defaultValue?.[field],
-      label: labels[field]
+      label: labels[field],
+      readOnly: locked
     };
   };
-
-  const Component = locked ? FormFieldIndicator : FormField;
 
   return (
     <div>
       {headElem}
       <div className={`flex flex-col ${splitSize}:flex-row`}>
-        <Component
+        <FormField
           registerReturn={register(`${path}firstName`, {
             required: 'Required',
             maxLength: 80
@@ -98,7 +92,7 @@ export function Person<FV extends FieldValues>(props: PersonTypeProps<FV>) {
           className={`w-full px-0 ${splitSize}:w-1/2 ${splitSize}:pr-2`}
           {...fieldProps('firstName')}
         />
-        <Component
+        <FormField
           registerReturn={register(`${path}lastName`, {
             required: 'Required',
             maxLength: 100
@@ -108,7 +102,7 @@ export function Person<FV extends FieldValues>(props: PersonTypeProps<FV>) {
         />
       </div>
       <div>
-        <Component
+        <FormField
           registerReturn={register(`${path}email`, {
             required: 'Required',
             pattern: {

@@ -140,8 +140,12 @@ export const FormField: React.FC<FormFieldProps> = (props) => {
     fieldError,
     fullWidth,
     className: pCN,
+    readOnly = false,
     ...inputProps
   } = props;
+  // if (readOnly) {
+  //   return <FormFieldIndicator {...props} />;
+  // }
   const isError = typeof fieldError !== 'undefined';
   const id = registerReturn.name;
   const placeholderVisible = typeof props.placeholder !== 'undefined';
@@ -166,7 +170,7 @@ export const FormField: React.FC<FormFieldProps> = (props) => {
         type={props.type ?? 'text'}
         className={inputFieldStyles({
           fullWidth,
-          readOnly: inputProps.readOnly ?? false,
+          readOnly: readOnly,
           placeholderVisible
         })}
         placeholder={props.placeholder ?? id}
@@ -181,7 +185,8 @@ export const FormField: React.FC<FormFieldProps> = (props) => {
         htmlFor={id}
         className={`${labelPadding} ${labelStyles({
           isError,
-          placeholderVisible
+          placeholderVisible,
+          readOnly
         })}`}
       >
         {props.label ?? id}
@@ -191,9 +196,13 @@ export const FormField: React.FC<FormFieldProps> = (props) => {
   );
 };
 
-export const FormFieldIndicator: React.FC<
-  Omit<FormFieldProps, 'registerReturn'> & { registerReturn: { name: string } }
-> = (props) => {
+type IndicatorProps = Omit<FormFieldProps, 'registerReturn'> & {
+  registerReturn: Partial<Pick<FormFieldProps, 'registerReturn'>> & {
+    name: string;
+  };
+};
+
+export const FormFieldIndicator: React.FC<IndicatorProps> = (props) => {
   const {
     fullWidth,
     registerReturn,
@@ -240,7 +249,13 @@ type TextAreaProps = FormProps &
   HTMLProps<HTMLTextAreaElement>;
 
 export const TextArea: React.FC<TextAreaProps> = (props) => {
-  const { registerReturn, fieldError, fullWidth, ...inputProps } = props;
+  const {
+    registerReturn,
+    fieldError,
+    fullWidth,
+    readOnly = false,
+    ...inputProps
+  } = props;
   const isError = typeof fieldError !== 'undefined';
   const id = registerReturn.name;
   const placeholderVisible = typeof props.placeholder !== 'undefined';
@@ -251,7 +266,7 @@ export const TextArea: React.FC<TextAreaProps> = (props) => {
         id={id}
         className={inputFieldStyles({
           fullWidth,
-          readOnly: inputProps.readOnly ?? false,
+          readOnly: readOnly,
           placeholderVisible
         })}
         placeholder={props.placeholder ?? id}
@@ -262,7 +277,7 @@ export const TextArea: React.FC<TextAreaProps> = (props) => {
       <label
         id={`${id}-label`}
         htmlFor={id}
-        className={labelStyles({ isError, placeholderVisible })}
+        className={labelStyles({ isError, placeholderVisible, readOnly })}
       >
         {props.label ?? id}
       </label>
