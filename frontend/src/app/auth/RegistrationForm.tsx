@@ -11,12 +11,16 @@ export const RegistrationForm = (props: { redirectTo?: string }) => {
   return (
     <div className='mx-auto flex max-w-lg flex-col py-4'>
       <div className='prose prose-sm flex w-full flex-col items-center space-y-2 px-2 pb-4 text-center'>
-        <div>
+        <div className='flex flex-col pb-4'>
           <span>Already registered? </span>
           <Link className='link' href={loginPath}>
             Sign In
           </Link>
+          <span className='prose-sm'>
+            Accounts created in previous years can still be used!
+          </span>
         </div>
+
         <p>
           Please fill out the information below. You will receive an email with
           a verification token - enter this token on the next page to complete
