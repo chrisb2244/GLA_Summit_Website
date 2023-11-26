@@ -21,25 +21,10 @@ export const ProfileImage = (props: ProfileImageProps) => {
   const imageUploadFn = async (file: File) => {
     const remoteName = `${userId}_${Math.random()}.png`;
     setUploading(true);
-    uploadAvatar(remoteName, file, userId, avatarUrl)
-      // .then((iconImageBlob) => {
-      //   if (iconImageBlob instanceof Blob) {
-      //     const url = URL.createObjectURL(iconImageBlob);
-      //     const img = new Image();
-      //     img.onload = () => {
-      //       const ctx = canvasRef.current?.getContext('2d');
-      //       if (ctx != null) {
-      //         ctx.drawImage(img, 0, 0);
-      //       }
-      //       URL.revokeObjectURL(url);
-      //     };
-      //     setIconImage(iconImageBlob);
-      //   }
-      // })
-      .finally(() => {
-        setUploading(false);
-        mutate?.();
-      });
+    uploadAvatar(remoteName, file, userId, avatarUrl).finally(() => {
+      setUploading(false);
+      mutate?.();
+    });
   };
 
   // 900px is md size
