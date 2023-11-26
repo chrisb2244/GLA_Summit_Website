@@ -51,7 +51,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = (props) => {
       }
     });
     await SubmitProfileDataUpdate(changedValuesFormData).then(
-      (updatedProfile) => {
+      () => {
         router.refresh();
         submitButtonRef.current?.blur();
       },
