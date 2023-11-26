@@ -19,8 +19,8 @@ export const RegistrationForm = (props: { redirectTo?: string }) => {
         </div>
         <p>
           Please fill out the information below. You will receive an email with
-          a verification link - click the link to automatically sign into the
-          site.
+          a verification token - enter this token on the next page to complete
+          your registration.
         </p>
         {/* <div className='my-2 rounded bg-red-600 py-2 text-white'>
           <span>
@@ -33,7 +33,7 @@ export const RegistrationForm = (props: { redirectTo?: string }) => {
         </div> */}
         <p>
           This site is currently mostly focused on presentation submission,
-          although last year&apos;s presentations can be found at{' '}
+          although the presentations from previous years can be found at{' '}
           {
             <Link href={'/presentation-list'}>
               <span className='link'>https://glasummit.org/presentations</span>
