@@ -10,6 +10,7 @@ import { UserMetadata } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
 import { SignInEmailFn } from '@/EmailTemplates/SignInEmail';
 import { RegistrationEmailFn } from '@/EmailTemplates/RegistrationEmail';
+import { RedirectType, redirect } from 'next/navigation';
 
 export const mailUser = async () => {
   // Send email
@@ -43,6 +44,21 @@ export const verifyLogin = async (data: {
     .then((res) => {
       return res.data.user !== null;
     });
+};
+
+export const verifyLoginWithRedirectFromForm = async (data: FormData) => {
+  const email = data.get('email');
+  const verificationCode = data.get('verificationCode');
+  if (typeof email !== 'string' || typeof verificationCode !== 'string') {
+    return false;
+  }
+  const result = await verifyLogin({
+    email,
+    verificationCode
+  });
+  if (result) {
+    redirect('/');
+  }
 };
 
 export const signIn = async (
@@ -79,6 +95,20 @@ export const signIn = async (
       console.log(`Failed to send a sign-in link: ${err}`);
       return false;
     });
+};
+
+export const signInFromFormWithRedirect = async (formData: FormData) => {
+  const email = formData.get('email');
+  if (email === null || typeof email !== 'string') {
+    return false;
+  }
+  const signInSuccessful = await signIn(email);
+  if (signInSuccessful) {
+    redirect(
+      `/auth/validateLogin?email=${encodeURI(email)}`,
+      RedirectType.push
+    );
+  }
 };
 
 export const signUp = async (
@@ -120,6 +150,33 @@ export const signUp = async (
     });
     return true;
   });
+};
+
+export const registerFromFormWithRedirect = async (formData: FormData) => {
+  const email = formData.get('email');
+  if (email === null || typeof email !== 'string') {
+    return false;
+  }
+  const firstName = formData.get('firstName');
+  const lastName = formData.get('lastName');
+  if (firstName === null || typeof firstName !== 'string') {
+    return false;
+  }
+  if (lastName === null || typeof lastName !== 'string') {
+    return false;
+  }
+  const newUser: PersonProps = {
+    firstName,
+    lastName,
+    email
+  };
+  const signUpSuccessful = await signUp(newUser);
+  if (signUpSuccessful) {
+    redirect(
+      `/auth/validateLogin?email=${encodeURI(email)}`,
+      RedirectType.push
+    );
+  }
 };
 
 const otpEmailText = (fname: string, lname: string, otp: string) => {
