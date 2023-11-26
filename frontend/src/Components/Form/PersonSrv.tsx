@@ -97,7 +97,7 @@ export function Person<FV extends FieldValues>(props: PersonTypeProps<FV>) {
         <FormField
           name={`${path}email`}
           required={true}
-          pattern={'^S+@S+.S+$'}
+          pattern='^\S+@\S+.\S+$'
           fullWidth
           {...fieldProps('email')}
         />
