@@ -11,10 +11,20 @@ import { createServerActionClient } from '@/lib/supabaseServer';
 import { myLog } from '@/lib/utils';
 import { AuthError } from '@supabase/supabase-js';
 import { randomBytes } from 'crypto';
+import { revalidatePath } from 'next/cache';
+
+type ReturnType =
+  | {
+      success: true;
+    }
+  | {
+      success: false;
+      error: { message: string };
+    };
 
 export const submitNewPresentation = async (
   data: FormData
-): Promise<{ success: boolean; error?: object }> => {
+): Promise<ReturnType> => {
   const obj = Object.fromEntries(data);
   const parsedData = PresentationSubmissionFormSchema.safeParse(obj);
   if (parsedData.success) {
@@ -57,7 +67,7 @@ export const submitNewPresentation = async (
     if (insertionError) {
       return {
         success: false,
-        error: { hint: insertionError.hint }
+        error: { message: insertionError.message }
       };
     }
     const presentation_id = insertedData.id;
@@ -73,7 +83,7 @@ export const submitNewPresentation = async (
       return {
         success: false,
         error: {
-          hint: lookupOthersError.hint
+          message: lookupOthersError.message
         }
       };
     }
@@ -216,16 +226,18 @@ export const submitNewPresentation = async (
     );
     console.log({ successfulEmails, unsuccessfulEmails });
 
+    revalidatePath('/my-presentations');
     return new Promise((r) => {
       const returnValue = {
-        success: true
+        success: true as const
       };
       setTimeout(() => r(returnValue), 2000);
     });
   } else {
+    const errString = parsedData.error.format()._errors.join(', ');
     return {
       success: parsedData.success,
-      error: parsedData.error.format()
+      error: { message: errString }
     };
   }
 };
