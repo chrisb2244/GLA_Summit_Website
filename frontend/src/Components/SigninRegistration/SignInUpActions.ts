@@ -109,7 +109,7 @@ export const signInFromFormWithRedirect = async (formData: FormData) => {
   const redirectTo = formData.get('redirectTo');
   const params = new URLSearchParams();
   params.append('email', email);
-  if (typeof redirectTo === 'string') {
+  if (typeof redirectTo === 'string' && redirectTo !== '') {
     params.append('redirectTo', redirectTo);
   }
   const signInSuccessful = await signIn(email);
@@ -180,7 +180,7 @@ export const registerFromFormWithRedirect = async (formData: FormData) => {
   const redirectTo = formData.get('redirectTo');
   const params = new URLSearchParams();
   params.append('email', email);
-  if (typeof redirectTo === 'string') {
+  if (typeof redirectTo === 'string' && redirectTo !== '') {
     params.append('redirectTo', redirectTo);
   }
   const signUpSuccessful = await signUp(newUser);
