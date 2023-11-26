@@ -1,6 +1,7 @@
 import type { Route } from 'next';
 import { DesktopMenuItems } from './DesktopMenuItems';
 import { MobileMenuItems } from './MobileMenuItems';
+import { currentDisplayYear } from '@/lib/databaseModels';
 
 export type MenuElement = {
   title: string;
@@ -11,7 +12,10 @@ export const MenuBar = () => {
   const menuElements: MenuElement[] = [
     { title: 'Home', link: '/' },
     // { title: 'Agenda', link: '/full-agenda' },
-    { title: 'Presentations', link: '/presentations' }
+    {
+      title: 'Presentations',
+      link: `/presentation-list/${currentDisplayYear}` as Route
+    }
     // { title: 'Submit a Presentation', link: '/submit-presentation' },
     // { title: 'Virtual Venue (Hopin)', link: 'https://hopin.com/events/gla-summit-2022' },
     // { title: 'Media and Banners', link: '/media' },
