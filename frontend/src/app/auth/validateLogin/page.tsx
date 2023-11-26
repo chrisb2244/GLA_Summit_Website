@@ -19,8 +19,13 @@ const ValidateLoginPage = async ({
   const emailParam = searchParams?.email;
   const email =
     typeof emailParam === 'string' ? decodeURI(emailParam) : undefined;
+  const redirectToParam = searchParams?.redirectTo;
+  const redirectTo =
+    typeof redirectToParam === 'string'
+      ? decodeURI(redirectToParam)
+      : undefined;
 
-  return <VerifyForm email={email} />;
+  return <VerifyForm email={email} redirectTo={redirectTo} />;
 };
 
 export default ValidateLoginPage;

@@ -4,6 +4,7 @@ import { verifyLoginWithRedirectFromForm } from '@/Components/SigninRegistration
 
 type VerifyFormProps = {
   email?: string;
+  redirectTo?: string;
 };
 
 export const VerifyForm = (props: VerifyFormProps) => {
@@ -12,6 +13,11 @@ export const VerifyForm = (props: VerifyFormProps) => {
   return (
     <div className='mx-auto flex max-w-lg flex-col py-4'>
       <form action={verifyLoginWithRedirectFromForm}>
+        <input
+          type='hidden'
+          name='redirectTo'
+          value={props.redirectTo ?? '/'}
+        />
         <FormField
           name='email'
           label='Email'

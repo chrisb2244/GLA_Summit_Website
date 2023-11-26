@@ -8,18 +8,19 @@ import { VerifyForm } from 'src/app/auth/VerifyForm';
 const AuthPage = () => {
   const pathname = usePathname();
   const router = useRouter();
+  const email = useSearchParams()?.get('email') ?? undefined;
+  const redirectTo = useSearchParams()?.get('redirectTo') ?? undefined;
 
   let form: JSX.Element | null = null;
   switch (true) {
     case pathname === '/auth/login':
-      form = <LoginForm />;
+      form = <LoginForm redirectTo={redirectTo} />;
       break;
     case pathname === '/auth/register':
-      form = <RegistrationForm />;
+      form = <RegistrationForm redirectTo={redirectTo} />;
       break;
     case pathname === '/auth/validateLogin':
-      const email = useSearchParams()?.get('email') ?? undefined;
-      form = <VerifyForm email={email} />;
+      form = <VerifyForm email={email} redirectTo={redirectTo} />;
       break;
     default:
       break;
@@ -33,7 +34,7 @@ const AuthPage = () => {
     <CenteredDialog
       open={true}
       onClose={() => {
-        router.push('/');
+        router.push(redirectTo ?? '/');
       }}
     >
       {form}

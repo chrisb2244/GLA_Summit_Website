@@ -48,6 +48,9 @@ export const verifyLogin = async (data: {
 
 export const verifyLoginWithRedirectFromForm = async (data: FormData) => {
   const email = data.get('email');
+  const redirectToValue = data.get('redirectTo');
+  const redirectTo =
+    typeof redirectToValue === 'string' ? redirectToValue : '/';
   const verificationCode = data.get('verificationCode');
   if (typeof email !== 'string' || typeof verificationCode !== 'string') {
     return false;
@@ -57,8 +60,9 @@ export const verifyLoginWithRedirectFromForm = async (data: FormData) => {
     verificationCode
   });
   if (result) {
-    redirect('/');
+    redirect(redirectTo);
   }
+  return result;
 };
 
 export const signIn = async (
@@ -102,12 +106,15 @@ export const signInFromFormWithRedirect = async (formData: FormData) => {
   if (email === null || typeof email !== 'string') {
     return false;
   }
+  const redirectTo = formData.get('redirectTo');
+  const params = new URLSearchParams();
+  params.append('email', email);
+  if (typeof redirectTo === 'string') {
+    params.append('redirectTo', redirectTo);
+  }
   const signInSuccessful = await signIn(email);
   if (signInSuccessful) {
-    redirect(
-      `/auth/validateLogin?email=${encodeURI(email)}`,
-      RedirectType.push
-    );
+    redirect(`validateLogin?${params.toString()}`, RedirectType.push);
   }
 };
 
@@ -170,12 +177,15 @@ export const registerFromFormWithRedirect = async (formData: FormData) => {
     lastName,
     email
   };
+  const redirectTo = formData.get('redirectTo');
+  const params = new URLSearchParams();
+  params.append('email', email);
+  if (typeof redirectTo === 'string') {
+    params.append('redirectTo', redirectTo);
+  }
   const signUpSuccessful = await signUp(newUser);
   if (signUpSuccessful) {
-    redirect(
-      `/auth/validateLogin?email=${encodeURI(email)}`,
-      RedirectType.push
-    );
+    redirect(`validateLogin?${params.toString()}`, RedirectType.push);
   }
 };
 

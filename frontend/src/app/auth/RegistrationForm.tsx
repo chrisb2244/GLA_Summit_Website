@@ -3,13 +3,17 @@ import { Person, PersonProps } from '@/Components/Form/PersonSrv';
 import { registerFromFormWithRedirect } from '@/Components/SigninRegistration/SignInUpActions';
 import Link from 'next/link';
 
-export const RegistrationForm = () => {
+export const RegistrationForm = (props: { redirectTo?: string }) => {
+  const loginPath = props.redirectTo
+    ? `/auth/login?redirectTo=${props.redirectTo}`
+    : '/auth/login';
+
   return (
     <div className='mx-auto flex max-w-lg flex-col py-4'>
       <div className='prose prose-sm flex w-full flex-col items-center space-y-2 px-2 pb-4 text-center'>
         <div>
           <span>Already registered? </span>
-          <Link className='link' href='/auth/login'>
+          <Link className='link' href={loginPath}>
             Sign In
           </Link>
         </div>
@@ -39,6 +43,7 @@ export const RegistrationForm = () => {
         </p>
       </div>
       <form action={registerFromFormWithRedirect}>
+        <input type='hidden' name='redirectTo' value={props.redirectTo} />
         <div className='pb-4'>
           <Person<PersonProps> splitSize={'md'} />
         </div>
