@@ -4,7 +4,6 @@ import { UserMenu } from '@/Components/User/UserMenu';
 import { signOut } from '@/Components/SigninRegistration/SignInUpActions';
 import { createServerComponentClient } from '@/lib/supabaseServer';
 import { User } from '@supabase/supabase-js';
-import { ProfileModel } from '@/lib/databaseModels';
 
 export async function UserMenuButton() {
   const supabase = createServerComponentClient();

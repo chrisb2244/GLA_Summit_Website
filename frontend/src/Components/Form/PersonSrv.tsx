@@ -24,7 +24,7 @@ type SharedProps = {
   splitSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | null;
 };
 
-type PropsInNestedPerson<KeyName, FV extends FieldValues> = {
+type PropsInNestedPerson<KeyName> = {
   path: KeyName;
 } & SharedProps;
 
@@ -38,7 +38,7 @@ type PersonTypeProps<FV extends FieldValues, K = keyof FV> =
     ? PropsInStandalonePerson
     : K extends keyof FV
       ? FV[K] extends PersonProps
-        ? PropsInNestedPerson<K, FV>
+        ? PropsInNestedPerson<K>
         : never
       : never
 

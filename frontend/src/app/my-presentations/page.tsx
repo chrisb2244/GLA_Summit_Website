@@ -58,7 +58,7 @@ const MyPresentationsPage = async () => {
 
   type MyPresentationSubmissionTypeWithAccepted =
     MyPresentationSubmissionType & { accepted: boolean };
-  const { submittedPresentations, draftPresentations } = myPresentations.reduce(
+  const { submittedPresentations } = myPresentations.reduce(
     ({ submittedPresentations, draftPresentations }, elem) => {
       if (elem.is_submitted) {
         return {

@@ -25,7 +25,7 @@ export const Select = forwardRef(
       );
     });
     return (
-      <select {...inputProps} className={selectStyles({ fullWidth })}>
+      <select {...inputProps} className={selectStyles({ fullWidth })} ref={ref}>
         {optionElements}
       </select>
     );

@@ -8,7 +8,6 @@ import { submissionsForYear } from '@/lib/databaseModels';
 import { sendMailApi } from '@/lib/sendMail';
 import { createAdminClient } from '@/lib/supabaseClient';
 import { createServerActionClient } from '@/lib/supabaseServer';
-import { myLog } from '@/lib/utils';
 import { AuthError } from '@supabase/supabase-js';
 import { randomBytes } from 'crypto';
 import { revalidatePath } from 'next/cache';

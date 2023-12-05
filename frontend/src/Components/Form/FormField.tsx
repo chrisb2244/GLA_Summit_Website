@@ -206,6 +206,8 @@ export const FormFieldIndicator: React.FC<IndicatorProps> = (props) => {
   const {
     fullWidth,
     registerReturn,
+    // Pull out fieldError even though unused to avoid leaving it in inputProps
+    /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
     fieldError,
     className: pCN,
     ...inputProps

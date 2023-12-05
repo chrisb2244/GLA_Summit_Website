@@ -1,9 +1,8 @@
-import { StackedBoxes } from '@/Components/Layout/StackedBoxes';
-import { SponsorBar } from './_rootElements/SponsorBar';
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { Button } from '@/Components/Form/Button';
 import { createServerComponentClient } from '@/lib/supabaseServer';
+// import { SponsorBar } from './_rootElements/SponsorBar';
 // import { Countdown } from './_rootElements/Countdown'
 
 export const metadata: Metadata = {
