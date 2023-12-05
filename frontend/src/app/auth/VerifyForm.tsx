@@ -33,6 +33,7 @@ export const VerifyForm = (props: VerifyFormProps) => {
           required
           label='Verification Code'
           fullWidth
+          autoFocus
         />
         <Button type='submit' fullWidth>
           Submit
