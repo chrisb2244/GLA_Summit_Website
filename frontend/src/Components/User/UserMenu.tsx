@@ -4,7 +4,10 @@ import { mdiLogout, mdiMonitorAccount, mdiVoteOutline } from '@mdi/js';
 import { Icon } from '@mdi/react';
 import React, { PropsWithChildren, Suspense, useEffect, useState } from 'react';
 import NextLink from 'next/link';
-import type { User } from '@/lib/databaseFunctions';
+import {
+  downloadIconAvatarAndGenerateIfNeeded,
+  type User
+} from '@/lib/databaseFunctions';
 import type { ProfileModel } from '@/lib/databaseModels';
 import { Route } from 'next';
 import { DefaultUserIcon, UserIcon } from './UserIcon';
@@ -37,14 +40,16 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
       return;
     }
     const supabase = createClientComponentClient();
-    supabase.storage
-      .from('avatars')
-      .download(url)
-      .then(({ data, error }) => {
-        if (error || data === null) return null;
-        setAvatarSrc(URL.createObjectURL(data));
-      });
-  }, [props.profile?.avatar_url]);
+    downloadIconAvatarAndGenerateIfNeeded(props.user.id, url, supabase).then(
+      (value) => {
+        if (value instanceof Blob) {
+          setAvatarSrc(URL.createObjectURL(value));
+        } else if (value instanceof Error) {
+          console.log(value);
+        }
+      }
+    );
+  }, [props.profile?.avatar_url, props.user.id]);
 
   const email = props.user.email;
   const ListIcon = (props: { path: string }) => {

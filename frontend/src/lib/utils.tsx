@@ -12,6 +12,10 @@ export const myLog = (v: any) => {
   }
 };
 
+export const fullUrlToIconUrl = (fullUrl: string) => {
+  return `${fullUrl.split('.').slice(0, -1).join('.')}-icon.webp`;
+};
+
 export const logErrorToDb = async (
   v: { message: string } | string,
   severity: 'info' | 'error' | 'severe',

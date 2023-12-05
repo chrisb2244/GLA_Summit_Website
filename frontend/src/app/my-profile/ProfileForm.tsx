@@ -5,11 +5,11 @@ import {
   FormFieldIndicator,
   TextArea
 } from '@/Components/Form/FormField';
-import { Button } from '@/Components/Form/Button';
+import { SubmitButton } from '@/Components/Form/SubmitButton';
 import { ProfileModel } from '@/lib/databaseModels';
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { SubmitForm } from './ProfileFormServerActions';
+import { SubmitProfileDataUpdate } from './ProfileFormServerActions';
 import { useRouter } from 'next/navigation';
 
 type ProfileData = ProfileModel['Row'];
@@ -32,6 +32,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = (props) => {
     mode: 'all'
   });
   const router = useRouter();
+  const submitButtonRef = React.useRef<HTMLButtonElement>(null);
 
   // Only allow submitting if not currently submitting, and the form is changed.
   const submitButtonDisabled = isSubmitting || !isDirty;
@@ -49,9 +50,10 @@ export const ProfileForm: React.FC<ProfileFormProps> = (props) => {
         changedValuesFormData.append(name, value);
       }
     });
-    await SubmitForm(changedValuesFormData).then(
-      (updatedProfile) => {
+    await SubmitProfileDataUpdate(changedValuesFormData).then(
+      () => {
         router.refresh();
+        submitButtonRef.current?.blur();
       },
       (err) => console.error(err)
     );
@@ -103,9 +105,13 @@ export const ProfileForm: React.FC<ProfileFormProps> = (props) => {
       </div>
       <input hidden value={props.profile.id} readOnly {...register('id')} />
       <div className='px-4'>
-        <Button type='submit' fullWidth disabled={submitButtonDisabled}>
-          Save Changes
-        </Button>
+        <SubmitButton
+          pendingText='Saving Changes...'
+          staticText='Save Changes'
+          fullWidth
+          disabled={submitButtonDisabled}
+          ref={submitButtonRef}
+        />
       </div>
     </form>
   );
