@@ -1,6 +1,6 @@
 import { EmailProps } from '@/Components/Form/Person';
 import type { SubmissionFormData } from '@/Components/Forms/PresentationSubmissionForm';
-import { LogoImg, UnexpectedEmail } from './emailComponents';
+import { LogoImg, UnexpectedPresentationEmail } from './emailComponents';
 import { PresentationType } from '@/lib/databaseModels';
 
 const DearPerson = (nameString: string) => {
@@ -136,7 +136,7 @@ export const FormSubmissionEmailFn = (
                   </tr>
                 </tbody>
               </table>
-              ${UnexpectedEmail}
+              ${UnexpectedPresentationEmail}
             </td>
           </tr>
         </tbody>
@@ -233,7 +233,7 @@ export const NewCopresenterEmailFn = (
                   </tr>
                 </tbody>
               </table>
-              ${UnexpectedEmail}
+              ${UnexpectedPresentationEmail}
             </td>
           </tr>
         </tbody>
