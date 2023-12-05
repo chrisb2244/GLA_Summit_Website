@@ -46,14 +46,31 @@ export const verifyLogin = async (data: {
     });
 };
 
-export const verifyLoginWithRedirectFromForm = async (data: FormData) => {
+export type VerificationState =
+  | {
+      success: true;
+      message: undefined;
+    }
+  | {
+      success: false;
+      message: string;
+    }
+  | null;
+
+export const verifyLoginWithRedirectFromForm = async (
+  previousState: VerificationState,
+  data: FormData
+): Promise<VerificationState> => {
   const email = data.get('email');
   const redirectToValue = data.get('redirectTo');
   const redirectTo =
     typeof redirectToValue === 'string' ? redirectToValue : '/';
   const verificationCode = data.get('verificationCode');
   if (typeof email !== 'string' || typeof verificationCode !== 'string') {
-    return false;
+    return {
+      success: false,
+      message: 'Invalid input.'
+    };
   }
   const result = await verifyLogin({
     email,
@@ -62,7 +79,10 @@ export const verifyLoginWithRedirectFromForm = async (data: FormData) => {
   if (result) {
     redirect(redirectTo);
   }
-  return result;
+  return {
+    success: false,
+    message: 'Invalid verification code.'
+  };
 };
 
 export const signIn = async (

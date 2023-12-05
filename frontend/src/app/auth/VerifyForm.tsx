@@ -1,18 +1,49 @@
+'use client';
 import { Button } from '@/Components/Form/Button';
 import { FormField } from '@/Components/Form/FormFieldSrv';
-import { verifyLoginWithRedirectFromForm } from '@/Components/SigninRegistration/SignInUpActions';
+import {
+  VerificationState,
+  verifyLoginWithRedirectFromForm
+} from '@/Components/SigninRegistration/SignInUpActions';
+import { useFormState, useFormStatus } from 'react-dom';
 
 type VerifyFormProps = {
   email?: string;
   redirectTo?: string;
 };
 
+const ErrorElement = (props: { state: VerificationState }) => {
+  const { pending } = useFormStatus();
+  if (props.state === null) {
+    return null;
+  }
+
+  const { success, message } = props.state;
+  if (success) {
+    return null;
+  }
+  return (
+    <div className='pt-2 text-center text-base'>
+      {pending ? (
+        <p className='text-gray-400'>Submitting...</p>
+      ) : (
+        <p className='text-red-500'>{message}</p>
+      )}
+    </div>
+  );
+};
+
 export const VerifyForm = (props: VerifyFormProps) => {
+  const [lastReturnState, formAction] = useFormState(
+    verifyLoginWithRedirectFromForm,
+    null
+  );
+
   const { email } = props;
   const hideEmail = typeof email !== 'undefined';
   return (
     <div className='mx-auto flex max-w-lg flex-col py-4'>
-      <form action={verifyLoginWithRedirectFromForm}>
+      <form action={formAction}>
         <input
           type='hidden'
           name='redirectTo'
@@ -38,6 +69,7 @@ export const VerifyForm = (props: VerifyFormProps) => {
         <Button type='submit' fullWidth>
           Submit
         </Button>
+        <ErrorElement state={lastReturnState} />
       </form>
     </div>
   );
