@@ -3,7 +3,7 @@
 import { Button } from '../Form/Button';
 import { SubmitButton } from '../Form/SubmitButton';
 import { EmailProps, Person, PersonProps } from '../Form/Person';
-import { Checkbox } from '../Form/Checkbox';
+// import { Checkbox } from '../Form/Checkbox';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { submitNewPresentation } from '@/actions/presentationSubmission';
 import { FormField, TextArea } from '../Form/FormField';
@@ -36,7 +36,8 @@ export const PresentationSubmissionForm = (
     control,
     setFocus,
     watch,
-    trigger
+    trigger,
+    reset: resetForm
   } = useForm<SubmissionFormData>({
     mode: 'onTouched',
     defaultValues: {
@@ -84,6 +85,11 @@ export const PresentationSubmissionForm = (
           const formValid = await trigger();
           if (formValid) {
             const result = await submitNewPresentation(data);
+            if (result.success) {
+              resetForm();
+            } else {
+              console.error(result.error);
+            }
           } else {
             const firstError = Object.entries(errors).find(([field, err]) => {
               return err !== null && typeof err !== 'undefined';
@@ -220,6 +226,7 @@ export const PresentationSubmissionForm = (
             />
           </div>
           <div className='flex flex-col space-y-1'>
+            <input type='hidden' name='isFinal' value='on' />
             {/* <Checkbox label={readyLabel} {...register('isFinal')} /> */}
             <SubmitButton
               staticText={staticSubmitText}

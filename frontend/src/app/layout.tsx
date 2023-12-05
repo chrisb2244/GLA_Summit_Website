@@ -13,10 +13,9 @@ export const metadata: Metadata = {
   description: 'A global online LabVIEW conference'
 };
 
-export default function RootLayout({
-  children
-}: {
+export default function RootLayout(props: {
   children: React.ReactNode;
+  loginModal: React.ReactNode;
 }) {
   return (
     <html lang='en' className={roboto.className}>
@@ -30,10 +29,10 @@ export default function RootLayout({
 
           <div style={{ flex: '1 0 auto', display: 'flex' }}>
             <div className='mx-auto mb-8 flex w-[85%] max-w-screen-lg flex-col md:w-4/5'>
-              {children}
+              {props.children}
+              {props.loginModal}
             </div>
           </div>
-
           <Footer />
         </div>
       </body>
