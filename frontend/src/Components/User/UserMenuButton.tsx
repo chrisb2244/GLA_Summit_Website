@@ -8,11 +8,6 @@ import { User } from '@supabase/supabase-js';
 export async function UserMenuButton() {
   const supabase = createServerComponentClient();
 
-  const updateUserClient = async () => {
-    'use server';
-    console.log('Updating user login...');
-  };
-
   const user = (await supabase.auth.getUser()).data.user;
 
   const getIsOrganizer = async (user: User | null) => {
@@ -31,15 +26,34 @@ export async function UserMenuButton() {
   };
   const isOrganizer = await getIsOrganizer(user);
 
+  const getProfile = async (user: User | null) => {
+    if (user === null) {
+      return null;
+    }
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, firstname, lastname, bio, website, avatar_url, updated_at')
+      .eq('id', user.id)
+      .single();
+    if (error) {
+      console.log({ error, m: 'Fetching profile' });
+      return null;
+    }
+    return data;
+  };
+  const profile = await getProfile(user);
+
   const idleSpinner = <WaitingIndicator />;
   const button =
     user == null ? (
-      <SignInUpButton
-        waitingSpinner={idleSpinner}
-        onSignInComplete={updateUserClient}
-      />
+      <SignInUpButton waitingSpinner={idleSpinner} />
     ) : (
-      <UserMenu user={user} isOrganizer={isOrganizer} signOut={signOut} />
+      <UserMenu
+        user={user}
+        isOrganizer={isOrganizer}
+        profile={profile}
+        signOut={signOut}
+      />
     );
 
   return (

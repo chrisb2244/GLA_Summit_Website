@@ -1,13 +1,9 @@
-'use client';
 import { PersonDisplay, PersonDisplayProps } from '@/Components/PersonDisplay';
-import { mdiCalendar, mdiStarPlusOutline, mdiStarRemoveOutline } from '@mdi/js';
+import { mdiCalendar } from '@mdi/js';
+// import {  mdiStarPlusOutline, mdiStarRemoveOutline } from '@mdi/js';
 import Icon from '@mdi/react';
-import { useEffect, useState } from 'react';
-import { logErrorToDb } from '@/lib/utils';
-import {
-  User,
-  createClientComponentClient
-} from '@supabase/auth-helpers-nextjs';
+import { formatTextToPs } from '@/lib/utils';
+// import { logErrorToDb } from '@/lib/utils';
 import { TimestampSpan } from '../Utilities/TimestampSpan';
 
 export type Presentation = {
@@ -15,6 +11,7 @@ export type Presentation = {
   abstract: string;
   speakerNames: string[];
   speakers: PersonDisplayProps[];
+  isPrivate?: boolean;
 } & Schedule;
 
 export type Schedule =
@@ -39,25 +36,25 @@ export const PresentationDisplay: React.FC<
   React.PropsWithChildren<PresentationDisplayProps>
 > = (props) => {
   const { presentation, presentationId } = props;
-  const timeZoneName = props.timeZoneName ?? 'JST';
-  const dateToStringFn =
-    props.dateToStringFn ??
-    ((utcDateString) => {
-      const date = new Date(utcDateString);
-      const formatter = new Intl.DateTimeFormat(undefined, {
-        timeZone: 'JST',
-        hour: 'numeric',
-        minute: '2-digit',
-        second: undefined,
-        dateStyle: undefined,
-        hour12: false
-      });
-      return formatter.format(date);
-    });
-  const showFavouritesButton = props.withFavouritesButton ?? true;
+  // const timeZoneName = props.timeZoneName ?? 'JST';
+  // const dateToStringFn =
+  //   props.dateToStringFn ??
+  //   ((utcDateString) => {
+  //     const date = new Date(utcDateString);
+  //     const formatter = new Intl.DateTimeFormat(undefined, {
+  //       timeZone: 'JST',
+  //       hour: 'numeric',
+  //       minute: '2-digit',
+  //       second: undefined,
+  //       dateStyle: undefined,
+  //       hour12: false
+  //     });
+  //     return formatter.format(date);
+  //   });
+  // const showFavouritesButton = props.withFavouritesButton ?? true;
 
   // const { user } = useSession()
-  const user = null;
+  // const user = null;
 
   // const [isFavourite, setFavourite] = useState(false)
   // useEffect(() => {
@@ -73,7 +70,7 @@ export const PresentationDisplay: React.FC<
   //     })
   // }, [presentationId, supabase])
 
-  let scheduleInfo = <></>;
+  let scheduleInfo = <div className='flex flex-grow'>Unscheduled</div>;
 
   if (presentation.sessionStart !== null) {
     scheduleInfo = (
@@ -148,19 +145,25 @@ export const PresentationDisplay: React.FC<
   // ) : null
 
   return (
-    <div className='border-2 shadow-sm mt-1 mb-6'>
-      <div className='prose mx-auto flex max-w-none flex-col space-y-4 w-11/12'>
+    <div className='mb-6 mt-1 border-2 shadow-sm'>
+      <div className='prose mx-auto flex w-11/12 max-w-none flex-col space-y-4'>
         <div className='flex flex-col'>
-          <h2 className='mt-4 mb-0'>{presentation.title}</h2>
+          <h2 className='mb-0 mt-4'>{presentation.title}</h2>
           <div className='flex flex-col py-2 md:flex-row md:justify-between'>
             {scheduleInfo}
             {downloadButton}
           </div>
+          <div>
+            {presentation.isPrivate ? (
+              <div className='italic text-red-400'>
+                This presentation view is private to you. Presenter links may
+                direct to invalid pages.
+              </div>
+            ) : null}
+          </div>
           {/* {favouriteButton} */}
           <div className='prose-p:my-1'>
-            {presentation.abstract.split(/\r?\n/).map((p, idx) => {
-              return <p key={`p${idx}`}>{p}</p>;
-            })}
+            {formatTextToPs(presentation.abstract)}
           </div>
         </div>
         <div>

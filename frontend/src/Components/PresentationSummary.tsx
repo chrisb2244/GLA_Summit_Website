@@ -1,6 +1,7 @@
 import { PresentationType, SummitYear } from '@/lib/databaseModels';
 import Link from 'next/link';
 import { TimestampSpan } from './Utilities/TimestampSpan';
+import { formatTextToPs } from '@/lib/utils';
 
 export type Presenter = {
   firstname: string;
@@ -51,9 +52,7 @@ export const PresentationSummary = (props: PresentationProps) => {
         {durationElem}
       </div>
       <div className='line-clamp-4 prose-p:my-1'>
-        {pres.abstract.split(/\r?\n/).map((p, idx) => {
-          return <p key={`p${idx}`}>{p}</p>;
-        })}
+        {formatTextToPs(pres.abstract)}
       </div>
     </div>
     // </Paper>

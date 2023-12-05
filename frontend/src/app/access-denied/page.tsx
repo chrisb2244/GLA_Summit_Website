@@ -1,9 +1,17 @@
 import { StackedBoxes } from '@/Components/Layout/StackedBoxes';
 import { mdiAlertCircle } from '@mdi/js';
 import Icon from '@mdi/react';
+import { Metadata } from 'next';
+import { ReactNode } from 'react';
+
+export const metadata: Metadata = {
+  robots: {
+    index: false
+  }
+};
 
 const AccessDeniedPage = () => {
-  const T = (props: { children: string }) => {
+  const T = (props: { children: ReactNode }) => {
     return <p className='text-center'>{props.children}</p>;
   };
 
@@ -19,7 +27,12 @@ const AccessDeniedPage = () => {
           If you believe you should have access, please check you are signed in,
           and with the correct account.
         </T>
-        <T>If you still cannot access this page, contact web@glasummit.org</T>
+        <T>
+          If you still cannot access this page, contact{' '}
+          <a className='link' href='mailto:web@glasummit.org'>
+            web@glasummit.org
+          </a>
+        </T>
       </StackedBoxes>
     </div>
   );

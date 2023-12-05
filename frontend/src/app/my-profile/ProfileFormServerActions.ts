@@ -8,8 +8,7 @@ import { cookies } from 'next/headers';
 
 type ProfileDataUpdate = ProfileModel['Update'];
 
-export const SubmitForm = async (formData: FormData) => {
-  console.log(formData);
+export const SubmitProfileDataUpdate = async (formData: FormData) => {
   const idValue = formData.get('id')?.valueOf();
   if (typeof idValue !== 'string') {
     throw new Error('The id value is required');
@@ -43,6 +42,7 @@ export const SubmitForm = async (formData: FormData) => {
         // this will break the typechecking code.
         // It can actually happen if the formData contains other elements, though...
         // Ignore this case.
+        /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
         const dummyVal: never = assumedValidName;
         break;
       }
@@ -59,6 +59,6 @@ export const SubmitForm = async (formData: FormData) => {
     throw error;
   }
 
-  revalidatePath('/');
+  revalidatePath('/my-profile');
   return data[0];
 };

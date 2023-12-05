@@ -1,12 +1,12 @@
-import type { FormData } from '@/Components/Forms/PresentationSubmissionForm';
+import type { FormData } from '@/Components/Forms/PresentationSubmissionForm_old';
 import { FormSubmissionEmail } from '@/EmailTemplates/FormSubmissionEmail';
 import { buildSubmitterName, P } from '@/EmailTemplates/emailComponents';
 import { PersonProps } from '@/Components/Form/Person';
 import {
   adminAddNewPresentationSubmission,
   adminUpdateExistingPresentationSubmission
-} from './databaseFunctions';
-import { submissionsForYear } from './databaseModels';
+} from '../lib/databaseFunctions';
+import { submissionsForYear } from '../lib/databaseModels';
 
 export const uploadPresentationData = async (
   formData: FormData,

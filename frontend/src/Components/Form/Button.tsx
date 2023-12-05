@@ -2,7 +2,8 @@ import { VariantProps, cva } from 'class-variance-authority';
 import React, {
   PropsWithChildren,
   ButtonHTMLAttributes,
-  InputHTMLAttributes
+  InputHTMLAttributes,
+  forwardRef
 } from 'react';
 
 const buttonStyles = cva(
@@ -20,20 +21,29 @@ const buttonStyles = cva(
 );
 
 type VariantStyleProps = VariantProps<typeof buttonStyles>;
-type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & VariantStyleProps;
+export type ButtonProps = Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  'className'
+> &
+  VariantStyleProps;
 
-export const Button: React.FC<PropsWithChildren<ButtonProps>> = (props) => {
+export const Button = forwardRef<
+  HTMLButtonElement,
+  PropsWithChildren<ButtonProps>
+>((props: PropsWithChildren<ButtonProps>, ref) => {
   const { children, fullWidth, disabled, ...buttonProps } = props;
   return (
     <button
       {...buttonProps}
       disabled={disabled}
       className={buttonStyles({ fullWidth, disabled })}
+      ref={ref}
     >
       {children}
     </button>
   );
-};
+});
+Button.displayName = 'Button';
 
 type InputProps = Omit<
   InputHTMLAttributes<HTMLInputElement>,

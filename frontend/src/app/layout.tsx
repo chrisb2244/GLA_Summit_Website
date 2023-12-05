@@ -3,7 +3,6 @@ import { Footer } from './_rootElements/Footer';
 import { roboto } from './font-workaround';
 
 import './global.css';
-import '../GLA-generic.css';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -14,10 +13,9 @@ export const metadata: Metadata = {
   description: 'A global online LabVIEW conference'
 };
 
-export default function RootLayout({
-  children
-}: {
+export default function RootLayout(props: {
   children: React.ReactNode;
+  loginModal: React.ReactNode;
 }) {
   return (
     <html lang='en' className={roboto.className}>
@@ -30,12 +28,11 @@ export default function RootLayout({
           <Header />
 
           <div style={{ flex: '1 0 auto', display: 'flex' }}>
-            {/* w: 100% for up to small (i.e. xs), 80% for larger than "md" */}
-            <div className='mx-auto flex w-[85%] max-w-screen-lg flex-col md:w-4/5'>
-              {children}
+            <div className='mx-auto mb-8 flex w-[85%] max-w-screen-lg flex-col md:w-4/5'>
+              {props.children}
+              {props.loginModal}
             </div>
           </div>
-
           <Footer />
         </div>
       </body>

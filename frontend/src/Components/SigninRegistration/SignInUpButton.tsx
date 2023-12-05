@@ -1,37 +1,37 @@
 'use client';
 import { useState } from 'react';
 import { RegistrationPopup } from './RegistrationPopup';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 type SignInUpButtonProps = {
   waitingSpinner: JSX.Element;
-  onSignInComplete?: () => void;
 };
 
 export const SignInUpButton: React.FC<SignInUpButtonProps> = (props) => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const { waitingSpinner, onSignInComplete } = props;
+  const { waitingSpinner } = props;
+  const router = useRouter();
+  const pathName = usePathname();
+  const appendedRedirect = pathName !== '/' ? `?redirectTo=${pathName}` : '';
 
   return (
     <>
       <button
         className='flex h-full px-2 hover:bg-secondaryc'
-        color='warning' // TODO: warning isn't a colour
         onClick={() => {
-          setDialogOpen(true);
+          // setDialogOpen(true);
+          router.push(`/auth/login${appendedRedirect}`);
         }}
       >
-        <span className='line-height-[28px] p-2 text-[18px]'>
+        <span className='prose prose-lg p-2 text-white '>
           Sign In / Register
         </span>
       </button>
       <RegistrationPopup
         open={dialogOpen}
         setClosed={() => {
-          console.log('closed dialog');
           setDialogOpen(false);
         }}
-        onSignInComplete={onSignInComplete}
         waitingSpinner={waitingSpinner}
       />
     </>

@@ -1,15 +1,16 @@
 import { Button, Paper, MenuItem, TextFieldProps, Box } from '@mui/material';
 import {
-  of,
   UseFormRegister,
   UseFieldArrayAppend,
   FieldErrors,
   UseFieldArrayRemove,
   FieldArrayWithId
 } from 'react-hook-form';
-import { EmailArrayFormComponent, FormField, Person } from '@/Components/Form';
-import type { EmailProps, PersonProps } from '@/Components/Form';
-import { StackedBoxes } from '../Layout/StackedBoxes';
+import { Person } from '@/Components/Form/Person';
+import { FormField } from '@/Components/Form/FormField';
+// import { EmailArrayFormComponent } from '@/Components/Form/EmailArray';
+import type { EmailProps, PersonProps } from '@/Components/Form/Person';
+import { StackedBoxes } from '../Components/Layout/StackedBoxes';
 
 import { PresentationType } from '@/lib/databaseModels';
 
@@ -77,24 +78,25 @@ export const PresentationSubmissionFormCore: React.FC<
             defaultValue={submitter}
             errors={errors.submitter}
             register={register}
-            path={of('submitter')}
+            path={'submitter'}
             locked={true}
             splitSize='sm'
           />
         </Box>
       </Paper>
-      <EmailArrayFormComponent<FormData>
+      {/* <EmailArrayFormComponent<FormData>
         emailArray={otherPresenters}
-        arrayPath={of('otherPresenters')}
+        arrayPath={'otherPresenters'}
         errors={errors.otherPresenters}
         register={register}
         removePresenter={removePresenter}
         locked={locked}
-      />
+        label='Co-presenter Email'
+      /> */}
       <Button
         fullWidth
         onClick={() => {
-          addPresenter({});
+          addPresenter({ email: '' });
         }}
         variant='outlined'
         sx={{ mb: 1, ...displayLocked }}

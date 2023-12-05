@@ -8,12 +8,13 @@ type UserIconProps = {
   text?: string;
 };
 
+export const DefaultUserIcon = (props: Omit<UserIconProps, 'src'>) => {
+  return <Icon path={mdiAccountCircle} size={props.size === 'large' ? 2 : 1} />;
+};
+
 export const UserIcon = (props: UserIconProps) => {
   const { src, size = 'large', text } = props;
   const pxSz = size === 'large' ? 48 : 24;
-  const dummyIconSize = size === 'large' ? 1.5 : 1;
-
-  const DummyIcon = <Icon path={mdiAccountCircle} size={dummyIconSize} />;
 
   const icon =
     typeof src !== 'undefined' ? (
@@ -25,7 +26,7 @@ export const UserIcon = (props: UserIconProps) => {
         className='inline-flex rounded-full object-cover'
       />
     ) : (
-      DummyIcon
+      <DefaultUserIcon size={size} text={text} />
     );
 
   const wrappedIcon = (

@@ -4,6 +4,7 @@ import { mdiAccount } from '@mdi/js';
 import Icon from '@mdi/react';
 import NextLink from 'next/link';
 import type { Route } from 'next';
+import { formatTextToPs } from '@/lib/utils';
 
 export interface PersonDisplayProps {
   firstName: string;
@@ -28,10 +29,7 @@ export const PersonDisplay: React.FC<
 
   let isDefaultImage = false;
   let imageElem = null;
-  if (
-    typeof props.image !== 'undefined' &&
-    props.image !== null
-  ) {
+  if (typeof props.image !== 'undefined' && props.image !== null) {
     // Static image file or by URL
     imageElem = (
       <Image
@@ -52,13 +50,7 @@ export const PersonDisplay: React.FC<
 
   let descriptionElem: JSX.Element | null = null;
   if (typeof props.description === 'string') {
-    descriptionElem = (
-      <>
-        {props.description.split('\r\n').map((para, idx) => {
-          return <p key={`p${idx}`}>{para}</p>;
-        })}
-      </>
-    );
+    descriptionElem = <>{formatTextToPs(props.description)}</>;
   } else {
     descriptionElem = props.description;
   }

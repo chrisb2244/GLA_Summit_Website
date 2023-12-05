@@ -1,29 +1,20 @@
-import { Typography } from '@mui/material';
-import { CenteredDialog } from '../Layout/CenteredDialog';
 import { ValidateLoginForm } from '../Forms/ValidateLoginForm';
 
 type ValidationCodePopupProps = {
-  open: boolean;
-  setClosed: () => void;
+  onSubmit: () => void;
   email?: string;
 };
 
-export const ValidationCodePopup: React.FC<ValidationCodePopupProps> = (
-  props
-) => {
-  const { open, setClosed, email } = props;
+export const ValidationCodePopup = (props: ValidationCodePopupProps) => {
+  const { onSubmit, email } = props;
 
   return (
-    <CenteredDialog
-      open={open}
-      onClose={setClosed}
-      dialogId='validateCodeDialog'
-    >
-      <Typography>
-        An email has been sent to <b>{email}</b>. Please copy the code from that
-        email into the boxes below to sign in.
-      </Typography>
-      <ValidateLoginForm email={email} onSubmitFn={setClosed} />
-    </CenteredDialog>
+    <>
+      <p className='prose text-center'>
+        An email has been sent to <span className='font-bold'>{email}</span>.
+        Please copy the code from that email into the box below to sign in.
+      </p>
+      <ValidateLoginForm email={email} onSubmitFn={onSubmit} />
+    </>
   );
 };

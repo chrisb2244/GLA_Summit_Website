@@ -19,26 +19,36 @@ export async function middleware(req: NextRequest) {
     data: { session }
   } = await supabase.auth.getSession();
 
-  const pathsToFilter = ['/review-submissions'];
+  const pathsRequiringLogin = ['/my-profile', '/my-presentations'];
+  const pathsRequiringOrganizer = ['/review-submissions', '/logs'];
+  const pathsRequiringSomeAuth = [
+    ...pathsRequiringLogin,
+    ...pathsRequiringOrganizer
+  ];
 
-  if (!pathsToFilter.includes(targetPath)) {
+  if (!pathsRequiringSomeAuth.includes(targetPath)) {
+    // public page
     return res;
   }
 
-  const denyAccess = () =>
-    NextResponse.redirect(new URL('/access-denied', req.url));
-
   const user = session?.user;
   if (user === null || typeof user === 'undefined') {
-    return denyAccess();
+    return NextResponse.rewrite(new URL('/login-required', req.url));
   }
+
+  if (!pathsRequiringOrganizer.includes(targetPath)) {
+    // required login but no requirement for organizer
+    return res;
+  }
+
   const isOrganizer =
     (await supabase.from('organizers').select('*').eq('id', user.id)).count !==
     0;
   if (!isOrganizer) {
-    return denyAccess();
+    return NextResponse.redirect(new URL('/access-denied', req.url));
   }
 
+  // is organizer, required organizer
   return res;
 }
 

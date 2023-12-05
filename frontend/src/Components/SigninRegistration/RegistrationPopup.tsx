@@ -5,12 +5,12 @@ import { UserSignIn } from './UserSignIn';
 import { ValidationCodePopup } from './ValidationCodePopup';
 import { SignInFormValues } from '../Forms/SignInForm';
 import { signIn, signUp } from './SignInUpActions';
-import { PersonProps } from '../Form';
+import { PersonProps } from '../Form/Person';
+import { CenteredDialog } from '../Layout/CenteredDialog';
 
 export type RegistrationProps = {
   open?: boolean;
   setClosed?: () => void;
-  onSignInComplete?: () => void;
   initialState?: 'signup' | 'signin';
   waitingSpinner: JSX.Element;
 };
@@ -30,7 +30,7 @@ export const RegistrationPopup: React.FC<
   const [state, setState] = useState<'signup' | 'signin' | 'validation'>(
     initialState
   );
-  const [email, setEmail] = useState<string | null>(null);
+  const [email, setEmail] = useState<string | undefined>(undefined);
 
   const [isWaiting, setIsWaiting] = useState(false);
 
@@ -67,32 +67,27 @@ export const RegistrationPopup: React.FC<
   };
 
   // Use the state checks outside of the 'open' property to avoid rendering the unused dialog
-  const elemToRender = isWaiting ? (
-    waitingSpinner
-  ) : state === 'signup' ? (
-    <NewUserRegistration
-      open={open}
-      setClosed={setClosed}
-      switchToSignIn={() => setState('signin')}
-      onSubmit={signUpSubmitHandler}
-    />
-  ) : state === 'signin' ? (
-    <UserSignIn
-      open={open}
-      setClosed={setClosed}
-      switchToRegistration={() => setState('signup')}
-      onSubmit={signInSubmitHandler}
-    />
-  ) : (
-    <ValidationCodePopup
-      email={email ?? undefined}
-      open={open}
-      setClosed={() => {
-        setClosed();
-        props.onSignInComplete?.();
-      }}
-    />
-  );
+  const elemToRender = open ? (
+    isWaiting ? (
+      waitingSpinner
+    ) : (
+      <CenteredDialog open={open} onClose={setClosed}>
+        {state === 'signup' ? (
+          <NewUserRegistration
+            switchToSignIn={() => setState('signin')}
+            onSubmit={signUpSubmitHandler}
+          />
+        ) : state === 'signin' ? (
+          <UserSignIn
+            switchToRegistration={() => setState('signup')}
+            onSubmit={signInSubmitHandler}
+          />
+        ) : (
+          <ValidationCodePopup email={email} onSubmit={setClosed} />
+        )}
+      </CenteredDialog>
+    )
+  ) : null;
 
   return elemToRender;
 };

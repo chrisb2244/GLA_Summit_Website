@@ -44,11 +44,7 @@ export const LogViewer: React.FC<React.PropsWithChildren<LogProps>> = ({
         </td>
       );
     });
-    return (
-      <>
-        <tr key={e.id}>{cells}</tr>
-      </>
-    );
+    return <tr key={e.id}>{cells}</tr>;
   };
 
   const sourceEntries = entries;

@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import type { FormData } from '@/Components/Forms/PresentationSubmissionForm';
+import type { FormData } from '@/Components/Forms/PresentationSubmissionForm_old';
 import { EmailContent, sendMailApi } from '@/lib/sendMail';
 import {
   uploadPresentationData,

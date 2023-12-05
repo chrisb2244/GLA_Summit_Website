@@ -35,7 +35,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     | 'development'
     | undefined;
   const baseUrl =
-    deploymentType === 'production' ? 'https://www.glasummit.org' : detectedBaseUrl;
+    deploymentType === 'production'
+      ? 'https://www.glasummit.org'
+      : detectedBaseUrl;
 
   /* 
     / - homepage (weekly)

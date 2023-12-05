@@ -1,9 +1,8 @@
 import { Button, Typography, Box, Tabs, Tab } from '@mui/material';
-import { of, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 
-import { Person } from '@/Components/Form';
-import type { PersonProps } from '@/Components/Form';
+import { Person, type PersonProps } from '@/Components/Form/Person';
 
 type FormProps = {
   defaultEntry?: PersonProps;
@@ -106,7 +105,7 @@ export const MentoringForm: React.FC<React.PropsWithChildren<FormProps>> = ({
             >
               <Person<FormData>
                 register={register}
-                path={of('person')}
+                path={'person'}
                 errors={errors.person}
                 defaultValue={defaultEntry}
                 locked={typeof defaultEntry !== 'undefined'}

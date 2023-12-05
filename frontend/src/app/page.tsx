@@ -1,6 +1,8 @@
-import { StackedBoxes } from '@/Components/Layout/StackedBoxes';
-import { SponsorBar } from './_rootElements/SponsorBar';
 import { Metadata } from 'next';
+import Link from 'next/link';
+import { Button } from '@/Components/Form/Button';
+import { createServerComponentClient } from '@/lib/supabaseServer';
+// import { SponsorBar } from './_rootElements/SponsorBar';
 // import { Countdown } from './_rootElements/Countdown'
 
 export const metadata: Metadata = {
@@ -9,7 +11,7 @@ export const metadata: Metadata = {
   }
 };
 
-export default function Page() {
+export default async function Page() {
   // The month value is 0-based (so 10 -> November)
   // const eventStart = new Date(Date.UTC(2022, 10, 14, 12, 0, 0))
   // const eventEnd = new Date(Date.UTC(2022, 10, 15, 12, 0, 0))
@@ -39,12 +41,25 @@ export default function Page() {
   //   </Box>
   // ) : null
 
+  const supabase = createServerComponentClient();
+  const user =
+    (await supabase.auth.getSession())?.data.session?.user ?? undefined;
+  const submitPresentationLink =
+    typeof user !== 'undefined'
+      ? '/my-presentations'
+      : '/auth/register?redirectTo=/my-presentations';
+
   return (
-    <div className='prose-base prose mx-auto max-w-2xl text-justify xl:max-w-3xl'>
+    <div className='prose prose-base mx-auto max-w-2xl text-justify xl:max-w-3xl'>
       <p className='prose-lg text-center'>
         The GLA Summit Organizers are excited to announce the next GLA Summit,
         scheduled for 25-26 March 2024!
       </p>
+      <div>
+        <Link href={submitPresentationLink}>
+          <Button fullWidth>Submit a Presentation</Button>
+        </Link>
+      </div>
       <p>
         We are excited to welcome advanced LabVIEW developers and Architects
         (certified or self-proclaimed) from around the world to network and

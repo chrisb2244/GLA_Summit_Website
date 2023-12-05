@@ -12,6 +12,10 @@ export const myLog = (v: any) => {
   }
 };
 
+export const fullUrlToIconUrl = (fullUrl: string) => {
+  return `${fullUrl.split('.').slice(0, -1).join('.')}-icon.webp`;
+};
+
 export const logErrorToDb = async (
   v: { message: string } | string,
   severity: 'info' | 'error' | 'severe',
@@ -156,4 +160,14 @@ export const sortPresentationsByPresenterName = (
   return (
     -1 * ('' + bPrimarySpeaker.lastname).localeCompare(aPrimarySpeaker.lastname)
   );
+};
+
+export const formatTextToPs = (text: string, extraClassNames?: string) => {
+  return text.split(/\r?\n/).map((para, idx) => {
+    return (
+      <p key={`p${idx}`} className={extraClassNames}>
+        {para}
+      </p>
+    );
+  });
 };

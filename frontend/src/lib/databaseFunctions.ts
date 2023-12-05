@@ -7,10 +7,15 @@ import {
 } from '@supabase/supabase-js';
 import { AllPresentationsModel, ProfileModel } from './databaseModels';
 import { Database } from './sb_databaseModels';
-import { supabase, createAdminClient, createAnonServerClient } from './supabaseClient';
-import { defaultTimezoneInfo, myLog } from './utils';
+import {
+  supabase,
+  createAdminClient,
+  createAnonServerClient
+} from './supabaseClient';
+import { defaultTimezoneInfo, fullUrlToIconUrl, myLog } from './utils';
 
 export type User = SB_User;
+type Client = SupabaseClient<Database>;
 
 export const checkForExistingUser = async (
   email: string
@@ -105,7 +110,7 @@ export const getPresenterIds = async () => {
       });
     });
   });
-}
+};
 
 export const getPresentationIds = async () => {
   const supabase = createAnonServerClient();
@@ -116,7 +121,7 @@ export const getPresentationIds = async () => {
     return [];
   }
   return data;
-}
+};
 
 /* ------------------ Client side functions ---------------------------- */
 export const clientUpdateExistingProfile = async (
@@ -172,8 +177,8 @@ export const queryTimezonePreferences = async (user: User) => {
   }
 };
 
-export const getProfileInfo = async (user: User) => {
-  return supabase
+export const getProfileInfo = async (user: User, client: Client = supabase) => {
+  return client
     .from('profiles')
     .select('id, firstname, lastname, bio, website, avatar_url')
     .eq('id', user.id)
@@ -209,10 +214,67 @@ export const uploadAvatar = async (
     throw profileUpdateError;
   }
 
+  // Generate a smaller webp version of the image for the user icon.
+  await fetch('/api/handleAvatarUpdate', {
+    method: 'POST',
+    body: JSON.stringify({ userId, remoteFilePath })
+  });
+
+  // Delete the old avatar
   if (originalProfileURL != null) {
     await deleteAvatar(originalProfileURL);
   }
   return true;
+};
+
+export const downloadIconAvatarAndGenerateIfNeeded = async (
+  userId: string,
+  fullSizeImageUrl: string,
+  client: SupabaseClient
+) => {
+  const iconUrl = fullUrlToIconUrl(fullSizeImageUrl);
+  const iconBlob = await client.storage
+    .from('avatars')
+    .download(iconUrl)
+    .then(async ({ data, error }) => {
+      if (error) {
+        // Failed to get the icon-sized image, so try to generate it.
+        const body = {
+          userId,
+          remoteFilePath: fullSizeImageUrl
+        };
+        const newIconUrl = await fetch('/api/handleAvatarUpdate', {
+          method: 'POST',
+          body: JSON.stringify(body)
+        })
+          .then((res) => res.json())
+          .then((value) => {
+            if (value.error) {
+              console.log(value.error);
+              return null;
+            }
+            return value.iconUrl as string;
+          });
+        if (newIconUrl == null) {
+          return null;
+        } else {
+          // Try to download the newly generated icon-sized image.
+          return client.storage
+            .from('avatars')
+            .download(newIconUrl)
+            .then(({ data, error }) => {
+              if (error) {
+                return error;
+              }
+              return data;
+            });
+        }
+      } else {
+        // Found the icon-sized image, so return it.
+        return data;
+      }
+    });
+  return iconBlob;
 };
 
 export const downloadAvatar = async (userId: string) => {
@@ -256,15 +318,15 @@ export const deleteAvatar = async (remotePath: string) => {
 
 export const getPerson = async (
   userId: string,
-  client: SupabaseClient<Database> = supabase
+  client: Client = supabase
 ): Promise<PersonDisplayProps> => {
   return (await getPeople([userId], client))[0];
 };
 
 export const getPeople = async (
   userIds: string[],
-  client: SupabaseClient<Database> = supabase
-): Promise<Array<PersonDisplayProps & { id: string, updated_at: string }>> => {
+  client: Client = supabase
+): Promise<Array<PersonDisplayProps & { id: string; updated_at: string }>> => {
   return client
     .from('profiles')
     .select()
@@ -280,16 +342,14 @@ export const getPeople = async (
           lastName: person.lastname,
           description:
             person.bio ?? 'This presenter has not provided a description',
-          image: avatarUrl,
+          image: avatarUrl
         };
         return { ...personProps, id: person.id, updated_at: person.updated_at };
       });
     });
 };
 
-export const getPublicProfileIds = async (
-  client: SupabaseClient<Database> = supabase
-) => {
+export const getPublicProfileIds = async (client: Client = supabase) => {
   return client
     .from('public_profiles')
     .select('id')
@@ -301,7 +361,7 @@ export const getPublicProfileIds = async (
 };
 
 export const getPublicProfiles = async (
-  client: SupabaseClient<Database> = supabase
+  client: Client = supabase
 ): Promise<ProfileModel['Row'][]> => {
   return getPublicProfileIds()
     .then((ids) => {
@@ -317,9 +377,7 @@ export const getPublicProfiles = async (
     });
 };
 
-export const getPublicPresentations = async (
-  client: SupabaseClient<Database> = supabase
-) => {
+export const getPublicPresentations = async (client: Client = supabase) => {
   const { data, error } = await client
     .from('all_presentations')
     .select()
@@ -329,7 +387,7 @@ export const getPublicPresentations = async (
 };
 export const getPublicPresentationsForPresenter = async (
   presenterId: string,
-  client: SupabaseClient<Database> = supabase
+  client: Client = supabase
 ) => {
   const { data, error } = await client
     .from('all_presentations')
@@ -342,7 +400,7 @@ export const getPublicPresentationsForPresenter = async (
 
 export const getPublicPresentation = async (
   presentationId: string,
-  client: SupabaseClient<Database> = supabase
+  client: Client = supabase
 ): Promise<AllPresentationsModel> => {
   return client
     .from('all_presentations')
@@ -363,8 +421,8 @@ export const getAcceptedPresentationIds = async (): Promise<string[]> => {
   return data.map((d) => d.id);
 };
 
-export const getMyPresentations = async () => {
-  const { data, error: errorPresData } = await supabase
+export const getMyPresentations = async (client: Client = supabase) => {
+  const { data, error: errorPresData } = await client
     .from('my_submissions')
     .select();
   if (errorPresData) {

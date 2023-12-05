@@ -1,33 +1,24 @@
-'use client';
-import { StackedBoxes } from '@/Components/Layout/StackedBoxes';
-import { Typography } from '@mui/material';
-import ErrorIcon from '@mui/icons-material/NoEncryptionGmailerrorredTwoTone';
-import type { NextPage } from 'next';
-import { useEffect, useState } from 'react';
 import {
   PresentationReviewInfo,
   SubmittedPresentationReviewCard
 } from '@/Components/SubmittedPresentationReviewCard';
-import { Box } from '@mui/system';
+import { createServerComponentClient } from '@/lib/supabaseServer';
+import { submissionsForYear } from '@/lib/databaseModels';
 
-const ReviewSubmissionsPage: NextPage = () => {
-  const T: React.FC<React.PropsWithChildren<unknown>> = ({ children }) => (
-    <Typography textAlign='center'>{children}</Typography>
-  );
+const ReviewSubmissionsPage = async () => {
+  const supabase = createServerComponentClient();
+  const { data, error } = await supabase.rpc('get_reviewable_submissions', {
+    target_year: submissionsForYear
+  });
 
-  const [submittedPresentations, setSubmittedPresentations] = useState<
-    PresentationReviewInfo[]
-  >([]);
-  useEffect(() => {
-    fetch('/api/presentation_submissions').then((res) => {
-      res.json().then((jsonValue) => {
-        const { presentationSubmissions } = jsonValue as {
-          presentationSubmissions: PresentationReviewInfo[];
+  const submittedPresentations: PresentationReviewInfo[] = error
+    ? []
+    : data.map((d) => {
+        return {
+          ...d,
+          submitter: d.presenters.filter((p) => p.id === d.submitter_id)[0]
         };
-        setSubmittedPresentations(presentationSubmissions);
       });
-    });
-  }, []);
 
   const listElems = submittedPresentations
     .sort((a, b) => {
@@ -45,13 +36,12 @@ const ReviewSubmissionsPage: NextPage = () => {
     });
 
   return (
-    <StackedBoxes>
-      <T>
-        <ErrorIcon fontSize='large' sx={{ mt: 5 }} />
-      </T>
-      <T>{`Here's a list of ${submittedPresentations.length} presentations!!!`}</T>
-      <Box sx={{ '> *': { m: 0.5, p: 0.5 } }}>{listElems}</Box>
-    </StackedBoxes>
+    <div className='mx-auto mt-4 w-full max-w-screen-md'>
+      <p className='prose mx-auto text-center'>
+        {`Here's a list of ${submittedPresentations.length} presentations!!!`}
+      </p>
+      <div className='flex flex-col space-y-2'>{listElems}</div>
+    </div>
   );
 };
 

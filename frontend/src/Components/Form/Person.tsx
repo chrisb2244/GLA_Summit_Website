@@ -1,12 +1,5 @@
-import { Box, TextField, Typography } from '@mui/material';
-import type { Breakpoint, SxProps, Theme } from '@mui/material';
-import {
-  join,
-  UseFormRegister,
-  TypedFieldPath,
-  FieldErrors,
-  FieldValues
-} from 'react-hook-form';
+import { UseFormRegister, FieldErrors, FieldValues } from 'react-hook-form';
+import { FormField } from './FormField';
 
 export type PersonProps = {
   firstName: string;
@@ -14,52 +7,61 @@ export type PersonProps = {
   email: string;
 };
 
-export function Person<FV extends FieldValues>(props: {
-  register: UseFormRegister<FV>;
-  path: TypedFieldPath<FV, PersonProps>;
+// Statically include these values
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const dummyClassNames = `
+xs:w-1/2 xs:pr-2 xs:pl-2 xs:mr-2 xs:ml-2 xs:before:ml-[6px] xs:pl-[10px] xs:flex-row
+sm:w-1/2 sm:pr-2 sm:pl-2 sm:mr-2 sm:ml-2 sm:before:ml-[6px] sm:pl-[10px] sm:flex-row
+md:w-1/2 md:pr-2 md:pl-2 md:mr-2 md:ml-2 md:before:ml-[6px] md:pl-[10px] md:flex-row
+lg:w-1/2 lg:pr-2 lg:pl-2 lg:mr-2 lg:ml-2 lg:before:ml-[6px] lg:pl-[10px] lg:flex-row
+xl:w-1/2 xl:pr-2 xl:pl-2 xl:mr-2 xl:ml-2 xl:before:ml-[6px] xl:pl-[10px] xl:flex-row
+`;
+
+type SharedProps = {
   errors: FieldErrors<PersonProps> | undefined;
   defaultValue?: PersonProps;
   locked?: boolean;
   heading?: string;
-  splitSize?: Breakpoint | null;
-  sx?: SxProps<Theme>;
-}) {
-  const { register, path, defaultValue, locked, heading } = props;
+  splitSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | null;
+};
+
+type PropsInNestedPerson<KeyName, FV extends FieldValues> = {
+  register: UseFormRegister<FV>;
+  path: KeyName;
+} & SharedProps;
+
+type PropsInStandalonePerson = {
+  register: UseFormRegister<PersonProps>;
+  path?: undefined;
+} & SharedProps;
+
+/* prettier-ignore */
+type PersonTypeProps<FV extends FieldValues, K = keyof FV> =
+  FV extends PersonProps
+    ? PropsInStandalonePerson
+    : K extends keyof FV
+      ? FV[K] extends PersonProps
+        ? PropsInNestedPerson<K, FV>
+        : never
+      : never
+
+export function Person<FV extends FieldValues>(props: PersonTypeProps<FV>) {
+  const { defaultValue, locked, heading } = props;
+  const register = props.register;
+
+  const path =
+    typeof props.path !== 'undefined' ? `${String(props.path)}.` : '';
   // Default to 'md' if not specified. Allow null to prevent splitting regardless of size
   const splitSize =
     typeof props.splitSize !== 'undefined' ? props.splitSize : 'md';
 
-  const halfWidthSx = (side: 'left' | 'right', pVal = '5px') => {
-    if (splitSize === null) {
-      return {
-        width: '100%',
-        paddingBottom: 1
-      };
-    } else {
-      return {
-        width: { xs: '100%', [splitSize]: '50%' },
-        paddingInlineEnd: { xs: 0, [splitSize]: side === 'left' ? pVal : 0 },
-        paddingInlineStart: { xs: 0, [splitSize]: side === 'right' ? pVal : 0 },
-        paddingBottom: 1
-      };
-    }
-  };
-
   let headElem = null;
   if (typeof heading !== 'undefined') {
     headElem = (
-      <Box px={1} mb={1}>
-        <Typography variant='body2'>{heading}</Typography>
-      </Box>
+      <div className='mb-2 px-2'>
+        <span className='prose prose-sm'>{heading}</span>
+      </div>
     );
-  }
-  let displayProps = {};
-  if (locked ?? false) {
-    displayProps = {
-      ...displayProps,
-      variant: 'filled',
-      InputProps: { readOnly: true }
-    };
   }
 
   const labels = {
@@ -70,48 +72,38 @@ export function Person<FV extends FieldValues>(props: {
 
   const fieldProps = (field: keyof PersonProps) => {
     const error = props.errors?.[field];
-    const isError = !!error;
     return {
+      fieldError: error,
       defaultValue: defaultValue?.[field],
-      placeholder: labels[field],
       label: labels[field],
-      error: isError,
-      helperText: error?.message,
-      FormHelperTextProps: { role: isError ? 'alert' : undefined }
+      readOnly: locked
     };
   };
 
   return (
-    <Box sx={props.sx}>
+    <div>
       {headElem}
-      <Box
-        flexDirection={
-          splitSize === null ? 'column' : { xs: 'column', [splitSize]: 'row' }
-        }
-        pb={splitSize === null ? 0 : { xs: 0, [splitSize]: 1 }}
-      >
-        <TextField
-          {...register(join(path, 'firstName'), {
+      <div className={`flex flex-col ${splitSize}:flex-row`}>
+        <FormField
+          registerReturn={register(`${path}firstName`, {
             required: 'Required',
             maxLength: 80
           })}
-          sx={halfWidthSx('left')}
+          className={`w-full px-0 ${splitSize}:w-1/2 ${splitSize}:pr-2`}
           {...fieldProps('firstName')}
-          {...displayProps}
         />
-        <TextField
-          {...register(join(path, 'lastName'), {
+        <FormField
+          registerReturn={register(`${path}lastName`, {
             required: 'Required',
             maxLength: 100
           })}
-          sx={halfWidthSx('right')}
+          className={`w-full px-0 ${splitSize}:w-1/2 ${splitSize}:pl-2`}
           {...fieldProps('lastName')}
-          {...displayProps}
         />
-      </Box>
-      <Box>
-        <TextField
-          {...register(join(path, 'email'), {
+      </div>
+      <div>
+        <FormField
+          registerReturn={register(`${path}email`, {
             required: 'Required',
             pattern: {
               value: /^\S+@\S+\.\S+$/i,
@@ -120,75 +112,12 @@ export function Person<FV extends FieldValues>(props: {
           })}
           fullWidth
           {...fieldProps('email')}
-          {...displayProps}
         />
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }
 
 export type EmailProps = {
   email: string;
 };
-
-export function EmailFormComponent<FV extends FieldValues>(props: {
-  register: UseFormRegister<FV>;
-  path: TypedFieldPath<FV, EmailProps>;
-  errors: FieldErrors<PersonProps> | undefined;
-  defaultValue?: EmailProps;
-  locked?: boolean;
-  heading?: string;
-  sx?: SxProps<Theme>;
-}) {
-  const { register, path, defaultValue, locked, heading } = props;
-
-  let headElem = null;
-  if (typeof heading !== 'undefined') {
-    headElem = (
-      <Box px={1}>
-        <Typography variant='body2'>{heading}</Typography>
-      </Box>
-    );
-  }
-  let displayProps = {};
-  if (locked ?? false) {
-    displayProps = {
-      ...displayProps,
-      variant: 'filled',
-      InputProps: { readOnly: true }
-    };
-  }
-
-  const fieldProps = (field: keyof EmailProps) => {
-    const error = props.errors?.[field];
-    const isError = !!error;
-    return {
-      defaultValue: defaultValue?.[field],
-      placeholder: 'Co-presenter Email',
-      label: 'Co-presenter Email',
-      error: isError,
-      helperText: error?.message,
-      FormHelperTextProps: { role: isError ? 'alert' : undefined }
-    };
-  };
-
-  return (
-    <Box sx={props.sx}>
-      {headElem}
-      <Box>
-        <TextField
-          {...register(join(path, 'email'), {
-            required: 'Required',
-            pattern: {
-              value: /^\S+@\S+\.\S+$/i,
-              message: "This email doesn't match the expected pattern"
-            }
-          })}
-          fullWidth
-          {...fieldProps('email')}
-          {...displayProps}
-        />
-      </Box>
-    </Box>
-  );
-}

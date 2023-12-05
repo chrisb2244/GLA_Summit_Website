@@ -2,18 +2,23 @@
 import { Popover, Transition } from '@headlessui/react';
 import { mdiLogout, mdiMonitorAccount, mdiVoteOutline } from '@mdi/js';
 import { Icon } from '@mdi/react';
-import React, { PropsWithChildren, useEffect, useState } from 'react';
+import React, { PropsWithChildren, Suspense, useEffect, useState } from 'react';
 import NextLink from 'next/link';
-import { useProfileImage } from '@/lib/profileImage';
-import { getProfileInfo, type User } from '@/lib/databaseFunctions';
+import {
+  downloadIconAvatarAndGenerateIfNeeded,
+  type User
+} from '@/lib/databaseFunctions';
 import type { ProfileModel } from '@/lib/databaseModels';
 import { Route } from 'next';
-import { UserIcon } from './UserIcon';
+import { DefaultUserIcon, UserIcon } from './UserIcon';
+import { useRouter } from 'next/navigation';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 type UserMenuProps = {
   user: User;
+  profile: ProfileModel['Row'] | null;
   isOrganizer?: boolean;
-  signOut: () => void;
+  signOut: () => Promise<void>;
 };
 
 type UserMenuEntry = {
@@ -26,19 +31,25 @@ type UserMenuEntry = {
 export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
   props
 ) => {
-  const userId = props.user.id;
-  const { isOrganizer, signOut } = props;
+  const { isOrganizer, profile, signOut } = props;
 
-  const [profile, setProfile] = useState<ProfileModel['Insert'] | null>(null);
+  const [avatarSrc, setAvatarSrc] = useState<string | undefined>(undefined);
   useEffect(() => {
-    getProfileInfo(props.user)
-      .then(setProfile)
-      .catch((e) => {
-        console.log(e);
-      });
-  }, [props.user]);
-  const { src: avatarSrc } = useProfileImage(userId) ?? {};
-  // console.log({ avatarSrc, imgLoading })
+    const url = props.profile?.avatar_url;
+    if (typeof url === 'undefined' || url === null) {
+      return;
+    }
+    const supabase = createClientComponentClient();
+    downloadIconAvatarAndGenerateIfNeeded(props.user.id, url, supabase).then(
+      (value) => {
+        if (value instanceof Blob) {
+          setAvatarSrc(URL.createObjectURL(value));
+        } else if (value instanceof Error) {
+          console.log(value);
+        }
+      }
+    );
+  }, [props.profile?.avatar_url, props.user.id]);
 
   const email = props.user.email;
   const ListIcon = (props: { path: string }) => {
@@ -49,12 +60,14 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
     );
   };
 
+  const router = useRouter();
+
   const menuObjs: UserMenuEntry[] = [
     {
       title: 'My Profile',
       href: '/my-profile',
       imgObj: (
-        <div className='min-w-[36px]'>
+        <div className='flex min-w-[36px] flex-row align-middle'>
           <UserIcon src={avatarSrc} size='small' />
         </div>
       )
@@ -68,7 +81,9 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
       title: 'Logout',
       href: undefined, // '/api/logout',
       imgObj: <ListIcon path={mdiLogout} />,
-      clickFn: signOut
+      clickFn: () => {
+        signOut().then(router.refresh);
+      }
     }
   ];
 
@@ -88,7 +103,7 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
     if (typeof href !== 'undefined') {
       return <NextLink href={href}>{children}</NextLink>;
     } else {
-      return <div>{children}</div>;
+      return <button>{children}</button>;
     }
   };
 
@@ -99,7 +114,9 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
   return (
     <Popover className='pr-4'>
       <Popover.Button aria-haspopup aria-label=''>
-        <UserIcon src={avatarSrc} size='large' text={buttonText} />
+        <Suspense fallback={<DefaultUserIcon size='large' text={buttonText} />}>
+          <UserIcon src={avatarSrc} size='large' text={buttonText} />
+        </Suspense>
       </Popover.Button>
       <Transition
         enter='transition duration-250 ease-in'
@@ -121,14 +138,14 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
                       return (
                         <WrapperElement href={href} key={title}>
                           <li
-                            className='flex h-8 flex-row px-4 py-[6px]'
+                            className='flex h-8 flex-row items-center px-4 py-[6px]'
                             onClick={() => {
                               clickFn?.();
                               close();
                             }}
                           >
                             {imgObj}
-                            <p className='tracking-[0.00938em]'>{title}</p>
+                            <span className='prose'>{title}</span>
                           </li>
                         </WrapperElement>
                       );

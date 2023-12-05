@@ -2,7 +2,7 @@
 
 import { myLog } from '@/lib/utils';
 import { Button } from '../Form/Button';
-import { FormField } from '../Form';
+import { FormField } from '../Form/FormField';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import React from 'react';
 

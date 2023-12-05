@@ -1,11 +1,15 @@
 'use client';
 
-import { FormField, FormFieldIndicator, TextArea } from '@/Components/Form';
-import { Button } from '@/Components/Form/Button';
+import {
+  FormField,
+  FormFieldIndicator,
+  TextArea
+} from '@/Components/Form/FormField';
+import { SubmitButton } from '@/Components/Form/SubmitButton';
 import { ProfileModel } from '@/lib/databaseModels';
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { SubmitForm } from './ProfileFormServerActions';
+import { SubmitProfileDataUpdate } from './ProfileFormServerActions';
 import { useRouter } from 'next/navigation';
 
 type ProfileData = ProfileModel['Row'];
@@ -28,6 +32,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = (props) => {
     mode: 'all'
   });
   const router = useRouter();
+  const submitButtonRef = React.useRef<HTMLButtonElement>(null);
 
   // Only allow submitting if not currently submitting, and the form is changed.
   const submitButtonDisabled = isSubmitting || !isDirty;
@@ -45,9 +50,10 @@ export const ProfileForm: React.FC<ProfileFormProps> = (props) => {
         changedValuesFormData.append(name, value);
       }
     });
-    await SubmitForm(changedValuesFormData).then(
-      (updatedProfile) => {
+    await SubmitProfileDataUpdate(changedValuesFormData).then(
+      () => {
         router.refresh();
+        submitButtonRef.current?.blur();
       },
       (err) => console.error(err)
     );
@@ -56,7 +62,14 @@ export const ProfileForm: React.FC<ProfileFormProps> = (props) => {
   return (
     <form action={clientSideSubmitAction}>
       <div className='px-4'>
-        <FormFieldIndicator fullWidth label='Email' value={props.email} />
+        <FormFieldIndicator
+          registerReturn={{ name: 'email' }}
+          fieldError={undefined}
+          fullWidth
+          label='Email'
+          value={props.email}
+          name='email'
+        />
       </div>
       <div className='grid grid-cols-[1fr_8px_1fr] px-4'>
         <div className='col-span-3 col-start-1 md:col-span-1'>
@@ -92,9 +105,13 @@ export const ProfileForm: React.FC<ProfileFormProps> = (props) => {
       </div>
       <input hidden value={props.profile.id} readOnly {...register('id')} />
       <div className='px-4'>
-        <Button type='submit' fullWidth disabled={submitButtonDisabled}>
-          Save Changes
-        </Button>
+        <SubmitButton
+          pendingText='Saving Changes...'
+          staticText='Save Changes'
+          fullWidth
+          disabled={submitButtonDisabled}
+          ref={submitButtonRef}
+        />
       </div>
     </form>
   );

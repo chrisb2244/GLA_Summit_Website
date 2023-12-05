@@ -85,6 +85,10 @@ const MediaPage = () => {
     </SidewaysBox>
   );
 
+  const baseUrl = process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : '';
+
   const signatureDiv = (
     <SidewaysBox>
       <div className='relative h-[10vw] max-h-[200px] w-full'>
@@ -96,7 +100,7 @@ const MediaPage = () => {
         />
       </div>
       <CopyableTextBox
-        copyString={`<a href="https://glasummit.org"> <img src="/_next/static/media/GLASummit2022WikiBanner.ded7a1c0.png" height="100" width="300" alt="I'm attending the GLA Summit!"> </a>`}
+        copyString={`<a href="https://glasummit.org"> <img src="${baseUrl}/_next/static/media/GLASummit2022WikiBanner.ded7a1c0.png" height="100" width="300" alt="I'm attending the GLA Summit!"> </a>`}
       >
         <div className='bg-gray-200 p-6'>
           <code className='font-mono max-xl:break-all'>

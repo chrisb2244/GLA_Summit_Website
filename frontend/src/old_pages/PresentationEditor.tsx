@@ -11,8 +11,8 @@ import {
 import { useState } from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useFieldArray, useForm } from 'react-hook-form';
-import { PresentationSubmissionConfirmationPopup } from '@/Components/Form';
-import type { PersonProps } from '@/Components/Form';
+import { PresentationSubmissionConfirmationPopup } from '@/Components/Form/PresentationSubmissionConfirmationPopup';
+import type { PersonProps } from '@/Components/Form/Person';
 import {
   isLocked,
   PresentationLockedStatus,
