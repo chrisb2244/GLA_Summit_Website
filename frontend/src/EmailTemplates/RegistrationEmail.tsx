@@ -1,6 +1,10 @@
 import { LogoImg, UnexpectedEmail } from './emailComponents';
 
-export const RegistrationEmailFn = (nameString: string, otpValue: string) => {
+export const RegistrationEmailFn = (
+  nameString: string,
+  otpValue: string,
+  email: string
+) => {
   return `
   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -29,7 +33,9 @@ export const RegistrationEmailFn = (nameString: string, otpValue: string) => {
                           </tr>
                         </tbody>
                       </table>
-                      <p style="font-size:14px;line-height:24px;margin:16px 0">If the dialog box on the GLA Summit website has closed, you can enter the code at <a href="https://glasummit.org/validateLogin" target="_blank" style="color:#a25bcd;text-decoration:underline">https://glasummit.org/validateLogin</a>.</p>
+                      <p style="font-size:14px;line-height:24px;margin:16px 0">If the dialog box on the GLA Summit website has closed, you can enter the code at <a href="https://glasummit.org/auth/validateLogin?email=${encodeURIComponent(
+                        email
+                      )}" target="_blank" style="color:#a25bcd;text-decoration:underline">https://glasummit.org/auth/validateLogin</a>.</p>
                     </td>
                   </tr>
                 </tbody>

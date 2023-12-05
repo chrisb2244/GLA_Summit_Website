@@ -107,7 +107,11 @@ export const signIn = async (
         subject: 'Validation Code for GLA Summit Login',
         to: email,
         bodyPlain: plainText, //`Your One-Time Passcode is ${v.data.properties.email_otp}`
-        body: SignInEmailFn(`${firstName} ${lastName}`, properties.email_otp)
+        body: SignInEmailFn(
+          `${firstName} ${lastName}`,
+          properties.email_otp,
+          email
+        )
       });
       if (mailResult.status === 200) {
         return true;
@@ -167,7 +171,8 @@ export const signUp = async (
     const plainText = otpEmailText(newUser.firstName, newUser.lastName, otp);
     const html = RegistrationEmailFn(
       `${newUser.firstName} ${newUser.lastName}`,
-      otp
+      otp,
+      email
     );
     sendMailApi({
       to: email,
