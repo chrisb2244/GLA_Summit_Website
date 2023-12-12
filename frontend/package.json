@@ -16,6 +16,7 @@
     "@supabase/auth-helpers-nextjs": "^0.8.1",
     "@supabase/auth-helpers-react": "^0.4.2",
     "@supabase/supabase-js": "^2.36.0",
+    "@vercel/speed-insights": "^1.0.1",
     "class-variance-authority": "^0.6.1",
     "clsx": "^1.2.1",
     "form-data": "^4.0.0",

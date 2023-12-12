@@ -1,6 +1,7 @@
 import { Header } from './_rootElements/Header';
 import { Footer } from './_rootElements/Footer';
 import { roboto } from './font-workaround';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 import './global.css';
 import type { Metadata } from 'next';
@@ -35,6 +36,7 @@ export default function RootLayout(props: {
           </div>
           <Footer />
         </div>
+        <SpeedInsights />
       </body>
     </html>
   );
