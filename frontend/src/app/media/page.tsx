@@ -87,7 +87,7 @@ const MediaPage = () => {
 
   const baseUrl = process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
-    : '';
+    : 'https://glasummit.org';
 
   const signatureDiv = (
     <SidewaysBox>
