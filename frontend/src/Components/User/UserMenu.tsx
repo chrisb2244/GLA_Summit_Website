@@ -12,7 +12,7 @@ import type { ProfileModel } from '@/lib/databaseModels';
 import { Route } from 'next';
 import { DefaultUserIcon, UserIcon } from './UserIcon';
 import { useRouter } from 'next/navigation';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { supabase } from '@/lib/supabaseClient';
 
 type UserMenuProps = {
   user: User;
@@ -39,7 +39,6 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
     if (typeof url === 'undefined' || url === null) {
       return;
     }
-    const supabase = createClientComponentClient();
     downloadIconAvatarAndGenerateIfNeeded(props.user.id, url, supabase).then(
       (value) => {
         if (value instanceof Blob) {

@@ -7,7 +7,7 @@ import {
   SignUpOptions,
   SignUpReturn,
   UserCredentials
-} from '@/lib/sessionContext';
+} from '@/lib/sessionTypes';
 
 const dummyUser = {
   id: '',

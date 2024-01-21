@@ -1,9 +1,7 @@
-import type { NextApiHandler } from 'next';
-import { createPagesServerClient } from '@supabase/auth-helpers-nextjs';
-import { Database } from '@/lib/sb_databaseModels';
 import { createEvent } from 'ics';
 import type { EventAttributes, DateArray } from 'ics';
 import { getSessionDurationInMinutes } from '@/lib/utils';
+import { createRouteHandlerClient } from '@/lib/supabaseServer';
 
 const dateToDateArray = (d: Date): DateArray => {
   return [
@@ -15,13 +13,16 @@ const dateToDateArray = (d: Date): DateArray => {
   ];
 };
 
-const handler: NextApiHandler = async (req, res) => {
-  const supabase = createPagesServerClient<Database>({ req, res });
-  const { presentationId } = req.query as { presentationId: string };
+export async function GET(
+  request: Request,
+  { params }: { params: { presentationId: string } }
+) {
+  const { presentationId } = params;
+  const supabase = createRouteHandlerClient();
 
   // Basic sanitization - id should be a hex string with "-" characters
   if (!presentationId.match(/^[-0-9a-f]*$/)) {
-    return res.status(400).json('Invalid presentation ID');
+    return Response.json('Invalid presentation ID', { status: 400 });
   }
   // Consider filter by length?
   // "192c0a77-fddf-4ef9-8b9b-7e25d0c5e0bc" is valid,
@@ -36,13 +37,16 @@ const handler: NextApiHandler = async (req, res) => {
     .single();
 
   if (error || data.presentation_submissions === null) {
-    return res.status(500).send('Unable to fetch the specified session');
+    return Response.json('Unable to fetch the specified session', {
+      status: 500
+    });
   }
 
   if (data.scheduled_for === null) {
-    return res
-      .status(400)
-      .send('The presentation specified has not been scheduled yet');
+    return Response.json(
+      'The presentation specified has not been scheduled yet',
+      { status: 400 }
+    );
   }
 
   // Shouldn't be an array, but parse for TypeScript
@@ -69,17 +73,18 @@ const handler: NextApiHandler = async (req, res) => {
 
   const { error: eventError, value } = createEvent(eventAttributes);
   if (eventError || typeof value === 'undefined') {
-    return res.status(500).send('Unable to generate the requested ICS file');
+    return Response.json('Unable to generate the requested ICS file', {
+      status: 500
+    });
   }
 
   const safeTitle = presentationData.title.replaceAll(/[^a-zA-Z0-9 ]/g, '');
 
-  res.setHeader('Content-Type', 'text/calendar');
-  res.setHeader(
+  const res = new Response(value);
+  res.headers.set('Content-Type', 'text/calendar');
+  res.headers.set(
     'Content-Disposition',
     'attachment; filename=' + safeTitle + '.ics'
   );
-  return res.send(value);
-};
-
-export default handler;
+  return res;
+}

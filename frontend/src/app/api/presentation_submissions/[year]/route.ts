@@ -1,16 +1,14 @@
 import { PresentationReviewInfo } from '@/Components/SubmittedPresentationReviewCard';
-import { Database } from '@/lib/sb_databaseModels';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { isSummitYear } from '@/lib/databaseModels';
+import { createRouteHandlerClient } from '@/lib/supabaseServer';
 
 export async function GET(
   req: NextRequest,
   { params }: { params: { year: string } }
 ) {
   const { year: target_year } = params;
-  const supabase = createRouteHandlerClient<Database>({ cookies });
+  const supabase = createRouteHandlerClient();
 
   if (!isSummitYear(target_year)) {
     return NextResponse.json({ presentationSubmissions: [] });

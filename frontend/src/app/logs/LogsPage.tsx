@@ -1,12 +1,11 @@
 'use client';
 
-import { NextPage } from 'next';
 import { useEffect, useReducer } from 'react';
 import { LogEntry, LogViewer } from '@/Components/LogViewer';
 import { Database } from '@/lib/sb_databaseModels';
 import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 import { myLog } from '@/lib/utils';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { supabase } from '@/lib/supabaseClient';
 
 type DB_SubscriptionEvent = RealtimePostgresChangesPayload<
   Database['public']['Tables']['log']['Row']
@@ -18,7 +17,11 @@ type SubscriptionEvent =
       data: LogEntry[];
     };
 
-const LogsPage: NextPage<{ serverLogs: LogEntry[] }> = ({ serverLogs }) => {
+type LogsPageProps = {
+  serverLogs: LogEntry[];
+};
+
+const LogsPage = ({ serverLogs }: LogsPageProps) => {
   const logEntryReducer = (
     cachedEntries: LogEntry[],
     payload: SubscriptionEvent
@@ -44,7 +47,7 @@ const LogsPage: NextPage<{ serverLogs: LogEntry[] }> = ({ serverLogs }) => {
 
   useEffect(() => {
     myLog('adding subscription');
-    const subscription = createClientComponentClient<Database>()
+    const subscription = supabase
       .channel('public:log')
       .on(
         'postgres_changes',

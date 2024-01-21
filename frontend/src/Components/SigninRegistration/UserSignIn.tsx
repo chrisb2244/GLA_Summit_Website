@@ -1,4 +1,4 @@
-import type { SignInOptions, SignInReturn } from '@/lib/sessionContext';
+import type { SignInOptions, SignInReturn } from '@/lib/sessionTypes';
 import { SignInForm, SignInFormValues } from '../Forms/SignInForm';
 import { SubmitHandler } from 'react-hook-form';
 
@@ -17,7 +17,7 @@ export const UserSignIn = (props: SignInProps) => {
 
   return (
     <>
-      <div className='prose-sm prose flex max-w-none flex-col items-center px-4 pb-4 text-center'>
+      <div className='prose prose-sm flex max-w-none flex-col items-center px-4 pb-4 text-center'>
         <div className='pb-0.5 prose-p:my-0'>
           <p>
             In order to sign in, enter the email address you used to register

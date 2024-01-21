@@ -8,7 +8,7 @@ import { PresentationType } from '@/lib/databaseModels';
 import type { EmailProps, PersonProps } from '@/Components/Form/Person';
 import { myLog } from '@/lib/utils';
 import { PresentationSubmissionFormCore } from './PresentationSubmissionFormCore';
-import { useSession } from '@/lib/sessionContext';
+// import { useSession } from '@/lib/sessionContext';
 
 type FormProps = {
   submitter: PersonProps;
@@ -56,7 +56,7 @@ export const PresentationSubmissionForm: React.FC<
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const { user } = useSession();
+  const { user } = { user: null } as { user: { id: string } | null }; // useSession();
   useEffect(() => {
     setIsMounted(true);
     return () => setIsMounted(false);
