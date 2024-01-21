@@ -4,7 +4,7 @@ import { StackedBoxes } from '@/Components/Layout/StackedBoxes';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { PresentationType } from '@/lib/databaseModels';
-import { PresentationSubmissionConfirmationPopup } from '@/Components/Form/PresentationSubmissionConfirmationPopup';
+// import { PresentationSubmissionConfirmationPopup } from '@/Components/Form/PresentationSubmissionConfirmationPopup';
 import type { EmailProps, PersonProps } from '@/Components/Form/Person';
 import { myLog } from '@/lib/utils';
 import { PresentationSubmissionFormCore } from './PresentationSubmissionFormCore';
@@ -106,13 +106,13 @@ export const PresentationSubmissionForm: React.FC<
       myLog('Cancelled form submission');
     }
   };
-  const confirmationPopup = (
-    <PresentationSubmissionConfirmationPopup
-      open={showConfirmation}
-      setClosed={() => setShowConfirmation(false)}
-      onResolve={handleConfirmation}
-    />
-  );
+  // const confirmationPopup = (
+  //   <PresentationSubmissionConfirmationPopup
+  //     open={showConfirmation}
+  //     setClosed={() => setShowConfirmation(false)}
+  //     onResolve={handleConfirmation}
+  //   />
+  // );
 
   return (
     <>
@@ -165,7 +165,7 @@ export const PresentationSubmissionForm: React.FC<
           </Button>
         </StackedBoxes>
       </form>
-      {confirmationPopup}
+      {/* {confirmationPopup} */}
     </>
   );
 };
