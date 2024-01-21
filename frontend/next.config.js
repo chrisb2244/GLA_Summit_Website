@@ -5,7 +5,12 @@
 module.exports = {
   reactStrictMode: true,
   images: {
-    domains: ['iuqlmccpbxtgcluccazt.supabase.co']
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'iuqlmccpbxtgcluccazt.supabase.co'
+      }
+    ]
   },
   async redirects() {
     return [
