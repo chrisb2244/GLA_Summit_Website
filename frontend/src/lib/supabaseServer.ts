@@ -12,6 +12,10 @@ export const createServerComponentClient = () => {
   return createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
     cookies: {
       get: (name: string) => cookieStore.get(name)?.value
+    },
+    auth: {
+      // Don't auto-refresh tokens in server components (can't set cookies)
+      autoRefreshToken: false
     }
   });
 };
