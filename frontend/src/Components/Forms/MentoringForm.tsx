@@ -1,8 +1,8 @@
-import { Button, Typography, Box, Tabs, Tab } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 
 import { Person, type PersonProps } from '@/Components/Form/Person';
+import { Button } from '../Form/Button';
 
 type FormProps = {
   defaultEntry?: PersonProps;
@@ -62,9 +62,9 @@ export const MentoringForm: React.FC<React.PropsWithChildren<FormProps>> = ({
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   const confirmationResponse = (
-    <Box>
-      <Typography>{entryTypes[tabIndex].confirmationResponse}</Typography>
-    </Box>
+    <div>
+      <p>{entryTypes[tabIndex].confirmationResponse}</p>
+    </div>
   );
 
   const handleChange = (event: React.SyntheticEvent, newIndex: number) => {
@@ -75,16 +75,16 @@ export const MentoringForm: React.FC<React.PropsWithChildren<FormProps>> = ({
     const msg = entryTypes.filter((eType) => eType.entryType === registered)[0]
       .registeredMessage;
     return (
-      <Box>
-        <Typography>{msg}</Typography>
-      </Box>
+      <div>
+        <p>{msg}</p>
+      </div>
     );
   } else {
     return (
       <>
         {!showConfirmation && (
-          <Box>
-            <Tabs
+          <div>
+            {/* <Tabs
               value={tabIndex}
               onChange={handleChange}
               sx={{ pb: 2 }}
@@ -93,7 +93,7 @@ export const MentoringForm: React.FC<React.PropsWithChildren<FormProps>> = ({
               {entryTypes.map((eType) => {
                 return <Tab label={eType.tabLabel} key={eType.entryType} />;
               })}
-            </Tabs>
+            </Tabs> */}
             <form
               onSubmit={handleSubmit(async (data) => {
                 registrationFn({
@@ -110,16 +110,11 @@ export const MentoringForm: React.FC<React.PropsWithChildren<FormProps>> = ({
                 defaultValue={defaultEntry}
                 locked={typeof defaultEntry !== 'undefined'}
               />
-              <Button
-                variant='contained'
-                type='submit'
-                fullWidth
-                sx={{ mt: 2 }}
-              >
+              <Button type='submit' fullWidth>
                 Submit
               </Button>
             </form>
-          </Box>
+          </div>
         )}
         {showConfirmation && confirmationResponse}
       </>
