@@ -68,12 +68,16 @@ const MediaPage = () => {
   const jkiDiv = (
     <SidewaysBox>
       <div className='sm:max-w-2/5 relative inline-block h-full max-h-[250px] flex-grow-0 max-sm:min-h-[40vw] max-sm:w-full sm:min-h-[min(15vw,200px)] sm:w-2/5'>
-        <a href='https://jki.net'>
+        <a
+          href='https://jki.net'
+          className='absolute left-0 top-0 h-full w-full'
+        >
           <NextImage
             src={JKI_Logo}
             alt='JKI logo'
             fill
             className='object-contain'
+            sizes='(max-width: 600px) 100vw, 40vw'
           />
         </a>
       </div>
@@ -89,6 +93,8 @@ const MediaPage = () => {
     ? `https://${process.env.VERCEL_URL}`
     : 'https://glasummit.org';
 
+  const imgUrl = `${baseUrl}${SignatureImage.src}`;
+
   const signatureDiv = (
     <SidewaysBox>
       <div className='relative h-[10vw] max-h-[200px] w-full'>
@@ -97,17 +103,17 @@ const MediaPage = () => {
           alt='GLA signature image'
           fill
           className='object-contain'
+          sizes='(max-width: 600px) 100vw, 40vw'
         />
       </div>
       <CopyableTextBox
-        copyString={`<a href="https://glasummit.org"> <img src="${baseUrl}/_next/static/media/GLASummit2022WikiBanner.ded7a1c0.png" height="100" width="300" alt="I'm attending the GLA Summit!"> </a>`}
+        copyString={`<a href="https://glasummit.org"> <img src="${imgUrl}" height="100" width="300" alt="I'm attending the GLA Summit!"> </a>`}
       >
         <div className='bg-gray-200 p-6'>
           <code className='font-mono max-xl:break-all'>
             &lt;a href=&quot;https://glasummit.org&quot;&gt; &lt;img src=&quot;
-            {hostname + SignatureImage.src}&quot; height=&quot;100&quot;
-            width=&quot;300&quot; alt=&quot;I&apos;m attending the GLA
-            Summit!&quot;&gt; &lt;/a&gt;
+            {imgUrl}&quot; height=&quot;100&quot; width=&quot;300&quot;
+            alt=&quot;I&apos;m attending the GLA Summit!&quot;&gt; &lt;/a&gt;
           </code>
         </div>
       </CopyableTextBox>
