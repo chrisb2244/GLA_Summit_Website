@@ -34,7 +34,9 @@ const AuthPage = () => {
     <CenteredDialog
       open={true}
       onClose={() => {
-        router.push(redirectTo ?? '/');
+        // This is triggered only when cancelling (e.g. click outside)
+        // Otherwise, the form submission actions trigger a redirect
+        router.back();
       }}
     >
       {form}

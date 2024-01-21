@@ -31,3 +31,8 @@ export type SignUpOptions = {
   data?: object;
   captchaToken?: string;
 };
+
+export type NewUserInformation = {
+  firstname: string;
+  lastname: string;
+};

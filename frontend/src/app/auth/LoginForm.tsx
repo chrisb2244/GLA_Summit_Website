@@ -8,6 +8,13 @@ export const LoginForm = (props: { redirectTo?: string }) => {
     ? `/auth/register?redirectTo=${props.redirectTo}`
     : '/auth/register';
 
+  // Must use 'replace' here to allow use of router.back() in the dialog form
+  const toggleLink = (
+    <Link className='link' href={registerPath} replace scroll={false}>
+      Join Now
+    </Link>
+  );
+
   return (
     <div className='mx-auto flex max-w-lg flex-col py-4'>
       <div className='prose prose-sm flex max-w-none flex-col items-center px-4 pb-4 text-center'>
@@ -23,9 +30,7 @@ export const LoginForm = (props: { redirectTo?: string }) => {
         </div>
         <p>
           <span>{'Not registered?\u00A0'}</span>
-          <Link className='link' href={registerPath}>
-            Join Now
-          </Link>
+          {toggleLink}
         </p>
       </div>
       {/* <div className='mx-auto my-4 flex w-full max-w-md flex-col bg-gray-200 px-8 pb-4 pt-6 shadow'> */}

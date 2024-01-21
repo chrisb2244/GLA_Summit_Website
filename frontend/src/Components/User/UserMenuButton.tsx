@@ -1,5 +1,4 @@
 import { SignInUpButton } from '@/Components/SigninRegistration/SignInUpButton';
-import { WaitingIndicator } from '@/Components/Utilities/WaitingIndicator';
 import { UserMenu } from '@/Components/User/UserMenu';
 import { signOut } from '@/Components/SigninRegistration/SignInUpActions';
 import { createServerComponentClient } from '@/lib/supabaseServer';
@@ -43,10 +42,9 @@ export async function UserMenuButton() {
   };
   const profile = await getProfile(user);
 
-  const idleSpinner = <WaitingIndicator />;
   const button =
     user == null ? (
-      <SignInUpButton waitingSpinner={idleSpinner} />
+      <SignInUpButton />
     ) : (
       <UserMenu
         user={user}

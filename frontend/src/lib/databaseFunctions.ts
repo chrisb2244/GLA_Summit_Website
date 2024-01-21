@@ -1,5 +1,4 @@
 import { PersonDisplayProps } from '@/Components/PersonDisplay';
-import type { NewUserInformation } from '@/Components/SigninRegistration/NewUserRegistration';
 import {
   PostgrestError,
   User as SB_User,
@@ -13,6 +12,7 @@ import {
   createAnonServerClient
 } from './supabaseClient';
 import { defaultTimezoneInfo, fullUrlToIconUrl, myLog } from './utils';
+import type { NewUserInformation } from './sessionTypes';
 
 export type User = SB_User;
 type Client = SupabaseClient<Database>;

@@ -1,4 +1,4 @@
-import type { NewUserInformation } from '@/Components/SigninRegistration/NewUserRegistration';
+import type { NewUserInformation } from '@/lib/sessionTypes';
 import { createAdminClient } from '@/lib/supabaseClient';
 import type {
   User,
