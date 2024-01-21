@@ -52,7 +52,6 @@ export const generateSupabaseLinks = async (
   // data looks to have the same format as the 'data' object accepted by signUp.
   const { type, email, redirectTo } = bodyData;
   const { userId: existingId } = await checkForExistingUser(email);
-  const serviceKey = process.env.SECRET_SUPABASE_SERVICE_KEY as string;
   let fnPromise = null;
 
   switch (type) {
