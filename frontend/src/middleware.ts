@@ -111,5 +111,6 @@ export const config = {
      * - favicon.ico (favicon file)
      */
     '/((?!_next/static|_next/image|_next/data|favicon.ico).*)'
-  ]
+  ],
+  regions: ['iad1']
 };
