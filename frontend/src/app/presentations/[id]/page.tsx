@@ -1,20 +1,16 @@
 import {
   Presentation,
-  PresentationDisplay,
-  Schedule
+  PresentationDisplay
 } from '@/Components/Layout/PresentationDisplay';
-import { PersonDisplayProps } from '@/Components/PersonDisplay';
 import {
-  getPerson,
   getPresentationIds,
-  getPublicPresentation
+  getPublicPresentation,
+  speakerIdsToSpeakers
 } from '@/lib/databaseFunctions';
-import { PresentationType } from '@/lib/databaseModels';
 import { createAnonServerClient } from '@/lib/supabaseClient';
 import { createServerComponentClient } from '@/lib/supabaseServer';
-import { getSessionDurationInMinutes, myLog } from '@/lib/utils';
-import { SupabaseClient } from '@supabase/supabase-js';
-import type { Metadata, NextPage, Route } from 'next';
+import { calculateSchedule, myLog } from '@/lib/utils';
+import type { Metadata, NextPage } from 'next';
 import { notFound } from 'next/navigation';
 import { redirect } from 'next/navigation';
 
@@ -49,40 +45,6 @@ const PresentationsForYearPage: NextPage<PageProps> = async ({ params }) => {
 
   const supabase = createAnonServerClient();
 
-  const getSchedule = (
-    type: PresentationType,
-    scheduled_for: string | null
-  ): Schedule => {
-    let schedule: Schedule = {
-      sessionStart: null,
-      sessionEnd: null
-    };
-    // Panels, 7x7 for 1h, 'full length' for 45m?
-    const sessionDuration = getSessionDurationInMinutes(type) * 60; // duration in seconds
-    if (scheduled_for !== null) {
-      const startDate = new Date(scheduled_for);
-      const endDate = new Date(startDate.getTime() + sessionDuration * 1000);
-      schedule = {
-        sessionStart: startDate.toUTCString(),
-        sessionEnd: endDate.toUTCString()
-      };
-    }
-    return schedule;
-  };
-  const getSpeakers = async (
-    speakerIds: string[],
-    client: SupabaseClient
-  ): Promise<PersonDisplayProps[]> => {
-    return await Promise.all(
-      speakerIds.map(async (speakerId) => {
-        return {
-          ...(await getPerson(speakerId, client)),
-          pageLink: `/presenters/${speakerId}` as Route
-        };
-      })
-    );
-  };
-
   type PresentationReturn =
     | {
         redirect: {
@@ -95,7 +57,10 @@ const PresentationsForYearPage: NextPage<PageProps> = async ({ params }) => {
     supabase
   ).then(
     async (data) => {
-      const presenters = await getSpeakers(data.all_presenters, supabase);
+      const presenters = await speakerIdsToSpeakers(
+        data.all_presenters,
+        supabase
+      );
 
       const type = data.presentation_type;
       if (type === 'panel') {
@@ -108,7 +73,7 @@ const PresentationsForYearPage: NextPage<PageProps> = async ({ params }) => {
           }
         };
       }
-      const schedule = getSchedule(type, data.scheduled_for);
+      const schedule = calculateSchedule(type, data.scheduled_for);
 
       return {
         title: data.title,
@@ -138,12 +103,12 @@ const PresentationsForYearPage: NextPage<PageProps> = async ({ params }) => {
         return {
           title: data.title,
           abstract: data.abstract,
-          speakers: await getSpeakers(
+          speakers: await speakerIdsToSpeakers(
             data.all_presenters_ids,
             supabaseLoggedIn
           ),
           speakerNames: allPresenterNames,
-          ...getSchedule(data.presentation_type, scheduledFor),
+          ...calculateSchedule(data.presentation_type, scheduledFor),
           isPrivate: true
         };
       }

@@ -2,7 +2,7 @@ import { PersonDisplay, PersonDisplayProps } from '@/Components/PersonDisplay';
 import { mdiCalendar } from '@mdi/js';
 // import {  mdiStarPlusOutline, mdiStarRemoveOutline } from '@mdi/js';
 import Icon from '@mdi/react';
-import { formatTextToPs } from '@/lib/utils';
+import { type Schedule, formatTextToPs } from '@/lib/utils';
 // import { logErrorToDb } from '@/lib/utils';
 import { TimestampSpan } from '../Utilities/TimestampSpan';
 
@@ -13,16 +13,6 @@ export type Presentation = {
   speakers: PersonDisplayProps[];
   isPrivate?: boolean;
 } & Schedule;
-
-export type Schedule =
-  | {
-      sessionStart: string;
-      sessionEnd: string;
-    }
-  | {
-      sessionStart: null;
-      sessionEnd: null;
-    };
 
 type PresentationDisplayProps = {
   presentation: Presentation;
