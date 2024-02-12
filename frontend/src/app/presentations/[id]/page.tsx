@@ -13,6 +13,7 @@ import { calculateSchedule, myLog } from '@/lib/utils';
 import type { Metadata, NextPage } from 'next';
 import { notFound } from 'next/navigation';
 import { redirect } from 'next/navigation';
+import { getPanelLink } from 'src/app/panels/panelLinks';
 
 type PageProps = {
   params: {
@@ -64,21 +65,11 @@ const PresentationsForYearPage: NextPage<PageProps> = async ({ params }) => {
 
       const type = data.presentation_type;
       if (type === 'panel') {
-        // TODO - in a future year, fix this rather than being hardcoded
-        switch (data.title) {
-          case 'How to make Open-Source more worthwhile?':
-            return {
-              redirect: {
-                destination: '/panels/open-source'
-              }
-            };
-          case 'LabVIEW and Python - A Discussion':
-            return {
-              redirect: {
-                destination: '/panels/labview-and-python'
-              }
-            };
-        }
+        return {
+          redirect: {
+            destination: getPanelLink(data.title)
+          }
+        };
       }
       const schedule = calculateSchedule(type, data.scheduled_for);
 
