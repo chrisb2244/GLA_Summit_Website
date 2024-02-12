@@ -3,7 +3,7 @@ import {
   PersonInfo,
   PresentationReviewInfo,
   SubmittedPresentationReviewCard
-} from '@/Components/SubmittedPresentationReviewCard';
+} from './SubmittedPresentationReviewCard';
 import userEvent from '@testing-library/user-event';
 
 describe('SubmittedPresentationReviewCard', () => {
@@ -35,13 +35,15 @@ describe('SubmittedPresentationReviewCard', () => {
   it('has a primary action to expand for abstract', async () => {
     render(testObject);
     const title = screen.getByText('Test title');
-    const abstractSection = screen.getByText('Blah blah abstract');
-    expect(abstractSection).not.toBeVisible();
+    const abstractSection = screen.queryByText('Blah blah abstract');
+    expect(abstractSection).toBeNull();
     await userEvent.click(title);
-    expect(abstractSection).toBeVisible();
+    waitFor(() => {
+      expect(abstractSection).toBeVisible();
+    });
     await userEvent.click(title);
     return waitFor(() => {
-      expect(abstractSection).not.toBeVisible();
+      expect(abstractSection).toBeNull();
     });
   });
 

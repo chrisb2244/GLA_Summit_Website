@@ -60,7 +60,7 @@ export const SubmittedPresentationReviewCard: React.FC<
           </div>
         </Disclosure.Button>
         <Transition>
-          <Disclosure.Panel className='rounded-b-lg bg-gray-100'>
+          <Disclosure.Panel className='rounded-b-lg bg-gray-100 p-4'>
             <span>
               {'Presenters: '}
               {p.presenters.map((name, idx, arr) => {
@@ -75,7 +75,7 @@ export const SubmittedPresentationReviewCard: React.FC<
                 );
               })}
             </span>
-            <div className='mt-2 prose-p:my-0'>
+            <div className='mt-2 prose-p:my-2'>
               {formatTextToPs(p.abstract)}
             </div>
           </Disclosure.Panel>
