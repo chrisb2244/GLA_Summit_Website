@@ -5,6 +5,7 @@ import {
 import {
   getPresentationIds,
   getPublicPresentation,
+  getVideoLink,
   speakerIdsToSpeakers
 } from '@/lib/databaseFunctions';
 import { createAnonServerClient } from '@/lib/supabaseClient';
@@ -116,11 +117,14 @@ const PresentationsForYearPage: NextPage<PageProps> = async ({ params }) => {
   if (typeof presentation.redirect != 'undefined') {
     redirect(presentation.redirect.destination);
   } else {
+    const videoWatchLink = await getVideoLink(pId, supabase);
+    const videoEmbedLink = videoWatchLink?.replace('watch?v=', 'embed/');
     return (
       <PresentationDisplay
         presentationId={pId}
         presentation={presentation}
         withFavouritesButton={false}
+        videoLink={videoEmbedLink}
       />
     );
   }

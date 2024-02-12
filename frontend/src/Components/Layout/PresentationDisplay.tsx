@@ -5,6 +5,7 @@ import Icon from '@mdi/react';
 import { type Schedule, formatTextToPs } from '@/lib/utils';
 // import { logErrorToDb } from '@/lib/utils';
 import { TimestampSpan } from '../Utilities/TimestampSpan';
+import { getVideoLink } from '@/lib/databaseFunctions';
 
 export type Presentation = {
   title: string;
@@ -19,13 +20,14 @@ type PresentationDisplayProps = {
   timeZoneName?: string;
   presentationId: string;
   dateToStringFn?: (datetime: string) => string;
+  videoLink?: string | null;
   withFavouritesButton?: boolean;
 };
 
 export const PresentationDisplay: React.FC<
   React.PropsWithChildren<PresentationDisplayProps>
 > = (props) => {
-  const { presentation, presentationId } = props;
+  const { presentation, presentationId, videoLink } = props;
   // const timeZoneName = props.timeZoneName ?? 'JST';
   // const dateToStringFn =
   //   props.dateToStringFn ??
@@ -135,6 +137,19 @@ export const PresentationDisplay: React.FC<
   //   </div>
   // ) : null
 
+  const videoElement =
+    videoLink !== null && typeof videoLink !== 'undefined' ? (
+      <div className='my-4 flex h-[400px] w-full items-stretch'>
+        <iframe
+          id='yt_player'
+          typeof='text/html'
+          width='100%'
+          height='auto'
+          src={videoLink}
+        />
+      </div>
+    ) : null;
+
   return (
     <div className='mb-6 mt-1 border-2 shadow-sm'>
       <div className='prose mx-auto flex w-11/12 max-w-none flex-col space-y-4'>
@@ -156,6 +171,7 @@ export const PresentationDisplay: React.FC<
           <div className='prose-p:my-1'>
             {formatTextToPs(presentation.abstract)}
           </div>
+          {videoElement}
         </div>
         <div>
           {presentation.speakers.map((personProps) => {
