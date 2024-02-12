@@ -64,14 +64,21 @@ const PresentationsForYearPage: NextPage<PageProps> = async ({ params }) => {
 
       const type = data.presentation_type;
       if (type === 'panel') {
-        // ToDo - in a future year, fix this rather than being hardcoded
-        const isOS = data.title === 'How to make Open-Source more worthwhile?';
-        const link = `/panels/${isOS ? 'open-source' : 'labview-and-python'}`;
-        return {
-          redirect: {
-            destination: link
-          }
-        };
+        // TODO - in a future year, fix this rather than being hardcoded
+        switch (data.title) {
+          case 'How to make Open-Source more worthwhile?':
+            return {
+              redirect: {
+                destination: '/panels/open-source'
+              }
+            };
+          case 'LabVIEW and Python - A Discussion':
+            return {
+              redirect: {
+                destination: '/panels/labview-and-python'
+              }
+            };
+        }
       }
       const schedule = calculateSchedule(type, data.scheduled_for);
 
