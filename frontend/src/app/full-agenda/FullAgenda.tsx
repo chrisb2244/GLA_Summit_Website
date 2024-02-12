@@ -6,7 +6,7 @@ import type {
   RealtimePostgresChangesPayload,
   User
 } from '@supabase/supabase-js';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { supabase } from '@/lib/supabaseClient';
 import { ContainerHint } from '@/Components/Agenda/AgendaCalculations';
 import { myLog } from '@/lib/utils';
 
@@ -21,7 +21,6 @@ export const FullAgenda = (props: {
   fullAgenda: ScheduledAgendaEntry[];
   containerHints: ContainerHint[];
 }) => {
-  const supabase = createClientComponentClient<Database>();
   const [user, setUser] = useState<User>();
   useEffect(() => {
     supabase.auth.getUser().then(({ data, error }) => {

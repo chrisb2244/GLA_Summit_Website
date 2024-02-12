@@ -1,10 +1,8 @@
 'use server';
 
 import { ProfileModel } from '@/lib/databaseModels';
-import { Database } from '@/lib/sb_databaseModels';
-import { createServerActionClient } from '@supabase/auth-helpers-nextjs';
+import { createServerActionClient } from '@/lib/supabaseServer';
 import { revalidatePath } from 'next/cache';
-import { cookies } from 'next/headers';
 
 type ProfileDataUpdate = ProfileModel['Update'];
 
@@ -49,7 +47,7 @@ export const SubmitProfileDataUpdate = async (formData: FormData) => {
     }
   });
 
-  const supabase = createServerActionClient<Database>({ cookies });
+  const supabase = createServerActionClient();
   const { data, error } = await supabase
     .from('profiles')
     .update(v)

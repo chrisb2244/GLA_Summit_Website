@@ -1,4 +1,4 @@
-import type { NewUserInformation } from '@/Components/SigninRegistration/NewUserRegistration';
+import type { NewUserInformation } from '@/lib/sessionTypes';
 import { createAdminClient } from '@/lib/supabaseClient';
 import type {
   User,
@@ -6,14 +6,12 @@ import type {
   AuthError,
   GenerateLinkProperties
 } from '@supabase/supabase-js';
-import type { ApiError } from './sessionContext';
+import type { ApiError } from './sessionTypes';
 import {
   adminUpdateExistingProfile,
   checkForExistingUser
 } from './databaseFunctions';
 import { logErrorToDb, myLog } from './utils';
-import { createServerActionClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
 
 export type GenerateLinkBody =
   | {
@@ -54,7 +52,6 @@ export const generateSupabaseLinks = async (
   // data looks to have the same format as the 'data' object accepted by signUp.
   const { type, email, redirectTo } = bodyData;
   const { userId: existingId } = await checkForExistingUser(email);
-  const serviceKey = process.env.SECRET_SUPABASE_SERVICE_KEY as string;
   let fnPromise = null;
 
   switch (type) {
@@ -70,20 +67,14 @@ export const generateSupabaseLinks = async (
         if (typeof data !== 'undefined') {
           adminUpdateExistingProfile(existingId, data);
         }
-        fnPromise = createServerActionClient(
-          { cookies },
-          { supabaseKey: serviceKey }
-        ).auth.admin.generateLink({
+        fnPromise = createAdminClient().auth.admin.generateLink({
           type: 'magiclink',
           email,
           options: { redirectTo }
         });
       } else {
         // There was no existingId (this is expected), so create new user.
-        fnPromise = createServerActionClient(
-          { cookies },
-          { supabaseKey: serviceKey }
-        ).auth.admin.generateLink({
+        fnPromise = createAdminClient().auth.admin.generateLink({
           type: 'signup',
           email,
           password,
@@ -101,10 +92,7 @@ export const generateSupabaseLinks = async (
           error: { message: 'User not found', status: 401 }
         };
       }
-      fnPromise = createServerActionClient(
-        { cookies },
-        { supabaseKey: serviceKey }
-      ).auth.admin.generateLink({
+      fnPromise = createAdminClient().auth.admin.generateLink({
         type: 'magiclink',
         email,
         options: { redirectTo }

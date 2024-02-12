@@ -1,8 +1,8 @@
 import { SocialMediaIcons } from './SocialMediaIcons';
 
 export const Footer: React.FC<React.PropsWithChildren<unknown>> = () => {
-  // The 'Toolbar' component appears to make the flow
-  // direction a row, rather than a column otherwise...
+  const thisYear = new Date().getFullYear();
+
   return (
     <footer className='App-footer'>
       <div className='flex min-h-[64px] items-center justify-between bg-primaryc px-6 text-white'>
@@ -17,7 +17,7 @@ export const Footer: React.FC<React.PropsWithChildren<unknown>> = () => {
                 contact@glasummit.org
               </a>
             </p>
-            <p>{'\u00A9 2022 GLA Organizers'}</p>
+            <p>{`\u00A9 2022-${thisYear} GLA Organizers`}</p>
           </div>
         </div>
       </div>

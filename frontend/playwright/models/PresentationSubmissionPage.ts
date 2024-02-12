@@ -1,8 +1,19 @@
-import type { FormData as SubmissionData } from '../../src/old_pages/PresentationSubmissionForm_old';
 import type { Locator, Page } from '@playwright/test';
+import type { EmailProps, PersonProps } from '@/Components/Form/Person';
+import type { PresentationType } from '@/lib/databaseModels';
 
+export type FormData = {
+  submitter: PersonProps;
+  otherPresenters: EmailProps[];
+  title: string;
+  abstract: string;
+  learningPoints: string;
+  presentationType: PresentationType;
+  timeWindows: { windowStartTime: Date; windowEndTime: Date }[];
+  isFinal: boolean;
+};
 type PresentationFormData = Omit<
-  SubmissionData,
+  FormData,
   'submitter' | 'otherPresenters' | 'timeWindows'
 >;
 

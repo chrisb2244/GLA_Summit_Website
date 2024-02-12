@@ -44,10 +44,21 @@ export default async function Page() {
   const supabase = createServerComponentClient();
   const user =
     (await supabase.auth.getSession())?.data.session?.user ?? undefined;
-  const submitPresentationLink =
-    typeof user !== 'undefined'
-      ? '/my-presentations'
-      : '/auth/register?redirectTo=/my-presentations';
+
+  const loggedIn = typeof user !== 'undefined';
+  const submitPresentationButton = (
+    <Link
+      href={
+        loggedIn
+          ? '/my-presentations'
+          : '/auth/register?redirectTo=/my-presentations'
+      }
+      prefetch={false}
+      scroll={loggedIn}
+    >
+      <Button fullWidth>Submit a Presentation</Button>
+    </Link>
+  );
 
   return (
     <div className='prose prose-base mx-auto max-w-2xl text-justify xl:max-w-3xl'>
@@ -55,11 +66,7 @@ export default async function Page() {
         The GLA Summit Organizers are excited to announce the next GLA Summit,
         scheduled for 25-26 March 2024!
       </p>
-      <div>
-        <Link href={submitPresentationLink}>
-          <Button fullWidth>Submit a Presentation</Button>
-        </Link>
-      </div>
+      <div>{submitPresentationButton}</div>
       <p>
         We are excited to welcome advanced LabVIEW developers and Architects
         (certified or self-proclaimed) from around the world to network and

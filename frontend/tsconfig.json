@@ -39,5 +39,5 @@
     "playwright.config.ts",
     ".next/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "./tsconfig.json", "src/old_pages"]
+  "exclude": ["node_modules", "./tsconfig.json"]
 }
