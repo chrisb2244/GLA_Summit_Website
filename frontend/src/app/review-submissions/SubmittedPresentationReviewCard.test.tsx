@@ -49,6 +49,11 @@ describe('SubmittedPresentationReviewCard', () => {
 
   it("contains the primary presenter's name", () => {
     render(testObject);
-    expect(screen.getByText('Submitter: Test User')).toBeVisible();
+    expect(screen.getByText(/Submitter: Test User/)).toBeVisible();
+  });
+
+  it('displays the intended duration', () => {
+    render(testObject);
+    expect(screen.getByText(/(45 minutes)/)).toBeVisible();
   });
 });
