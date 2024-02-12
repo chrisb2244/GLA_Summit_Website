@@ -71,7 +71,8 @@ export const PresentationDisplay: React.FC<
         }}
         dateFormat={{
           month: 'long',
-          day: '2-digit'
+          day: '2-digit',
+          year: 'numeric'
         }}
       />
     );
