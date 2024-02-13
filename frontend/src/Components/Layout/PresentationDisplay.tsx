@@ -139,12 +139,11 @@ export const PresentationDisplay: React.FC<
 
   const videoElement =
     videoLink !== null && typeof videoLink !== 'undefined' ? (
-      <div className='my-4 flex h-[400px] w-full items-stretch'>
+      <div className='relative my-4 h-0 w-full pb-[56.5%]'>
         <iframe
+          className='absolute left-0 top-0 h-full w-full'
           id='yt_player'
           typeof='text/html'
-          width='100%'
-          height='auto'
           src={videoLink}
         />
       </div>
