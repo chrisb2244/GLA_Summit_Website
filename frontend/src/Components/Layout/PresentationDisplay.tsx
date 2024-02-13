@@ -6,6 +6,7 @@ import { type Schedule, formatTextToPs } from '@/lib/utils';
 // import { logErrorToDb } from '@/lib/utils';
 import { TimestampSpan } from '../Utilities/TimestampSpan';
 import { getVideoLink } from '@/lib/databaseFunctions';
+import { YouTubeFrame } from './YouTubeFrame';
 
 export type Presentation = {
   title: string;
@@ -137,18 +138,6 @@ export const PresentationDisplay: React.FC<
   //   </div>
   // ) : null
 
-  const videoElement =
-    videoLink !== null && typeof videoLink !== 'undefined' ? (
-      <div className='relative my-4 h-0 w-full pb-[56.5%]'>
-        <iframe
-          className='absolute left-0 top-0 h-full w-full'
-          id='yt_player'
-          typeof='text/html'
-          src={videoLink}
-        />
-      </div>
-    ) : null;
-
   return (
     <div className='mb-6 mt-1 border-2 shadow-sm'>
       <div className='prose mx-auto flex w-11/12 max-w-none flex-col space-y-4'>
@@ -170,7 +159,7 @@ export const PresentationDisplay: React.FC<
           <div className='prose-p:my-1'>
             {formatTextToPs(presentation.abstract)}
           </div>
-          {videoElement}
+          <YouTubeFrame videoLink={videoLink} />
         </div>
         <div>
           {presentation.speakers.map((personProps) => {

@@ -117,14 +117,13 @@ const PresentationsForYearPage: NextPage<PageProps> = async ({ params }) => {
   if (typeof presentation.redirect != 'undefined') {
     redirect(presentation.redirect.destination);
   } else {
-    const videoWatchLink = await getVideoLink(pId, supabase);
-    const videoEmbedLink = videoWatchLink?.replace('watch?v=', 'embed/');
+    const videoLink = await getVideoLink(pId, supabase);
     return (
       <PresentationDisplay
         presentationId={pId}
         presentation={presentation}
         withFavouritesButton={false}
-        videoLink={videoEmbedLink}
+        videoLink={videoLink}
       />
     );
   }
