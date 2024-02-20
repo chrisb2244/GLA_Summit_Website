@@ -2,7 +2,7 @@
 
 import { PresentationType } from '@/lib/databaseModels';
 import { Disclosure, Transition } from '@headlessui/react';
-import { formatTextToPs } from '@/lib/utils';
+import { formatTextToPs, getSessionDurationInMinutes } from '@/lib/utils';
 
 export type PersonInfo = {
   id: string;
@@ -38,6 +38,8 @@ export const SubmittedPresentationReviewCard: React.FC<
   };
 
   const p = props.presentationInfo;
+  const duration = getSessionDurationInMinutes(p.presentation_type);
+  const byline = `Submitter: ${getName(p.submitter)} (${duration} minutes)`;
 
   return (
     <div className='prose w-full max-w-full rounded-lg shadow'>
@@ -49,9 +51,7 @@ export const SubmittedPresentationReviewCard: React.FC<
           <div className='flex flex-row'>
             <div className='mx-2 my-1 flex-1'>
               <h3 className='my-0 text-inherit'>{p.title}</h3>
-              <span className='italic'>{`Submitter: ${getName(
-                p.submitter
-              )}`}</span>
+              <span className='italic'>{byline}</span>
             </div>
             {/* <div>
               <button>Vote Up</button>
@@ -60,7 +60,7 @@ export const SubmittedPresentationReviewCard: React.FC<
           </div>
         </Disclosure.Button>
         <Transition>
-          <Disclosure.Panel className='rounded-b-lg bg-gray-100'>
+          <Disclosure.Panel className='rounded-b-lg bg-gray-100 p-4'>
             <span>
               {'Presenters: '}
               {p.presenters.map((name, idx, arr) => {
@@ -75,7 +75,7 @@ export const SubmittedPresentationReviewCard: React.FC<
                 );
               })}
             </span>
-            <div className='mt-2 prose-p:my-0'>
+            <div className='mt-2 prose-p:my-2'>
               {formatTextToPs(p.abstract)}
             </div>
           </Disclosure.Panel>

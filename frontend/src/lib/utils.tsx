@@ -127,6 +127,37 @@ export const getSessionDurationInMinutes = (
   }
 };
 
+export type Schedule =
+  | {
+      sessionStart: string;
+      sessionEnd: string;
+    }
+  | {
+      sessionStart: null;
+      sessionEnd: null;
+    };
+
+export const calculateSchedule = (
+  type: PresentationType,
+  scheduled_for: string | null
+): Schedule => {
+  let schedule: Schedule = {
+    sessionStart: null,
+    sessionEnd: null
+  };
+  // Panels, 7x7 for 1h, 'full length' for 45m?
+  const sessionDuration = getSessionDurationInMinutes(type) * 60; // duration in seconds
+  if (scheduled_for !== null) {
+    const startDate = new Date(scheduled_for);
+    const endDate = new Date(startDate.getTime() + sessionDuration * 1000);
+    schedule = {
+      sessionStart: startDate.toUTCString(),
+      sessionEnd: endDate.toUTCString()
+    };
+  }
+  return schedule;
+};
+
 export const sortPresentationsBySchedule = (
   a: Presentation,
   b: Presentation

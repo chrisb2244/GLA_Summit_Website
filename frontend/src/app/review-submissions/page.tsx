@@ -1,7 +1,7 @@
 import {
   PresentationReviewInfo,
   SubmittedPresentationReviewCard
-} from '@/Components/SubmittedPresentationReviewCard';
+} from './SubmittedPresentationReviewCard';
 import { createServerComponentClient } from '@/lib/supabaseServer';
 import { submissionsForYear } from '@/lib/databaseModels';
 

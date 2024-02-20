@@ -123,6 +123,35 @@ export const getPresentationIds = async () => {
   return data;
 };
 
+export const speakerIdsToSpeakers = async (
+  speakerIds: string[],
+  client: Client
+): Promise<PersonDisplayProps[]> => {
+  return await Promise.all(
+    speakerIds.map(async (speakerId) => {
+      return {
+        ...(await getPerson(speakerId, client)),
+        pageLink: `/presenters/${speakerId}`
+      };
+    })
+  );
+};
+
+export const getVideoLink = async (
+  presentationId: string,
+  client: Client
+): Promise<string | null> => {
+  const { data, error } = await client
+    .from('video_links')
+    .select('url')
+    .eq('presentation_id', presentationId)
+    .single();
+  if (error) {
+    return null;
+  }
+  return data.url;
+};
+
 /* ------------------ Client side functions ---------------------------- */
 export const clientUpdateExistingProfile = async (
   profileData: ProfileModel['Row']

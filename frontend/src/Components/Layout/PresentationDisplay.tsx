@@ -2,9 +2,11 @@ import { PersonDisplay, PersonDisplayProps } from '@/Components/PersonDisplay';
 import { mdiCalendar } from '@mdi/js';
 // import {  mdiStarPlusOutline, mdiStarRemoveOutline } from '@mdi/js';
 import Icon from '@mdi/react';
-import { formatTextToPs } from '@/lib/utils';
+import { type Schedule, formatTextToPs } from '@/lib/utils';
 // import { logErrorToDb } from '@/lib/utils';
 import { TimestampSpan } from '../Utilities/TimestampSpan';
+import { getVideoLink } from '@/lib/databaseFunctions';
+import { YouTubeFrame } from './YouTubeFrame';
 
 export type Presentation = {
   title: string;
@@ -14,28 +16,19 @@ export type Presentation = {
   isPrivate?: boolean;
 } & Schedule;
 
-export type Schedule =
-  | {
-      sessionStart: string;
-      sessionEnd: string;
-    }
-  | {
-      sessionStart: null;
-      sessionEnd: null;
-    };
-
 type PresentationDisplayProps = {
   presentation: Presentation;
   timeZoneName?: string;
   presentationId: string;
   dateToStringFn?: (datetime: string) => string;
+  videoLink?: string | null;
   withFavouritesButton?: boolean;
 };
 
 export const PresentationDisplay: React.FC<
   React.PropsWithChildren<PresentationDisplayProps>
 > = (props) => {
-  const { presentation, presentationId } = props;
+  const { presentation, presentationId, videoLink } = props;
   // const timeZoneName = props.timeZoneName ?? 'JST';
   // const dateToStringFn =
   //   props.dateToStringFn ??
@@ -81,7 +74,8 @@ export const PresentationDisplay: React.FC<
         }}
         dateFormat={{
           month: 'long',
-          day: '2-digit'
+          day: '2-digit',
+          year: 'numeric'
         }}
       />
     );
@@ -165,6 +159,7 @@ export const PresentationDisplay: React.FC<
           <div className='prose-p:my-1'>
             {formatTextToPs(presentation.abstract)}
           </div>
+          <YouTubeFrame videoLink={videoLink} />
         </div>
         <div>
           {presentation.speakers.map((personProps) => {
