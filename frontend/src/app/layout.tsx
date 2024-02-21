@@ -11,7 +11,14 @@ export const metadata: Metadata = {
     template: '%s | GLA Summit',
     default: 'GLA Summit 2024'
   },
-  description: 'A global online LabVIEW conference'
+  description: 'A global online LabVIEW conference',
+  openGraph: {
+    title: 'GLA Summit 2024',
+    description: 'A global online LabVIEW conference',
+    url: 'https://www.glasummit.org',
+    type: 'website',
+    siteName: 'GLA Summit 2024'
+  }
 };
 
 export default function RootLayout(props: {
