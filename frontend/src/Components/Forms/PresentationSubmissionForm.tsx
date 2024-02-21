@@ -27,8 +27,8 @@ export type SubmissionFormData = {
 export const PresentationSubmissionForm = (
   props: PresentationSubmissionFormProps
 ) => {
-  const readyLabel =
-    'I am ready to submit this presentation (leave unchecked to save a draft)';
+  // const readyLabel =
+  //   'I am ready to submit this presentation (leave unchecked to save a draft)';
 
   const {
     register,
@@ -91,7 +91,7 @@ export const PresentationSubmissionForm = (
               console.error(result.error);
             }
           } else {
-            const firstError = Object.entries(errors).find(([field, err]) => {
+            const firstError = Object.entries(errors).find(([_, err]) => {
               return err !== null && typeof err !== 'undefined';
             });
             if (typeof firstError?.[0] === 'string') {
@@ -101,9 +101,6 @@ export const PresentationSubmissionForm = (
             }
           }
         }}
-        // onSubmit={handleSubmit((d) => {
-        //   console.log(d);
-        // })}
       >
         <div className='border border-gray-200 bg-gray-100 p-2 shadow-lg'>
           <Person<SubmissionFormData>
