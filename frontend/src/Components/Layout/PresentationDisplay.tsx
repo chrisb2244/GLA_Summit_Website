@@ -5,7 +5,6 @@ import Icon from '@mdi/react';
 import { type Schedule, formatTextToPs } from '@/lib/utils';
 // import { logErrorToDb } from '@/lib/utils';
 import { TimestampSpan } from '../Utilities/TimestampSpan';
-import { getVideoLink } from '@/lib/databaseFunctions';
 import { YouTubeFrame } from './YouTubeFrame';
 
 export type Presentation = {
