@@ -6,11 +6,17 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import './global.css';
 import type { Metadata } from 'next';
 
+const baseUrl =
+  process.env.NEXT_PUBLIC_BASEURL ?? process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : `http://localhost:${process.env.PORT ?? 3000}`;
+
 export const metadata: Metadata = {
   title: {
     template: '%s | GLA Summit',
     default: 'GLA Summit 2024'
   },
+  metadataBase: new URL(baseUrl),
   description: 'A global online LabVIEW conference',
   openGraph: {
     title: 'GLA Summit 2024',
