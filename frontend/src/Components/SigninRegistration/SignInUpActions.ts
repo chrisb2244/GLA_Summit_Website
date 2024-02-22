@@ -16,6 +16,13 @@ export const mailUser = async () => {
   // Send email
 };
 
+const filterEmails = (email: string) => {
+  if (email.match(/.*@mail\.ru/) || email.match(/.*@yandex\.ru/)) {
+    // Block signups from @mail.ru
+    redirect('/auth-blocked', RedirectType.push);
+  }
+};
+
 export const signOut = async () => {
   await createServerActionClient().auth.signOut();
   revalidatePath('/');
@@ -130,6 +137,7 @@ export const signInFromFormWithRedirect = async (formData: FormData) => {
   if (email === null || typeof email !== 'string') {
     return false;
   }
+  filterEmails(email);
   const redirectTo = formData.get('redirectTo');
   const params = new URLSearchParams();
   params.append('email', email);
@@ -189,6 +197,7 @@ export const registerFromFormWithRedirect = async (formData: FormData) => {
   if (email === null || typeof email !== 'string') {
     return false;
   }
+  filterEmails(email);
   const firstName = formData.get('firstName');
   const lastName = formData.get('lastName');
   if (firstName === null || typeof firstName !== 'string') {
