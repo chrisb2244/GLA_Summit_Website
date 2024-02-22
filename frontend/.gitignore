@@ -32,3 +32,7 @@ frontend/cypress/screenshots
 /test-results/
 /playwright-report/
 /playwright/.cache/
+
+# sensitive or dev-only files
+src/app/api/fake_login/
+src/mocks/loggedInUser.ts
