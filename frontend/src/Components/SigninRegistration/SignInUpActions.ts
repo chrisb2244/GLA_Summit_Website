@@ -23,6 +23,14 @@ const filterEmails = (email: string) => {
   }
 };
 
+const filterProfileData = ({ firstName, lastName, email }: PersonProps) => {
+  filterEmails(email);
+  const urlMatcher = /https?:\/\/.*/;
+  if (firstName.match(urlMatcher) || lastName.match(urlMatcher)) {
+    redirect('/auth-blocked', RedirectType.push);
+  }
+};
+
 export const signOut = async () => {
   await createServerActionClient().auth.signOut();
   revalidatePath('/');
@@ -197,7 +205,6 @@ export const registerFromFormWithRedirect = async (formData: FormData) => {
   if (email === null || typeof email !== 'string') {
     return false;
   }
-  filterEmails(email);
   const firstName = formData.get('firstName');
   const lastName = formData.get('lastName');
   if (firstName === null || typeof firstName !== 'string') {
@@ -211,6 +218,7 @@ export const registerFromFormWithRedirect = async (formData: FormData) => {
     lastName,
     email
   };
+  filterProfileData(newUser);
   const redirectTo = formData.get('redirectTo');
   const params = new URLSearchParams();
   params.append('email', email);
