@@ -14,7 +14,7 @@ import { calculateSchedule, myLog } from '@/lib/utils';
 import type { Metadata, NextPage } from 'next';
 import { notFound } from 'next/navigation';
 import { redirect } from 'next/navigation';
-import { getPanelLink } from 'src/app/panels/panelLinks';
+import { getPanelLink } from '@/app/panels/panelLinks';
 
 type PageProps = {
   params: {

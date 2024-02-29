@@ -1,9 +1,9 @@
 'use client';
 import { CenteredDialog } from '@/Components/CenteredDialog';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { LoginForm } from 'src/app/auth/LoginForm';
-import { RegistrationForm } from 'src/app/auth/RegistrationForm';
-import { VerifyForm } from 'src/app/auth/VerifyForm';
+import { LoginForm } from '@/app/auth/LoginForm';
+import { RegistrationForm } from '@/app/auth/RegistrationForm';
+import { VerifyForm } from '@/app/auth/VerifyForm';
 
 const AuthPage = () => {
   const pathname = usePathname();
