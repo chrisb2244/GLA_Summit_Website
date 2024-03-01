@@ -352,32 +352,54 @@ export type Database = {
           }
         ];
       };
+      ticket_sequences: {
+        Row: {
+          name: string | null;
+          year: Database['public']['Enums']['summit_year'];
+        };
+        Insert: {
+          name?: string | null;
+          year: Database['public']['Enums']['summit_year'];
+        };
+        Update: {
+          name?: string | null;
+          year?: Database['public']['Enums']['summit_year'];
+        };
+        Relationships: [];
+      };
       tickets: {
         Row: {
           created_at: string;
           ticket_number: number;
-          userId: string;
+          user_id: string;
           year: Database['public']['Enums']['summit_year'];
         };
         Insert: {
           created_at?: string;
-          ticket_number: number;
-          userId: string;
+          ticket_number?: number; // Allow undefined, trigger sets.
+          user_id: string;
           year: Database['public']['Enums']['summit_year'];
         };
         Update: {
           created_at?: string;
           ticket_number?: number;
-          userId?: string;
+          user_id?: string;
           year?: Database['public']['Enums']['summit_year'];
         };
         Relationships: [
           {
             foreignKeyName: 'public_tickets_userId_fkey';
-            columns: ['userId'];
+            columns: ['user_id'];
             isOneToOne: true;
             referencedRelation: 'profiles';
             referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'public_tickets_year_fkey';
+            columns: ['year'];
+            isOneToOne: false;
+            referencedRelation: 'ticket_sequences';
+            referencedColumns: ['year'];
           }
         ];
       };
