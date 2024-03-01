@@ -64,7 +64,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     generateEntry('/presentation-list/2021', 'never'),
     generateEntry('/presentation-list/2022', 'never'),
     // generateEntry('/presentation-list/2024', 'monthly'),
-    generateEntry('/presenters', 'monthly')
+    generateEntry('/presenters', 'monthly'),
+    generateEntry('/ticket', 'monthly')
   ];
 
   /*

@@ -9,7 +9,8 @@ export default function robots(): MetadataRoute.Robots {
         '/api/ics/',
         '/my-presentations',
         '/my-profile',
-        '/review-submissions'
+        '/review-submissions',
+        '/ticket/*'
       ]
     },
     sitemap: 'https://www.glasummit.org/sitemap.xml'
