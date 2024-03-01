@@ -1,4 +1,7 @@
 import { ImageResponse } from 'next/og';
+import { IMG_WIDTH, IMG_HEIGHT, ticketYear } from './constants';
+import { Ticket } from './Ticket';
+import type { TicketData } from '@/app/ticket/[ticketObject]/page';
 
 export const runtime = 'edge';
 
@@ -19,21 +22,27 @@ function toHex(buffer: ArrayBuffer) {
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-
-  const id = searchParams.get('id');
   const token = searchParams.get('token');
+  const data = searchParams.get('data');
+
+  if (!data || !token) {
+    return new Response('Invalid request.', { status: 400 });
+  }
 
   const verifyToken = toHex(
-    await crypto.subtle.sign(
-      'HMAC',
-      await key,
-      new TextEncoder().encode(JSON.stringify({ id }))
-    )
+    await crypto.subtle.sign('HMAC', await key, new TextEncoder().encode(data))
   );
 
   if (verifyToken !== token) {
-    //return new Response('Invalid token.', { status: 401 });
-    console.log('Invalid token.');
+    return new Response('Invalid token.', { status: 401 });
+  }
+
+  let dataObj: TicketData;
+  try {
+    // Consider checking the properties match a TicketData object
+    dataObj = JSON.parse(Buffer.from(data, 'base64').toString('ascii'));
+  } catch (error) {
+    return new Response('Invalid data.', { status: 400 });
   }
 
   const robotoBoldData = await fetch(
@@ -55,56 +64,23 @@ export async function GET(request: Request) {
     })
     .then((b64) => `data:image/svg+xml;base64,${b64}`);
 
-  const ticketNumber = '0001';
-
-  // [#5837b9]
-  // [#a25bcd]
-  // bg-[#a25bcd]
+  const isPresenter = dataObj.isPresenter;
+  const titles = isPresenter ? await getTitles(dataObj.userId) : null;
 
   return new ImageResponse(
     (
-      <div
-        tw='flex flex-row  text-white font-black text-2xl w-full h-full'
-        style={{
-          backgroundColor: '#5837b9',
-          fillOpacity: 0.7,
-          backgroundImage: 'radial-gradient(#5837b9, #a25bcd)'
-        }}
-      >
-        {/* Left side, text and user data */}
-        <div tw='flex flex-col px-8 justify-between py-20 pl-16'>
-          <div tw='flex flex-col w-full items-center pt-8'>
-            <h2 tw='my-1'>I'M ATTENDING THE</h2>
-            <h1 tw='my-1'>GLA SUMMIT 2024</h1>
-            <div tw='border-2 border-white w-full h-0.5 my-2' />
-            <h4 tw='my-0'>A Global LabVIEW and Automated Test Conference</h4>
-          </div>
-          <div tw='flex flex-col justify-between items-center pb-8'>
-            <h2 tw='my-1'>Christian Butcher</h2>
-            <h3 tw='my-1'>Ticket {ticketNumber}</h3>
-          </div>
-        </div>
-
-        {/* Right side, image and date */}
-        <div tw='flex flex-col w-1/3 mx-auto items-center justify-center'>
-          <div tw='flex w-[320px] h-[320px]'>
-            <img
-              width={320}
-              height={320}
-              alt='GLA Summit Logo'
-              src={logoData}
-            />
-          </div>
-          <div tw='flex flex-col items-center justify-center mx-auto pt-8'>
-            <p tw='my-0'>March 25th and 26th</p>
-            <p tw='my-0'>12:00 UTC for 24 hours</p>
-          </div>
-        </div>
-      </div>
+      <Ticket
+        firstName={dataObj.firstName}
+        lastName={dataObj.lastName}
+        isPresenter={dataObj.isPresenter}
+        titles={titles}
+        ticketNumber={dataObj.ticketNumber}
+        logoData={logoData}
+      />
     ),
     {
-      width: 1200,
-      height: 630,
+      width: IMG_WIDTH,
+      height: IMG_HEIGHT,
       fonts: [
         {
           data: robotoBoldData,
@@ -116,3 +92,27 @@ export async function GET(request: Request) {
     }
   );
 }
+
+const getTitles = async (userId: string) => {
+  const { createAdminClient } = await import('@/lib/supabaseClient');
+  const supabase = createAdminClient();
+  const titles = await supabase
+    .from('presentation_submissions')
+    .select(
+      'title, presentation_presenters!inner(presenter_id), accepted_presentations!inner(year)'
+    )
+    .eq('accepted_presentations.year', ticketYear)
+    .in('presentation_presenters.presenter_id', [userId])
+    .then(({ data, error }) => {
+      if (error) {
+        console.error(error);
+        return null;
+      }
+      if (data.length > 0) {
+        return data.map((d) => d.title);
+      }
+      return null;
+    });
+
+  return titles;
+};
