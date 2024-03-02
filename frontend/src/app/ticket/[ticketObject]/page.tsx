@@ -3,6 +3,7 @@ import { IMG_HEIGHT, IMG_WIDTH } from '@/app/api/ticket/constants';
 import { createServerComponentClient } from '@/lib/supabaseServer';
 import { paramStringToData, urlEncodedB64DataFromObject } from '../utils';
 import { createHmac } from 'node:crypto';
+import Link from 'next/link';
 const TICKET_KEY = process.env.TICKET_KEY as string;
 
 const getToken = (data: string) => {
@@ -107,19 +108,38 @@ const TicketPage: NextPage<PageProps> = async ({
   // This does not depend on sharing, it is the same for any viewer
   const urlString = ticketDataToRouteUrl(ticketObject);
 
+  const showIcs = false;
+  const icsElem = showIcs ? (
+    <p>
+      <a href='/api/ics' target='_blank' rel='noreferrer' className='link'>
+        Click here for a calendar ICS file
+      </a>
+    </p>
+  ) : null;
+
   return (
-    <div>
-      {isSharedPage ? (
-        <h3>Here&apos;s {nameString}&apos;s ticket!</h3>
-      ) : (
-        <h3>You&apos;re all set to go!</h3>
-      )}
+    <div className='mx-auto my-2 flex flex-col items-center text-xl'>
       <img
         src={urlString}
         width={IMG_WIDTH}
         height={IMG_HEIGHT}
         className='mx-auto my-4 max-w-full md:max-w-screen-md'
       />
+      {isSharedPage ? (
+        <h3>
+          This is {nameString}&apos;s ticket - get your own{' '}
+          <Link href='/ticket'>
+            <span className='link'>here</span>
+          </Link>
+          !
+        </h3>
+      ) : (
+        <div className='flex flex-col items-center'>
+          <h3>You&apos;re all set to go!</h3>
+          <p>We can&apos;t wait to see you on the 24th and 25th March</p>
+          {icsElem}
+        </div>
+      )}
     </div>
   );
 };
