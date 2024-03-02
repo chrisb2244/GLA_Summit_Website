@@ -2,23 +2,9 @@ import { ImageResponse } from 'next/og';
 import { IMG_WIDTH, IMG_HEIGHT, ticketYear } from './constants';
 import { Ticket } from './Ticket';
 import type { TicketData } from '@/app/ticket/[ticketObject]/page';
+import { checkToken, paramStringToData } from '@/app/ticket/utils';
 
 export const runtime = 'edge';
-
-const TICKET_KEY = process.env.TICKET_KEY as string;
-const key = crypto.subtle.importKey(
-  'raw',
-  new TextEncoder().encode(TICKET_KEY),
-  { name: 'HMAC', hash: 'SHA-256' },
-  false,
-  ['sign']
-);
-
-function toHex(buffer: ArrayBuffer) {
-  return Array.prototype.map
-    .call(new Uint8Array(buffer), (x) => x.toString(16).padStart(2, '0'))
-    .join('');
-}
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -29,18 +15,17 @@ export async function GET(request: Request) {
     return new Response('Invalid request.', { status: 400 });
   }
 
-  const verifyToken = toHex(
-    await crypto.subtle.sign('HMAC', await key, new TextEncoder().encode(data))
-  );
-
-  if (verifyToken !== token) {
+  if (!checkToken(data, token)) {
     return new Response('Invalid token.', { status: 401 });
   }
 
-  let dataObj: TicketData;
+  let dataObj: TicketData | undefined = undefined;
   try {
     // Consider checking the properties match a TicketData object
-    dataObj = JSON.parse(Buffer.from(data, 'base64').toString('ascii'));
+    dataObj = paramStringToData(data);
+    if (!dataObj) {
+      throw new Error('Invalid data.');
+    }
   } catch (error) {
     return new Response('Invalid data.', { status: 400 });
   }

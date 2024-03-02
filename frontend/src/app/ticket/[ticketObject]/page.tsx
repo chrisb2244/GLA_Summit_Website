@@ -1,6 +1,26 @@
 import type { Metadata, NextPage } from 'next';
 import { IMG_HEIGHT, IMG_WIDTH } from '@/app/api/ticket/constants';
+import { createServerComponentClient } from '@/lib/supabaseServer';
+import { paramStringToData, urlEncodedB64DataFromObject } from '../utils';
 import { createHmac } from 'node:crypto';
+const TICKET_KEY = process.env.TICKET_KEY as string;
+
+const getToken = (data: string) => {
+  const hmac = createHmac('sha256', TICKET_KEY);
+  hmac.update(data);
+  const token = hmac.digest('hex');
+  return token;
+};
+
+const ticketDataToRouteUrl = (ticketObject: TicketData, prefix?: string) => {
+  const b64Data = urlEncodedB64DataFromObject(ticketObject);
+  const token = getToken(b64Data);
+  const calculatedString = `/api/ticket?token=${token}&data=${b64Data}`;
+  if (prefix) {
+    return new URL(calculatedString, prefix).href;
+  }
+  return calculatedString;
+};
 
 type PageProps = {
   params: {
@@ -17,41 +37,17 @@ export type TicketData = {
   userId: string;
 };
 
-const TICKET_KEY = process.env.TICKET_KEY as string;
-
-const parseParamString = (paramString: string): TicketData | undefined => {
-  try {
-    const asciiString = Buffer.from(paramString, 'base64').toString('ascii');
-    return JSON.parse(asciiString);
-  } catch (error) {
-    return undefined;
-  }
-};
-
-const paramStringToURL = (
-  ticketObject: TicketData,
-  prefix?: string
-): string => {
-  const b64Data = toB64(ticketObject);
-  const token = getToken(b64Data);
-  const calculatedString = `/api/ticket?token=${token}&data=${b64Data}`;
-  if (prefix) {
-    return new URL(calculatedString, prefix).href;
-  }
-  return calculatedString;
-};
-
 export async function generateMetadata({
   params
 }: PageProps): Promise<Metadata> {
   const { ticketObject } = params;
 
-  const ticketObj = parseParamString(ticketObject);
+  const ticketObj = paramStringToData(ticketObject);
   if (!ticketObj) {
     // Invalid object, don't add to metadata
     return {};
   }
-  const ogImageUrl = paramStringToURL(ticketObj, 'https://glasummit.org');
+  const ogImageUrl = ticketDataToRouteUrl(ticketObj, 'https://glasummit.org');
 
   return {
     title: 'Ticket',
@@ -72,25 +68,18 @@ export async function generateMetadata({
   };
 }
 
-const toB64 = (dataObject: TicketData) => {
-  const b64Data = Buffer.from(JSON.stringify(dataObject)).toString('base64');
-  return b64Data;
-};
-
-const getToken = (data: string) => {
-  const hmac = createHmac('sha256', TICKET_KEY);
-  hmac.update(data);
-  const token = hmac.digest('hex');
-  return token;
-};
-
 const TicketPage: NextPage<PageProps> = async ({
   params: { ticketObject: ticketObjectString },
   searchParams: { share }
 }) => {
   // Display different page if viewing someone else's shared ticket view.
-  const isSharedPage = share === 'true';
-  const ticketObject = parseParamString(ticketObjectString);
+  const supabase = createServerComponentClient();
+  const user = (await supabase.auth.getUser()).data.user;
+  const userId = user?.id;
+
+  const ticketObject = paramStringToData(ticketObjectString);
+  const isSharedPage =
+    share === 'true' || !userId || ticketObject?.userId !== userId;
 
   if (!ticketObject) {
     return (
@@ -103,7 +92,7 @@ const TicketPage: NextPage<PageProps> = async ({
 
   // Get the URL for the ticket image
   // This does not depend on sharing, it is the same for any viewer
-  const urlString = paramStringToURL(ticketObject);
+  const urlString = ticketDataToRouteUrl(ticketObject);
 
   return (
     <div>
@@ -112,7 +101,12 @@ const TicketPage: NextPage<PageProps> = async ({
       ) : (
         <h3>You&apos;re all set to go!</h3>
       )}
-      <img src={urlString} width={IMG_WIDTH} height={IMG_HEIGHT} />
+      <img
+        src={urlString}
+        width={IMG_WIDTH}
+        height={IMG_HEIGHT}
+        className='mx-auto my-4 max-w-full md:max-w-screen-md'
+      />
     </div>
   );
 };
