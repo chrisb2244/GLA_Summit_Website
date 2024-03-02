@@ -50,7 +50,7 @@ export const Ticket = (props: TicketProps) => {
         {presenterTitleElements}
         <div tw='flex flex-col items-center'>
           <h2 tw='my-1'>{[firstName, lastName].join(' ')}</h2>
-          <h3 tw='my-1'>Ticket {ticketNumber}</h3>
+          <h3 tw='my-1'>Ticket {ticketNumber.toString(10).padStart(4, '0')}</h3>
         </div>
       </div>
 
