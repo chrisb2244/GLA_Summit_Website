@@ -47,7 +47,20 @@ export async function generateMetadata({
     // Invalid object, don't add to metadata
     return {};
   }
-  const ogImageUrl = ticketDataToRouteUrl(ticketObj, 'https://glasummit.org');
+
+  // The Environment that the app is deployed and running on.
+  // The value can be either production, preview, or development.
+  const environment = process.env.VERCEL_ENV || 'development';
+
+  // VERCEL_URL : The domain name of the generated deployment URL.
+  // Example: *.vercel.app.
+  // The value does not include the protocol scheme https://.
+  const prefix =
+    environment === 'preview'
+      ? 'https://' + process.env.VERCEL_URL
+      : 'https://glasummit.org';
+
+  const ogImageUrl = ticketDataToRouteUrl(ticketObj, prefix);
 
   return {
     title: 'Ticket',
