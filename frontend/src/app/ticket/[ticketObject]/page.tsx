@@ -149,11 +149,13 @@ const TicketPage: NextPage<PageProps> = async ({
   const thisPageUrl = fixedEncodeURI(
     ticketDataToPageUrl(ticketObject, getPrefix())
   );
+  // Use the encoding here, string parsing only (so no double-encoding).
   const linkedInShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${thisPageUrl}`;
 
   const twitterMessage = `I've got my ticket for the GLA Summit ${ticketYear}! Get yours at https://glasummit.org/ticket`;
   const twitterShareUrl = new URL('https://twitter.com/intent/tweet');
-  twitterShareUrl.searchParams.set('url', thisPageUrl);
+  // Decode before passing, is encoded by URL method.
+  twitterShareUrl.searchParams.set('url', decodeURI(thisPageUrl));
   twitterShareUrl.searchParams.set('via', 'GlaSummit');
   twitterShareUrl.searchParams.set('text', twitterMessage);
 
