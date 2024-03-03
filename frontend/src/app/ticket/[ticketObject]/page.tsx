@@ -1,9 +1,14 @@
 import type { Metadata, NextPage } from 'next';
-import { IMG_HEIGHT, IMG_WIDTH } from '@/app/api/ticket/constants';
+import { IMG_HEIGHT, IMG_WIDTH, ticketYear } from '@/app/api/ticket/constants';
 import { createServerComponentClient } from '@/lib/supabaseServer';
-import { paramStringToData, urlEncodedB64DataFromObject } from '../utils';
+import {
+  paramStringToData,
+  ticketDataToPageUrl,
+  urlEncodedB64DataFromObject
+} from '../utils';
 import { createHmac } from 'node:crypto';
 import Link from 'next/link';
+import { Button } from '@/Components/Form/Button';
 const TICKET_KEY = process.env.TICKET_KEY as string;
 
 const getToken = (data: string) => {
@@ -38,17 +43,7 @@ export type TicketData = {
   userId: string;
 };
 
-export async function generateMetadata({
-  params
-}: PageProps): Promise<Metadata> {
-  const { ticketObject } = params;
-
-  const ticketObj = paramStringToData(ticketObject);
-  if (!ticketObj) {
-    // Invalid object, don't add to metadata
-    return {};
-  }
-
+const getPrefix = () => {
   // The Environment that the app is deployed and running on.
   // The value can be either production, preview, or development.
   const environment = process.env.VERCEL_ENV || 'development';
@@ -60,8 +55,21 @@ export async function generateMetadata({
     environment === 'preview'
       ? 'https://' + process.env.VERCEL_URL
       : 'https://glasummit.org';
+  return prefix;
+};
 
-  const ogImageUrl = ticketDataToRouteUrl(ticketObj, prefix);
+export async function generateMetadata({
+  params
+}: PageProps): Promise<Metadata> {
+  const { ticketObject } = params;
+
+  const ticketObj = paramStringToData(ticketObject);
+  if (!ticketObj) {
+    // Invalid object, don't add to metadata
+    return {};
+  }
+
+  const ogImageUrl = ticketDataToRouteUrl(ticketObj, getPrefix());
 
   return {
     title: 'Ticket',
@@ -117,13 +125,41 @@ const TicketPage: NextPage<PageProps> = async ({
     </p>
   ) : null;
 
+  // Sharing elements
+  const fixedEncodeURI = (str: string) => {
+    return encodeURI(str).replace(
+      /[!'()*]/g,
+      (c) => '%' + c.charCodeAt(0).toString(16)
+    );
+  };
+
+  const thisPageUrl = fixedEncodeURI(
+    ticketDataToPageUrl(ticketObject, getPrefix())
+  );
+  const linkedInShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${thisPageUrl}`;
+  const twitterMessage = `I've got my ticket for the GLA Summit ${ticketYear}! Get yours at https://glasummit.org/ticket`;
+  const twitterShareUrl = `https://twitter.com/intent/tweet?url=${thisPageUrl}&text=${fixedEncodeURI(
+    twitterMessage
+  )}&via=GlaSummit`;
+
+  const shareElements = (
+    <div className='my-auto flex flex-col items-center space-y-2 pt-2 min-[350px]:flex-row min-[350px]:space-x-4 min-[350px]:space-y-0'>
+      <a href={linkedInShareUrl} className='link' target='_blank'>
+        <Button>Share to LinkedIn</Button>
+      </a>
+      <a href={twitterShareUrl} className='link' target='_blank'>
+        <Button>Share to X</Button>
+      </a>
+    </div>
+  );
+
   return (
     <div className='mx-auto my-2 flex flex-col items-center text-xl'>
       <img
         src={urlString}
         width={IMG_WIDTH}
         height={IMG_HEIGHT}
-        className='mx-auto my-4 max-w-full md:max-w-screen-md'
+        className='md:max-w-screen-[800px] mx-auto my-4 max-w-full'
       />
       {isSharedPage ? (
         <h3>
@@ -138,6 +174,7 @@ const TicketPage: NextPage<PageProps> = async ({
           <h3>You&apos;re all set to go!</h3>
           <p>We can&apos;t wait to see you on the 24th and 25th March</p>
           {icsElem}
+          {shareElements}
         </div>
       )}
     </div>

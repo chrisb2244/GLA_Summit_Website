@@ -26,8 +26,14 @@ export const urlEncodedB64DataFromObject = (ticketObject: TicketData) => {
   );
 };
 
-export const ticketDataToPageUrl = (ticketObject: TicketData) => {
+export const ticketDataToPageUrl = (
+  ticketObject: TicketData,
+  prefix?: string
+) => {
   const b64Data = urlEncodedB64DataFromObject(ticketObject);
+  if (prefix) {
+    return new URL(`${prefix}/ticket/${b64Data}`).href;
+  }
   return `/ticket/${b64Data}`;
 };
 
