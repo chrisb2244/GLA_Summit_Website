@@ -170,12 +170,14 @@ const TicketPage: NextPage<PageProps> = async ({
 
   return (
     <div className='mx-auto my-2 flex flex-col items-center text-xl'>
-      <img
-        src={urlString}
-        width={IMG_WIDTH}
-        height={IMG_HEIGHT}
-        className='md:max-w-screen-[800px] mx-auto my-4 max-w-full'
-      />
+      <div className='mx-auto my-4 max-w-full md:max-w-[700px]'>
+        <img
+          src={urlString}
+          width={'100%'}
+          height={'auto'}
+          alt='My GLA Summit Ticket'
+        />
+      </div>
       {isSharedPage ? (
         <h3>
           This is {nameString}&apos;s ticket - get your own{' '}
