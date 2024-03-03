@@ -86,6 +86,19 @@ export async function generateMetadata({
           alt: 'GLA Summit Ticket image'
         }
       ]
+    },
+    twitter: {
+      card: 'summary',
+      site: '@GlaSummit',
+      title: 'My GLA Summit Ticket',
+      description:
+        "I've got my ticket for the GLA Summit 2024!\r\nGet yours at https://glasummit.org/ticket",
+      images: [
+        {
+          url: ogImageUrl,
+          alt: 'GLA Summit Ticket image'
+        }
+      ]
     }
   };
 }
@@ -137,17 +150,19 @@ const TicketPage: NextPage<PageProps> = async ({
     ticketDataToPageUrl(ticketObject, getPrefix())
   );
   const linkedInShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${thisPageUrl}`;
+
   const twitterMessage = `I've got my ticket for the GLA Summit ${ticketYear}! Get yours at https://glasummit.org/ticket`;
-  const twitterShareUrl = `https://twitter.com/intent/tweet?url=${thisPageUrl}&text=${fixedEncodeURI(
-    twitterMessage
-  )}&via=GlaSummit`;
+  const twitterShareUrl = new URL('https://twitter.com/intent/tweet');
+  twitterShareUrl.searchParams.set('url', thisPageUrl);
+  twitterShareUrl.searchParams.set('via', 'GlaSummit');
+  twitterShareUrl.searchParams.set('text', twitterMessage);
 
   const shareElements = (
     <div className='my-auto flex flex-col items-center space-y-2 pt-2 min-[350px]:flex-row min-[350px]:space-x-4 min-[350px]:space-y-0'>
       <a href={linkedInShareUrl} className='link' target='_blank'>
         <Button>Share to LinkedIn</Button>
       </a>
-      <a href={twitterShareUrl} className='link' target='_blank'>
+      <a href={twitterShareUrl.href} className='link' target='_blank'>
         <Button>Share to X</Button>
       </a>
     </div>
