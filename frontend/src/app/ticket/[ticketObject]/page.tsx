@@ -191,7 +191,7 @@ const TicketPage: NextPage<PageProps> = async ({
       ) : (
         <div className='flex flex-col items-center'>
           <h3>You&apos;re all set to go!</h3>
-          <p>We can&apos;t wait to see you on the 24th and 25th March</p>
+          <p>We can&apos;t wait to see you on the 25th and 26th March</p>
           {icsElem}
           {shareElements}
         </div>
