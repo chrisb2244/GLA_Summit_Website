@@ -3,16 +3,31 @@ import type { TicketData, TransferObject } from './page';
 // object -> json string -> ascii to base64 -> (calc token) -> url encode
 // url decode -> base64 to ascii -> json parse -> object
 
-const IsTransferObject = (obj: any): obj is TransferObject => {
+const IsObject = (obj: unknown): obj is Record<string, unknown> => {
+  return typeof obj === 'object' && obj !== null;
+};
+
+const HasDataAndToken = (
+  obj: object
+): obj is { data: object; token: string } => {
   return (
-    obj &&
-    typeof obj === 'object' &&
+    IsObject(obj) &&
     typeof obj.data === 'object' &&
-    typeof obj.token === 'string' &&
-    typeof obj.data.ticketNumber === 'number' &&
-    typeof obj.data.isPresenter === 'boolean' &&
-    typeof obj.data.userId === 'string'
+    typeof obj.token === 'string'
   );
+};
+
+const IsTicketData = (obj: unknown): obj is TicketData => {
+  return (
+    IsObject(obj) &&
+    typeof obj.ticketNumber === 'number' &&
+    typeof obj.isPresenter === 'boolean' &&
+    typeof obj.userId === 'string'
+  );
+};
+
+const IsTransferObject = (obj: unknown): obj is TransferObject => {
+  return IsObject(obj) && HasDataAndToken(obj) && IsTicketData(obj.data);
 };
 
 export const paramStringToData = (
@@ -34,7 +49,7 @@ export const paramStringToData = (
   }
 };
 
-const urlEncodedB64DataFromObject = (obj: Object) => {
+const urlEncodedB64DataFromObject = (obj: object) => {
   return encodeURIComponent(
     Buffer.from(JSON.stringify(obj)).toString('base64url')
   );
