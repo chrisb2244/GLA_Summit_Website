@@ -1,34 +1,28 @@
 import { ImageResponse } from 'next/og';
 import { IMG_WIDTH, IMG_HEIGHT, ticketYear } from './constants';
 import { Ticket } from './Ticket';
-import type { TicketData } from '@/app/ticket/[ticketObject]/page';
 import { checkToken, paramStringToData } from '@/app/ticket/utils';
 
 export const runtime = 'edge';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const token = searchParams.get('token');
   const data = searchParams.get('data');
 
-  if (!data || !token) {
+  if (!data) {
     return new Response('Invalid request.', { status: 400 });
   }
 
-  if (!checkToken(data, token)) {
+  const transferObject = paramStringToData(data);
+  if (!transferObject) {
+    return new Response('Invalid data.', { status: 400 });
+  }
+
+  if (!(await checkToken(transferObject.data, transferObject.token))) {
     return new Response('Invalid token.', { status: 401 });
   }
 
-  let dataObj: TicketData | undefined = undefined;
-  try {
-    // Consider checking the properties match a TicketData object
-    dataObj = paramStringToData(data);
-    if (!dataObj) {
-      throw new Error('Invalid data.');
-    }
-  } catch (error) {
-    return new Response('Invalid data.', { status: 400 });
-  }
+  const dataObj = transferObject.data;
 
   const robotoBoldData = await fetch(
     new URL('public/assets/Roboto-Bold.ttf', import.meta.url)

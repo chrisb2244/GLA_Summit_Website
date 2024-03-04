@@ -1,8 +1,30 @@
-import { redirect } from 'next/navigation';
+import { redirect, RedirectType } from 'next/navigation';
 import { ticketYear } from '../api/ticket/constants';
-import { TicketData } from './[ticketObject]/page';
 import { createServerComponentClient } from '@/lib/supabaseServer';
-import { ticketDataToPageUrl } from './utils';
+import { ticketDataAndTokenToPageUrl } from './utils';
+import { createHmac } from 'node:crypto';
+
+export type TicketData = {
+  firstName: string;
+  lastName: string;
+  ticketNumber: number;
+  isPresenter: boolean;
+  userId: string;
+};
+
+export type TransferObject = {
+  data: TicketData;
+  token: string;
+};
+
+const TICKET_KEY = process.env.TICKET_KEY as string;
+
+const getToken = (jsonString: string) => {
+  const hmac = createHmac('sha256', TICKET_KEY);
+  hmac.update(jsonString);
+  const token = hmac.digest('hex');
+  return token;
+};
 
 const TicketGeneratorPage = async () => {
   const supabase = createServerComponentClient();
@@ -15,7 +37,7 @@ const TicketGeneratorPage = async () => {
   });
 
   if (!user) {
-    redirect('/auth/login?redirectTo=/ticket');
+    redirect('/auth/login?redirectTo=/ticket', RedirectType.replace);
   }
   const userId = user.id;
 
@@ -61,8 +83,12 @@ const TicketGeneratorPage = async () => {
       isPresenter,
       userId: user.id
     };
+    const transferObject: TransferObject = {
+      data: ticketObject,
+      token: getToken(JSON.stringify(ticketObject))
+    };
 
-    redirect(ticketDataToPageUrl(ticketObject));
+    redirect(ticketDataAndTokenToPageUrl(transferObject));
   } else {
     // Create a ticket
     const newTicket = await supabase
@@ -111,7 +137,12 @@ const TicketGeneratorPage = async () => {
       userId: user.id
     };
 
-    redirect(ticketDataToPageUrl(ticketObject));
+    const transferObject: TransferObject = {
+      data: ticketObject,
+      token: getToken(JSON.stringify(ticketObject))
+    };
+
+    redirect(ticketDataAndTokenToPageUrl(transferObject));
   }
 };
 

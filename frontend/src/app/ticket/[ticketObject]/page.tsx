@@ -2,45 +2,22 @@ import type { Metadata, NextPage } from 'next';
 import { IMG_HEIGHT, IMG_WIDTH, ticketYear } from '@/app/api/ticket/constants';
 import { createServerComponentClient } from '@/lib/supabaseServer';
 import {
+  fixedEncodeURI,
   paramStringToData,
-  ticketDataToPageUrl,
-  urlEncodedB64DataFromObject
+  ticketDataAndTokenToPageUrl
 } from '../utils';
-import { createHmac } from 'node:crypto';
+import type { TransferObject } from '../page';
 import Link from 'next/link';
 import { Button } from '@/Components/Form/Button';
-const TICKET_KEY = process.env.TICKET_KEY as string;
-
-const getToken = (data: string) => {
-  const hmac = createHmac('sha256', TICKET_KEY);
-  hmac.update(data);
-  const token = hmac.digest('hex');
-  return token;
-};
-
-const ticketDataToRouteUrl = (ticketObject: TicketData, prefix?: string) => {
-  const b64Data = urlEncodedB64DataFromObject(ticketObject);
-  const token = getToken(b64Data);
-  const calculatedString = `/api/ticket?token=${token}&data=${b64Data}`;
-  if (prefix) {
-    return new URL(calculatedString, prefix).href;
-  }
-  return calculatedString;
-};
+import { Suspense } from 'react';
+import { WaitingIndicator } from '@/Components/Utilities/WaitingIndicator';
+import Image from 'next/image';
 
 type PageProps = {
   params: {
     ticketObject: string;
   };
   searchParams: { [key: string]: string | string[] | undefined };
-};
-
-export type TicketData = {
-  firstName: string;
-  lastName: string;
-  ticketNumber: number;
-  isPresenter: boolean;
-  userId: string;
 };
 
 const getPrefix = () => {
@@ -54,8 +31,21 @@ const getPrefix = () => {
   const prefix =
     environment === 'preview'
       ? 'https://' + process.env.VERCEL_URL
+      : environment === 'development'
+      ? 'http://localhost:3000'
       : 'https://glasummit.org';
   return prefix;
+};
+
+const ticketDataToRouteUrl = (obj: TransferObject, prefix?: string) => {
+  const b64Data = Buffer.from(JSON.stringify(obj)).toString('base64url');
+  if (prefix) {
+    const url = new URL('/api/ticket', prefix);
+    url.searchParams.set('data', b64Data);
+    return url.href;
+  } else {
+    return `/api/ticket?data=${encodeURIComponent(b64Data)}`;
+  }
 };
 
 export async function generateMetadata({
@@ -104,7 +94,7 @@ export async function generateMetadata({
 }
 
 const TicketPage: NextPage<PageProps> = async ({
-  params: { ticketObject: ticketObjectString },
+  params: { ticketObject: transferObjectString },
   searchParams: { share }
 }) => {
   // Display different page if viewing someone else's shared ticket view.
@@ -112,22 +102,25 @@ const TicketPage: NextPage<PageProps> = async ({
   const user = (await supabase.auth.getUser()).data.user;
   const userId = user?.id;
 
-  const ticketObject = paramStringToData(ticketObjectString);
+  const transferObject = paramStringToData(transferObjectString);
   const isSharedPage =
-    share === 'true' || !userId || ticketObject?.userId !== userId;
+    share === 'true' || !userId || transferObject?.data.userId !== userId;
 
-  if (!ticketObject) {
+  if (!transferObject) {
     return (
       <div>
         <h3>Invalid ticket data.</h3>
       </div>
     );
   }
-  const nameString = [ticketObject.firstName, ticketObject.lastName].join(' ');
+  const nameString = [
+    transferObject.data.firstName,
+    transferObject.data.lastName
+  ].join(' ');
 
   // Get the URL for the ticket image
   // This does not depend on sharing, it is the same for any viewer
-  const urlString = ticketDataToRouteUrl(ticketObject);
+  const urlString = ticketDataToRouteUrl(transferObject);
 
   const showIcs = false;
   const icsElem = showIcs ? (
@@ -139,23 +132,16 @@ const TicketPage: NextPage<PageProps> = async ({
   ) : null;
 
   // Sharing elements
-  const fixedEncodeURI = (str: string) => {
-    return encodeURI(str).replace(
-      /[!'()*]/g,
-      (c) => '%' + c.charCodeAt(0).toString(16)
-    );
-  };
 
-  const thisPageUrl = fixedEncodeURI(
-    ticketDataToPageUrl(ticketObject, getPrefix())
-  );
+  const thisPageUrl = ticketDataAndTokenToPageUrl(transferObject, getPrefix());
+
   // Use the encoding here, string parsing only (so no double-encoding).
   const linkedInShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${thisPageUrl}`;
 
   const twitterMessage = `I've got my ticket for the GLA Summit ${ticketYear}! Get yours at https://glasummit.org/ticket`;
   const twitterShareUrl = new URL('https://twitter.com/intent/tweet');
   // Decode before passing, is encoded by URL method.
-  twitterShareUrl.searchParams.set('url', decodeURI(thisPageUrl));
+  twitterShareUrl.searchParams.set('url', decodeURIComponent(thisPageUrl));
   twitterShareUrl.searchParams.set('via', 'GlaSummit');
   twitterShareUrl.searchParams.set('text', twitterMessage);
 
@@ -172,32 +158,86 @@ const TicketPage: NextPage<PageProps> = async ({
 
   return (
     <div className='mx-auto my-2 flex flex-col items-center text-xl'>
-      <div className='mx-auto my-4 max-w-full md:max-w-[700px]'>
-        <img
+      <Suspense fallback={<WaitingIndicator maxLength={300} />}>
+        <AsyncElem
           src={urlString}
-          width={'100%'}
-          height={'auto'}
-          alt='My GLA Summit Ticket'
+          name={nameString}
+          icsElem={icsElem}
+          shareElements={shareElements}
+          shared={isSharedPage}
         />
-      </div>
-      {isSharedPage ? (
-        <h3>
-          This is {nameString}&apos;s ticket - get your own{' '}
-          <Link href='/ticket'>
-            <span className='link'>here</span>
-          </Link>
-          !
-        </h3>
-      ) : (
-        <div className='flex flex-col items-center'>
-          <h3>You&apos;re all set to go!</h3>
-          <p>We can&apos;t wait to see you on the 25th and 26th March</p>
-          {icsElem}
-          {shareElements}
-        </div>
-      )}
+      </Suspense>
     </div>
   );
+};
+
+const AsyncElem = ({
+  src,
+  shared,
+  name,
+  icsElem,
+  shareElements
+}: {
+  src: string;
+  shared: boolean;
+  name: string;
+  icsElem: JSX.Element | null;
+  shareElements: JSX.Element;
+}) => {
+  return fetch(new URL(src, getPrefix()))
+    .then((res) => {
+      if (res.status !== 200) {
+        throw new Error('Failed to fetch ticket data');
+      }
+      return res.arrayBuffer();
+    })
+    .then((buffer) => {
+      let binary = '';
+      const bytes = new Uint8Array(buffer);
+      const len = buffer.byteLength;
+      for (let i = 0; i < len; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      return `data:image/png;base64,${btoa(binary)}`;
+    })
+    .then((srcData) => {
+      return (
+        <>
+          <div className='relative mx-auto my-4 max-w-full md:max-w-[700px]'>
+            <img
+              src={srcData}
+              alt='My GLA Summit Ticket'
+              width={'100%'}
+              height={'auto'}
+            />
+          </div>
+          {shared ? (
+            <h3>
+              This is {name}&apos;s ticket - get your own{' '}
+              <Link href='/ticket'>
+                <span className='link'>here</span>
+              </Link>
+              !
+            </h3>
+          ) : (
+            <div className='flex flex-col items-center'>
+              <h3>You&apos;re all set to go!</h3>
+              <p>We can&apos;t wait to see you on the 25th and 26th March</p>
+              {icsElem}
+              {shareElements}
+            </div>
+          )}
+        </>
+      );
+    })
+    .catch((error) => {
+      console.error('Failed to fetch ticket data', error);
+      return (
+        <div>
+          <h3>Failed to fetch ticket data - the URL may be incorrect.</h3>
+        </div>
+      );
+    });
 };
 
 export default TicketPage;

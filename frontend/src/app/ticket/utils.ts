@@ -1,40 +1,52 @@
-import type { TicketData } from '@/app/ticket/[ticketObject]/page';
-
-const TICKET_KEY = process.env.TICKET_KEY as string;
+import type { TicketData, TransferObject } from './page';
 
 // object -> json string -> ascii to base64 -> (calc token) -> url encode
 // url decode -> base64 to ascii -> json parse -> object
 
+const IsTransferObject = (obj: any): obj is TransferObject => {
+  return (
+    obj &&
+    typeof obj === 'object' &&
+    typeof obj.data === 'object' &&
+    typeof obj.token === 'string' &&
+    typeof obj.data.ticketNumber === 'number' &&
+    typeof obj.data.isPresenter === 'boolean' &&
+    typeof obj.data.userId === 'string'
+  );
+};
+
 export const paramStringToData = (
   paramString: string
-): TicketData | undefined => {
+): TransferObject | undefined => {
   try {
     const utfString = Buffer.from(
       decodeURIComponent(paramString),
-      'base64'
+      'base64url'
     ).toString('ascii');
-    return JSON.parse(utfString);
+    const parsed = JSON.parse(utfString);
+    if (!IsTransferObject(parsed)) {
+      return undefined;
+    }
+    return parsed;
   } catch (error) {
     console.error('Failed to parse ticket data', error);
     return undefined;
   }
 };
 
-export const urlEncodedB64DataFromObject = (ticketObject: TicketData) => {
+const urlEncodedB64DataFromObject = (obj: Object) => {
   return encodeURIComponent(
-    Buffer.from(JSON.stringify(ticketObject)).toString('base64')
+    Buffer.from(JSON.stringify(obj)).toString('base64url')
   );
 };
 
-export const ticketDataToPageUrl = (
-  ticketObject: TicketData,
+export const ticketDataAndTokenToPageUrl = (
+  ticketObject: TransferObject,
   prefix?: string
 ) => {
   const b64Data = urlEncodedB64DataFromObject(ticketObject);
-  if (prefix) {
-    return new URL(`${prefix}/ticket/${b64Data}`).href;
-  }
-  return `/ticket/${b64Data}`;
+  const path = `/ticket/${b64Data}`;
+  return prefix ? new URL(path, prefix).href : path;
 };
 
 const toHex = (buffer: ArrayBuffer) => {
@@ -43,7 +55,9 @@ const toHex = (buffer: ArrayBuffer) => {
     .join('');
 };
 
-export const checkToken = async (data: string, token: string) => {
+export const checkToken = async (data: TicketData, token: string) => {
+  const TICKET_KEY = process.env.TICKET_KEY as string;
+
   const key = await crypto.subtle.importKey(
     'raw',
     new TextEncoder().encode(TICKET_KEY),
@@ -53,8 +67,19 @@ export const checkToken = async (data: string, token: string) => {
   );
 
   const verifyToken = toHex(
-    await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(data))
+    await crypto.subtle.sign(
+      'HMAC',
+      key,
+      new TextEncoder().encode(JSON.stringify(data))
+    )
   );
 
   return verifyToken === token;
+};
+
+export const fixedEncodeURI = (str: string) => {
+  return encodeURIComponent(str).replace(
+    /[!'()*]/g,
+    (c) => '%' + c.charCodeAt(0).toString(16)
+  );
 };
