@@ -8,9 +8,24 @@ const PresentationListLayout = async ({
 }: {
   children: React.ReactNode;
 }) => {
-  const showAgendaLink = true;
+  // const agendaElem = (
+  //   <p>
+  //     For a list by schedule, see our{' '}
+  //     <NextLink href='/full-agenda' className='link'>
+  //       agenda
+  //     </NextLink>
+  //     .
+  //   </p>
+  // );
 
-  const years: SummitYear[] = ['2022', '2021'];
+  const agendaElem = (
+    <p>
+      Our presentations for 2024 are currently being scheduled. Check back soon
+      to find out when your favorite presentations will be happening!
+    </p>
+  );
+
+  const years: SummitYear[] = ['2024', '2022', '2021'];
 
   return (
     <div>
@@ -19,15 +34,7 @@ const PresentationListLayout = async ({
           Presentations below are grouped by year, and sorted by the first
           speaker&apos;s name.
         </p>
-        {showAgendaLink ? (
-          <p>
-            For a list by schedule, see our{' '}
-            <NextLink href='/full-agenda' className='link'>
-              agenda
-            </NextLink>
-            .
-          </p>
-        ) : null}
+        {agendaElem}
       </div>
 
       <div className='flex flex-row space-x-4 py-2'>
