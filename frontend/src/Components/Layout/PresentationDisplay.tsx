@@ -62,31 +62,36 @@ export const PresentationDisplay: React.FC<
   //     })
   // }, [presentationId, supabase])
 
-  let scheduleInfo = <div className='flex flex-grow'>Unscheduled</div>;
+  const hasSchedule = presentation.sessionStart !== null;
 
-  if (presentation.sessionStart !== null) {
-    scheduleInfo = (
-      <TimestampSpan
-        utcValue={{
-          start: presentation.sessionStart,
-          end: presentation.sessionEnd
-        }}
-        dateFormat={{
-          month: 'long',
-          day: '2-digit',
-          year: 'numeric'
-        }}
-      />
-    );
-  }
+  const scheduleInfo = hasSchedule ? (
+    <TimestampSpan
+      utcValue={{
+        start: presentation.sessionStart,
+        end: presentation.sessionEnd
+      }}
+      dateFormat={{
+        month: 'long',
+        day: '2-digit',
+        year: 'numeric'
+      }}
+    />
+  ) : (
+    <div className='flex flex-grow'>Unscheduled</div>
+  );
 
-  const downloadButton = (
+  const downloadButton = hasSchedule ? (
     <a href={`/api/ics/${presentationId}`} target='_blank' rel='noreferrer'>
       <div className='flex flex-row items-center'>
         <Icon path={mdiCalendar} size={1} />
         <span className='pl-1'>Download ICS file</span>
       </div>
     </a>
+  ) : (
+    <div className='flex flex-row items-center'>
+      <Icon path={mdiCalendar} size={1} />
+      <span className='pl-1'>ICS file coming soon</span>
+    </div>
   );
 
   // const handleFavouriteClick = () => {
