@@ -1,7 +1,6 @@
 // import nodemailer from 'nodemailer'
-import Mailgun from 'mailgun.js';
+import Mailgun, { type MessagesSendResult } from 'mailgun.js';
 import FormDataPackage from 'form-data';
-import type { MessagesSendResult } from 'mailgun.js/interfaces/Messages';
 // import type { Options } from 'nodemailer/lib/mailer'
 
 const MG_API_KEY = process.env.MG_API_KEY as string;
