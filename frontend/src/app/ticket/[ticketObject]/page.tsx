@@ -1,17 +1,12 @@
 import type { Metadata, NextPage } from 'next';
 import { IMG_HEIGHT, IMG_WIDTH, ticketYear } from '@/app/api/ticket/constants';
 import { createServerComponentClient } from '@/lib/supabaseServer';
-import {
-  fixedEncodeURI,
-  paramStringToData,
-  ticketDataAndTokenToPageUrl
-} from '../utils';
+import { paramStringToData, ticketDataAndTokenToPageUrl } from '../utils';
 import type { TransferObject } from '../page';
 import Link from 'next/link';
 import { Button } from '@/Components/Form/Button';
 import { Suspense } from 'react';
 import { WaitingIndicator } from '@/Components/Utilities/WaitingIndicator';
-import Image from 'next/image';
 
 type PageProps = {
   params: {
