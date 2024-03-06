@@ -116,10 +116,10 @@ export type Database = {
         };
         Relationships: [
           {
-            foreignKeyName: 'email_lookup_id_fkey';
+            foreignKeyName: 'public_email_lookup_id_fkey';
             columns: ['id'];
             isOneToOne: true;
-            referencedRelation: 'users';
+            referencedRelation: 'profiles';
             referencedColumns: ['id'];
           }
         ];
@@ -148,10 +148,10 @@ export type Database = {
         };
         Relationships: [
           {
-            foreignKeyName: 'log_user_id_fkey';
+            foreignKeyName: 'public_log_user_id_fkey';
             columns: ['user_id'];
             isOneToOne: false;
-            referencedRelation: 'users';
+            referencedRelation: 'profiles';
             referencedColumns: ['id'];
           }
         ];
@@ -212,10 +212,10 @@ export type Database = {
         };
         Relationships: [
           {
-            foreignKeyName: 'organizers_id_fkey';
+            foreignKeyName: 'public_organizers_id_fkey';
             columns: ['id'];
             isOneToOne: true;
-            referencedRelation: 'users';
+            referencedRelation: 'profiles';
             referencedColumns: ['id'];
           }
         ];
@@ -352,6 +352,57 @@ export type Database = {
           }
         ];
       };
+      ticket_sequences: {
+        Row: {
+          name: string | null;
+          year: Database['public']['Enums']['summit_year'];
+        };
+        Insert: {
+          name?: string | null;
+          year: Database['public']['Enums']['summit_year'];
+        };
+        Update: {
+          name?: string | null;
+          year?: Database['public']['Enums']['summit_year'];
+        };
+        Relationships: [];
+      };
+      tickets: {
+        Row: {
+          created_at: string;
+          ticket_number: number;
+          user_id: string;
+          year: Database['public']['Enums']['summit_year'];
+        };
+        Insert: {
+          created_at?: string;
+          ticket_number?: number; // Allow undefined, trigger sets.
+          user_id: string;
+          year: Database['public']['Enums']['summit_year'];
+        };
+        Update: {
+          created_at?: string;
+          ticket_number?: number;
+          user_id?: string;
+          year?: Database['public']['Enums']['summit_year'];
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'public_tickets_userId_fkey';
+            columns: ['user_id'];
+            isOneToOne: true;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'public_tickets_year_fkey';
+            columns: ['year'];
+            isOneToOne: false;
+            referencedRelation: 'ticket_sequences';
+            referencedColumns: ['year'];
+          }
+        ];
+      };
       timezone_preferences: {
         Row: {
           id: string;
@@ -373,10 +424,10 @@ export type Database = {
         };
         Relationships: [
           {
-            foreignKeyName: 'timezone_preferences_id_fkey';
+            foreignKeyName: 'public_timezone_preferences_id_fkey';
             columns: ['id'];
             isOneToOne: true;
-            referencedRelation: 'users';
+            referencedRelation: 'profiles';
             referencedColumns: ['id'];
           }
         ];

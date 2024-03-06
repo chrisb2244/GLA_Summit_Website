@@ -65,8 +65,8 @@ export async function middleware(request: NextRequest) {
   // getSession only performs network operations if the session exists but has expired
   // With no session or a valid session, only the storage method is accessed (e.g. cookies)
   const {
-    data: { session }
-  } = await supabase.auth.getSession();
+    data: { user }
+  } = await supabase.auth.getUser();
 
   const pathsRequiringLogin = ['/my-profile', '/my-presentations'];
   const pathsRequiringOrganizer = ['/review-submissions', '/logs'];
@@ -80,7 +80,7 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  const user = session?.user;
+  // const user = session?.user;
   if (user === null || typeof user === 'undefined') {
     return NextResponse.rewrite(new URL('/login-required', request.url));
   }

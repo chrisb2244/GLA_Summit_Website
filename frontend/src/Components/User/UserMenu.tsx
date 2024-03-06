@@ -1,6 +1,11 @@
 'use client';
 import { Popover, Transition } from '@headlessui/react';
-import { mdiLogout, mdiMonitorAccount, mdiVoteOutline } from '@mdi/js';
+import {
+  mdiLogout,
+  mdiMonitorAccount,
+  mdiVoteOutline,
+  mdiTicket
+} from '@mdi/js';
 import { Icon } from '@mdi/react';
 import React, { PropsWithChildren, Suspense, useEffect, useState } from 'react';
 import NextLink from 'next/link';
@@ -75,6 +80,11 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
       title: 'My Presentations',
       href: '/my-presentations',
       imgObj: <ListIcon path={mdiMonitorAccount} />
+    },
+    {
+      title: 'My Ticket',
+      href: '/ticket',
+      imgObj: <ListIcon path={mdiTicket} />
     },
     {
       title: 'Logout',
