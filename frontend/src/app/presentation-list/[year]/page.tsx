@@ -64,8 +64,8 @@ const PresentationsForYearPage = async (props: PageProps) => {
 
   return (
     <>
-      <h3 className='py-1 text-center'>{year} Presentations</h3>
-      <div className='mx-4 flex flex-col space-y-4'>{presentations}</div>
+      <h3 className='py-1 pt-4 text-center'>{year} Presentations</h3>
+      <div className='mx-4 flex flex-col space-y-4 pb-4'>{presentations}</div>
     </>
   );
 };
