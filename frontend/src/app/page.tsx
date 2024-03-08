@@ -42,8 +42,7 @@ export default async function Page() {
   // ) : null
 
   const supabase = createServerComponentClient();
-  const user =
-    (await supabase.auth.getSession())?.data.session?.user ?? undefined;
+  const user = (await supabase.auth.getUser())?.data?.user ?? undefined;
 
   const loggedIn = typeof user !== 'undefined';
   const submitPresentationButton = (
@@ -60,18 +59,58 @@ export default async function Page() {
     </Link>
   );
 
+  const ticketButton = (
+    <Link
+      href={loggedIn ? '/ticket' : '/auth/register?redirectTo=/ticket'}
+      prefetch={false}
+      scroll={loggedIn}
+    >
+      <Button fullWidth>Get Your Ticket</Button>
+    </Link>
+  );
+
+  // const websiteUpdateNotice = (
+  //   <>
+  //     <p>
+  //       Many parts of the website are currently being updated and refactored to
+  //       improve our ability to deliver a smooth experience with logins,
+  //       presentation submissions and submission review, amongst other features.
+  //     </p>
+  //     <p>
+  //       If there&apos;s something you&apos;d like to see in a future version,
+  //       please feel free to let us know at{' '}
+  //       <a href='mailto:web@glasummit.org' className='link'>
+  //         web@glasummit.org
+  //       </a>{' '}
+  //       and we&apos;ll be happy to consider it!
+  //     </p>
+  //   </>
+  // );
+
   return (
     <div className='prose prose-base mx-auto max-w-2xl text-justify xl:max-w-3xl'>
       <p className='prose-lg text-center'>
         The GLA Summit Organizers are excited to announce the next GLA Summit,
         scheduled for 25-26 March 2024!
       </p>
-      <div>{submitPresentationButton}</div>
       <p>
         We are excited to welcome advanced LabVIEW developers and Architects
         (certified or self-proclaimed) from around the world to network and
         participate in an inclusive, all-digital, free event.
       </p>
+      <div>{ticketButton}</div>
+      <div>
+        <p>
+          <span className='font-semibold'>
+            We&apos;re closing submissions very soon
+          </span>
+          , so if you want to speak, submit a presentation now. If you need to
+          adjust the abstract or title of your presentation, this can be done
+          once we have responded to your presentation.
+        </p>
+        {submitPresentationButton}
+      </div>
+
       <p>
         Recordings of previous presentations are available via the{' '}
         <a
@@ -83,19 +122,7 @@ export default async function Page() {
         - we hope that you are as excited as we are to have these great
         resources available to rewatch!
       </p>
-      <p>
-        Many parts of the website are currently being updated and refactored to
-        improve our ability to deliver a smooth experience with logins,
-        presentation submissions and submission review, amongst other features.
-      </p>
-      <p>
-        If there&apos;s something you&apos;d like to see in a future version,
-        please feel free to let us know at{' '}
-        <a href='mailto:web@glasummit.org' className='link'>
-          web@glasummit.org
-        </a>{' '}
-        and we&apos;ll be happy to consider it!
-      </p>
+      {/* websiteUpdateNotice */}
       {/* <SponsorBar /> */}
     </div>
   );
