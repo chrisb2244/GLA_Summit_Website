@@ -110,7 +110,7 @@ export const config = {
      * - _next/data (json file for presentations)
      * - favicon.ico (favicon file)
      */
-    '/((?!_next/static|_next/image|_next/data|favicon.ico).*)'
+    '/((?!_next/static|_next/image|_next/data|favicon.ico|media/GLA-logo).*)'
   ],
   regions: ['iad1']
 };
