@@ -47,7 +47,7 @@ const MyPresentationsPage = async () => {
 
   const myPresentations = await getMyPresentations(supabase);
   const myPresentationIds = myPresentations.map((p) => p.presentation_id);
-  const accepted = (
+  const acceptedList = (
     (
       await supabase
         .from('accepted_presentations')
@@ -55,26 +55,49 @@ const MyPresentationsPage = async () => {
         .in('id', myPresentationIds)
     ).data ?? []
   ).map((v) => v.id);
+  const rejectedList = (
+    (
+      await supabase
+        .from('rejected_presentations')
+        .select('id')
+        .in('id', myPresentationIds)
+    ).data ?? []
+  ).map((v) => v.id);
+
+  type Acceptance = 'Accepted' | 'Withdrawn/Declined' | null;
+  const formatAccepted = (
+    id: string,
+    acceptedList: string[],
+    rejectedList: string[]
+  ): Acceptance => {
+    return acceptedList.includes(id)
+      ? 'Accepted'
+      : rejectedList.includes(id)
+      ? 'Withdrawn/Declined'
+      : null;
+  };
 
   type MyPresentationSubmissionTypeWithAccepted =
-    MyPresentationSubmissionType & { accepted: boolean };
+    MyPresentationSubmissionType & { accepted: Acceptance };
   const { submittedPresentations } = myPresentations.reduce(
     ({ submittedPresentations, draftPresentations }, elem) => {
+      const accepted = formatAccepted(
+        elem.presentation_id,
+        acceptedList,
+        rejectedList
+      );
       if (elem.is_submitted) {
         return {
           submittedPresentations: [
             ...submittedPresentations,
-            { ...elem, accepted: accepted.includes(elem.presentation_id) }
+            { ...elem, accepted }
           ],
           draftPresentations
         };
       } else {
         return {
           submittedPresentations,
-          draftPresentations: [
-            ...draftPresentations,
-            { ...elem, accepted: accepted.includes(elem.presentation_id) }
-          ]
+          draftPresentations: [...draftPresentations, { ...elem, accepted }]
         };
       }
     },
@@ -137,7 +160,7 @@ const MyPresentationsPage = async () => {
           </h5>
           <span className='md:pl-2'>({p.presentation_type})</span>
           <span className='italic md:ml-auto md:mr-1'>
-            {p.accepted ? 'Accepted' : 'Under consideration'}
+            {p.accepted ?? 'Under consideration'}
           </span>
         </div>
         <div className='[&>p]:my-1'>{formatTextToPs(p.abstract)}</div>
