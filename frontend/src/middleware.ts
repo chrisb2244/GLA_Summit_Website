@@ -110,7 +110,15 @@ export const config = {
      * - _next/data (json file for presentations)
      * - favicon.ico (favicon file)
      */
-    '/((?!_next/static|_next/image|_next/data|favicon.ico|media/GLA-logo).*)'
+    {
+      source:
+        '/((?!_next/static|_next/image|_next/data|favicon.ico|media/GLA-logo).*)',
+      // Exclude prefetches from next/link
+      missing: [
+        { type: 'header', key: 'next-router-prefetch' },
+        { type: 'header', key: 'purpose', value: 'prefetch' }
+      ]
+    }
   ],
   regions: ['iad1']
 };
