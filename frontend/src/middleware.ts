@@ -112,7 +112,7 @@ export const config = {
      */
     {
       source:
-        '/((?!_next/static|_next/image|_next/data|favicon.ico|media/GLA-logo).*)',
+        '/((?!_next/static|_next/image|_next/data|favicon.ico|media/GLA-logo|media/privacypolicy|icon.ico).*)',
       // Exclude prefetches from next/link
       missing: [
         { type: 'header', key: 'next-router-prefetch' },
