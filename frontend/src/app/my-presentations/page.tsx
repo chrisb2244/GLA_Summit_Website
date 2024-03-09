@@ -164,16 +164,25 @@ const MyPresentationsPage = async () => {
       </div>
     );
 
+  const allowSubmissions = false;
+  const submissionElements = allowSubmissions ? (
+    submitter && (
+      <div className='mx-auto flex flex-col'>
+        {/* <p>The presentation submission page is currently being reworked!</p>
+        <p>We look forwards to being able to accept submissions soon.</p> */}
+        <h3>Submit a new Presentation</h3>
+        <PresentationSubmissionForm submitter={submitter} />
+      </div>
+    )
+  ) : (
+    <div className='mx-auto flex flex-col'>
+      <p>The presentation submission process is closed.</p>
+    </div>
+  );
+
   return (
     <div className='prose mx-auto flex max-w-none flex-col'>
-      {submitter && (
-        <div className='mx-auto flex flex-col'>
-          {/* <p>The presentation submission page is currently being reworked!</p>
-        <p>We look forwards to being able to accept submissions soon.</p> */}
-          <h3>Submit a new Presentation</h3>
-          <PresentationSubmissionForm submitter={submitter} />
-        </div>
-      )}
+      {submissionElements}
 
       {/* <div>
         <h3>Draft Submissions</h3>

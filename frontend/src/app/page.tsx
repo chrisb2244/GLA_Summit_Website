@@ -99,7 +99,7 @@ export default async function Page() {
         participate in an inclusive, all-digital, free event.
       </p>
       <div>{ticketButton}</div>
-      <div>
+      {/* <div>
         <p>
           <span className='font-semibold'>
             We&apos;re closing submissions very soon
@@ -109,7 +109,7 @@ export default async function Page() {
           once we have responded to your presentation.
         </p>
         {submitPresentationButton}
-      </div>
+      </div> */}
 
       <p>
         Recordings of previous presentations are available via the{' '}
