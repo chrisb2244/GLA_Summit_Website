@@ -37,7 +37,7 @@ export const paramStringToData = (
     const utfString = Buffer.from(
       decodeURIComponent(paramString),
       'base64url'
-    ).toString('ascii');
+    ).toString('utf-8');
     const parsed = JSON.parse(utfString);
     if (!IsTransferObject(parsed)) {
       return undefined;
