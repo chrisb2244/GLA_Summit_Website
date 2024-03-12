@@ -45,14 +45,20 @@ const PresentationsForYearPage = async (props: PageProps) => {
         speakerNames: p.all_presenters_names,
         presentationId: p.presentation_id,
         presentationType: p.presentation_type,
-        scheduledFor: p.scheduled_for
+        // Mask the schedule for 2024 for now
+        scheduledFor: p.year === '2024' ? null : p.scheduled_for
       };
       return presentation;
     })
     .sort((a, b) => {
+      const sortByName = true;
       const bySchedule = sortPresentationsBySchedule(a, b);
       const byName = sortPresentationsByPresenterName(a, b);
-      return byName !== 0 ? byName : bySchedule;
+      if (sortByName) {
+        return byName !== 0 ? byName : bySchedule;
+      } else {
+        return bySchedule !== 0 ? bySchedule : byName;
+      }
     })
     .map((p) => {
       return (
