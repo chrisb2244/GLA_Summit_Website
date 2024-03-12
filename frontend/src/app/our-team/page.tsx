@@ -19,36 +19,6 @@ export const metadata: Metadata = {
 const OurTeam = () => {
   const elemSrcs = [
     {
-      firstName: 'Oliver',
-      lastName: 'Wachno',
-      description: descriptions.OliverWachno,
-      image: Image_OW
-    },
-    {
-      firstName: 'Christian',
-      lastName: 'Butcher',
-      description: descriptions.ChristianButcher,
-      image: Image_CB
-    },
-    {
-      firstName: 'Tom',
-      lastName: 'McQuillan',
-      description: descriptions.TomMcQuillan,
-      image: Image_TM
-    },
-    {
-      firstName: 'Sreejith',
-      lastName: 'Sreenivasan',
-      description: descriptions.SreejithSreenivasan,
-      image: Image_SS
-    },
-    {
-      firstName: 'Sam',
-      lastName: 'Taggart',
-      description: descriptions.SamTaggart,
-      image: Image_ST
-    },
-    {
       firstName: 'William',
       lastName: 'Richards',
       description: descriptions.WilliamRichards,
@@ -61,10 +31,49 @@ const OurTeam = () => {
       image: Image_MR
     },
     {
+      firstName: 'Quentin',
+      lastName: 'Alldredge',
+      description: descriptions.QuentinAlldredge,
+      image: Image_QA
+    },
+    {
+      firstName: 'Christian',
+      lastName: 'Butcher',
+      description: descriptions.ChristianButcher,
+      image: Image_CB
+    },
+    {
+      firstName: 'Sreejith',
+      lastName: 'Sreenivasan',
+      description: descriptions.SreejithSreenivasan,
+      image: Image_SS
+    },
+    {
+      firstName: 'Sam',
+      lastName: 'Taggart',
+      description: descriptions.SamTaggart,
+      image: Image_ST
+    }
+  ];
+
+  const pastOrganizers = [
+    {
       firstName: 'Amanda',
       lastName: 'Bacala',
       description: descriptions.AmandaBacala,
       image: Image_AB
+    },
+    {
+      firstName: 'Fabiola',
+      lastName: 'de la Cueva',
+      description: '',
+      image: ''
+    },
+    {
+      firstName: 'Piotr',
+      lastName: 'Demski',
+      description: '',
+      image: ''
     },
     {
       firstName: 'Martin',
@@ -73,26 +82,73 @@ const OurTeam = () => {
       image: Image_ML
     },
     {
-      firstName: 'Quentin',
-      lastName: 'Alldredge',
-      description: descriptions.QuentinAlldredge,
-      image: Image_QA
+      firstName: 'Tom',
+      lastName: 'McQuillan',
+      description: descriptions.TomMcQuillan,
+      image: Image_TM
+    },
+    {
+      firstName: 'Chris',
+      lastName: 'Stryker',
+      description: '',
+      image: ''
+    },
+    {
+      firstName: 'Oliver',
+      lastName: 'Wachno',
+      description: descriptions.OliverWachno,
+      image: Image_OW
+    },
+    {
+      firstName: 'Sarah',
+      lastName: 'Zalusky',
+      description: '',
+      image: ''
     }
   ];
 
   return (
-    <div className='prose flex max-w-none flex-col space-y-2'>
-      {elemSrcs.map((p, idx) => {
-        return (
-          <div className='border p-4 shadow-sm' key={idx}>
-            <PersonDisplay
-              {...p}
-              stripContainer
-              imageSide={idx % 2 === 0 ? 'right' : 'left'}
-            />
-          </div>
-        );
-      })}
+    <div className='prose flex max-w-none flex-col'>
+      {/* <div>
+        <h2>The GLA Summit</h2>
+        <p>Description here</p>
+      </div> */}
+      <div className='flex max-w-none flex-col space-y-2'>
+        <h2>Current Organizers</h2>
+        {elemSrcs.map((p, idx) => {
+          return (
+            <div className='border p-4 shadow-sm' key={idx}>
+              <PersonDisplay
+                {...p}
+                stripContainer
+                imageSide={idx % 2 === 0 ? 'right' : 'left'}
+              />
+            </div>
+          );
+        })}
+      </div>
+      {/* <div className='flex max-w-none flex-col space-y-2'> */}
+      <div className='flex flex-col'>
+        <h2>Past Organizers</h2>
+        <div className='flex flex-row flex-wrap space-x-4 pl-4'>
+          {pastOrganizers.map((p, idx) => {
+            return (
+              <span className='text-lg font-semibold' key={idx}>
+                {[p.firstName, p.lastName].join(' ')}
+              </span>
+            );
+            // return (
+            //   <div className='border p-4 shadow-sm' key={idx}>
+            //     <PersonDisplay
+            //       {...p}
+            //       stripContainer
+            //       imageSide={idx % 2 === 0 ? 'right' : 'left'}
+            //     />
+            //   </div>
+            // );
+          })}
+        </div>
+      </div>
     </div>
   );
 };

@@ -101,6 +101,7 @@ const SamTaggart = (
 
 const WilliamRichards = (
   <>
+    <h3 className='my-1 pt-0 text-sm font-normal italic'>Chairperson</h3>
     <p>
       William is a member of the test engineering group at IDEXX Laboratories,
       where he focuses on improving the sustainability and maintainability of
@@ -123,6 +124,7 @@ const WilliamRichards = (
 
 const MichalRadziwon = (
   <>
+    <h3 className='my-1 pt-0 text-sm font-normal italic'>Treasurer</h3>
     <p>
       Michał (aka Mike) is a test environment architect working at Siemens
       Gamesa Renewable Energy. There, he takes care of the fleet of Hardware in
