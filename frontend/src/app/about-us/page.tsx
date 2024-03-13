@@ -26,9 +26,9 @@ const AboutUsPage = () => {
           careers.
         </li>
         <li>
-          Sharing Practical Knowledge: Through various platforms and events, we
-          facilitate the exchange of practical insights and best practices
-          within the graphical programming community.
+          Sharing Practical Knowledge: Through our events, we facilitate the
+          exchange of practical insights and best practices within the graphical
+          programming community.
         </li>
         <li>
           Showcasing Good G-Language Craft: We recognize and celebrate
@@ -60,12 +60,11 @@ const AboutUsPage = () => {
       </ul>
       <h3>GLA Summit</h3>
       <p>
-        GLA Summit is our flagship initiative, designed to bring together
-        graphical programmers from around the globe. As a global online
-        conference, GLA Summit features a diverse range of presentations, panel
-        discussions, and invited talks by community members. Whether you're
-        interested in technical presentations or engaging panel discussions on
-        current topics, GLA Summit offers something for everyone.
+        As a global online conference, GLA Summit features a diverse range of
+        presentations, panel discussions, and invited talks by community
+        members. Whether you&apos;re interested in technical presentations or
+        engaging panel discussions on current topics, GLA Summit offers
+        something for everyone.
       </p>
       <h3>Our Values</h3>
       <p>At GLA, our values guide everything we do. We are committed to:</p>
@@ -81,12 +80,12 @@ const AboutUsPage = () => {
         <li>
           Human-Centered Development: We prioritize the well-being and growth of
           our community members, placing human needs and experiences at the
-          forefront of our initiatives.
+          forefront of our planning.
         </li>
         <li>
-          Reduce Carbon Impact: We are committed to minimizing our environmental
-          footprint and adopting sustainable practices in all aspects of our
-          operations.
+          Reduced Carbon Impact: An online, global summit allows attendees to
+          experience the knowledge-sharing of a conference without the
+          environmental impact of international travel.
         </li>
       </ul>
     </div>
