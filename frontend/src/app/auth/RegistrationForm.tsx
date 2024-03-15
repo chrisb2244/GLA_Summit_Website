@@ -40,7 +40,7 @@ export const RegistrationForm = (props: { redirectTo?: string }) => {
             https://hopin.com/events/gla-summit-2022
           </a>
         </div> */}
-        <p>
+        {/* <p>
           This site is currently mostly focused on presentation submission,
           although the presentations from previous years can be found at{' '}
           {
@@ -49,7 +49,7 @@ export const RegistrationForm = (props: { redirectTo?: string }) => {
             </Link>
           }
           .
-        </p>
+        </p> */}
       </div>
       <form action={registerFromFormWithRedirect}>
         <input type='hidden' name='redirectTo' value={props.redirectTo} />
