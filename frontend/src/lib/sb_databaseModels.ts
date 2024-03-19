@@ -71,6 +71,29 @@ export type Database = {
           }
         ];
       };
+      confirmed_presentations: {
+        Row: {
+          created_at: string;
+          id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'public_confirmed_presentations_id_fkey';
+            columns: ['id'];
+            isOneToOne: true;
+            referencedRelation: 'accepted_presentations';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
       container_groups: {
         Row: {
           container_id: string;
