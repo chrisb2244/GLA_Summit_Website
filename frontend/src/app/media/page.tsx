@@ -1,12 +1,12 @@
-import FB_Attendee from '@/media/banners/attendee-fb-2022-01.jpg';
-import IN_Attendee from '@/media/banners/attendee-in-2022-01.jpg';
-import LI_Attendee from '@/media/banners/attendee-li-2022-01.jpg';
-import TW_Attendee from '@/media/banners/attendee-tw-2022-01.jpg';
-import FB_Speaker from '@/media/banners/speaker-fb-2022-01.jpg';
-import IN_Speaker from '@/media/banners/speaker-in-2021-01.jpg';
-import LI_Speaker from '@/media/banners/speaker-li-2022-01.jpg';
-import TW_Speaker from '@/media/banners/speaker_twitter_2022-01.jpg';
-import SignatureImage from '@/media/banners/GLASummit2022WikiBanner.png';
+import FB_Attendee from '@/media/banners/attendee-fb-2024.png';
+import IN_Attendee from '@/media/banners/attendee-in-2024.png';
+import LI_Attendee from '@/media/banners/attendee-li-2024.png';
+import TW_Attendee from '@/media/banners/attendee-tw-2024.png';
+import FB_Speaker from '@/media/banners/speaker-fb-2024.png';
+import IN_Speaker from '@/media/banners/speaker-in-2024.png';
+import LI_Speaker from '@/media/banners/speaker-li-2024.png';
+import TW_Speaker from '@/media/banners/speaker-tw-2024.png';
+// import SignatureImage from '@/media/banners/GLASummit2022WikiBanner.png';
 import JKI_Logo from '@/media/JKI-Logo.webp';
 import { StackedBoxes } from '@/Components/Layout/StackedBoxes';
 import NextImage, { StaticImageData } from 'next/image';
@@ -14,7 +14,7 @@ import NextImage, { StaticImageData } from 'next/image';
 // import { CopyableTextBox } from '@/Components/CopyableTextBox'
 import { estimateAspectRatio } from '@/lib/utils';
 import { ReactNode } from 'react';
-import { CopyableTextBox } from '@/Components/Utilities/CopyableTextBox';
+// import { CopyableTextBox } from '@/Components/Utilities/CopyableTextBox';
 
 const MediaPage = () => {
   const hostname =
@@ -89,36 +89,36 @@ const MediaPage = () => {
     </SidewaysBox>
   );
 
-  const baseUrl = process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : 'https://glasummit.org';
+  // const baseUrl = process.env.VERCEL_URL
+  //   ? `https://${process.env.VERCEL_URL}`
+  //   : 'https://glasummit.org';
 
-  const imgUrl = `${baseUrl}${SignatureImage.src}`;
+  // const imgUrl = `${baseUrl}${SignatureImage.src}`;
 
-  const signatureDiv = (
-    <SidewaysBox>
-      <div className='relative h-[10vw] max-h-[200px] w-full'>
-        <NextImage
-          src={SignatureImage}
-          alt='GLA signature image'
-          fill
-          className='object-contain'
-          sizes='(max-width: 600px) 100vw, 40vw'
-        />
-      </div>
-      <CopyableTextBox
-        copyString={`<a href="https://glasummit.org"> <img src="${imgUrl}" height="100" width="300" alt="I'm attending the GLA Summit!"> </a>`}
-      >
-        <div className='bg-gray-200 p-6'>
-          <code className='font-mono max-xl:break-all'>
-            &lt;a href=&quot;https://glasummit.org&quot;&gt; &lt;img src=&quot;
-            {imgUrl}&quot; height=&quot;100&quot; width=&quot;300&quot;
-            alt=&quot;I&apos;m attending the GLA Summit!&quot;&gt; &lt;/a&gt;
-          </code>
-        </div>
-      </CopyableTextBox>
-    </SidewaysBox>
-  );
+  // const signatureDiv = (
+  //   <SidewaysBox>
+  //     <div className='relative h-[10vw] max-h-[200px] w-full'>
+  //       <NextImage
+  //         src={SignatureImage}
+  //         alt='GLA signature image'
+  //         fill
+  //         className='object-contain'
+  //         sizes='(max-width: 600px) 100vw, 40vw'
+  //       />
+  //     </div>
+  //     <CopyableTextBox
+  //       copyString={`<a href="https://glasummit.org"> <img src="${imgUrl}" height="100" width="300" alt="I'm attending the GLA Summit!"> </a>`}
+  //     >
+  //       <div className='bg-gray-200 p-6'>
+  //         <code className='font-mono max-xl:break-all'>
+  //           &lt;a href=&quot;https://glasummit.org&quot;&gt; &lt;img src=&quot;
+  //           {imgUrl}&quot; height=&quot;100&quot; width=&quot;300&quot;
+  //           alt=&quot;I&apos;m attending the GLA Summit!&quot;&gt; &lt;/a&gt;
+  //         </code>
+  //       </div>
+  //     </CopyableTextBox>
+  //   </SidewaysBox>
+  // );
 
   const bannerImagesAttendee = buildImageTableRows(images, 'Attendee');
   const bannerImagesSpeaker = buildImageTableRows(images, 'Speaker');
@@ -133,15 +133,15 @@ const MediaPage = () => {
         right-clicking and choosing an option like &ldquo;Copy image
         address&rdquo;.
       </p>
-      <p>
+      {/* <p>
         To access your signature on the NI Community pages, go to your community
         account &ldquo;My Profile&rdquo; settings and then Personal &gt;
         Personal Information.
       </p>
       <p>
         Examples of HTML that could be copied into the signature line are below:
-      </p>
-      {signatureDiv}
+      </p> */}
+      {/* {signatureDiv} */}
 
       <h3 className='text-3xl'>Attendees</h3>
       <table className='w-min [&_td]:whitespace-nowrap [&_td]:border-none [&_td]:px-4 [&_td]:py-0'>
