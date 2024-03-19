@@ -29,7 +29,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout(props: {
   children: React.ReactNode;
-  loginModal: React.ReactNode;
+  // loginModal: React.ReactNode;
 }) {
   return (
     <html lang='en' className={roboto.className}>
