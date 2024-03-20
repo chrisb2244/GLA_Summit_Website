@@ -431,13 +431,6 @@ export type Database = {
         };
         Relationships: [
           {
-            foreignKeyName: 'public_tickets_user_id_fkey';
-            columns: ['user_id'];
-            isOneToOne: false;
-            referencedRelation: 'users';
-            referencedColumns: ['id'];
-          },
-          {
             foreignKeyName: 'public_tickets_userId_fkey';
             columns: ['user_id'];
             isOneToOne: false;
