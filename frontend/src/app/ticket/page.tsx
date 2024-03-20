@@ -43,23 +43,19 @@ const TicketGeneratorPage = async () => {
   }
   const userId = user.id;
 
-  const fetchExistingTicket = async () => {
-    return await supabase
-      .from('tickets')
-      .select('*,profiles(firstname, lastname)')
-      .eq('user_id', userId)
-      .eq('year', ticketYear)
-      .maybeSingle()
-      .then(({ data, error }) => {
-        if (error) {
-          console.error(error);
-          return null;
-        }
-        return data;
-      });
-  };
-
-  const existingTicket = await fetchExistingTicket();
+  const existingTicket = await supabase
+    .from('tickets')
+    .select('*,profiles(firstname, lastname)')
+    .eq('user_id', userId)
+    .eq('year', ticketYear)
+    .maybeSingle()
+    .then(({ data, error }) => {
+      if (error) {
+        console.error(error);
+        return null;
+      }
+      return data;
+    });
 
   const [isPresenter, _]: [true, string[]] | [false, null] = await supabase
     .from('presentation_submissions')
@@ -97,17 +93,19 @@ const TicketGeneratorPage = async () => {
     redirect(ticketDataAndTokenToPageUrl(transferObject));
   } else {
     // Create a ticket
-    const { error } = await supabase.from('tickets').insert({
-      user_id: userId,
-      year: ticketYear
-    });
+    const { data: newTicket, error } = await supabase
+      .from('tickets')
+      .insert({
+        user_id: userId,
+        year: ticketYear
+      })
+      .select()
+      .maybeSingle();
     if (error) {
       console.error(error);
     }
 
-    const newTicket = await fetchExistingTicket();
-
-    if (!newTicket) {
+    if (newTicket == null) {
       console.error('Failed to create a new ticket');
       logErrorToDb(
         `Failed to create a new ticket: ${error?.message}, (${error?.details}) (${error?.code})`,
