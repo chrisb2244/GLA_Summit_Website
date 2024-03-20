@@ -3,6 +3,7 @@ import { ticketYear } from '../api/ticket/constants';
 import { createServerComponentClient } from '@/lib/supabaseServer';
 import { ticketDataAndTokenToPageUrl } from './utils';
 import { createHmac } from 'node:crypto';
+import { logErrorToDb } from '@/lib/utils';
 
 export type TicketData = {
   firstName: string;
@@ -18,6 +19,7 @@ export type TransferObject = {
 };
 
 const TICKET_KEY = process.env.TICKET_KEY as string;
+export const dynamic = 'force-dynamic';
 
 const getToken = (jsonString: string) => {
   const hmac = createHmac('sha256', TICKET_KEY);
@@ -107,7 +109,20 @@ const TicketGeneratorPage = async () => {
 
     if (!newTicket) {
       console.error('Failed to create a new ticket');
-      return <div>Failed to create a new ticket</div>;
+      logErrorToDb(
+        `Failed to create a new ticket: ${error?.message}, (${error?.details}) (${error?.code})`,
+        'error',
+        userId
+      );
+      return (
+        <div className='prose mx-auto mt-4 text-center'>
+          <p>Failed to create a new ticket</p>
+          <p>
+            Refreshing the page may fix this issue - if it does not, please
+            contact web@glasummit.org
+          </p>
+        </div>
+      );
     }
     const profile = await supabase
       .from('profiles')
