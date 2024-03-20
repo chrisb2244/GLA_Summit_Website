@@ -93,7 +93,7 @@ const TicketGeneratorPage = async () => {
     redirect(ticketDataAndTokenToPageUrl(transferObject));
   } else {
     // Create a ticket
-    const { data: newTicket, error } = await supabase
+    let { data: newTicket, error } = await supabase
       .from('tickets')
       .insert({
         user_id: userId,
@@ -101,8 +101,23 @@ const TicketGeneratorPage = async () => {
       })
       .select()
       .maybeSingle();
-    if (error) {
-      console.error(error);
+    console.log({ newTicket, error });
+
+    // For some reason, duplicate requests can be made to this page, which is triggering failures.
+    if (error?.code == '23505') {
+      newTicket = await supabase
+        .from('tickets')
+        .select()
+        .eq('user_id', userId)
+        .eq('year', ticketYear)
+        .single()
+        .then(({ data, error }) => {
+          if (error) {
+            console.error(error);
+            return null;
+          }
+          return data;
+        });
     }
 
     if (newTicket == null) {
