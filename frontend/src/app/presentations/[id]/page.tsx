@@ -72,8 +72,10 @@ const PresentationsForYearPage: NextPage<PageProps> = async ({ params }) => {
           }
         };
       }
-      // Mask the schedule for 2024 for now
-      const scheduledFor = data.year === '2024' ? null : data.scheduled_for;
+
+      // Allow masking the schedule for 2024
+      const mask = false; // data.year === '2024';
+      const scheduledFor = mask ? null : data.scheduled_for;
       const schedule = calculateSchedule(type, scheduledFor);
 
       return {
