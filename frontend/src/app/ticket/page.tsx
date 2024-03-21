@@ -94,18 +94,34 @@ const TicketGeneratorPage = async () => {
       token: getToken(JSON.stringify(ticketObject))
     };
 
+    logErrorToDb(
+      `Fetched an existing ticket: ${existingTicket.ticket_number} (${
+        user.email ?? 'no email'
+      })`,
+      'info',
+      userId
+    );
+
     redirect(ticketDataAndTokenToPageUrl(transferObject));
   } else {
     // Create a ticket
-    const { error } = await supabase.from('tickets').insert({
-      user_id: userId,
-      year: ticketYear
-    });
-    if (error) {
-      console.error(error);
-    }
+    const { data: newTicket, error } = await supabase
+      .from('tickets')
+      .insert({
+        user_id: userId,
+        year: ticketYear
+      })
+      .select()
+      .single();
 
-    const newTicket = await fetchExistingTicket();
+    logErrorToDb(
+      `New Ticket request: ${JSON.stringify({ newTicket, error })} (${
+        user.email ?? 'no email'
+      })`,
+      'info',
+      userId
+    );
+    // console.log({ newTicket, error, time: new Date().toISOString() });
 
     if (!newTicket) {
       console.error('Failed to create a new ticket');
@@ -124,6 +140,7 @@ const TicketGeneratorPage = async () => {
         </div>
       );
     }
+
     const profile = await supabase
       .from('profiles')
       .select('firstname, lastname')
@@ -150,12 +167,25 @@ const TicketGeneratorPage = async () => {
       userId: user.id
     };
 
+    logErrorToDb(
+      `Created a new ticket: ${newTicket.ticket_number}`,
+      'info',
+      userId
+    );
+
     const transferObject: TransferObject = {
       data: ticketObject,
       token: getToken(JSON.stringify(ticketObject))
     };
 
-    redirect(ticketDataAndTokenToPageUrl(transferObject));
+    const redirectPath = ticketDataAndTokenToPageUrl(transferObject);
+    // console.log({
+    //   transferObject,
+    //   redirectPath,
+    //   time: new Date().toISOString()
+    // });
+
+    redirect(redirectPath);
   }
 };
 
