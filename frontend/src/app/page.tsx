@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { Button } from '@/Components/Form/Button';
 import { createServerComponentClient } from '@/lib/supabaseServer';
-// import { SponsorBar } from './_rootElements/SponsorBar';
+import { SponsorBar } from './_rootElements/SponsorBar';
 // import { Countdown } from './_rootElements/Countdown'
 
 export const metadata: Metadata = {
@@ -147,7 +147,7 @@ export default async function Page() {
         resources available to rewatch!
       </p>
       {/* websiteUpdateNotice */}
-      {/* <SponsorBar /> */}
+      <SponsorBar />
     </div>
   );
 }
