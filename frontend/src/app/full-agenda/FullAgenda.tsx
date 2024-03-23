@@ -113,7 +113,7 @@ export const FullAgenda = (props: {
   if (fullAgenda === null) {
     return unableToRenderElem;
   }
-  const conferenceStart = new Date(Date.UTC(2022, 10, 14, 12, 0, 0));
+  const conferenceStart = new Date(Date.UTC(2024, 2, 25, 12, 0, 0));
 
   if (typeof window !== 'undefined') {
     window.matchMedia('(min-width: 768px)').addEventListener('change', (e) => {

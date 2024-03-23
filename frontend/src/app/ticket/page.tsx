@@ -43,19 +43,23 @@ const TicketGeneratorPage = async () => {
   }
   const userId = user.id;
 
-  const existingTicket = await supabase
-    .from('tickets')
-    .select('*,profiles(firstname, lastname)')
-    .eq('user_id', userId)
-    .eq('year', ticketYear)
-    .maybeSingle()
-    .then(({ data, error }) => {
-      if (error) {
-        console.error(error);
-        return null;
-      }
-      return data;
-    });
+  const fetchExistingTicket = async () => {
+    return await supabase
+      .from('tickets')
+      .select('*,profiles(firstname, lastname)')
+      .eq('user_id', userId)
+      .eq('year', ticketYear)
+      .maybeSingle()
+      .then(({ data, error }) => {
+        if (error) {
+          console.error(error);
+          return null;
+        }
+        return data;
+      });
+  };
+
+  const existingTicket = await fetchExistingTicket();
 
   const [isPresenter, _]: [true, string[]] | [false, null] = await supabase
     .from('presentation_submissions')
@@ -90,37 +94,36 @@ const TicketGeneratorPage = async () => {
       token: getToken(JSON.stringify(ticketObject))
     };
 
+    logErrorToDb(
+      `Fetched an existing ticket: ${existingTicket.ticket_number} (${
+        user.email ?? 'no email'
+      })`,
+      'info',
+      userId
+    );
+
     redirect(ticketDataAndTokenToPageUrl(transferObject));
   } else {
     // Create a ticket
-    let { data: newTicket, error } = await supabase
+    const { data: newTicket, error } = await supabase
       .from('tickets')
       .insert({
         user_id: userId,
         year: ticketYear
       })
       .select()
-      .maybeSingle();
-    console.log({ newTicket, error });
+      .single();
 
-    // For some reason, duplicate requests can be made to this page, which is triggering failures.
-    if (error?.code == '23505') {
-      newTicket = await supabase
-        .from('tickets')
-        .select()
-        .eq('user_id', userId)
-        .eq('year', ticketYear)
-        .single()
-        .then(({ data, error }) => {
-          if (error) {
-            console.error(error);
-            return null;
-          }
-          return data;
-        });
-    }
+    logErrorToDb(
+      `New Ticket request: ${JSON.stringify({ newTicket, error })} (${
+        user.email ?? 'no email'
+      })`,
+      'info',
+      userId
+    );
+    // console.log({ newTicket, error, time: new Date().toISOString() });
 
-    if (newTicket == null) {
+    if (!newTicket) {
       console.error('Failed to create a new ticket');
       logErrorToDb(
         `Failed to create a new ticket: ${error?.message}, (${error?.details}) (${error?.code})`,
@@ -137,6 +140,7 @@ const TicketGeneratorPage = async () => {
         </div>
       );
     }
+
     const profile = await supabase
       .from('profiles')
       .select('firstname, lastname')
@@ -163,12 +167,25 @@ const TicketGeneratorPage = async () => {
       userId: user.id
     };
 
+    logErrorToDb(
+      `Created a new ticket: ${newTicket.ticket_number}`,
+      'info',
+      userId
+    );
+
     const transferObject: TransferObject = {
       data: ticketObject,
       token: getToken(JSON.stringify(ticketObject))
     };
 
-    redirect(ticketDataAndTokenToPageUrl(transferObject));
+    const redirectPath = ticketDataAndTokenToPageUrl(transferObject);
+    // console.log({
+    //   transferObject,
+    //   redirectPath,
+    //   time: new Date().toISOString()
+    // });
+
+    redirect(redirectPath);
   }
 };
 

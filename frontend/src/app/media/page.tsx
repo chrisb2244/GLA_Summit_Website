@@ -124,47 +124,49 @@ const MediaPage = () => {
   const bannerImagesSpeaker = buildImageTableRows(images, 'Speaker');
 
   return (
-    <StackedBoxes>
-      {jkiDiv}
-      <p>
-        Please feel free to use the images on this page on your social media or
-        website (including your NI forum signature). Links to the images can be
-        found in the &lsquo;href&rsquo; attributes of the HTML samples, or by
-        right-clicking and choosing an option like &ldquo;Copy image
-        address&rdquo;.
-      </p>
-      {/* <p>
+    <div className='-ml-6 mt-4 md:mx-auto md:max-w-4xl'>
+      <StackedBoxes>
+        {jkiDiv}
+        <p>
+          Please feel free to use the images on this page on your social media
+          or website (including your NI forum signature). Links to the images
+          can be found in the &lsquo;href&rsquo; attributes of the HTML samples,
+          or by right-clicking and choosing an option like &ldquo;Copy image
+          address&rdquo;.
+        </p>
+        {/* <p>
         To access your signature on the NI Community pages, go to your community
         account &ldquo;My Profile&rdquo; settings and then Personal &gt;
         Personal Information.
-      </p>
-      <p>
+        </p>
+        <p>
         Examples of HTML that could be copied into the signature line are below:
       </p> */}
-      {/* {signatureDiv} */}
+        {/* {signatureDiv} */}
 
-      <h3 className='text-3xl'>Attendees</h3>
-      <table className='w-min [&_td]:whitespace-nowrap [&_td]:border-none [&_td]:px-4 [&_td]:py-0'>
-        <tbody>{bannerImagesAttendee}</tbody>
-      </table>
-      <NextImage
-        key='bannerimage-attendee'
-        alt='attendee banner'
-        src={TW_Attendee}
-        className='mx-auto'
-      />
+        <h3 className='text-3xl'>Attendees</h3>
+        <table className='w-min [&_td]:whitespace-nowrap [&_td]:border-none [&_td]:px-4 [&_td]:py-0'>
+          <tbody>{bannerImagesAttendee}</tbody>
+        </table>
+        <NextImage
+          key='bannerimage-attendee'
+          alt='attendee banner'
+          src={TW_Attendee}
+          className='mx-auto'
+        />
 
-      <h3 className='text-3xl'>Speakers</h3>
-      <table className='w-min [&_td]:whitespace-nowrap [&_td]:border-none [&_td]:px-4 [&_td]:py-0'>
-        <tbody>{bannerImagesSpeaker}</tbody>
-      </table>
-      <NextImage
-        key='bannerimage-speaker'
-        alt='speaker banner'
-        src={TW_Speaker}
-        className='mx-auto'
-      />
-    </StackedBoxes>
+        <h3 className='text-3xl'>Speakers</h3>
+        <table className='w-min [&_td]:whitespace-nowrap [&_td]:border-none [&_td]:px-4 [&_td]:py-0'>
+          <tbody>{bannerImagesSpeaker}</tbody>
+        </table>
+        <NextImage
+          key='bannerimage-speaker'
+          alt='speaker banner'
+          src={TW_Speaker}
+          className='mx-auto'
+        />
+      </StackedBoxes>
+    </div>
   );
 };
 
