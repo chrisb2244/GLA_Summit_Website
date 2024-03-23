@@ -14,6 +14,11 @@ export const Footer: React.FC<React.PropsWithChildren<unknown>> = () => {
               About Us
             </Link>
           </div>
+          <div className='flex self-center py-[0.8px] underline md:py-0'>
+            <Link prefetch={false} href='/media' className='self-center'>
+              Media Banners
+            </Link>
+          </div>
           <FileLink title='Code of Conduct' link='/media/codeofconduct.pdf' />
           <FileLink title='Privacy Policy' link='/media/privacypolicy.pdf' />
           <div className='flex flex-col items-center'>
