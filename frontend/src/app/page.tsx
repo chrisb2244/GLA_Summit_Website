@@ -69,6 +69,12 @@ export default async function Page() {
     </Link>
   );
 
+  const generalEventButton = (
+    <a href='https://app.events.ringcentral.com/events/gla-2024'>
+      <Button fullWidth>Go to the Event!</Button>
+    </a>
+  );
+
   // const websiteUpdateNotice = (
   //   <>
   //     <p>
@@ -98,7 +104,25 @@ export default async function Page() {
         (certified or self-proclaimed) from around the world to network and
         participate in an inclusive, all-digital, free event.
       </p>
-      <div>{ticketButton}</div>
+      {/* <div>{ticketButton}</div> */}
+      <div>
+        <p className='text-center'>
+          The GLA Summit event page is now open! You can find the event page at{' '}
+          <a
+            href='https://app.events.ringcentral.com/events/gla-2024'
+            className='link'
+          >
+            https://app.events.ringcentral.com/events/gla-2024
+          </a>
+          .
+        </p>
+        {generalEventButton}
+        <p>
+          If you registered for a ticket using this website, you should have
+          received an email with a customised link - you can use that directly
+          to access the platform rather than using the generic link above.
+        </p>
+      </div>
       {/* <div>
         <p>
           <span className='font-semibold'>
