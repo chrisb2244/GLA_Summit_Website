@@ -18,9 +18,9 @@ export const MenuBar = () => {
     },
     // { title: 'Submit a Presentation', link: '/submit-presentation' },
     // { title: 'Virtual Venue (Hopin)', link: 'https://hopin.com/events/gla-summit-2022' },
-    // { title: 'Media and Banners', link: '/media' },
     // { title: 'Our Team', link: '/our-team' }
-    { title: 'Presenters', link: '/presenters' }
+    { title: 'Presenters', link: '/presenters' },
+    { title: 'Media and Banners', link: '/media' }
   ];
 
   // Split these components since the "Mobile" version requires interactivity,
