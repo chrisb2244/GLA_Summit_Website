@@ -1,4 +1,5 @@
 import { SocialMediaIcons } from './SocialMediaIcons';
+import Link from 'next/link';
 
 export const Footer: React.FC<React.PropsWithChildren<unknown>> = () => {
   const thisYear = new Date().getFullYear();
@@ -8,6 +9,15 @@ export const Footer: React.FC<React.PropsWithChildren<unknown>> = () => {
       <div className='flex min-h-[64px] items-center justify-between bg-primaryc px-6 text-white'>
         <div className='mx-auto flex flex-grow flex-col justify-between py-4 text-sm md:flex-row md:py-0'>
           <SocialMediaIcons />
+          <div className='flex'>
+            <Link
+              prefetch={false}
+              href='/our-team'
+              className='self-center py-[0.8px] underline md:py-0'
+            >
+              About Us
+            </Link>
+          </div>
           <FileLink title='Code of Conduct' link='/media/codeofconduct.pdf' />
           <FileLink title='Privacy Policy' link='/media/privacypolicy.pdf' />
           <div className='flex flex-col items-center'>
