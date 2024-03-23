@@ -17,10 +17,6 @@ const PresentationListLayout = async ({
         </NextLink>
         .
       </p>
-      <p>
-        Some presentations may still be subject to movement, or have yet to be
-        confirmed at their stated times.
-      </p>
     </>
   );
 
