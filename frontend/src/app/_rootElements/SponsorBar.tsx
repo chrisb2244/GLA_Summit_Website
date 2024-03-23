@@ -21,20 +21,20 @@ export const SponsorBar: React.FC<React.PropsWithChildren<unknown>> = () => {
 
   const supporters: Array<Supporter> = [
     {
-      title: 'Newton Dynamics',
-      src: Newton_Logo,
-      href: 'https://www.newtondynamics.net/',
-      width: 71.75,
-      height: 56.1,
-      imgWrapperCName: 'bg-[#000] p-2 rounded-md'
-    },
-    {
       title: 'Quimby App',
       src: Quimby_Logo,
       href: 'https://www.quimbyapp.com/home',
       width: 1386,
       height: 484
     }
+    // {
+    //   title: 'Newton Dynamics',
+    //   src: Newton_Logo,
+    //   href: 'https://www.newtondynamics.net/',
+    //   width: 71.75,
+    //   height: 56.1,
+    //   imgWrapperCName: 'bg-[#000] p-2 rounded-md'
+    // }
 
     // {
     //   title: 'GCentral',
