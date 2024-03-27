@@ -1,8 +1,9 @@
 import { Button } from '@/Components/Form/Button';
 import { createServerComponentClient } from '@/lib/supabaseServer';
 import Link from 'next/link';
+import { Suspense } from 'react';
 
-export const SubmitPresentationButton = async () => {
+const SubmitPresentationButtonWithCheck = async () => {
   const supabase = createServerComponentClient();
   const user = (await supabase.auth.getUser())?.data?.user ?? undefined;
   const loggedIn = typeof user !== 'undefined';
@@ -24,7 +25,7 @@ export const SubmitPresentationButton = async () => {
   return submitPresentationButton;
 };
 
-export const SubmitPresentationButtonFallback = () => {
+const SubmitPresentationButtonFallback = () => {
   return (
     <Link
       href={'/auth/register?redirectTo=/my-presentations'}
@@ -35,3 +36,9 @@ export const SubmitPresentationButtonFallback = () => {
     </Link>
   );
 };
+
+export const SubmitPresentationButton = () => (
+  <Suspense fallback={<SubmitPresentationButtonFallback />}>
+    {SubmitPresentationButtonWithCheck()}
+  </Suspense>
+);

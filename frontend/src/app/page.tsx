@@ -1,13 +1,6 @@
 import { Metadata } from 'next';
-// import Link from 'next/link';
-import { Button } from '@/Components/Form/Button';
-// import { createServerComponentClient } from '@/lib/supabaseServer';
 import { SponsorBar } from './_rootElements/SponsorBar';
-import {
-  SubmitPresentationButton,
-  SubmitPresentationButtonFallback
-} from './_homepage/SubmitPresentationButton';
-import { Suspense } from 'react';
+// import { SubmitPresentationButton } from './_homepage/SubmitPresentationButton';
 // import { Countdown } from './_rootElements/Countdown'
 
 export const metadata: Metadata = {
@@ -36,31 +29,11 @@ export default async function Page() {
   //   </>
   // )
 
-  // const registrationButton = false ? (
-  //   <Box>
-  //     <Link href={'https://hopin.com/events/gla-summit-2022'}>
-  //       <Button fullWidth variant='contained' className='bg-primaryc'>
-  //         Register for a ticket at Hopin
-  //       </Button>
-  //     </Link>
-  //   </Box>
-  // ) : null
-
-  // const ticketButton = (
-  //   <Link
-  //     href={loggedIn ? '/ticket' : '/auth/register?redirectTo=/ticket'}
-  //     prefetch={false}
-  //     scroll={loggedIn}
-  //   >
-  //     <Button fullWidth>Get Your Ticket</Button>
-  //   </Link>
+  // const generalEventButton = (
+  //   <a href='https://app.events.ringcentral.com/events/gla-2024'>
+  //     <Button fullWidth>Go to the Event!</Button>
+  //   </a>
   // );
-
-  const generalEventButton = (
-    <a href='https://app.events.ringcentral.com/events/gla-2024'>
-      <Button fullWidth>Go to the Event!</Button>
-    </a>
-  );
 
   // const websiteUpdateNotice = (
   //   <>
@@ -130,9 +103,7 @@ export default async function Page() {
           adjust the abstract or title of your presentation, this can be done
           once we have responded to your presentation.
         </p>
-        <Suspense fallback={<SubmitPresentationButtonFallback />}>
-          <SubmitPresentationButton />
-        </Suspense>
+        <SubmitPresentationButton />
       </div> */}
 
       <p>
