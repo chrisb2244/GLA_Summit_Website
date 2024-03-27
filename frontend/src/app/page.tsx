@@ -1,8 +1,13 @@
 import { Metadata } from 'next';
-import Link from 'next/link';
+// import Link from 'next/link';
 import { Button } from '@/Components/Form/Button';
-import { createServerComponentClient } from '@/lib/supabaseServer';
+// import { createServerComponentClient } from '@/lib/supabaseServer';
 import { SponsorBar } from './_rootElements/SponsorBar';
+import {
+  SubmitPresentationButton,
+  SubmitPresentationButtonFallback
+} from './_homepage/SubmitPresentationButton';
+import { Suspense } from 'react';
 // import { Countdown } from './_rootElements/Countdown'
 
 export const metadata: Metadata = {
@@ -41,33 +46,15 @@ export default async function Page() {
   //   </Box>
   // ) : null
 
-  const supabase = createServerComponentClient();
-  const user = (await supabase.auth.getUser())?.data?.user ?? undefined;
-
-  const loggedIn = typeof user !== 'undefined';
-  const submitPresentationButton = (
-    <Link
-      href={
-        loggedIn
-          ? '/my-presentations'
-          : '/auth/register?redirectTo=/my-presentations'
-      }
-      prefetch={false}
-      scroll={loggedIn}
-    >
-      <Button fullWidth>Submit a Presentation</Button>
-    </Link>
-  );
-
-  const ticketButton = (
-    <Link
-      href={loggedIn ? '/ticket' : '/auth/register?redirectTo=/ticket'}
-      prefetch={false}
-      scroll={loggedIn}
-    >
-      <Button fullWidth>Get Your Ticket</Button>
-    </Link>
-  );
+  // const ticketButton = (
+  //   <Link
+  //     href={loggedIn ? '/ticket' : '/auth/register?redirectTo=/ticket'}
+  //     prefetch={false}
+  //     scroll={loggedIn}
+  //   >
+  //     <Button fullWidth>Get Your Ticket</Button>
+  //   </Link>
+  // );
 
   const generalEventButton = (
     <a href='https://app.events.ringcentral.com/events/gla-2024'>
@@ -143,7 +130,9 @@ export default async function Page() {
           adjust the abstract or title of your presentation, this can be done
           once we have responded to your presentation.
         </p>
-        {submitPresentationButton}
+        <Suspense fallback={<SubmitPresentationButtonFallback />}>
+          <SubmitPresentationButton />
+        </Suspense>
       </div> */}
 
       <p>
