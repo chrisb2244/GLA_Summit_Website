@@ -95,17 +95,28 @@ export default async function Page() {
 
   return (
     <div className='prose prose-base mx-auto max-w-2xl text-justify xl:max-w-3xl'>
-      <p className='prose-lg text-center'>
+      {/* <p className='prose-lg text-center'>
         The GLA Summit Organizers are excited to announce the next GLA Summit,
         scheduled for 25-26 March 2024!
+      </p> */}
+      <p className='prose-lg text-center'>
+        The GLA Summit Organizers would like to thank all those
+        <br />
+        who presented at, or attended,
+        <br />
+        the GLA Summit 2024 on 25-26 March 2024!
       </p>
       <p>
-        We are excited to welcome advanced LabVIEW developers and Architects
+        We were excited to welcome advanced LabVIEW developers and Architects
         (certified or self-proclaimed) from around the world to network and
         participate in an inclusive, all-digital, free event.
       </p>
+      <p>
+        We will be uploading recordings of the presentations to our YouTube
+        channel soon.
+      </p>
       {/* <div>{ticketButton}</div> */}
-      <div>
+      {/* <div>
         <p className='text-center'>
           The GLA Summit event page is now open! You can find the event page at{' '}
           <a
@@ -122,7 +133,7 @@ export default async function Page() {
           received an email with a customised link - you can use that directly
           to access the platform rather than using the generic link above.
         </p>
-      </div>
+      </div> */}
       {/* <div>
         <p>
           <span className='font-semibold'>
