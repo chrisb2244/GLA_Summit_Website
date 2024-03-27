@@ -4,6 +4,9 @@
 
 module.exports = {
   reactStrictMode: true,
+  experimental: {
+    ppr: true
+  },
   images: {
     remotePatterns: [
       {
