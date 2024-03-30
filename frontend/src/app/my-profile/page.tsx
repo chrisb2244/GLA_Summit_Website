@@ -1,16 +1,16 @@
 import { createServerComponentClient } from '@/lib/supabaseServer';
-
 import React, { PropsWithChildren } from 'react';
 import { ProfileImage } from './ProfileImage';
 import { ProfileForm } from './ProfileForm';
+import { getUser } from '@/lib/supabase/userFunctions';
+
+const Wrapper: React.FC<PropsWithChildren> = (props) => {
+  return <div className='mb-4 flex flex-col'>{props.children}</div>;
+};
 
 const ProfilePage = async () => {
   const supabase = createServerComponentClient();
-  const user = (await supabase.auth.getUser()).data.user;
-
-  const Wrapper: React.FC<PropsWithChildren> = (props) => {
-    return <div className='mb-4 flex flex-col'>{props.children}</div>;
-  };
+  const user = await getUser();
 
   if (user === null) {
     return (

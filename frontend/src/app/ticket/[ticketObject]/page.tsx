@@ -1,12 +1,12 @@
 import type { Metadata, NextPage } from 'next';
 import { IMG_HEIGHT, IMG_WIDTH, ticketYear } from '@/app/api/ticket/constants';
-import { createServerComponentClient } from '@/lib/supabaseServer';
 import { paramStringToData, ticketDataAndTokenToPageUrl } from '../utils';
 import type { TransferObject } from '../page';
 import Link from 'next/link';
 import { Button } from '@/Components/Form/Button';
 import { Suspense } from 'react';
 import { WaitingIndicator } from '@/Components/Utilities/WaitingIndicator';
+import { getUser } from '@/lib/supabase/userFunctions';
 
 type PageProps = {
   params: {
@@ -93,8 +93,7 @@ const TicketPage: NextPage<PageProps> = async ({
   searchParams: { share }
 }) => {
   // Display different page if viewing someone else's shared ticket view.
-  const supabase = createServerComponentClient();
-  const user = (await supabase.auth.getUser()).data.user;
+  const user = await getUser();
   const userId = user?.id;
 
   const transferObject = paramStringToData(transferObjectString);

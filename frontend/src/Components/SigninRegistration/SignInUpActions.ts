@@ -12,10 +12,6 @@ import { SignInEmailFn } from '@/EmailTemplates/SignInEmail';
 import { RegistrationEmailFn } from '@/EmailTemplates/RegistrationEmail';
 import { RedirectType, redirect } from 'next/navigation';
 
-export const mailUser = async () => {
-  // Send email
-};
-
 const filterEmails = (email: string) => {
   if (email.match(/.*@mail\.ru/) || email.match(/.*@yandex\.ru/)) {
     // Block signups from @mail.ru
@@ -34,16 +30,6 @@ const filterProfileData = ({ firstName, lastName, email }: PersonProps) => {
 export const signOut = async () => {
   await createServerActionClient().auth.signOut();
   revalidatePath('/');
-};
-
-export const getUser = async () => {
-  const supabase = createServerActionClient();
-  return await supabase.auth.getUser().then(({ data, error }) => {
-    if (error) {
-      return null;
-    }
-    return data.user;
-  });
 };
 
 export const verifyLogin = async (data: {

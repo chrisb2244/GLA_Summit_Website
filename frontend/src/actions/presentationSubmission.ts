@@ -6,6 +6,7 @@ import {
 } from '@/EmailTemplates/FormSubmissionEmail';
 import { submissionsForYear } from '@/lib/databaseModels';
 import { sendMailApi } from '@/lib/sendMail';
+import { getUser } from '@/lib/supabase/userFunctions';
 import { createAdminClient } from '@/lib/supabaseClient';
 import { createServerActionClient } from '@/lib/supabaseServer';
 import { AuthError } from '@supabase/supabase-js';
@@ -38,8 +39,8 @@ export const submitNewPresentation = async (
     } = parsedData.data;
     const supabaseAdmin = createAdminClient();
     const supabase = createServerActionClient();
-    const submitter_id = (await supabase.auth.getSession()).data.session?.user
-      .id;
+    const user = await getUser();
+    const submitter_id = user?.id;
     console.log({ submitter_id });
     if (typeof submitter_id === 'undefined') {
       return {

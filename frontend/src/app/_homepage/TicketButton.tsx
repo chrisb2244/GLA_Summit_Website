@@ -1,12 +1,11 @@
 import { Button } from '@/Components/Form/Button';
-import { createServerComponentClient } from '@/lib/supabaseServer';
+import { getUser } from '@/lib/supabase/userFunctions';
 import Link from 'next/link';
 import { Suspense } from 'react';
 
 const TicketButtonWithCheck = async () => {
-  const supabase = createServerComponentClient();
-  const user = (await supabase.auth.getUser())?.data?.user ?? undefined;
-  const loggedIn = typeof user !== 'undefined';
+  const user = await getUser();
+  const loggedIn = user !== null;
 
   const ticketButton = (
     <Link

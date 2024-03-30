@@ -6,6 +6,7 @@ import {
   SummitYear
   // submissionsForYear
 } from '@/lib/databaseModels';
+import { getUser } from '@/lib/supabase/userFunctions';
 import { createServerComponentClient } from '@/lib/supabaseServer';
 import { formatTextToPs } from '@/lib/utils';
 import { User } from '@supabase/supabase-js';
@@ -19,16 +20,9 @@ export const metadata: Metadata = {
 };
 
 const MyPresentationsPage = async () => {
+  const user = await getUser();
+
   const supabase = createServerComponentClient();
-
-  const {
-    data: { user },
-    error
-  } = await supabase.auth.getUser();
-  if (error) {
-    console.error({ m: 'Error fetching user', error });
-  }
-
   const getSubmitter = async (
     user: User | null
   ): Promise<PersonProps | null> => {
