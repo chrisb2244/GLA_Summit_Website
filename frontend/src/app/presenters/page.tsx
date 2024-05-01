@@ -1,6 +1,5 @@
 import { PersonDisplay } from '@/Components/PersonDisplay';
-import { getPeople } from '@/lib/databaseFunctions';
-import { getAcceptedPresenterIds } from '@/lib/supabase/public';
+import { getAcceptedPresenterIds, getPeople } from '@/lib/supabase/public';
 import { Route } from 'next';
 
 const PresentersListPage = async () => {

@@ -5,6 +5,8 @@ import type { Database } from '../sb_databaseModels';
 import { SummitYear } from '../databaseModels';
 import { unstable_cache as nextjs_cache } from 'next/cache';
 import { logErrorToDb } from '../utils';
+import { PersonDisplayProps } from '@/Components/PersonDisplay';
+import { getPeople_Authed } from './authorized';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string;
@@ -54,5 +56,39 @@ export const getAcceptedPresenterIds = nextjs_cache(
   {
     revalidate: 1200,
     tags: ['getAcceptedPresenterIds']
+  }
+);
+
+/**
+ * Get profile information for an array of user IDs
+ * @param ids An array of user IDs
+ * @returns An array of user profiles
+ * @throws Error if the request fails
+ *
+ * This function is cached with the 'getPeople' tag
+ */
+export const getPeople = nextjs_cache(
+  async (
+    ids: string[]
+  ): Promise<
+    Array<PersonDisplayProps & { id: string; updated_at: string }>
+  > => {
+    const anonClient = createClient();
+    return getPeople_Authed(ids, anonClient);
+  },
+  ['getPeople'],
+  {
+    revalidate: 1200, // TODO: Remove this once we provide a trigger to revalidate the cache
+    tags: ['getPeople']
+  }
+);
+
+export const getPerson = nextjs_cache(
+  async (id: string) => {
+    return getPeople([id]).then((people) => people[0]);
+  },
+  ['db:presenters:getPerson'],
+  {
+    tags: ['db:presenters:getPerson']
   }
 );

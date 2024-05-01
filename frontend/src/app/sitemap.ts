@@ -1,4 +1,4 @@
-import { getPeople, getPresenterIds } from '@/lib/databaseFunctions';
+import { getPeople, getAcceptedPresenterIds } from '@/lib/supabase/public';
 import { createAnonServerClient } from '@/lib/supabaseClient';
 import { MetadataRoute } from 'next';
 
@@ -86,7 +86,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         })
       : [];
 
-  const presenterIds = (await getPresenterIds()).map(({ id }) => id);
+  const presenterIds = await getAcceptedPresenterIds();
   const presenterInfo = await getPeople(presenterIds);
 
   const presenterEntries = presenterInfo.map(({ id, updated_at }) => {
