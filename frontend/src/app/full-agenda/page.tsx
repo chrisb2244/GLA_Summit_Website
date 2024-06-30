@@ -88,6 +88,14 @@ const SvrFullAgenda = async () => {
           containerHints={agendaAndHints.containerHints ?? []}
         />
       </div>
+      <iframe
+        src='https://schedule-widget.events.ringcentral.com/gla-2024?headerEnabled=false&filtersEnabled=true'
+        // outline='none'
+        scrolling='yes'
+        width='100%'
+        height='700'
+        frameBorder='0'
+      ></iframe>
     </>
   );
 };
