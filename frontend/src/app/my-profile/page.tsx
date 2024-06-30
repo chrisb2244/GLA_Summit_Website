@@ -1,5 +1,5 @@
 import { createServerComponentClient } from '@/lib/supabaseServer';
-import React, { PropsWithChildren } from 'react';
+import React, { Suspense, PropsWithChildren, cache } from 'react';
 import { ProfileImage } from './ProfileImage';
 import { ProfileForm } from './ProfileForm';
 import { getUser } from '@/lib/supabase/userFunctions';
@@ -9,9 +9,43 @@ const Wrapper: React.FC<PropsWithChildren> = (props) => {
 };
 
 const ProfilePage = async () => {
-  const supabase = createServerComponentClient();
-  const user = await getUser();
+  return (
+    <Wrapper>
+      <div className='flex flex-col md:flex-row'>
+        {/* Layout for the text boxes/form */}
+        <div className='m-4 flex w-4/5 flex-col self-center md:self-start'>
+          <Suspense>
+            <ProfilePage_FormWrapper />
+          </Suspense>
+        </div>
 
+        {/* Profile image */}
+        <div className='flex min-h-[80vw] w-4/5 flex-col self-center md:min-h-[300px] md:w-1/5 '>
+          <Suspense>
+            <ProfilePage_ImageWrapper />
+          </Suspense>
+        </div>
+      </div>
+    </Wrapper>
+  );
+};
+
+const getProfileData = cache(async (userId: string) => {
+  const supabase = createServerComponentClient();
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .single();
+
+  if (error) {
+    return null;
+  }
+  return data;
+});
+
+const ProfilePage_FormWrapper = async () => {
+  const user = await getUser();
   if (user === null) {
     return (
       <Wrapper>
@@ -20,13 +54,9 @@ const ProfilePage = async () => {
     );
   }
 
-  const userId = user.id;
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
-    .single();
-  if (error) {
+  const profileData = await getProfileData(user.id);
+
+  if (profileData === null) {
     return (
       <Wrapper>
         <p>Unable to load profile...</p>
@@ -35,20 +65,24 @@ const ProfilePage = async () => {
   }
 
   return (
-    <Wrapper>
-      <div className='flex flex-col md:flex-row'>
-        {/* Layout for the text boxes/form */}
-        <div className='m-4 flex w-4/5 flex-col self-center md:self-start'>
-          <ProfileForm profile={data} email={user.email ?? 'Email Not Found'} />
-        </div>
-
-        {/* Profile image */}
-        <div className='flex min-h-[80vw] w-4/5 flex-col self-center md:min-h-[300px] md:w-1/5 '>
-          <ProfileImage userId={userId} avatarUrl={data.avatar_url} />
-        </div>
-      </div>
-    </Wrapper>
+    <ProfileForm
+      profile={profileData}
+      email={user.email ?? 'Email Not Found'}
+    />
   );
+};
+
+const ProfilePage_ImageWrapper = async () => {
+  const user = await getUser();
+  if (user === null) {
+    return null;
+  }
+  const avatar_url = await getProfileData(user.id).then(
+    (data) => data?.avatar_url
+  );
+  return avatar_url ? (
+    <ProfileImage userId={user.id} avatarUrl={avatar_url} />
+  ) : null;
 };
 
 export default ProfilePage;
