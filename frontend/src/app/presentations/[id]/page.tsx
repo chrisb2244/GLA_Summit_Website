@@ -5,8 +5,7 @@ import {
 import {
   getPresentationIds,
   getPublicPresentation,
-  getVideoLink,
-  speakerIdsToSpeakers
+  getVideoLink
 } from '@/lib/databaseFunctions';
 import { createAnonServerClient } from '@/lib/supabaseClient';
 import { createServerComponentClient } from '@/lib/supabaseServer';
@@ -15,6 +14,8 @@ import type { Metadata, NextPage } from 'next';
 import { notFound } from 'next/navigation';
 import { redirect } from 'next/navigation';
 import { getPanelLink } from '@/app/panels/panelLinks';
+import { getPeople } from '@/lib/supabase/public';
+import { getPeople_Authed } from '@/lib/supabase/authorized';
 
 type PageProps = {
   params: {
@@ -59,10 +60,9 @@ const PresentationsForYearPage: NextPage<PageProps> = async ({ params }) => {
     supabase
   ).then(
     async (data) => {
-      const presenters = await speakerIdsToSpeakers(
-        data.all_presenters,
-        supabase
-      );
+      const presenters = (await getPeople(data.all_presenters)).map((p) => {
+        return { ...p, pageLink: `/presenters/${p.id}` };
+      });
 
       const type = data.presentation_type;
       if (type === 'panel') {
@@ -106,7 +106,7 @@ const PresentationsForYearPage: NextPage<PageProps> = async ({ params }) => {
         return {
           title: data.title,
           abstract: data.abstract,
-          speakers: await speakerIdsToSpeakers(
+          speakers: await getPeople_Authed(
             data.all_presenters_ids,
             supabaseLoggedIn
           ),

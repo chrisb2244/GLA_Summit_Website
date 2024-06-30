@@ -71,10 +71,6 @@ export default async function Page() {
         (certified or self-proclaimed) from around the world to network and
         participate in an inclusive, all-digital, free event.
       </p>
-      <p>
-        We will be uploading recordings of the presentations to our YouTube
-        channel soon.
-      </p>
       {/* <div>{ticketButton}</div> */}
       {/* <div>
         <p className='text-center'>
@@ -107,15 +103,15 @@ export default async function Page() {
       </div> */}
 
       <p>
-        Recordings of previous presentations are available via the{' '}
+        Recordings of presentations are available on the{' '}
         <a
           href='https://www.youtube.com/c/GlobalLabVIEWArchitects'
           className='link'
         >
           GLA Summit YouTube channel
         </a>{' '}
-        - we hope that you are as excited as we are to have these great
-        resources available to rewatch!
+        or via the presentation pages on this website - we hope that you are as
+        excited as we are to have these great resources available to rewatch!
       </p>
       {/* websiteUpdateNotice */}
       <SponsorBar />
