@@ -32,6 +32,8 @@ export const YouTubeFrame: React.FC<{
         src={videoSrc}
         allowFullScreen
         referrerPolicy='strict-origin-when-cross-origin' // This is the default anyway
+        // The allow line is copied from the YT embed example for reference in case of future use
+        // allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
       />
     </div>
   );
