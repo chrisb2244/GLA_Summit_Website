@@ -4,7 +4,7 @@ import { paramStringToData, ticketDataAndTokenToPageUrl } from '../utils';
 import type { TransferObject } from '../page';
 import Link from 'next/link';
 import { Button } from '@/Components/Form/Button';
-import { Suspense } from 'react';
+import { Suspense, JSX } from 'react';
 import { WaitingIndicator } from '@/Components/Utilities/WaitingIndicator';
 import { getUser } from '@/lib/supabase/userFunctions';
 

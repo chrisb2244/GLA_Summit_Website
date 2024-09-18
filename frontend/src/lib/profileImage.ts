@@ -1,5 +1,6 @@
 import useSWRImmutable from 'swr/immutable';
-import type { KeyedMutator, ScopedMutator } from 'swr/dist/types';
+import type { KeyedMutator } from 'swr';
+import type { ScopedMutator } from 'swr/dist/_internal';
 import { downloadAvatar, uploadAvatar } from './databaseFunctions';
 
 export const uploadProfileImage = async (
