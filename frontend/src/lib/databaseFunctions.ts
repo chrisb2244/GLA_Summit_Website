@@ -295,7 +295,10 @@ export const downloadAvatar = async (userId: string) => {
     .from('avatars')
     .download(data.avatar_url)
     .then(({ data, error }) => {
-      if (error) throw error;
+      if (error) {
+        // Can't get the image for some reason
+        return null;
+      }
       return data;
     });
 };
