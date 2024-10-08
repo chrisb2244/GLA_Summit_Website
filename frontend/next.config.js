@@ -12,6 +12,10 @@ module.exports = {
       {
         protocol: 'https',
         hostname: 'iuqlmccpbxtgcluccazt.supabase.co'
+      },
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1'
       }
     ]
   },
