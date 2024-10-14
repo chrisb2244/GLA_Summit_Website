@@ -1,16 +1,4 @@
-// import nodemailer from 'nodemailer'
-import Mailgun, { type MessagesSendResult } from 'mailgun.js';
-import FormDataPackage from 'form-data';
-// import type { Options } from 'nodemailer/lib/mailer'
-
-const MG_API_KEY = process.env.MG_API_KEY as string;
-
-const mailgun = new Mailgun(FormDataPackage);
-const mg = mailgun.client({
-  username: 'api',
-  key: MG_API_KEY,
-  url: 'https://api.mailgun.net'
-});
+import type { MessagesSendResult } from 'mailgun.js';
 
 export type EmailContent = {
   to: string | string[];
@@ -20,46 +8,69 @@ export type EmailContent = {
   from?: string;
 };
 
-// export const sendMail = async (emailContent: EmailContent) => {
-//   const { to, subject, body, bodyPlain } = emailContent
-//   const from = emailContent.from ?? process.env.EMAIL_FROM
+let sendMailApi: (emailContent: EmailContent) => Promise<MessagesSendResult>;
 
-//   const transporter = nodemailer.createTransport({
-//     host: process.env.EMAIL_SERVER_HOST,
-//     port: Number.parseInt(process.env.EMAIL_SERVER_PORT ?? '465'),
-//     auth: {
-//       user: process.env.EMAIL_SERVER_USER,
-//       pass: process.env.EMAIL_SERVER_PASSWORD
-//     },
-//     ignoreTLS: true
-//   })
+if (process.env.USE_MOCK_EMAIL === 'true') {
+  const mailer = require('nodemailer') as typeof import('nodemailer');
+  const nmail = mailer.createTransport({
+    host: '127.0.0.1',
+    port: 54325,
+    secure: false
+  });
 
-//   const options: Options = { to, subject, from, text: bodyPlain, html: body }
-
-//   return transporter.sendMail(options)
-// }
-
-export const sendMailApi = async (emailContent: EmailContent) => {
-  const { to, subject, body, bodyPlain } = emailContent;
-  const from = emailContent.from ?? process.env.EMAIL_FROM_MG;
-
-  return mg.messages
-    .create('mg.glasummit.org', {
+  sendMailApi = async (emailContent: EmailContent) => {
+    const { to, subject, body, bodyPlain } = emailContent;
+    const from = emailContent.from ?? process.env.EMAIL_FROM_MG;
+    const sentMessageInfo = await nmail.sendMail({
       to,
       subject,
       text: bodyPlain,
       html: body,
       from
-    })
-    .then((msg) => {
-      return msg;
-    })
-    .catch((err) => {
-      const response: MessagesSendResult = {
-        status: 500,
-        message: err,
-        details: 'Some error occurred when trying to send mail'
-      };
-      return response;
     });
-};
+
+    return {
+      status: sentMessageInfo.accepted.length > 0 ? 200 : 500,
+      message: sentMessageInfo.response
+    };
+  };
+} else {
+  const Mailgun = require('mailgun.js') as typeof import('mailgun.js').default;
+  const FormDataPackage = require('form-data') as typeof import('form-data');
+
+  const MG_API_KEY = process.env.MG_API_KEY as string;
+
+  const mailgun = new Mailgun(FormDataPackage);
+  const mg = mailgun.client({
+    username: 'api',
+    key: MG_API_KEY,
+    url: 'https://api.mailgun.net'
+  });
+
+  sendMailApi = async (emailContent: EmailContent) => {
+    const { to, subject, body, bodyPlain } = emailContent;
+    const from = emailContent.from ?? process.env.EMAIL_FROM_MG;
+
+    return mg.messages
+      .create('mg.glasummit.org', {
+        to,
+        subject,
+        text: bodyPlain,
+        html: body,
+        from
+      })
+      .then((msg) => {
+        return msg;
+      })
+      .catch((err) => {
+        const response: MessagesSendResult = {
+          status: 500,
+          message: err,
+          details: 'Some error occurred when trying to send mail'
+        };
+        return response;
+      });
+  };
+}
+
+export { sendMailApi };
