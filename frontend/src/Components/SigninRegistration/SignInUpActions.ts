@@ -141,7 +141,8 @@ export const signInFromFormWithRedirect = async (formData: FormData) => {
   }
   const signInSuccessful = await signIn(email);
   if (signInSuccessful) {
-    redirect(`validateLogin?${params.toString()}`, RedirectType.push);
+    const redirectUrl = `/auth/validateLogin?${params.toString()}`;
+    redirect(redirectUrl, RedirectType.push);
   }
 };
 
