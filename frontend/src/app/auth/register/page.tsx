@@ -1,13 +1,14 @@
 import { redirect } from 'next/navigation';
 import { RegistrationForm } from '../RegistrationForm';
 import { getUser } from '@/lib/supabase/userFunctions';
+import { NextSearchParams } from '@/lib/NextTypes';
 
 const RegistrationPage = async ({
   searchParams
 }: {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: NextSearchParams;
 }) => {
-  const redirectToParam = searchParams?.redirectTo;
+  const redirectToParam = (await searchParams)?.redirectTo;
   const redirectTo =
     typeof redirectToParam === 'string'
       ? decodeURI(redirectToParam)

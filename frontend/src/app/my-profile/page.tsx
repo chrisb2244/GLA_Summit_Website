@@ -1,4 +1,4 @@
-import { createServerComponentClient } from '@/lib/supabaseServer';
+import { createServerClient } from '@/lib/supabaseServer';
 import React, { Suspense, PropsWithChildren, cache } from 'react';
 import { ProfileImage } from './ProfileImage';
 import { ProfileForm } from './ProfileForm';
@@ -31,7 +31,7 @@ const ProfilePage = async () => {
 };
 
 const getProfileData = cache(async (userId: string) => {
-  const supabase = createServerComponentClient();
+  const supabase = await createServerClient();
   const { data, error } = await supabase
     .from('profiles')
     .select('*')

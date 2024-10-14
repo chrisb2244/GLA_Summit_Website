@@ -1,6 +1,6 @@
 import { redirect, RedirectType } from 'next/navigation';
 import { ticketYear } from '../api/ticket/constants';
-import { createServerComponentClient } from '@/lib/supabaseServer';
+import { createServerClient } from '@/lib/supabaseServer';
 import { ticketDataAndTokenToPageUrl } from './utils';
 import { createHmac } from 'node:crypto';
 import { logErrorToDb } from '@/lib/utils';
@@ -36,7 +36,7 @@ const TicketGeneratorPage = async () => {
   }
   const userId = user.id;
 
-  const supabase = createServerComponentClient();
+  const supabase = await createServerClient();
   const fetchExistingTicket = async () => {
     return await supabase
       .from('tickets')

@@ -1,15 +1,14 @@
 import { redirect } from 'next/navigation';
 import { VerifyForm } from '../VerifyForm';
 import { getUser } from '@/lib/supabase/userFunctions';
-
-type SearchParams = { [key: string]: string | string[] | undefined };
+import { NextSearchParams } from '@/lib/NextTypes';
 
 const ValidateLoginPage = async ({
   searchParams
 }: {
-  searchParams?: SearchParams;
+  searchParams?: NextSearchParams;
 }) => {
-  const redirectToParam = searchParams?.redirectTo;
+  const redirectToParam = (await searchParams)?.redirectTo;
   const redirectTo =
     typeof redirectToParam === 'string'
       ? decodeURI(redirectToParam)
@@ -20,7 +19,7 @@ const ValidateLoginPage = async ({
     redirect(redirectTo ?? '/');
   }
 
-  const emailParam = searchParams?.email;
+  const emailParam = (await searchParams)?.email;
   const email =
     typeof emailParam === 'string' ? decodeURI(emailParam) : undefined;
 

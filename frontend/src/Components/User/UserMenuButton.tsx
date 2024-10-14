@@ -1,14 +1,14 @@
 import { SignInUpButton } from '@/Components/SigninRegistration/SignInUpButton';
 import { UserMenu } from '@/Components/User/UserMenu';
 import { signOut } from '@/Components/SigninRegistration/SignInUpActions';
-import { createServerComponentClient } from '@/lib/supabaseServer';
+import { createServerClient } from '@/lib/supabaseServer';
 import { User } from '@supabase/supabase-js';
 import { getUser } from '@/lib/supabase/userFunctions';
 
 export async function UserMenuButton() {
   const user = await getUser();
 
-  const supabase = createServerComponentClient();
+  const supabase = await createServerClient();
 
   const getIsOrganizer = async (user: User | null) => {
     if (user === null) {

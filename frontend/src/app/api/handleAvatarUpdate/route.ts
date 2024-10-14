@@ -12,7 +12,7 @@ type ResponseType =
     };
 
 export async function POST(req: Request): Promise<NextResponse<ResponseType>> {
-  const supabase = createRouteHandlerClient();
+  const supabase = await createRouteHandlerClient();
   const { data, error } = await supabase.auth.getUser();
   if (error) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });

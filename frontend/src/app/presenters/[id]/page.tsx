@@ -1,4 +1,5 @@
 import { PersonDisplay } from '@/Components/PersonDisplay';
+import type { NextParams, satisfy } from '@/lib/NextTypes';
 import { getPublicPresentationsForPresenter } from '@/lib/databaseFunctions';
 import { splitByYear } from '@/lib/presentationArrayFunctions';
 import { getAcceptedPresenterIds, getPerson } from '@/lib/supabase/public';
@@ -8,9 +9,12 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 type PageProps = {
-  params: {
-    id: string;
-  };
+  params: satisfy<
+    NextParams,
+    Promise<{
+      id: string;
+    }>
+  >;
 };
 
 export const revalidate = 600;
@@ -24,7 +28,7 @@ export async function generateStaticParams(): Promise<{ id: string }[]> {
 }
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
-  const { id } = props.params;
+  const { id } = await props.params;
   try {
     const supabase = createAnonServerClient();
     const { firstName, lastName } = await getPerson(id);
@@ -35,8 +39,8 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   }
 }
 
-const PresentersPage: NextPage<PageProps> = async ({ params }) => {
-  const presenterId = params.id;
+const PresentersPage: NextPage<PageProps> = async (props) => {
+  const presenterId = (await props.params).id;
   if (typeof presenterId !== 'string') {
     notFound();
   }

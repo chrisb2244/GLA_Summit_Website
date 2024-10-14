@@ -8,19 +8,16 @@ import {
   sortPresentationsByPresenterName,
   sortPresentationsBySchedule
 } from '@/lib/utils';
+import type { NextParams, satisfy } from '@/lib/NextTypes';
 
 type PageProps = {
-  params: {
-    year: string;
-  };
+  params: satisfy<NextParams, Promise<{ year: string }>>;
 };
 
 export const revalidate = 600;
 
 const PresentationsForYearPage = async (props: PageProps) => {
-  const {
-    params: { year }
-  } = props;
+  const { year } = await props.params;
   const supabase = createAnonServerClient();
   const { data, error } = await supabase
     .from('all_presentations')

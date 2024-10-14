@@ -7,12 +7,18 @@ import { Button } from '@/Components/Form/Button';
 import { Suspense, JSX } from 'react';
 import { WaitingIndicator } from '@/Components/Utilities/WaitingIndicator';
 import { getUser } from '@/lib/supabase/userFunctions';
+import { NextParams, NextSearchParams, satisfy } from '@/lib/NextTypes';
+
+type PageParams = satisfy<
+  NextParams,
+  Promise<{
+    ticketObject: string;
+  }>
+>;
 
 type PageProps = {
-  params: {
-    ticketObject: string;
-  };
-  searchParams: { [key: string]: string | string[] | undefined };
+  params: PageParams;
+  searchParams: NextSearchParams;
 };
 
 const getPrefix = () => {
@@ -46,7 +52,7 @@ const ticketDataToRouteUrl = (obj: TransferObject, prefix?: string) => {
 export async function generateMetadata({
   params
 }: PageProps): Promise<Metadata> {
-  const { ticketObject } = params;
+  const { ticketObject } = await params;
 
   const ticketObj = paramStringToData(ticketObject);
   if (!ticketObj) {
@@ -88,10 +94,10 @@ export async function generateMetadata({
   };
 }
 
-const TicketPage: NextPage<PageProps> = async ({
-  params: { ticketObject: transferObjectString },
-  searchParams: { share }
-}) => {
+const TicketPage: NextPage<PageProps> = async ({ params, searchParams }) => {
+  const { ticketObject: transferObjectString } = await params;
+  const { share } = await searchParams;
+
   // Display different page if viewing someone else's shared ticket view.
   const user = await getUser();
   const userId = user?.id;

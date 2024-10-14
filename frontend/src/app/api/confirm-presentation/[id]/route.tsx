@@ -4,7 +4,7 @@ export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const supabase = createRouteHandlerClient();
+  const supabase = await createRouteHandlerClient();
   const { id } = params;
 
   // Check if presentation ID matches something the logged-in user can confirm

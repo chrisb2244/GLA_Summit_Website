@@ -5,7 +5,8 @@ import {
   VerificationState,
   verifyLoginWithRedirectFromForm
 } from '@/Components/SigninRegistration/SignInUpActions';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useFormStatus } from 'react-dom';
+import { useActionState } from 'react';
 
 type VerifyFormProps = {
   email?: string;
@@ -34,7 +35,7 @@ const ErrorElement = (props: { state: VerificationState }) => {
 };
 
 export const VerifyForm = (props: VerifyFormProps) => {
-  const [lastReturnState, formAction] = useFormState(
+  const [lastReturnState, formAction] = useActionState(
     verifyLoginWithRedirectFromForm,
     null
   );

@@ -7,7 +7,7 @@ import {
   // submissionsForYear
 } from '@/lib/databaseModels';
 import { getUser } from '@/lib/supabase/userFunctions';
-import { createServerComponentClient } from '@/lib/supabaseServer';
+import { createServerClient } from '@/lib/supabaseServer';
 import { formatTextToPs } from '@/lib/utils';
 import { User } from '@supabase/supabase-js';
 import { Metadata } from 'next';
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 const MyPresentationsPage = async () => {
   const user = await getUser();
 
-  const supabase = createServerComponentClient();
+  const supabase = await createServerClient();
   const getSubmitter = async (
     user: User | null
   ): Promise<PersonProps | null> => {

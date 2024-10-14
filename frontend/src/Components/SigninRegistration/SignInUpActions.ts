@@ -28,7 +28,7 @@ const filterProfileData = ({ firstName, lastName, email }: PersonProps) => {
 };
 
 export const signOut = async () => {
-  await createServerActionClient().auth.signOut();
+  await (await createServerActionClient()).auth.signOut();
   revalidatePath('/');
 };
 
@@ -36,8 +36,9 @@ export const verifyLogin = async (data: {
   email: string;
   verificationCode: string;
 }) => {
-  return await createServerActionClient()
-    .auth.verifyOtp({
+  const supabase = await createServerActionClient();
+  return await supabase.auth
+    .verifyOtp({
       email: data.email,
       token: data.verificationCode,
       type: 'email'
