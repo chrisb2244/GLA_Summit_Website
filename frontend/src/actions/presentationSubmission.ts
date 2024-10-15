@@ -38,7 +38,7 @@ export const submitNewPresentation = async (
       submitter
     } = parsedData.data;
     const supabaseAdmin = createAdminClient();
-    const supabase = createServerActionClient();
+    const supabase = await createServerActionClient();
     const user = await getUser();
     const submitter_id = user?.id;
     console.log({ submitter_id });

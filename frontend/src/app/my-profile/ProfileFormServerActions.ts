@@ -47,7 +47,7 @@ export const SubmitProfileDataUpdate = async (formData: FormData) => {
     }
   });
 
-  const supabase = createServerActionClient();
+  const supabase = await createServerActionClient();
   const { data, error } = await supabase
     .from('profiles')
     .update(v)
