@@ -11,6 +11,7 @@ export type EmailContent = {
 let sendMailApi: (emailContent: EmailContent) => Promise<MessagesSendResult>;
 
 if (process.env.USE_MOCK_EMAIL === 'true') {
+  /* eslint-disable-next-line @typescript-eslint/no-var-requires */
   const mailer = require('nodemailer') as typeof import('nodemailer');
   const nmail = mailer.createTransport({
     host: '127.0.0.1',
@@ -35,7 +36,9 @@ if (process.env.USE_MOCK_EMAIL === 'true') {
     };
   };
 } else {
+  /* eslint-disable-next-line @typescript-eslint/no-var-requires */
   const Mailgun = require('mailgun.js') as typeof import('mailgun.js').default;
+  /* eslint-disable-next-line @typescript-eslint/no-var-requires */
   const FormDataPackage = require('form-data') as typeof import('form-data');
 
   const MG_API_KEY = process.env.MG_API_KEY as string;

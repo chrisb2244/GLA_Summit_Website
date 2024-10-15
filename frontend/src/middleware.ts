@@ -7,7 +7,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect('/');
   }
 
-  let { response, user, supabase } = await updateSession(request);
+  const { response, user, supabase } = await updateSession(request);
   const targetPath = request.nextUrl.pathname;
 
   const pathsRequiringLogin = ['/my-profile', '/my-presentations'];
