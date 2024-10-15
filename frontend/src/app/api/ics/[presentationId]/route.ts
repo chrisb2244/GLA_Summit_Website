@@ -2,6 +2,7 @@ import { createEvent } from 'ics';
 import type { EventAttributes, DateArray } from 'ics';
 import { getSessionDurationInMinutes } from '@/lib/utils';
 import { createRouteHandlerClient } from '@/lib/supabaseServer';
+import { NextParams, satisfy } from '@/lib/NextTypes';
 
 const dateToDateArray = (d: Date): DateArray => {
   return [
@@ -13,12 +14,14 @@ const dateToDateArray = (d: Date): DateArray => {
   ];
 };
 
+type RouteParams = satisfy<NextParams, Promise<{ presentationId: string }>>;
+
 export async function GET(
   request: Request,
-  { params }: { params: { presentationId: string } }
+  { params }: { params: RouteParams }
 ) {
-  const { presentationId } = params;
-  const supabase = createRouteHandlerClient();
+  const { presentationId } = await params;
+  const supabase = await createRouteHandlerClient();
 
   // Basic sanitization - id should be a hex string with "-" characters
   if (!presentationId.match(/^[-0-9a-f]*$/)) {
