@@ -215,7 +215,7 @@ export const registerFromFormWithRedirect = async (formData: FormData) => {
   }
   const signUpSuccessful = await signUp(newUser);
   if (signUpSuccessful) {
-    redirect(`validateLogin?${params.toString()}`, RedirectType.push);
+    redirect(`/auth/validateLogin?${params.toString()}`, RedirectType.push);
   }
 };
 
