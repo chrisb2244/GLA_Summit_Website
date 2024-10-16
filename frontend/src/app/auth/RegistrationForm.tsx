@@ -16,7 +16,11 @@ export const RegistrationForm = (props: { redirectTo?: string }) => {
   );
 
   return (
-    <div className='mx-auto flex max-w-lg flex-col py-4'>
+    <div
+      className='mx-auto flex max-w-lg flex-col py-4'
+      role='form'
+      aria-label='Registration Form'
+    >
       <div className='prose prose-sm flex w-full flex-col items-center space-y-2 px-2 pb-4 text-center'>
         <div className='flex flex-col pb-4'>
           <span>Already registered? </span>

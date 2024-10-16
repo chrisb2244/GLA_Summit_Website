@@ -4,7 +4,7 @@ import type { Locator, Page } from '@playwright/test';
 export class LoginablePage {
   readonly page: Page;
   readonly loginOrRegisterButton: Locator;
-  readonly dialog: Locator;
+  readonly form: Locator;
   readonly firstnameInput: Locator;
   readonly lastnameInput: Locator;
   readonly emailInput: Locator;
@@ -14,10 +14,13 @@ export class LoginablePage {
     this.loginOrRegisterButton = this.page.locator('role=button', {
       hasText: /sign in/i
     });
-    this.dialog = this.page.locator('role=dialog');
-    this.firstnameInput = this.dialog.locator('label:has-text("First Name")');
-    this.lastnameInput = this.dialog.locator('label:has-text("Last Name")');
-    this.emailInput = this.dialog.locator('label:has-text("Email")');
+
+    // Email is part of both login and registration
+    this.form = this.page.locator('role=form');
+
+    this.firstnameInput = this.form.locator('label:has-text("First Name")');
+    this.lastnameInput = this.form.locator('label:has-text("Last Name")');
+    this.emailInput = this.form.locator('label:has-text("Email")');
   }
 
   async goto(url: string) {
@@ -28,13 +31,9 @@ export class LoginablePage {
     // The login/register button should be visible
     await expect(this.loginOrRegisterButton).toBeVisible();
 
-    // Click the button, expect a dialog to appear
+    // Click the button, expect a form to be accessible
     await this.loginOrRegisterButton.click();
-    await expect(
-      this.page
-        .locator('id=registerDialog')
-        .or(this.page.locator('id=loginDialog'))
-    ).toBeVisible();
+    await expect(this.form).toBeVisible();
 
     // If required, change the form type.
     if (typeof type !== undefined) {
@@ -44,15 +43,15 @@ export class LoginablePage {
           if (isRegistrationForm) {
             return;
           } else {
-            await this.dialog
-              .locator('role=button', { hasText: /sign in/i })
+            await this.form
+              .locator('role=link', { hasText: /Join Now/i })
               .click();
             return;
           }
         case 'login':
           if (isRegistrationForm) {
-            await this.dialog
-              .locator('role=button', { hasText: /sign in/i })
+            await this.form
+              .locator('role=link', { hasText: /Sign In/i })
               .click();
             return;
           } else {
@@ -63,10 +62,10 @@ export class LoginablePage {
   }
 
   async isLoginForm(): Promise<boolean> {
-    if (this.dialog === null) {
+    if (this.form === null) {
       return false;
     }
-    return await this.dialog.allTextContents().then((textArray) => {
+    return await this.form.allTextContents().then((textArray) => {
       const containsLoginText = textArray.some((textElement) => {
         return textElement.includes(
           'In order to sign in, enter the email address'
@@ -77,7 +76,7 @@ export class LoginablePage {
   }
 
   async isRegistrationForm(): Promise<boolean> {
-    if (this.dialog === null) {
+    if (this.form === null) {
       return false;
     }
     const isLoginForm = await this.isLoginForm();
@@ -100,22 +99,14 @@ export class LoginablePage {
 
   async submitForm(method?: 'enter key' | 'button click') {
     if (method === 'enter key') {
-      await this.dialog.press('Enter');
+      await this.form.press('Enter');
     } else {
       const isLogin = await this.isLoginForm();
-      const submitButton = this.dialog.locator('role=button', {
+      const submitButton = this.form.locator('role=button', {
         hasText: isLogin ? /log ?in/i : /register/i
       });
       await submitButton.click();
     }
-  }
-
-  async hasOpenDialog() {
-    return await this.dialog.isVisible();
-  }
-
-  async waitForDialogState(open = true) {
-    return await this.dialog.waitFor({ state: open ? 'visible' : 'hidden' });
   }
 
   async getAllErrors() {
@@ -123,25 +114,9 @@ export class LoginablePage {
     return errors;
   }
 
-  async closeDialogByClickingOutside() {
-    const dialogBoundingBox = (await this.dialog.boundingBox()) as {
-      x: number;
-      y: number;
-      width: number;
-      height: number;
-    }; // can be null
-    expect(dialogBoundingBox).not.toBeNull();
-    // now isn't null
-    await this.page.mouse.click(
-      dialogBoundingBox.x - 15,
-      dialogBoundingBox.y - 15
-    );
-    await this.dialog.waitFor({ state: 'hidden' });
-  }
-
   async switchForm() {
     const isLogin = await this.isLoginForm();
-    await this.dialog
+    await this.form
       .locator('role=button', {
         hasText: (await isLogin) ? /Join Now/i : /Sign In/i
       })
@@ -151,7 +126,7 @@ export class LoginablePage {
       await this.firstnameInput.waitFor({ state: 'visible' });
     } else {
       // was registration, now login
-      await this.dialog
+      await this.form
         .locator('text="In order to sign in,"')
         .waitFor({ state: 'visible' });
     }
