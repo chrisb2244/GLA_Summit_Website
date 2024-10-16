@@ -1,6 +1,7 @@
 import { IncomingMessage } from 'http';
 import { networkInterfaces } from 'os';
 import { request } from '@playwright/test';
+import { InbucketAPIClient } from 'inbucket-js-client';
 
 export type MessageAddress = {
   address: string;
@@ -15,6 +16,13 @@ export type Message = {
   from: MessageAddress[];
   cc: MessageAddress[];
   bcc: MessageAddress[];
+};
+
+export const getInbucketEmail = async (email: string) => {
+  const client = new InbucketAPIClient('http://localhost:54324/');
+  const inbox = await client.mailbox(email);
+  const message = await client.message(email, inbox[0].id);
+  return message;
 };
 
 const results = Object.create(null);

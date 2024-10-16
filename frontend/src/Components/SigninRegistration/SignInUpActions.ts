@@ -221,7 +221,7 @@ export const registerFromFormWithRedirect = async (formData: FormData) => {
 
 const otpEmailText = (fname: string, lname: string, otp: string) => {
   const firstline = `Dear ${fname} ${lname},\r\n`;
-  const mainline = 'Your One-Time-Passode (OTP) token is ' + otp + '\r\n';
+  const mainline = 'Your One-Time-Passcode (OTP) token is ' + otp + '\r\n';
   const signature = 'GLA Summit Organizers';
   return [firstline, mainline, signature].join('\r\n');
 };
