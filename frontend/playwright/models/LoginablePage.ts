@@ -8,6 +8,7 @@ export class LoginablePage {
   readonly firstnameInput: Locator;
   readonly lastnameInput: Locator;
   readonly emailInput: Locator;
+  readonly verificationInput: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -21,6 +22,10 @@ export class LoginablePage {
     this.firstnameInput = this.form.locator('label:has-text("First Name")');
     this.lastnameInput = this.form.locator('label:has-text("Last Name")');
     this.emailInput = this.form.locator('label:has-text("Email")');
+
+    this.verificationInput = this.form.locator(
+      'label:has-text("Verification Code")'
+    );
   }
 
   async goto(url: string) {
@@ -79,8 +84,18 @@ export class LoginablePage {
     if (this.form === null) {
       return false;
     }
-    const isLoginForm = await this.isLoginForm();
-    return !isLoginForm;
+    return Promise.all([
+      this.firstnameInput.isVisible(),
+      this.lastnameInput.isVisible(),
+      this.emailInput.isVisible()
+    ]).then(([a, b, c]) => a && b && c);
+  }
+
+  async isVerificationForm(): Promise<boolean> {
+    if (this.form === null) {
+      return false;
+    }
+    return await this.verificationInput.isVisible();
   }
 
   async fillInLoginForm(email: string) {
@@ -97,15 +112,37 @@ export class LoginablePage {
     if (values.email) await this.emailInput.fill(values.email);
   }
 
+  async fillInVerificationForm(code: string) {
+    await this.verificationInput.fill(code);
+  }
+
   async submitForm(method?: 'enter key' | 'button click') {
     if (method === 'enter key') {
       await this.form.press('Enter');
     } else {
-      const isLogin = await this.isLoginForm();
-      const submitButton = this.form.locator('role=button', {
-        hasText: isLogin ? /log ?in/i : /register/i
-      });
-      await submitButton.click();
+      const formType = (await this.isLoginForm())
+        ? 'login'
+        : (await this.isRegistrationForm())
+        ? 'registration'
+        : (await this.isVerificationForm())
+        ? 'verification'
+        : undefined;
+      let labelMatcher = undefined;
+      switch (formType) {
+        case 'login':
+          labelMatcher = /log ?in/i;
+          break;
+        case 'registration':
+          labelMatcher = /register/i;
+          break;
+        case 'verification':
+          labelMatcher = /submit/i;
+          break;
+      }
+      const button = this.form
+        .getByRole('button')
+        .filter({ hasText: labelMatcher });
+      return await button.click();
     }
   }
 

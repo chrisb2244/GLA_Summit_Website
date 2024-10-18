@@ -11,13 +11,13 @@ test('User can register', async ({ page }) => {
   const emailWithoutDomain = `test-${randomVal}-glasummit`;
   const emailValue = `${emailWithoutDomain}@test.email`;
   await loginablePage.fillInRegistrationForm({
-    firstname: 'Test_' + randomVal,
+    firstname: 'Test',
     lastname: 'User',
     email: emailValue
   });
 
   await loginablePage.submitForm().then(() => {
-    return new Promise((resolve) => setTimeout(resolve, 3000));
+    return new Promise((resolve) => setTimeout(resolve, 2000));
   }); // defaults to button click
 
   const mail = await getInbucketEmail(emailWithoutDomain);
@@ -39,15 +39,19 @@ test('User can register', async ({ page }) => {
   expect(textOtp).toBeDefined();
   expect(htmlOtp).toBeDefined();
   expect(textOtp).toBe(htmlOtp);
-  console.log({ textOtp });
 
-  // const userId = newUserData['userId']
-  // expect(userId).toBeDefined()
+  if (typeof textOtp === 'undefined') {
+    // Already assert against this
+    return;
+  }
 
-  // console.log('Deleting user with id: ', userId)
-  // const adminClient = createAdminClient()
-  // const { data: uData, error } = await adminClient.auth.admin.deleteUser(userId)
-  // console.log({ uData, error })
+  loginablePage.fillInVerificationForm(textOtp);
+  await loginablePage.submitForm().then(() => {
+    return new Promise((resolve) => setTimeout(resolve, 1000));
+  });
+
+  // Assert the user menu button is populated
+  expect(page.locator('role=button', { hasText: /Test User/ })).toBeVisible();
 });
 
 test.fixme(
