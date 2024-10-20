@@ -1,12 +1,8 @@
 import type { PlaywrightTestConfig } from '@playwright/test';
 import { devices } from '@playwright/test';
+import dotenv from 'dotenv';
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-require('dotenv').config({ path: './.env.local' });
+dotenv.config({ path: './.env.local' });
 
 /**
  * See https://playwright.dev/docs/test-configuration.

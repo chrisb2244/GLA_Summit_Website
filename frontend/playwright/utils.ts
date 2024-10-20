@@ -1,7 +1,7 @@
 import { IncomingMessage } from 'http';
 import { networkInterfaces } from 'os';
 import { request } from '@playwright/test';
-import { InbucketAPIClient } from 'inbucket-js-client';
+import { InbucketAPIClient, MessageModel } from 'inbucket-js-client';
 
 export type MessageAddress = {
   address: string;
@@ -23,6 +23,51 @@ export const getInbucketEmail = async (email: string) => {
   const inbox = await client.mailbox(email);
   const message = await client.message(email, inbox[0].id);
   return message;
+};
+
+const getInbucketVerificationMsg = async (
+  email: string,
+  timeout: number = 3000
+): Promise<MessageModel> => {
+  if (timeout < 0) {
+    return Promise.reject('Timeout');
+  }
+
+  const client = new InbucketAPIClient('http://localhost:54324/');
+  return client
+    .mailbox(email)
+    .then((inbox) => client.message(email, inbox[0].id))
+    .catch((e) => {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(getInbucketVerificationMsg(email, timeout - 500));
+        }, 500);
+      });
+    });
+};
+
+export const getInbucketVerificationCode = async (
+  email: string,
+  timeout: number = 3000
+) => {
+  const mail = await getInbucketVerificationMsg(email, timeout);
+  const { text, html } = mail.body;
+
+  const textMatcher = /Your One-Time-Passcode \(OTP\) token is ([0-9]{6})/i;
+  const matchGroups = text.match(textMatcher);
+  const htmlMatcher = /<p.*>([0-9]{6})<\/p>/i;
+  const htmlMatchGroups = html.match(htmlMatcher);
+
+  const textOtp = matchGroups?.[1];
+  const htmlOtp = htmlMatchGroups?.[1];
+
+  if (typeof textOtp === 'undefined') {
+    return Promise.reject('No verification code found');
+  }
+  if (textOtp !== htmlOtp) {
+    return Promise.reject('Text and HTML verification codes do not match');
+  }
+  return textOtp;
 };
 
 const results = Object.create(null);
