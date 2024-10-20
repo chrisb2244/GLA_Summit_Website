@@ -1,8 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { LoginablePage } from './models/LoginablePage';
-import { getInbucketVerificationCode } from './utils';
-import { createClient } from '@supabase/supabase-js';
-import type { Database } from '@/lib/sb_databaseModels';
+import { createSupabaseAdmin, getInbucketVerificationCode } from './utils';
 
 test.describe('User Authentication Tests', () => {
   const generateUser = (firstname: string, lastname: string) => {
@@ -19,10 +17,7 @@ test.describe('User Authentication Tests', () => {
   const newUser = generateUser('New', 'User');
   const existingUser = generateUser('Existing', 'User');
 
-  // Setup an admin client
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
-  const supabaseKey = process.env.SECRET_SUPABASE_SERVICE_KEY as string;
-  const supabaseAdmin = createClient<Database>(supabaseUrl, supabaseKey);
+  const supabaseAdmin = createSupabaseAdmin();
 
   test.beforeAll(async () => {
     // Setup a user for login tests
