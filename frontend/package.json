@@ -32,6 +32,7 @@
     "start": "next start",
     "build": "next build",
     "dev": "next dev --turbo",
+    "dev_fakeEmail": "USE_MOCK_EMAIL=true next dev --turbo",
     "playwright": "playwright test",
     "lint": "next lint ."
   },
