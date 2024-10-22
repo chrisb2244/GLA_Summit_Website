@@ -17,7 +17,8 @@ export const getInbucketEmail = async (email: string) => {
 
 const getInbucketVerificationMsg = async (
   email: string,
-  timeout: number = 3000
+  timeout: number = 3000,
+  sentWithin: number = 3000
 ): Promise<MessageModel> => {
   if (timeout < 0) {
     return Promise.reject('Timeout');
@@ -26,11 +27,22 @@ const getInbucketVerificationMsg = async (
   const client = new InbucketAPIClient('http://localhost:54324/');
   return client
     .mailbox(email)
-    .then((inbox) => client.message(email, inbox[0].id))
+    .then((inbox) => {
+      const lastId = inbox.length > 0 ? inbox.length - 1 : 0;
+      return client.message(email, inbox[lastId].id).then((msg) => {
+        const sentTime = new Date(msg.date);
+        if (sentTime.getTime() > Date.now() - sentWithin) {
+          return msg;
+        } else {
+          console.log('Rejecting otp from : ', sentTime, msg.body.text);
+          throw new Error('Message too old');
+        }
+      });
+    })
     .catch((e) => {
       return new Promise((resolve) => {
         setTimeout(() => {
-          resolve(getInbucketVerificationMsg(email, timeout - 500));
+          resolve(getInbucketVerificationMsg(email, timeout - 500, sentWithin));
         }, 500);
       });
     });
@@ -38,9 +50,10 @@ const getInbucketVerificationMsg = async (
 
 export const getInbucketVerificationCode = async (
   email: string,
-  timeout: number = 3000
+  timeout: number = 3000,
+  sentWithin: number = 3000
 ) => {
-  const mail = await getInbucketVerificationMsg(email, timeout);
+  const mail = await getInbucketVerificationMsg(email, timeout, sentWithin);
   const { text, html } = mail.body;
 
   const textMatcher = /Your One-Time-Passcode \(OTP\) token is ([0-9]{6})/i;

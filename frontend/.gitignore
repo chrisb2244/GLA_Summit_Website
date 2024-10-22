@@ -32,6 +32,7 @@ frontend/cypress/screenshots
 /test-results/
 /playwright-report/
 /playwright/.cache/
+/playwright/.auth/
 
 # sensitive or dev-only files
 src/app/api/fake_login/

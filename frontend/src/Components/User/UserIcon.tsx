@@ -38,7 +38,10 @@ export const UserIcon = (props: UserIconProps) => {
   }
 
   return (
-    <span className='flex flex-row items-center space-x-1'>
+    <span
+      className='flex flex-row items-center space-x-1'
+      data-testid='user-menu-button'
+    >
       <span>{text}</span>
       {wrappedIcon}
     </span>
