@@ -133,7 +133,13 @@ type FormFieldProps = FormProps &
 
 // This provides a wrapper for the TextField, providing the error behaviour.
 export const FormField: React.FC<FormFieldProps> = (props) => {
-  const { fullWidth, className: pCN, readOnly = false, ...inputProps } = props;
+  const {
+    fullWidth,
+    className: pCN,
+    readOnly = false,
+    label,
+    ...inputProps
+  } = props;
   const id = props.name;
   // if (readOnly) {
   //   return <FormFieldIndicator {...props} />;
@@ -166,6 +172,7 @@ export const FormField: React.FC<FormFieldProps> = (props) => {
         })}
         placeholder={props.placeholder ?? id}
         readOnly={readOnly}
+        aria-labelledby={`${id}-label`}
         {...inputProps}
       />
       <TopBorderElement paddingElems={borderMargin} />
@@ -179,7 +186,7 @@ export const FormField: React.FC<FormFieldProps> = (props) => {
           readOnly
         })}`}
       >
-        {props.label ?? id}
+        {label ?? id}
       </label>
     </div>
   );

@@ -215,13 +215,13 @@ export const registerFromFormWithRedirect = async (formData: FormData) => {
   }
   const signUpSuccessful = await signUp(newUser);
   if (signUpSuccessful) {
-    redirect(`validateLogin?${params.toString()}`, RedirectType.push);
+    redirect(`/auth/validateLogin?${params.toString()}`, RedirectType.push);
   }
 };
 
 const otpEmailText = (fname: string, lname: string, otp: string) => {
   const firstline = `Dear ${fname} ${lname},\r\n`;
-  const mainline = 'Your One-Time-Passode (OTP) token is ' + otp + '\r\n';
+  const mainline = 'Your One-Time-Passcode (OTP) token is ' + otp + '\r\n';
   const signature = 'GLA Summit Organizers';
   return [firstline, mainline, signature].join('\r\n');
 };

@@ -44,7 +44,7 @@ export const VerifyForm = (props: VerifyFormProps) => {
   const hideEmail = typeof email !== 'undefined';
   return (
     <div className='mx-auto flex max-w-lg flex-col py-4'>
-      <form action={formAction}>
+      <form action={formAction} aria-label='Verification Code form'>
         <input
           type='hidden'
           name='redirectTo'

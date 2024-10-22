@@ -16,7 +16,11 @@ export const LoginForm = (props: { redirectTo?: string }) => {
   );
 
   return (
-    <div className='mx-auto flex max-w-lg flex-col py-4'>
+    <div
+      className='mx-auto flex max-w-lg flex-col py-4'
+      role='form'
+      aria-label='Login Form'
+    >
       <div className='prose prose-sm flex max-w-none flex-col items-center px-4 pb-4 text-center'>
         <div className='pb-0.5 prose-p:my-0'>
           <p>
