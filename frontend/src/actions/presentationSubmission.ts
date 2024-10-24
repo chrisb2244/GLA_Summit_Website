@@ -4,7 +4,7 @@ import {
   FormSubmissionEmailFn,
   NewCopresenterEmailFn
 } from '@/EmailTemplates/FormSubmissionEmail';
-import { submissionsForYear } from '@/lib/databaseModels';
+import { submissionsForYear } from '@/app/configConstants';
 import { sendMailApi } from '@/lib/sendMail';
 import { getUser } from '@/lib/supabase/userFunctions';
 import { createAdminClient } from '@/lib/supabaseClient';

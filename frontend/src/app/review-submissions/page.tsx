@@ -3,7 +3,7 @@ import {
   SubmittedPresentationReviewCard
 } from './SubmittedPresentationReviewCard';
 import { createServerClient } from '@/lib/supabaseServer';
-import { submissionsForYear } from '@/lib/databaseModels';
+import { submissionsForYear } from '@/app/configConstants';
 
 const ReviewSubmissionsPage = async () => {
   const supabase = await createServerClient();

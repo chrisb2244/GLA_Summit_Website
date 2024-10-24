@@ -1,10 +1,9 @@
 import { PersonProps } from '@/Components/Form/Person';
 import { PresentationSubmissionForm } from '@/Components/Forms/PresentationSubmissionForm';
 import { getMyPresentations, getProfileInfo } from '@/lib/databaseFunctions';
-import {
+import type {
   MyPresentationSubmissionType,
   SummitYear
-  // submissionsForYear
 } from '@/lib/databaseModels';
 import { getUser } from '@/lib/supabase/userFunctions';
 import { createServerClient } from '@/lib/supabaseServer';
@@ -12,6 +11,7 @@ import { formatTextToPs } from '@/lib/utils';
 import { User } from '@supabase/supabase-js';
 import { Metadata } from 'next';
 import NextLink from 'next/link';
+import { CAN_SUBMIT_PRESENTATION } from '../configConstants';
 
 export const metadata: Metadata = {
   robots: {
@@ -181,8 +181,7 @@ const MyPresentationsPage = async () => {
       </div>
     );
 
-  const allowSubmissions = false;
-  const submissionElements = allowSubmissions ? (
+  const submissionElements = CAN_SUBMIT_PRESENTATION ? (
     submitter && (
       <div className='mx-auto flex flex-col'>
         {/* <p>The presentation submission page is currently being reworked!</p>

@@ -1,7 +1,7 @@
 import type { Route } from 'next';
 import { DesktopMenuItems } from './DesktopMenuItems';
 import { MobileMenuItems } from './MobileMenuItems';
-import { currentDisplayYear } from '@/lib/databaseModels';
+import { currentDisplayYear } from '@/app/configConstants';
 
 export type MenuElement = {
   title: string;
