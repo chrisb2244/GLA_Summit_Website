@@ -1,8 +1,6 @@
-/**
- * @type {import('next').NextConfig}
- */
+import type { NextConfig } from 'next';
 
-module.exports = {
+const config: NextConfig = {
   reactStrictMode: true,
   experimental: {
     ppr: true
@@ -44,3 +42,5 @@ module.exports = {
     ];
   }
 };
+
+export default config;
