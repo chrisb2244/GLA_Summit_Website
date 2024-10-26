@@ -19,19 +19,6 @@ test.describe('User Authentication Tests', () => {
 
   const supabaseAdmin = createSupabaseAdmin();
 
-  test.beforeAll(async () => {
-    // Setup a user for login tests
-    // console.log('Creating user with email: ', precreatedUser.email);
-    await supabaseAdmin.auth.admin.createUser({
-      email: existingUser.email,
-      password: 'password',
-      user_metadata: {
-        firstname: existingUser.firstname,
-        lastname: existingUser.lastname
-      }
-    });
-  });
-
   test.afterAll(async () => {
     // Cleanup all users created (beforeAll, and can register test)
     const emailsToDelete = [existingUser.email, newUser.email];
@@ -46,8 +33,8 @@ test.describe('User Authentication Tests', () => {
         .single()
         .then(({ data, error }) => {
           if (error) {
-            console.error('Error deleting user: ', error);
-            throw error;
+            // May not have created the user (e.g. partial tests run)
+            return;
           }
           // console.log('Deleting user with id: ', data.id);
           supabaseAdmin.auth.admin.deleteUser(data.id);
@@ -79,6 +66,17 @@ test.describe('User Authentication Tests', () => {
   });
 
   test('Existing user can login', async ({ page }) => {
+    // Setup a user for login tests
+    // console.log('Creating user with email: ', precreatedUser.email);
+    await supabaseAdmin.auth.admin.createUser({
+      email: existingUser.email,
+      password: 'password',
+      user_metadata: {
+        firstname: existingUser.firstname,
+        lastname: existingUser.lastname
+      }
+    });
+
     await page.goto('/');
 
     const loginablePage = new LoginablePage(page);
