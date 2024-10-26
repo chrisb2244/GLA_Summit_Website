@@ -58,7 +58,7 @@ export const RegistrationForm = (props: { redirectTo?: string }) => {
       <form action={registerFromFormWithRedirect}>
         <input type='hidden' name='redirectTo' value={props.redirectTo} />
         <div className='pb-4'>
-          <Person<PersonProps> splitSize={'md'} />
+          <Person<PersonProps> splitSize={'md'} giveFocus />
         </div>
         <Button type='submit' fullWidth>
           Register

@@ -103,6 +103,28 @@ test.describe('User Authentication Tests', () => {
     await expect(userButton).toBeVisible();
   });
 
+  test('Email entry gains focus when navigating to login form', async ({
+    page
+  }) => {
+    await page.goto('/');
+    const loginablePage = new LoginablePage(page);
+
+    await loginablePage.openLoginOrRegisterForm('login');
+    const emailInput = page.getByLabel('Email');
+
+    await expect(emailInput).toBeFocused();
+  });
+
+  test('Name gains entry for registration form', async ({ page }) => {
+    await page.goto('/');
+    const loginablePage = new LoginablePage(page);
+
+    await loginablePage.openLoginOrRegisterForm('register');
+    const firstNameInput = page.getByLabel('First Name');
+
+    await expect(firstNameInput).toBeFocused();
+  });
+
   test.fixme(
     'Enter key triggers correct behaviour for login form',
     async ({ page }) => {

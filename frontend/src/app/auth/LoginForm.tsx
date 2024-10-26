@@ -48,6 +48,7 @@ export const LoginForm = (props: { redirectTo?: string }) => {
           id='email'
           fullWidth
           name='email'
+          autoFocus
         />
         <Button type='submit' fullWidth>
           Log In
