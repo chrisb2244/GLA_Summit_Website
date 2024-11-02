@@ -10,6 +10,21 @@ test.describe('logged-in tests for presentation submission', () => {
       use(path.resolve(__dirname, '.auth', 'attendee.json'))
   });
 
+  test('/submit-presentation is accessible', async ({ page }) => {
+    // This page should be accessible to all logged-in users
+    await page.goto('/submit-presentation');
+
+    if (CAN_SUBMIT_PRESENTATION) {
+      await expect(
+        page.getByRole('heading', { name: /Submit a .*Presentation/ })
+      ).toBeVisible();
+    } else {
+      await expect(
+        page.getByText('The presentation submission process is closed.')
+      ).toBeVisible();
+    }
+  });
+
   test('Form fill testing', async ({ page }) => {
     await page.goto('/my-presentations');
 

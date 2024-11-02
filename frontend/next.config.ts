@@ -23,6 +23,11 @@ const config: NextConfig = {
         source: '/presentations',
         destination: '/presentation-list',
         permanent: true
+      },
+      {
+        source: '/submit-presentation',
+        destination: '/my-presentations',
+        permanent: true
       }
     ];
   },
