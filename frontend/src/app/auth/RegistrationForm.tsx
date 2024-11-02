@@ -8,13 +8,6 @@ export const RegistrationForm = (props: { redirectTo?: string }) => {
     ? `/auth/login?redirectTo=${props.redirectTo}`
     : '/auth/login';
 
-  // Must use 'replace' here to allow use of router.back() in the dialog form
-  const toggleLink = (
-    <Link className='link' href={loginPath} replace scroll={false}>
-      Sign In
-    </Link>
-  );
-
   return (
     <div
       className='mx-auto flex max-w-lg flex-col py-4'
@@ -24,7 +17,10 @@ export const RegistrationForm = (props: { redirectTo?: string }) => {
       <div className='prose prose-sm flex w-full flex-col items-center space-y-2 px-2 pb-4 text-center'>
         <div className='flex flex-col pb-4'>
           <span>Already registered? </span>
-          {toggleLink}
+          {/* Must use 'replace' here to allow use of router.back() in the dialog form */}
+          <Link className='link' href={loginPath} replace scroll={false}>
+            Sign In
+          </Link>
           <span className='prose-sm'>
             Accounts created in previous years can still be used!
           </span>
