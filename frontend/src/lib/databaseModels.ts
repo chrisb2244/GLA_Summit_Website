@@ -24,7 +24,7 @@ declare const exactType: <T, U>(
   a: T & IfEquals<T, U>,
   b: U & IfEquals<T, U>
 ) => IfEquals<T, U>;
-const summityears = ['2020', '2021', '2022', '2024'] as const;
+const summityears = ['2020', '2021', '2022', '2024', '2025'] as const;
 declare let dummyYear: SummitYear;
 declare let summitCandidateYear: (typeof summityears)[number];
 // The check is placed inside a function to prevent being called
