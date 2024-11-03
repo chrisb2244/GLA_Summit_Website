@@ -91,7 +91,7 @@ export const FormSubmissionEmailFn = (
         <tbody>
           <tr style="width:100%">
             <td>${LogoImg}
-              <h1 style="color:#444;font-size:32px;font-weight:700;text-align:center">GLA Summmit 2024</h1>
+              <h1 style="color:#444;font-size:32px;font-weight:700;text-align:center">GLA Summit 2024</h1>
               <table align="center" width="100%" role="presentation" cellSpacing="0" cellPadding="0" border="0" style="max-width:37.5em;width:324px">
                 <tbody>
                   <tr style="width:100%">
@@ -186,7 +186,7 @@ export const NewCopresenterEmailFn = (
         <tbody>
           <tr style="width:100%">
             <td>${LogoImg}
-              <h1 style="color:#444;font-size:32px;font-weight:700;text-align:center">GLA Summmit 2024</h1>
+              <h1 style="color:#444;font-size:32px;font-weight:700;text-align:center">GLA Summit 2024</h1>
               <table align="center" width="100%" role="presentation" cellSpacing="0" cellPadding="0" border="0" style="max-width:37.5em;width:324px">
                 <tbody>
                   <tr style="width:100%">
