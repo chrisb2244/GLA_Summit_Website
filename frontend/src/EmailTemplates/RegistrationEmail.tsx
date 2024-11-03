@@ -1,4 +1,5 @@
 import { LogoImg, UnexpectedEmail } from './emailComponents';
+import { submissionsForYear } from '@/app/configConstants';
 
 export const RegistrationEmailFn = (
   nameString: string,
@@ -8,7 +9,7 @@ export const RegistrationEmailFn = (
   return `
   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-  <title>GLA Summit 2024 - Registration Email</title>
+  <title>GLA Summit ${submissionsForYear} - Registration Email</title>
   <html lang="en">
     <head></head>
     <body style="background-color:#ffffff;font-family:Roboto,Arial,sans-serif">
@@ -16,7 +17,7 @@ export const RegistrationEmailFn = (
         <tbody>
           <tr style="width:100%">
             <td>${LogoImg}
-              <h1 style="color:#5837b9;font-size:32px;font-weight:700;text-align:center">GLA Summit 2024</h1>
+              <h1 style="color:#5837b9;font-size:32px;font-weight:700;text-align:center">GLA Summit ${submissionsForYear}</h1>
               <table align="center" width="100%" role="presentation" cellSpacing="0" cellPadding="0" border="0" style="max-width:37.5em;color:#333;padding:0 48px 24px 48px">
                 <tbody>
                   <tr style="width:100%">
