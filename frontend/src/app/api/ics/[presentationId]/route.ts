@@ -3,6 +3,7 @@ import type { EventAttributes, DateArray } from 'ics';
 import { getSessionDurationInMinutes } from '@/lib/utils';
 import { createRouteHandlerClient } from '@/lib/supabaseServer';
 import { NextParams, satisfy } from '@/lib/NextTypes';
+import { eventUrl } from '@/app/configConstants';
 
 const dateToDateArray = (d: Date): DateArray => {
   return [
@@ -63,15 +64,14 @@ export async function GET(
   );
   const abstract = presentationData.abstract.replaceAll('\r\n', '\\n');
 
-  const hopinUrl = 'https://hopin.com/events/gla-summit-2022';
   const eventAttributes: EventAttributes = {
     start,
     startInputType: 'utc',
     duration: { minutes: duration },
     title: presentationData.title,
     description: abstract,
-    url: hopinUrl,
-    location: hopinUrl
+    url: eventUrl,
+    location: eventUrl
   };
 
   const { error: eventError, value } = createEvent(eventAttributes);
