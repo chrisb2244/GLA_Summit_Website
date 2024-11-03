@@ -42,8 +42,8 @@ const PresentationsForYearPage = async (props: PageProps) => {
         speakerNames: p.all_presenters_names,
         presentationId: p.presentation_id,
         presentationType: p.presentation_type,
-        // Mask the schedule for 2024 for now
-        scheduledFor: p.year === '2024' ? null : p.scheduled_for
+        // Mask the schedule for 2025 for now
+        scheduledFor: p.year === '2025' ? null : p.scheduled_for
       };
       return presentation;
     })

@@ -5,7 +5,7 @@ import { SponsorBar } from './_rootElements/SponsorBar';
 
 export const metadata: Metadata = {
   title: {
-    absolute: 'GLA Summit 2024'
+    absolute: 'GLA Summit 2025'
   }
 };
 
@@ -55,19 +55,20 @@ export default async function Page() {
 
   return (
     <div className='prose prose-base mx-auto max-w-2xl text-justify xl:max-w-3xl'>
-      {/* <p className='prose-lg text-center'>
-        The GLA Summit Organizers are excited to announce the next GLA Summit,
-        scheduled for 25-26 March 2024!
-      </p> */}
       <p className='prose-lg text-center'>
+        The GLA&nbsp;Summit Organizers are excited to announce the next
+        GLA&nbsp;Summit, scheduled for{' '}
+        <span className='whitespace-nowrap'>24-25 March 2025!</span>
+      </p>
+      {/* <p className='prose-lg text-center'>
         The GLA Summit Organizers would like to thank all those
         <br />
         who presented at, or attended,
         <br />
         the GLA Summit 2024 on 25-26 March 2024!
-      </p>
+      </p>*/}
       <p>
-        We were excited to welcome advanced LabVIEW developers and Architects
+        We are excited to welcome advanced LabVIEW developers and Architects
         (certified or self-proclaimed) from around the world to network and
         participate in an inclusive, all-digital, free event.
       </p>
@@ -99,11 +100,10 @@ export default async function Page() {
           adjust the abstract or title of your presentation, this can be done
           once we have responded to your presentation.
         </p>
-        <SubmitPresentationButton />
-      </div> */}
+        </div> */}
 
       <p>
-        Recordings of presentations are available on the{' '}
+        Recordings of past presentations are available on the{' '}
         <a
           href='https://www.youtube.com/c/GlobalLabVIEWArchitects'
           className='link'

@@ -77,8 +77,8 @@ const PresentationsForYearPage: NextPage<PageProps> = async (props) => {
         };
       }
 
-      // Allow masking the schedule for 2024
-      const mask = false; // data.year === '2024';
+      // Allow masking the schedule for 2025
+      const mask = data.year === '2025';
       const scheduledFor = mask ? null : data.scheduled_for;
       const schedule = calculateSchedule(type, scheduledFor);
 
