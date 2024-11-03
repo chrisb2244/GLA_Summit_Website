@@ -383,7 +383,8 @@ INSERT INTO "public"."rejected_presentations" ("id") VALUES
 --
 
 INSERT INTO "public"."ticket_sequences" ("year", "name") VALUES
-	('2024', 'ticket_sequence_2024');
+	('2024', 'ticket_sequence_2024'),
+	('2025', 'ticket_sequence_2025');
 
 
 --
@@ -445,7 +446,6 @@ SELECT pg_catalog.setval('"public"."log_id_seq"', 777, true);
 --
 
 SELECT pg_catalog.setval('"public"."ticket_sequence_2024"', 1061, true);
-
 
 --
 -- PostgreSQL database dump complete

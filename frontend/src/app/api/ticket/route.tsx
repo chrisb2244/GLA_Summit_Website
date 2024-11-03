@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og';
-import { IMG_WIDTH, IMG_HEIGHT, ticketYear } from './constants';
+import { IMG_WIDTH, IMG_HEIGHT } from './constants';
+import { ticketYear } from '@/app/configConstants';
 import { Ticket } from './Ticket';
 import { checkToken, paramStringToData } from '@/app/ticket/utils';
 import type { NextRequest } from 'next/server';

@@ -1,5 +1,5 @@
 import { redirect, RedirectType } from 'next/navigation';
-import { ticketYear } from '../api/ticket/constants';
+import { ticketYear } from '@/app/configConstants';
 import { createServerClient } from '@/lib/supabaseServer';
 import { ticketDataAndTokenToPageUrl } from './utils';
 import { createHmac } from 'node:crypto';
