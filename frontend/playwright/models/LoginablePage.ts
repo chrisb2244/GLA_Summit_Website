@@ -119,6 +119,7 @@ export class LoginablePage {
   async submitForm(method?: 'enter key' | 'button click') {
     if (method === 'enter key') {
       await this.form.press('Enter');
+      return true;
     } else {
       const formType = (await this.isLoginForm())
         ? 'login'
@@ -142,7 +143,12 @@ export class LoginablePage {
       const button = this.form
         .getByRole('button')
         .filter({ hasText: labelMatcher });
-      return await button.click();
+
+      if (await button.isDisabled({ timeout: 100 })) {
+        return false;
+      }
+      await button.click();
+      return true;
     }
   }
 

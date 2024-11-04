@@ -1,5 +1,4 @@
 'use client';
-import { Button } from '@/Components/Form/Button';
 import { FormField } from '@/Components/Form/FormFieldSrv';
 import {
   VerificationState,
@@ -7,6 +6,7 @@ import {
 } from '@/Components/SigninRegistration/SignInUpActions';
 import { useFormStatus } from 'react-dom';
 import { useActionState } from 'react';
+import { SubmitButton } from '@/Components/Form/SubmitButton';
 
 type VerifyFormProps = {
   email?: string;
@@ -67,9 +67,11 @@ export const VerifyForm = (props: VerifyFormProps) => {
           fullWidth
           autoFocus
         />
-        <Button type='submit' fullWidth>
-          Submit
-        </Button>
+        <SubmitButton
+          fullWidth
+          staticText='Submit'
+          pendingText='Submitting...'
+        />
         <ErrorElement state={lastReturnState} />
       </form>
     </div>

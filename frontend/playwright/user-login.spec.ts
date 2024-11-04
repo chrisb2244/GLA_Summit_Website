@@ -1,8 +1,14 @@
 import { test, expect } from '@playwright/test';
 import { LoginablePage } from './models/LoginablePage';
-import { createSupabaseAdmin, getInbucketVerificationCode } from './utils';
+import {
+  countEmailsInInbox,
+  createSupabaseAdmin,
+  getInbucketVerificationCode
+} from './utils';
 
 test.describe('User Authentication Tests', () => {
+  const emailsToDelete: string[] = [];
+
   const generateUser = (firstname: string, lastname: string) => {
     const emailWithoutDomain = `test-${Math.random()
       .toString(36)
@@ -21,7 +27,6 @@ test.describe('User Authentication Tests', () => {
 
   test.afterAll(async () => {
     // Cleanup all users created (beforeAll, and can register test)
-    const emailsToDelete = [existingUser.email, newUser.email];
 
     for (const email of emailsToDelete) {
       // delete user
@@ -47,6 +52,7 @@ test.describe('User Authentication Tests', () => {
     const loginablePage = new LoginablePage(page);
     await loginablePage.openLoginOrRegisterForm('register');
 
+    emailsToDelete.push(newUser.email);
     await loginablePage.fillInRegistrationForm(newUser);
     await loginablePage.submitForm();
 
@@ -68,6 +74,7 @@ test.describe('User Authentication Tests', () => {
   test('Existing user can login', async ({ page }) => {
     // Setup a user for login tests
     // console.log('Creating user with email: ', precreatedUser.email);
+    emailsToDelete.push(existingUser.email);
     await supabaseAdmin.auth.admin.createUser({
       email: existingUser.email,
       password: 'password',
@@ -125,47 +132,158 @@ test.describe('User Authentication Tests', () => {
     await expect(firstNameInput).toBeFocused();
   });
 
-  test.fixme(
-    'Enter key triggers correct behaviour for login form',
-    async ({ page }) => {
-      const loginablePage = new LoginablePage(page);
-      await loginablePage.goto('/');
+  test('Repeated clicking only sends one email - registration', async ({
+    page
+  }) => {
+    await page.goto('/');
+    const loginablePage = new LoginablePage(page);
 
-      await loginablePage.openLoginOrRegisterForm('login');
-      expect(await loginablePage.isLoginForm()).toBeTruthy();
+    await loginablePage.openLoginOrRegisterForm('register');
+    const user = generateUser('Repeated', 'User');
+    emailsToDelete.push(user.email);
+    await loginablePage.fillInRegistrationForm(user);
 
-      await loginablePage.fillInLoginForm('notavalidemail.com');
-      // Attempt to submit by hitting enter
-      await loginablePage.submitForm('enter key');
-      // Should not be able to login (i.e. dialog remains open)
-      // expect(await loginablePage.hasOpenDialog()).toBeTruthy();
-      const errors = await loginablePage.getAllErrors();
-      expect(errors).toHaveLength(1);
-    }
-  );
+    // Click submit multiple times
+    await Promise.all([
+      loginablePage.submitForm('enter key'),
+      loginablePage.submitForm('button click'),
+      loginablePage.submitForm()
+    ]).then(() => new Promise((r) => setTimeout(r, 500)));
 
-  test.fixme(
-    'Registration form displays errors correctly',
-    async ({ page }) => {
-      const loginablePage = new LoginablePage(page);
-      await loginablePage.goto('/');
+    const numEmailsInBucket = await countEmailsInInbox(user.emailPrefix);
+    expect(numEmailsInBucket).toBe(1);
 
-      await loginablePage.openLoginOrRegisterForm('register');
-      expect(await loginablePage.isRegistrationForm()).toBeTruthy();
+    const otp = await getInbucketVerificationCode(user.emailPrefix, 1000);
+    expect(otp).toBeDefined();
 
-      await loginablePage.fillInRegistrationForm({
-        firstname: '',
-        lastname: '',
-        email: 'notavalidemail.com'
-      });
-      // Attempt to submit
-      await loginablePage.submitForm('button click');
-      // Should not be able to login (i.e. dialog remains open)
-      // expect(await loginablePage.hasOpenDialog()).toBeTruthy();
-      const errors = await loginablePage.getAllErrors();
-      expect(errors).toHaveLength(3);
-    }
-  );
+    await loginablePage.fillInVerificationForm(otp);
+    await loginablePage.submitForm();
+
+    // Assert the user menu button is populated
+    const userButton = page.locator('role=button', {
+      hasText: `${user.firstname} ${user.lastname}`
+    });
+    await userButton.waitFor({ state: 'visible', timeout: 10000 });
+
+    await expect(userButton).toBeVisible();
+  });
+
+  test('Repeated clicking only sends one email - login', async ({ page }) => {
+    // Setup a user for login tests
+    const user = generateUser('FastClicking', 'User');
+    emailsToDelete.push(user.email);
+    await supabaseAdmin.auth.admin.createUser({
+      email: user.email,
+      password: 'password',
+      user_metadata: {
+        firstname: user.firstname,
+        lastname: user.lastname
+      }
+    });
+
+    await page.goto('/');
+    const loginablePage = new LoginablePage(page);
+
+    await loginablePage.openLoginOrRegisterForm('login');
+    await loginablePage.fillInLoginForm(user.email);
+
+    // Click submit multiple times
+    await Promise.all([
+      loginablePage.submitForm('button click'),
+      loginablePage.submitForm('enter key'),
+      loginablePage.submitForm()
+    ]).then(() => new Promise((r) => setTimeout(r, 500)));
+
+    const numEmailsInBucket = await countEmailsInInbox(user.emailPrefix);
+    expect(numEmailsInBucket).toBe(1);
+
+    const otp = await getInbucketVerificationCode(user.emailPrefix, 2000);
+    expect(otp).toBeDefined();
+
+    await loginablePage.fillInVerificationForm(otp);
+    await loginablePage.submitForm();
+
+    // Assert the user menu button is populated
+    const userButton = page.locator('role=button', {
+      hasText: `${user.firstname} ${user.lastname}`
+    });
+    await userButton.waitFor({ state: 'visible', timeout: 10000 });
+
+    await expect(userButton).toBeVisible();
+  });
+
+  test('Enter key triggers correct behaviour for login form', async ({
+    page
+  }) => {
+    const loginablePage = new LoginablePage(page);
+    await loginablePage.goto('/');
+
+    await loginablePage.openLoginOrRegisterForm('login');
+    expect(await loginablePage.isLoginForm()).toBeTruthy();
+
+    await loginablePage.fillInLoginForm('notavalidemail.com');
+    // Attempt to submit by hitting enter
+    await loginablePage.submitForm('enter key');
+    // Should not be able to login (i.e. dialog remains open)
+    // expect(await loginablePage.hasOpenDialog()).toBeTruthy();
+    const errors = await loginablePage.getAllErrors();
+    expect(errors).toHaveLength(1);
+  });
+
+  test('Registration form displays errors correctly', async ({ page }) => {
+    const loginablePage = new LoginablePage(page);
+    await loginablePage.goto('/');
+
+    await loginablePage.openLoginOrRegisterForm('register');
+    expect(await loginablePage.isRegistrationForm()).toBeTruthy();
+
+    await loginablePage.fillInRegistrationForm({
+      firstname: '',
+      lastname: '',
+      email: 'notavalidemail.com'
+    });
+    // Attempt to submit
+    await loginablePage.submitForm('button click');
+    // Should not be able to login (i.e. dialog remains open)
+    // expect(await loginablePage.hasOpenDialog()).toBeTruthy();
+    const errors = await loginablePage.getAllErrors();
+    expect(errors).toHaveLength(3);
+  });
+
+  // Skip this test - it's unclear if we want this behaviour or not.
+  // If we decide against it, then we can update the test to check that the back
+  // button returns to the previous non-login page.
+  test.skip('Switch to registration form and use browser back button', async ({
+    page
+  }) => {
+    await page.goto('/');
+    const loginablePage = new LoginablePage(page);
+
+    await loginablePage.openLoginOrRegisterForm('login');
+    expect(await loginablePage.isLoginForm()).toBeTruthy();
+
+    await page.getByRole('link', { name: /Join Now/i }).click();
+
+    const waitForCondition = async (
+      fn: () => Promise<boolean>,
+      timeout: number
+    ) => {
+      const start = Date.now();
+      while (Date.now() - start < timeout) {
+        if (await fn()) {
+          break;
+        }
+        await new Promise((r) => setTimeout(r, 200));
+      }
+    };
+
+    await waitForCondition(() => loginablePage.isRegistrationForm(), 2000);
+    expect(await loginablePage.isRegistrationForm()).toBeTruthy();
+
+    await page.goBack();
+    await waitForCondition(() => loginablePage.isLoginForm(), 2000);
+    expect(await loginablePage.isLoginForm()).toBeTruthy();
+  });
 
   test.fixme(
     'Error state resets to empty when closing and reopening',

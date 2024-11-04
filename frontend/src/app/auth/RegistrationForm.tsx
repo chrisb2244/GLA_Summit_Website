@@ -1,5 +1,5 @@
-import { Button } from '@/Components/Form/Button';
 import { Person, PersonProps } from '@/Components/Form/PersonSrv';
+import { SubmitButton } from '@/Components/Form/SubmitButton';
 import { registerFromFormWithRedirect } from '@/Components/SigninRegistration/SignInUpActions';
 import Link from 'next/link';
 
@@ -56,9 +56,11 @@ export const RegistrationForm = (props: { redirectTo?: string }) => {
         <div className='pb-4'>
           <Person<PersonProps> splitSize={'md'} giveFocus />
         </div>
-        <Button type='submit' fullWidth>
-          Register
-        </Button>
+        <SubmitButton
+          fullWidth
+          staticText='Register'
+          pendingText='Registering...'
+        />
       </form>
     </div>
   );

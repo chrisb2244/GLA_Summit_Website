@@ -1,5 +1,5 @@
-import { Button } from '@/Components/Form/Button';
 import { FormField } from '@/Components/Form/FormFieldSrv';
+import { SubmitButton } from '@/Components/Form/SubmitButton';
 import { signInFromFormWithRedirect } from '@/Components/SigninRegistration/SignInUpActions';
 import Link from 'next/link';
 
@@ -46,9 +46,11 @@ export const LoginForm = (props: { redirectTo?: string }) => {
           name='email'
           autoFocus
         />
-        <Button type='submit' fullWidth>
-          Log In
-        </Button>
+        <SubmitButton
+          fullWidth
+          staticText='Log In'
+          pendingText='Logging In...'
+        />
       </form>
       {/* </div> */}
     </div>

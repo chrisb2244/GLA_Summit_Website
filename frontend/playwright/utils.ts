@@ -8,11 +8,19 @@ const supabaseKey = process.env.SECRET_SUPABASE_SERVICE_KEY as string;
 export const createSupabaseAdmin = () =>
   createClient<Database>(supabaseUrl, supabaseKey);
 
+const inbucketUrl = 'http://localhost:54324';
+
 export const getInbucketEmail = async (email: string) => {
-  const client = new InbucketAPIClient('http://localhost:54324/');
+  const client = new InbucketAPIClient(inbucketUrl);
   const inbox = await client.mailbox(email);
   const message = await client.message(email, inbox[0].id);
   return message;
+};
+
+export const countEmailsInInbox = async (email: string) => {
+  const client = new InbucketAPIClient(inbucketUrl);
+  const inbox = await client.mailbox(email);
+  return inbox.length;
 };
 
 const getInbucketVerificationMsg = async (
@@ -24,7 +32,7 @@ const getInbucketVerificationMsg = async (
     return Promise.reject('Timeout');
   }
 
-  const client = new InbucketAPIClient('http://localhost:54324/');
+  const client = new InbucketAPIClient(inbucketUrl);
   return client
     .mailbox(email)
     .then((inbox) => {
