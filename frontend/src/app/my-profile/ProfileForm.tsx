@@ -79,6 +79,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = (props) => {
             })}
             fieldError={errors.firstname}
             fullWidth
+            defaultValue={props.profile.firstname}
             label='First Name'
           />
         </div>
@@ -89,6 +90,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = (props) => {
             })}
             fieldError={errors.lastname}
             fullWidth
+            defaultValue={props.profile.lastname}
             label='Last Name'
           />
         </div>
@@ -99,6 +101,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = (props) => {
             fullWidth
             rows={5}
             label='Biography'
+            defaultValue={props.profile.bio ?? ''}
             placeholder={`${props.profile.firstname} ${props.profile.lastname} is an awesome LabVIEW developer who hasn't yet filled out a bio...`}
           />
         </div>
