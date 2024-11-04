@@ -15,7 +15,7 @@ const CheckedLink = async ({ children }: { children: React.ReactNode }) => {
           ? '/my-presentations'
           : '/auth/register?redirectTo=/my-presentations'
       }
-      prefetch={false}
+      prefetch={loggedIn}
       scroll={loggedIn}
     >
       {children}
