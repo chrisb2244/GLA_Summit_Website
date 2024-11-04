@@ -1,17 +1,16 @@
 import { PersonProps } from '@/Components/Form/Person';
 import { PresentationSubmissionForm } from '@/Components/Forms/PresentationSubmissionForm';
-import { getMyPresentations, getProfileInfo } from '@/lib/databaseFunctions';
-import type {
-  MyPresentationSubmissionType,
-  SummitYear
-} from '@/lib/databaseModels';
+import { getProfileInfo } from '@/lib/databaseFunctions';
 import { getUser } from '@/lib/supabase/userFunctions';
 import { createServerClient } from '@/lib/supabaseServer';
-import { formatTextToPs } from '@/lib/utils';
 import { User } from '@supabase/supabase-js';
 import { Metadata } from 'next';
-import NextLink from 'next/link';
 import { CAN_SUBMIT_PRESENTATION } from '../configConstants';
+import { Suspense } from 'react';
+import {
+  PastPresentationSubmissions,
+  PastPresentationSubmissionsFallback
+} from './PastPresentationSubmissions';
 
 export const metadata: Metadata = {
   robots: {
@@ -39,69 +38,6 @@ const MyPresentationsPage = async () => {
 
   const submitter = await getSubmitter(user);
 
-  const myPresentations = await getMyPresentations(supabase);
-  const myPresentationIds = myPresentations.map((p) => p.presentation_id);
-  const acceptedList = (
-    (
-      await supabase
-        .from('accepted_presentations')
-        .select('id')
-        .in('id', myPresentationIds)
-    ).data ?? []
-  ).map((v) => v.id);
-  const rejectedList = (
-    (
-      await supabase
-        .from('rejected_presentations')
-        .select('id')
-        .in('id', myPresentationIds)
-    ).data ?? []
-  ).map((v) => v.id);
-
-  type Acceptance = 'Accepted' | 'Withdrawn/Declined' | null;
-  const formatAccepted = (
-    id: string,
-    acceptedList: string[],
-    rejectedList: string[]
-  ): Acceptance => {
-    return acceptedList.includes(id)
-      ? 'Accepted'
-      : rejectedList.includes(id)
-      ? 'Withdrawn/Declined'
-      : null;
-  };
-
-  type MyPresentationSubmissionTypeWithAccepted =
-    MyPresentationSubmissionType & { accepted: Acceptance };
-  const { submittedPresentations } = myPresentations.reduce(
-    ({ submittedPresentations, draftPresentations }, elem) => {
-      const accepted = formatAccepted(
-        elem.presentation_id,
-        acceptedList,
-        rejectedList
-      );
-      if (elem.is_submitted) {
-        return {
-          submittedPresentations: [
-            ...submittedPresentations,
-            { ...elem, accepted }
-          ],
-          draftPresentations
-        };
-      } else {
-        return {
-          submittedPresentations,
-          draftPresentations: [...draftPresentations, { ...elem, accepted }]
-        };
-      }
-    },
-    {
-      submittedPresentations:
-        new Array<MyPresentationSubmissionTypeWithAccepted>(),
-      draftPresentations: new Array<MyPresentationSubmissionTypeWithAccepted>()
-    }
-  );
-
   // const activeDrafts = draftPresentations.filter(
   //   (p) => p.year === submissionsForYear
   // );
@@ -119,67 +55,6 @@ const MyPresentationsPage = async () => {
   //       );
   //     })
   //   );
-
-  const presentationsByYear = submittedPresentations.reduce(
-    (existingSet, newElem) => {
-      return Object.assign(existingSet, {
-        [newElem.year]: (existingSet[newElem.year] || []).concat(newElem)
-      });
-    },
-    {} as Record<SummitYear, MyPresentationSubmissionTypeWithAccepted[]>
-  );
-  const years = Object.keys(presentationsByYear) as SummitYear[];
-  years.sort((a, b) => {
-    const aN = Number.parseInt(a);
-    const bN = Number.parseInt(b);
-    return aN === bN ? 0 : aN > bN ? -1 : 1;
-  });
-
-  const renderPresentationSubmission = (
-    p: MyPresentationSubmissionTypeWithAccepted
-  ) => {
-    return (
-      <div
-        key={p.presentation_id}
-        className='relative left-4 mr-6 border border-secondaryc p-2'
-      >
-        <div className='flex flex-col md:flex-row'>
-          <h5>
-            <NextLink
-              className='link'
-              href={`/presentations/${p.presentation_id}`}
-            >
-              {p.title}
-            </NextLink>
-          </h5>
-          <span className='md:pl-2'>({p.presentation_type})</span>
-          <span className='italic md:ml-auto md:mr-1'>
-            {p.accepted ?? 'Under consideration'}
-          </span>
-        </div>
-        <div className='[&>p]:my-1'>{formatTextToPs(p.abstract)}</div>
-      </div>
-    );
-  };
-
-  const pastPresentationSubmissions =
-    years.length > 0 ? (
-      <div className='flex flex-col space-y-2'>
-        {years.map((y) => {
-          const presentationsInYear = presentationsByYear[y];
-          return (
-            <div key={y} className='flex flex-col space-y-1'>
-              <h4 className='my-1'>{y}</h4>
-              {presentationsInYear.map((p) => renderPresentationSubmission(p))}
-            </div>
-          );
-        })}
-      </div>
-    ) : (
-      <div>
-        <p>You do not have any previous submissions</p>
-      </div>
-    );
 
   const submissionElements = CAN_SUBMIT_PRESENTATION ? (
     submitter && (
@@ -207,7 +82,9 @@ const MyPresentationsPage = async () => {
 
       <div>
         <h3>Submitted Presentations</h3>
-        {pastPresentationSubmissions}
+        <Suspense fallback={<PastPresentationSubmissionsFallback />}>
+          {<PastPresentationSubmissions />}
+        </Suspense>
       </div>
     </div>
   );
