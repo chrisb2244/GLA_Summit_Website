@@ -1,6 +1,8 @@
 import { Metadata } from 'next';
 import { SponsorBar } from './_rootElements/SponsorBar';
 import { SubmitPresentationButton } from './_homepage/SubmitPresentationButton';
+import { PulsedButton } from '@/Components/Form/PulsedButton';
+import { Button } from '@/Components/Form/Button';
 // import { Countdown } from './_rootElements/Countdown'
 
 export const metadata: Metadata = {
@@ -72,7 +74,16 @@ export default async function Page() {
         (certified or self-proclaimed) from around the world to network and
         participate in an inclusive, all-digital, free event.
       </p>
-      <SubmitPresentationButton />
+      <div className='flex flex-col space-y-2'>
+        <SubmitPresentationButton>
+          <PulsedButton fullWidth>
+            Submit a Presentation (w bounce)
+          </PulsedButton>
+        </SubmitPresentationButton>
+        <SubmitPresentationButton>
+          <Button fullWidth>Submit a Presentation</Button>
+        </SubmitPresentationButton>
+      </div>
       <p>Our event ticketing system will open soon.</p>
       {/* <div>{ticketButton}</div> */}
       {/* <div>

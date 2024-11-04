@@ -1,9 +1,10 @@
 import { Button } from '@/Components/Form/Button';
+import { PulsedButton } from '@/Components/Form/PulsedButton';
 import { getUser } from '@/lib/supabase/userFunctions';
 import Link from 'next/link';
-import { Suspense } from 'react';
+import React, { Suspense } from 'react';
 
-const SubmitPresentationButtonWithCheck = async () => {
+const CheckedLink = async ({ children }: { children: React.ReactNode }) => {
   const user = await getUser();
   const loggedIn = user !== null;
 
@@ -17,27 +18,31 @@ const SubmitPresentationButtonWithCheck = async () => {
       prefetch={false}
       scroll={loggedIn}
     >
-      <Button fullWidth>Submit a Presentation</Button>
+      {children}
     </Link>
   );
 
   return submitPresentationButton;
 };
 
-const SubmitPresentationButtonFallback = () => {
+const FallbackLink = ({ children }: { children: React.ReactNode }) => {
   return (
     <Link
       href={'/auth/register?redirectTo=/my-presentations'}
       prefetch={false}
       scroll={false}
     >
-      <Button fullWidth>Submit a Presentation</Button>
+      {children}
     </Link>
   );
 };
 
-export const SubmitPresentationButton = () => (
-  <Suspense fallback={<SubmitPresentationButtonFallback />}>
-    {SubmitPresentationButtonWithCheck()}
+export const SubmitPresentationButton = ({
+  children
+}: {
+  children: React.ReactNode;
+}) => (
+  <Suspense fallback={<FallbackLink>{children}</FallbackLink>}>
+    <CheckedLink>{children}</CheckedLink>
   </Suspense>
 );
