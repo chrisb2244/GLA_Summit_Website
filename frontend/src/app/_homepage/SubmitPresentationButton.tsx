@@ -1,10 +1,13 @@
-import { Button } from '@/Components/Form/Button';
 import { PulsedButton } from '@/Components/Form/PulsedButton';
 import { getUser } from '@/lib/supabase/userFunctions';
 import Link from 'next/link';
-import React, { Suspense } from 'react';
+import { Suspense } from 'react';
 
-const CheckedLink = async ({ children }: { children: React.ReactNode }) => {
+type Props = {
+  children: React.ReactNode;
+};
+
+const CheckedLink = async ({ children }: Props) => {
   const user = await getUser();
   const loggedIn = user !== null;
 
@@ -25,7 +28,7 @@ const CheckedLink = async ({ children }: { children: React.ReactNode }) => {
   return submitPresentationButton;
 };
 
-const FallbackLink = ({ children }: { children: React.ReactNode }) => {
+const FallbackLink = ({ children }: Props) => {
   return (
     <Link
       href={'/auth/register?redirectTo=/my-presentations'}
@@ -37,12 +40,12 @@ const FallbackLink = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export const SubmitPresentationButton = ({
-  children
-}: {
-  children: React.ReactNode;
-}) => (
-  <Suspense fallback={<FallbackLink>{children}</FallbackLink>}>
-    <CheckedLink>{children}</CheckedLink>
+const buttonElement = (
+  <PulsedButton fullWidth>Submit a Presentation</PulsedButton>
+);
+
+export const SubmitPresentationButton = () => (
+  <Suspense fallback={<FallbackLink>{buttonElement}</FallbackLink>}>
+    <CheckedLink>{buttonElement}</CheckedLink>
   </Suspense>
 );
