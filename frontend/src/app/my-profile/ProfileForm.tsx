@@ -30,7 +30,8 @@ export const ProfileForm = (props: ProfileFormProps) => {
       if (changedElem === 'reset') {
         return new Set<string>();
       }
-      let { name, value, defaultValue } = changedElem;
+      const { name } = changedElem;
+      let { value, defaultValue } = changedElem;
       const newElems = new Set(prevElems);
       value = value.replaceAll('\r\n', '\n');
       defaultValue = defaultValue.replaceAll('\r\n', '\n');
