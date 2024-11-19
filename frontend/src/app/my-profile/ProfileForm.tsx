@@ -1,16 +1,13 @@
 'use client';
-
+import { ProfileModel } from '@/lib/databaseModels';
+import { useActionState, useEffect, useReducer } from 'react';
+import { ActionState, updateProfileAction } from './ProfileFormServerActions';
 import {
   FormField,
-  FormFieldIndicator,
-  TextArea
-} from '@/Components/Form/FormField';
+  TextArea,
+  FormFieldIndicator
+} from '@/Components/Form/FormFieldSrv';
 import { SubmitButton } from '@/Components/Form/SubmitButton';
-import { ProfileModel } from '@/lib/databaseModels';
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import { SubmitProfileDataUpdate } from './ProfileFormServerActions';
-import { useRouter } from 'next/navigation';
 
 type ProfileData = ProfileModel['Row'];
 
@@ -19,101 +16,106 @@ type ProfileFormProps = {
   email: string;
 };
 
-// avatar_url is handled separately. Don't consider updated_at.
-type ProfileFormData = Omit<ProfileData, 'updated_at' | 'avatar_url'>;
+export const ProfileForm = (props: ProfileFormProps) => {
+  const [state, formAction, pending] = useActionState<ActionState, FormData>(
+    updateProfileAction,
+    { errors: undefined, success: undefined, data: props.profile }
+  );
 
-export const ProfileForm: React.FC<ProfileFormProps> = (props) => {
-  const {
-    register,
-    trigger,
-    formState: { errors, isDirty, isSubmitting, dirtyFields }
-  } = useForm<ProfileFormData>({
-    defaultValues: props.profile,
-    mode: 'all'
-  });
-  const router = useRouter();
-  const submitButtonRef = React.useRef<HTMLButtonElement>(null);
-
-  // Only allow submitting if not currently submitting, and the form is changed.
-  const submitButtonDisabled = isSubmitting || !isDirty;
-
-  const clientSideSubmitAction = async (formData: FormData) => {
-    const isValid = await trigger();
-    if (!isValid) {
-      return;
-    }
-    const changedValuesFormData = new FormData();
-    Array.from(formData.entries()).forEach(([name, value]) => {
-      // If 'name' is not a valid key, then this is undefined, and the '??' returns false.
-      const isChanged = dirtyFields[name as keyof ProfileFormData] ?? false;
-      if (isChanged || name === 'id') {
-        changedValuesFormData.append(name, value);
+  const [dirtyElems, dispatchDirtyElems] = useReducer(
+    (
+      prevElems,
+      changedElem: HTMLInputElement | HTMLTextAreaElement | 'reset'
+    ) => {
+      if (changedElem === 'reset') {
+        return new Set<string>();
       }
-    });
-    await SubmitProfileDataUpdate(changedValuesFormData).then(
-      () => {
-        router.refresh();
-        submitButtonRef.current?.blur();
-      },
-      (err) => console.error(err)
-    );
-  };
+      let { name, value, defaultValue } = changedElem;
+      const newElems = new Set(prevElems);
+      value = value.replaceAll('\r\n', '\n');
+      defaultValue = defaultValue.replaceAll('\r\n', '\n');
+      if (value !== defaultValue) {
+        newElems.add(name);
+      } else {
+        newElems.delete(name);
+      }
+      return newElems;
+    },
+    new Set<string>()
+  );
+
+  // Reset dirtyElems when the form is successfully submitted.
+  useEffect(() => {
+    if (state.success) {
+      dispatchDirtyElems('reset');
+    }
+  }, [state]);
+
+  const isDirty = dirtyElems.size > 0;
+  const enableSubmit = isDirty && !pending;
 
   return (
-    <form action={clientSideSubmitAction}>
+    <form
+      action={formAction}
+      onChange={(ev) => {
+        if (
+          ev.target instanceof HTMLInputElement ||
+          ev.target instanceof HTMLTextAreaElement
+        ) {
+          dispatchDirtyElems(ev.target);
+        } else {
+          console.error('Unexpected event target:', ev.target);
+        }
+      }}
+    >
       <div className='px-4'>
         <FormFieldIndicator
-          registerReturn={{ name: 'email' }}
-          fieldError={undefined}
-          fullWidth
+          name='email'
           label='Email'
           value={props.email}
-          name='email'
+          fullWidth
         />
       </div>
       <div className='grid grid-cols-[1fr_8px_1fr] px-4'>
         <div className='col-span-3 col-start-1 md:col-span-1'>
           <FormField
-            registerReturn={register('firstname', {
-              required: 'First Name is required'
-            })}
-            fieldError={errors.firstname}
-            fullWidth
-            defaultValue={props.profile.firstname}
+            name='firstname'
             label='First Name'
+            defaultValue={state.data.firstname}
+            error={state.errors?.firstname}
+            fullWidth
+            required
           />
         </div>
         <div className='col-span-3 col-start-1 bg-inherit md:col-span-1 md:col-start-3'>
           <FormField
-            registerReturn={register('lastname', {
-              required: 'Last Name is required'
-            })}
-            fieldError={errors.lastname}
-            fullWidth
-            defaultValue={props.profile.lastname}
+            name='lastname'
             label='Last Name'
+            defaultValue={state.data.lastname}
+            error={state.errors?.lastname}
+            fullWidth
+            required
           />
         </div>
         <div className='col-span-3 col-start-1'>
           <TextArea
-            registerReturn={register('bio')}
-            fieldError={errors.bio}
-            fullWidth
-            rows={5}
+            name='bio'
             label='Biography'
             defaultValue={props.profile.bio ?? ''}
+            error={state.errors?.bio}
+            rows={5}
             placeholder={`${props.profile.firstname} ${props.profile.lastname} is an awesome LabVIEW developer who hasn't yet filled out a bio...`}
+            fullWidth
           />
         </div>
       </div>
-      <input hidden value={props.profile.id} readOnly {...register('id')} />
+      <input hidden value={props.profile.id} readOnly name='id' />
       <div className='px-4'>
         <SubmitButton
           pendingText='Saving Changes...'
           staticText='Save Changes'
           fullWidth
-          disabled={submitButtonDisabled}
-          ref={submitButtonRef}
+          disabled={!enableSubmit}
         />
       </div>
     </form>

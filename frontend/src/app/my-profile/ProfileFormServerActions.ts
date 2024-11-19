@@ -4,46 +4,42 @@ import { ProfileModel } from '@/lib/databaseModels';
 import { createServerActionClient } from '@/lib/supabaseServer';
 import { revalidatePath } from 'next/cache';
 
+type ProfileData = ProfileModel['Row'];
 type ProfileDataUpdate = ProfileModel['Update'];
+type ProfileFormData = Omit<ProfileData, 'updated_at' | 'avatar_url'>;
 
-export const SubmitProfileDataUpdate = async (formData: FormData) => {
-  const idValue = formData.get('id')?.valueOf();
-  if (typeof idValue !== 'string') {
-    throw new Error('The id value is required');
+export type ActionState = {
+  errors?: Partial<Record<keyof ProfileFormData | 'form', string>>;
+  success?: boolean;
+  data: ProfileFormData;
+};
+
+export const updateProfileAction = async (
+  previousState: ActionState,
+  formData: FormData
+): Promise<ActionState> => {
+  const id = formData.get('id');
+  if (id === null) {
+    return {
+      errors: {
+        id: 'ID is required'
+      },
+      success: false,
+      data: previousState.data
+    };
   }
+
   const v: ProfileDataUpdate = {};
   Array.from(formData.entries()).forEach(([name, value]) => {
-    // value is of type FormDataEntryValue, which can be File | string
-    // Don't handle files.
-    if (typeof value !== 'string') {
-      return;
-    }
-    const assumedValidName = name as keyof ProfileDataUpdate;
-    switch (assumedValidName) {
-      case 'id':
-      case 'bio':
-      case 'firstname':
-      case 'lastname':
-      case 'website':
-        v[assumedValidName] = value;
-        break;
-      case 'avatar_url':
-        // This shouldn't be passed at all, ignore.
-        break;
-      case 'updated_at':
-        // This is handled on the database and shouldn't be part of the form.
-        // TODO: Log this as an error, but ignore from the point of view of the
-        // client/form.
-        break;
-      default: {
-        // This checks that all cases are handled - if the type updates,
-        // this will break the typechecking code.
-        // It can actually happen if the formData contains other elements, though...
-        // Ignore this case.
-        /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-        const dummyVal: never = assumedValidName;
-        break;
-      }
+    const isChanged =
+      previousState.data[name as keyof ProfileFormData] !== value;
+    const keys = Object.keys(previousState.data);
+    if (
+      (isChanged || name === 'id') &&
+      typeof value === 'string' &&
+      keys.includes(name)
+    ) {
+      v[name as keyof ProfileDataUpdate] = value;
     }
   });
 
@@ -51,12 +47,23 @@ export const SubmitProfileDataUpdate = async (formData: FormData) => {
   const { data, error } = await supabase
     .from('profiles')
     .update(v)
-    .eq('id', idValue)
-    .select();
+    .eq('id', id)
+    .select()
+    .single();
   if (error) {
-    throw error;
+    return {
+      errors: {
+        form: error.message
+      },
+      success: false,
+      data: previousState.data
+    };
   }
 
   revalidatePath('/my-profile');
-  return data[0];
+  return {
+    errors: undefined,
+    success: true,
+    data
+  };
 };
