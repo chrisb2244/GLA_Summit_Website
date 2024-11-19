@@ -52,8 +52,8 @@ const ChristianButcher = (
       make use of LabVIEW with Docker more accessible.
     </p>
     <p>
-      Christian is a LabVIEW Champion and CLD, and has presented at several NI
-      Week conferences, the first GDevCon, and the 2020 GLA Summit.
+      Christian is a LabVIEW Champion, and has presented at several NI Week
+      conferences, the first GDevCon, and the 2020 GLA Summit.
     </p>
   </>
 );
