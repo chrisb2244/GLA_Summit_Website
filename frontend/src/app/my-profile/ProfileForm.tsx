@@ -1,6 +1,6 @@
 'use client';
 import { ProfileModel } from '@/lib/databaseModels';
-import { useActionState, useEffect, useReducer } from 'react';
+import { useActionState, useEffect } from 'react';
 import {
   ActionState,
   ProfileFormErrors,
@@ -12,6 +12,8 @@ import {
   FormFieldIndicator
 } from '@/Components/Form/FormFieldSrv';
 import { SubmitButton } from '@/Components/Form/SubmitButton';
+import { useFormDirtyCheck } from '@/Components/Utilities/useFormDirtyCheck';
+import { useFormValidation } from '@/Components/Utilities/useFormValidation';
 
 type ProfileData = ProfileModel['Row'];
 
@@ -25,51 +27,16 @@ export const ProfileForm = (props: ProfileFormProps) => {
     updateProfileAction,
     { errors: undefined, success: undefined, data: props.profile }
   );
-
-  const [dirtyElems, dispatchDirtyElems] = useReducer(
-    (
-      prevElems,
-      changedElem: HTMLInputElement | HTMLTextAreaElement | 'reset'
-    ) => {
-      if (changedElem === 'reset') {
-        return new Set<string>();
-      }
-      const { name } = changedElem;
-      let { value, defaultValue } = changedElem;
-      const newElems = new Set(prevElems);
-      value = value.replaceAll('\r\n', '\n');
-      defaultValue = defaultValue.replaceAll('\r\n', '\n');
-      if (value !== defaultValue) {
-        newElems.add(name);
-      } else {
-        newElems.delete(name);
-      }
-      return newElems;
-    },
-    new Set<string>()
-  );
-
-  const [validationMessages, setValidationMessages] = useReducer(
-    (messages, changedElem: HTMLInputElement | HTMLTextAreaElement) => {
-      const { validity, validationMessage, name } = changedElem;
-      if (validity.valid) {
-        messages.delete(name);
-      } else {
-        messages.set(name, validationMessage);
-      }
-      return messages;
-    },
-    new Map<string, string>()
-  );
+  const { isDirty, reset: resetDirty, updateDirtiness } = useFormDirtyCheck();
+  const { validationMessages, checkValidity } = useFormValidation();
 
   // Reset dirtyElems when the form is successfully submitted.
   useEffect(() => {
     if (state.success) {
-      dispatchDirtyElems('reset');
+      resetDirty();
     }
   }, [state]);
 
-  const isDirty = dirtyElems.size > 0;
   const enableSubmit = isDirty && validationMessages.size === 0 && !pending;
 
   const fieldError = (field: keyof Omit<ProfileFormErrors, 'form'>) => {
@@ -84,8 +51,8 @@ export const ProfileForm = (props: ProfileFormProps) => {
           ev.target instanceof HTMLInputElement ||
           ev.target instanceof HTMLTextAreaElement
         ) {
-          dispatchDirtyElems(ev.target);
-          setValidationMessages(ev.target);
+          updateDirtiness(ev.target);
+          checkValidity(ev.target);
         } else {
           console.error('Unexpected event target:', ev.target);
         }
