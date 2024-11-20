@@ -8,8 +8,12 @@ type ProfileData = ProfileModel['Row'];
 type ProfileDataUpdate = ProfileModel['Update'];
 type ProfileFormData = Omit<ProfileData, 'updated_at' | 'avatar_url'>;
 
+export type ProfileFormErrors = Partial<
+  Record<keyof ProfileFormData | 'form', string>
+>;
+
 export type ActionState = {
-  errors?: Partial<Record<keyof ProfileFormData | 'form', string>>;
+  errors?: ProfileFormErrors;
   success?: boolean;
   data: ProfileFormData;
 };

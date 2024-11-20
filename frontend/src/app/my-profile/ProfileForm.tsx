@@ -1,7 +1,11 @@
 'use client';
 import { ProfileModel } from '@/lib/databaseModels';
 import { useActionState, useEffect, useReducer } from 'react';
-import { ActionState, updateProfileAction } from './ProfileFormServerActions';
+import {
+  ActionState,
+  ProfileFormErrors,
+  updateProfileAction
+} from './ProfileFormServerActions';
 import {
   FormField,
   TextArea,
@@ -45,6 +49,19 @@ export const ProfileForm = (props: ProfileFormProps) => {
     new Set<string>()
   );
 
+  const [validationMessages, setValidationMessages] = useReducer(
+    (messages, changedElem: HTMLInputElement | HTMLTextAreaElement) => {
+      const { validity, validationMessage, name } = changedElem;
+      if (validity.valid) {
+        messages.delete(name);
+      } else {
+        messages.set(name, validationMessage);
+      }
+      return messages;
+    },
+    new Map<string, string>()
+  );
+
   // Reset dirtyElems when the form is successfully submitted.
   useEffect(() => {
     if (state.success) {
@@ -53,7 +70,11 @@ export const ProfileForm = (props: ProfileFormProps) => {
   }, [state]);
 
   const isDirty = dirtyElems.size > 0;
-  const enableSubmit = isDirty && !pending;
+  const enableSubmit = isDirty && validationMessages.size === 0 && !pending;
+
+  const fieldError = (field: keyof Omit<ProfileFormErrors, 'form'>) => {
+    return validationMessages.get(field) ?? state.errors?.[field];
+  };
 
   return (
     <form
@@ -64,9 +85,13 @@ export const ProfileForm = (props: ProfileFormProps) => {
           ev.target instanceof HTMLTextAreaElement
         ) {
           dispatchDirtyElems(ev.target);
+          setValidationMessages(ev.target);
         } else {
           console.error('Unexpected event target:', ev.target);
         }
+      }}
+      onInvalidCapture={(ev) => {
+        ev.preventDefault();
       }}
     >
       <div className='px-4'>
@@ -83,7 +108,7 @@ export const ProfileForm = (props: ProfileFormProps) => {
             name='firstname'
             label='First Name'
             defaultValue={state.data.firstname}
-            error={state.errors?.firstname}
+            error={fieldError('firstname')}
             fullWidth
             required
           />
@@ -93,7 +118,7 @@ export const ProfileForm = (props: ProfileFormProps) => {
             name='lastname'
             label='Last Name'
             defaultValue={state.data.lastname}
-            error={state.errors?.lastname}
+            error={fieldError('lastname')}
             fullWidth
             required
           />
@@ -103,7 +128,7 @@ export const ProfileForm = (props: ProfileFormProps) => {
             name='bio'
             label='Biography'
             defaultValue={props.profile.bio ?? ''}
-            error={state.errors?.bio}
+            error={fieldError('bio')}
             rows={5}
             placeholder={`${props.profile.firstname} ${props.profile.lastname} is an awesome LabVIEW developer who hasn't yet filled out a bio...`}
             fullWidth
