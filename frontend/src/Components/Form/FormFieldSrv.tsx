@@ -19,8 +19,8 @@ const inputFieldStyles = cva(inputAlways, {
       true: 'w-full'
     },
     readOnly: {
-      true: 'text-gray-500 bg-gray-100',
-      false: 'border-b-4 focus:border-b-secondaryc'
+      true: 'text-gray-500 bg-gray-100 before:peer-focus:bg-gray-100',
+      false: 'border-b-4 focus:border-b-secondaryc before:peer-focus:bg-white'
     },
     placeholderVisible: {
       false: 'placeholder-transparent',
@@ -48,7 +48,7 @@ const labelAlways = [
   'before:h-[10px] before:rounded-b before:peer-focus:w-[105%]',
   'before:peer-focus:absolute before:peer-focus:flex',
   'before:peer-focus:top-2 before:peer-focus:-left-[2px]',
-  'before:peer-focus:z-[-1] before:peer-focus:bg-white',
+  'before:peer-focus:z-[-1]',
   'before:peer-focus:h-[10px] before:peer-focus:rounded-b',
   'peer-placeholder-shown:text-gray-500'
 ].join(' ');
