@@ -31,6 +31,7 @@ test.describe('logged-out tests for presentation submission', () => {
 
 test.describe('logged-in tests for presentation submission', () => {
   // Use an existing user who is not a presenter or organizer
+  const attendeeEmail = process.env.TEST_ATTENDEE_EMAIL as string;
   test.use({
     storageState: async ({}, use) =>
       use(path.resolve(__dirname, '.auth', 'attendee.json'))
@@ -54,6 +55,23 @@ test.describe('logged-in tests for presentation submission', () => {
       }
     }
   );
+
+  test('Submitter is prefilled and locked', async ({ page }) => {
+    await page.goto('/submit-presentation');
+
+    const formPage = new PresentationSubmissionPage(page);
+
+    // Wait for the login dialog to disappear (have saved session state)
+    await formPage.waitForFormLoad();
+
+    expect(await formPage.hasVisibleForm()).toBeTruthy();
+
+    // Using the test attendee user, we expect
+    const submitterEmailInput = page.locator('label:has-text("Email")');
+    expect(await submitterEmailInput.isVisible()).toBeTruthy();
+    expect(await submitterEmailInput.isEditable()).toBeFalsy();
+    expect(await submitterEmailInput.inputValue()).toEqual(attendeeEmail);
+  });
 
   test('Form fill testing', async ({ page }, testInfo) => {
     // Skip if the presentation submission is closed
