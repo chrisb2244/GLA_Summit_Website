@@ -33,7 +33,7 @@ export class PresentationSubmissionPage {
       'label:has-text("Learning Points")'
     );
     this.presentationTypeInput = this.page.locator(
-      'label:has-text("Presentation Type") >> xpath=.. >> role=button'
+      'select[name="presentationType"]'
     );
     this.isFinalInput = this.page.locator('role=checkbox');
   }
@@ -69,17 +69,21 @@ export class PresentationSubmissionPage {
       await this.learningPointsInput.fill(data.learningPoints);
 
     if (typeof data.presentationType !== 'undefined') {
-      // Mui selects aren't actually <select> items
-      // they produce a popup listbox and a button...
-      await this.presentationTypeInput.click();
-      const regexp = new RegExp(data.presentationType);
-      await this.page.getByText(regexp).click();
+      const optionString = await this.presentationTypeInput
+        .getByText(data.presentationType)
+        .innerText();
+
+      await this.presentationTypeInput.selectOption(optionString);
     }
 
-    if (typeof data.isFinal !== 'undefined') {
-      await (data.isFinal
-        ? this.isFinalInput.check()
-        : this.isFinalInput.uncheck());
-    }
+    // if (typeof data.isFinal !== 'undefined') {
+    //   await (data.isFinal
+    //     ? this.isFinalInput.check()
+    //     : this.isFinalInput.uncheck());
+    // }
+  }
+
+  async submitForm() {
+    await this.page.locator('button:has-text("Submit Presentation")').click();
   }
 }
