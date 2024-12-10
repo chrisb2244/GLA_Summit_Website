@@ -2,17 +2,20 @@ import { test, expect } from '@playwright/test';
 import { PresentationSubmissionPage } from './models/PresentationSubmissionPage';
 import { CAN_SUBMIT_PRESENTATION } from '@/app/configConstants';
 import path from 'path';
+import { loginOnPage } from './utils';
 
-test.describe('logged-in tests for presentation submission', () => {
-  // Use an existing user who is not a presenter or organizer
-  test.use({
-    storageState: async ({}, use) =>
-      use(path.resolve(__dirname, '.auth', 'attendee.json'))
+test.describe('logged-out tests for presentation submission', () => {
+  test('Form submission unavailable if logged out', async ({ page }) => {
+    await page.goto('/submit-presentation');
+    await expect(page.getByText('You need to be logged in')).toBeVisible();
   });
 
-  test('/submit-presentation is accessible', async ({ page }) => {
-    // This page should be accessible to all logged-in users
+  test('Form loads correctly after logging in', async ({ page }) => {
     await page.goto('/submit-presentation');
+    await expect(page.getByText('You need to be logged in')).toBeVisible();
+
+    const email = process.env.TEST_ATTENDEE_EMAIL as string;
+    await loginOnPage(page, email);
 
     if (CAN_SUBMIT_PRESENTATION) {
       await expect(
@@ -24,20 +27,43 @@ test.describe('logged-in tests for presentation submission', () => {
       ).toBeVisible();
     }
   });
+});
 
-  test('Form fill testing', async ({ page }) => {
+test.describe('logged-in tests for presentation submission', () => {
+  // Use an existing user who is not a presenter or organizer
+  test.use({
+    storageState: async ({}, use) =>
+      use(path.resolve(__dirname, '.auth', 'attendee.json'))
+  });
+
+  test(
+    '/submit-presentation is accessible',
+    { tag: '@smoke' },
+    async ({ page }) => {
+      // This page should be accessible to all logged-in users
+      await page.goto('/submit-presentation');
+
+      if (CAN_SUBMIT_PRESENTATION) {
+        await expect(
+          page.getByRole('heading', { name: /Submit a .*Presentation/ })
+        ).toBeVisible();
+      } else {
+        await expect(
+          page.getByText('The presentation submission process is closed.')
+        ).toBeVisible();
+      }
+    }
+  );
+
+  test('Form fill testing', async ({ page }, testInfo) => {
+    // Skip if the presentation submission is closed
+    // The message is checked in a different test
+    testInfo.skip(!CAN_SUBMIT_PRESENTATION, 'Presentation submission closed');
+
     await page.goto('/my-presentations');
 
-    if (CAN_SUBMIT_PRESENTATION === false) {
-      // Expect that the profile page instructs the user presentation submission is closed.
-      await expect(
-        page.getByText('The presentation submission process is closed.')
-      ).toBeVisible();
-      return;
-    }
-
     const formPage = new PresentationSubmissionPage(page);
-    await formPage.goto('/submit-presentation');
+
     // Wait for the login dialog to disappear (have saved session state)
     await formPage.waitForFormLoad();
 
