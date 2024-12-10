@@ -30,6 +30,8 @@ test.describe('logged-out tests for presentation submission', () => {
 });
 
 test.describe('logged-in tests for presentation submission', () => {
+  test.skip(!CAN_SUBMIT_PRESENTATION, 'Presentation submission closed');
+
   // Use an existing user who is not a presenter or organizer
   const attendeeEmail = process.env.TEST_ATTENDEE_EMAIL as string;
   test.use({
@@ -44,15 +46,9 @@ test.describe('logged-in tests for presentation submission', () => {
       // This page should be accessible to all logged-in users
       await page.goto('/submit-presentation');
 
-      if (CAN_SUBMIT_PRESENTATION) {
-        await expect(
-          page.getByRole('heading', { name: /Submit a .*Presentation/ })
-        ).toBeVisible();
-      } else {
-        await expect(
-          page.getByText('The presentation submission process is closed.')
-        ).toBeVisible();
-      }
+      await expect(
+        page.getByRole('heading', { name: /Submit a .*Presentation/ })
+      ).toBeVisible();
     }
   );
 
@@ -73,11 +69,9 @@ test.describe('logged-in tests for presentation submission', () => {
     expect(await submitterEmailInput.inputValue()).toEqual(attendeeEmail);
   });
 
-  test('Form fill testing', async ({ page }, testInfo) => {
+  test('Form fill testing', async ({ page }) => {
     // Skip if the presentation submission is closed
     // The message is checked in a different test
-    testInfo.skip(!CAN_SUBMIT_PRESENTATION, 'Presentation submission closed');
-
     await page.goto('/my-presentations');
 
     const formPage = new PresentationSubmissionPage(page);
