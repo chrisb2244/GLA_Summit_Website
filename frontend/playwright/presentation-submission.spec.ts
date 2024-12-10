@@ -81,22 +81,34 @@ test.describe('logged-in tests for presentation submission', () => {
 
     expect(await formPage.hasVisibleForm()).toBeTruthy();
 
-    const testTitle = 'Test presentation title';
+    const testTitle = 'Test presentation title' + Math.random();
     await formPage.fillFormData({
       title: testTitle,
-      learningPoints: 'Blah', // This is invalid input - too short
+      abstract: 'Blah blah '.repeat(20), // Need to exceed 100 chars
+      learningPoints: 'Blah'.repeat(15), // Need to exceed 50 chars
       presentationType: '15 minutes',
       isFinal: true
     });
 
-    expect(await formPage.titleInput.inputValue()).toEqual(testTitle);
-    expect(await formPage.isFinalInput.isChecked()).toEqual(true);
+    await expect(formPage.titleInput).toHaveValue(testTitle);
+    // expect(await formPage.isFinalInput.isChecked()).toEqual(true);
 
-    await formPage.fillFormData({
-      isFinal: false
-    });
+    await formPage.submitForm();
 
-    expect(await formPage.isFinalInput.isChecked()).toEqual(false);
+    // Should blank out on successful submission
+    // Can't use the toBeEmpty here
+    await expect(formPage.titleInput).toHaveValue('');
+
+    const submittedPresentationsDiv = page.locator(
+      'div:has-text("Submitted Presentations")'
+    );
+    const newSubmittedPresentation =
+      submittedPresentationsDiv.getByLabel(testTitle);
+    await expect(newSubmittedPresentation).toBeVisible();
+
+    // Check it is marked as under consideration
+    const statusDiv = newSubmittedPresentation.getByText('Under Consideration');
+    await expect(statusDiv).toBeVisible();
   });
 
   // test('Switching tabs does not change form content', async ({ page, context }) => {
