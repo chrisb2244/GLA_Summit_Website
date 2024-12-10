@@ -2,6 +2,8 @@ import { createEvent } from 'ics';
 import type { EventAttributes, DateArray } from 'ics';
 import { getSessionDurationInMinutes } from '@/lib/utils';
 import { createRouteHandlerClient } from '@/lib/supabaseServer';
+import { NextParams, satisfy } from '@/lib/NextTypes';
+import { eventUrl } from '@/app/configConstants';
 
 const dateToDateArray = (d: Date): DateArray => {
   return [
@@ -13,12 +15,14 @@ const dateToDateArray = (d: Date): DateArray => {
   ];
 };
 
+type RouteParams = satisfy<NextParams, Promise<{ presentationId: string }>>;
+
 export async function GET(
   request: Request,
-  { params }: { params: { presentationId: string } }
+  { params }: { params: RouteParams }
 ) {
-  const { presentationId } = params;
-  const supabase = createRouteHandlerClient();
+  const { presentationId } = await params;
+  const supabase = await createRouteHandlerClient();
 
   // Basic sanitization - id should be a hex string with "-" characters
   if (!presentationId.match(/^[-0-9a-f]*$/)) {
@@ -60,15 +64,14 @@ export async function GET(
   );
   const abstract = presentationData.abstract.replaceAll('\r\n', '\\n');
 
-  const hopinUrl = 'https://hopin.com/events/gla-summit-2022';
   const eventAttributes: EventAttributes = {
     start,
     startInputType: 'utc',
     duration: { minutes: duration },
     title: presentationData.title,
     description: abstract,
-    url: hopinUrl,
-    location: hopinUrl
+    url: eventUrl,
+    location: eventUrl
   };
 
   const { error: eventError, value } = createEvent(eventAttributes);

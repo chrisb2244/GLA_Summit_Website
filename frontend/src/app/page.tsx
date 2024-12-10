@@ -1,13 +1,11 @@
 import { Metadata } from 'next';
-import Link from 'next/link';
-import { Button } from '@/Components/Form/Button';
-import { createServerComponentClient } from '@/lib/supabaseServer';
 import { SponsorBar } from './_rootElements/SponsorBar';
+import { SubmitPresentationButton } from './_homepage/SubmitPresentationButton';
 // import { Countdown } from './_rootElements/Countdown'
 
 export const metadata: Metadata = {
   title: {
-    absolute: 'GLA Summit 2024'
+    absolute: 'GLA Summit 2025'
   }
 };
 
@@ -31,49 +29,11 @@ export default async function Page() {
   //   </>
   // )
 
-  // const registrationButton = false ? (
-  //   <Box>
-  //     <Link href={'https://hopin.com/events/gla-summit-2022'}>
-  //       <Button fullWidth variant='contained' className='bg-primaryc'>
-  //         Register for a ticket at Hopin
-  //       </Button>
-  //     </Link>
-  //   </Box>
-  // ) : null
-
-  const supabase = createServerComponentClient();
-  const user = (await supabase.auth.getUser())?.data?.user ?? undefined;
-
-  const loggedIn = typeof user !== 'undefined';
-  const submitPresentationButton = (
-    <Link
-      href={
-        loggedIn
-          ? '/my-presentations'
-          : '/auth/register?redirectTo=/my-presentations'
-      }
-      prefetch={false}
-      scroll={loggedIn}
-    >
-      <Button fullWidth>Submit a Presentation</Button>
-    </Link>
-  );
-
-  const ticketButton = (
-    <Link
-      href={loggedIn ? '/ticket' : '/auth/register?redirectTo=/ticket'}
-      prefetch={false}
-      scroll={loggedIn}
-    >
-      <Button fullWidth>Get Your Ticket</Button>
-    </Link>
-  );
-
-  const generalEventButton = (
-    <a href='https://app.events.ringcentral.com/events/gla-2024'>
-      <Button fullWidth>Go to the Event!</Button>
-    </a>
-  );
+  // const generalEventButton = (
+  //   <a href='https://app.events.ringcentral.com/events/gla-2024'>
+  //     <Button fullWidth>Go to the Event!</Button>
+  //   </a>
+  // );
 
   // const websiteUpdateNotice = (
   //   <>
@@ -96,16 +56,26 @@ export default async function Page() {
   return (
     <div className='prose prose-base mx-auto max-w-2xl text-justify xl:max-w-3xl'>
       <p className='prose-lg text-center'>
-        The GLA Summit Organizers are excited to announce the next GLA Summit,
-        scheduled for 25-26 March 2024!
+        The GLA&nbsp;Summit Organizers are excited to announce the next
+        GLA&nbsp;Summit, scheduled for{' '}
+        <span className='whitespace-nowrap'>24-25 March 2025!</span>
       </p>
+      {/* <p className='prose-lg text-center'>
+        The GLA Summit Organizers would like to thank all those
+        <br />
+        who presented at, or attended,
+        <br />
+        the GLA Summit 2024 on 25-26 March 2024!
+      </p>*/}
       <p>
         We are excited to welcome advanced LabVIEW developers and Architects
         (certified or self-proclaimed) from around the world to network and
         participate in an inclusive, all-digital, free event.
       </p>
+      <SubmitPresentationButton />
+      <p>Our event ticketing system will open soon.</p>
       {/* <div>{ticketButton}</div> */}
-      <div>
+      {/* <div>
         <p className='text-center'>
           The GLA Summit event page is now open! You can find the event page at{' '}
           <a
@@ -122,7 +92,7 @@ export default async function Page() {
           received an email with a customised link - you can use that directly
           to access the platform rather than using the generic link above.
         </p>
-      </div>
+      </div> */}
       {/* <div>
         <p>
           <span className='font-semibold'>
@@ -132,19 +102,18 @@ export default async function Page() {
           adjust the abstract or title of your presentation, this can be done
           once we have responded to your presentation.
         </p>
-        {submitPresentationButton}
-      </div> */}
+        </div> */}
 
       <p>
-        Recordings of previous presentations are available via the{' '}
+        Recordings of past presentations are available on the{' '}
         <a
           href='https://www.youtube.com/c/GlobalLabVIEWArchitects'
           className='link'
         >
           GLA Summit YouTube channel
         </a>{' '}
-        - we hope that you are as excited as we are to have these great
-        resources available to rewatch!
+        or via the presentation pages on this website - we hope that you are as
+        excited as we are to have these great resources available to rewatch!
       </p>
       {/* websiteUpdateNotice */}
       <SponsorBar />

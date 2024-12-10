@@ -124,7 +124,7 @@ export const PresentationSubmission_SubmitterEmail = (
       <Preview>Thank you for submitting a presentation</Preview>
       <Body style={body}>
         <Container style={mainContainer}>
-          <Heading style={heading}>GLA Summmit 2024</Heading>
+          <Heading style={heading}>GLA Summit 2024</Heading>
           <Container style={innerContainer}>
             <Text>Dear {name},</Text>
             <Text>

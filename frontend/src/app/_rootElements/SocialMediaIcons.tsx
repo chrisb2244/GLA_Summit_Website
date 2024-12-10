@@ -1,8 +1,8 @@
 import {
   mdiTwitter,
-  mdiFacebook,
+  // mdiFacebook,
   mdiYoutube,
-  mdiInstagram,
+  // mdiInstagram,
   mdiLinkedin
 } from '@mdi/js';
 import Icon from '@mdi/react';
@@ -14,21 +14,21 @@ export const SocialMediaIcons: React.FC = () => {
       title: 'Twitter link',
       href: 'https://twitter.com/glasummit'
     },
-    {
-      path: mdiFacebook,
-      title: 'FaceBook link',
-      href: 'https://www.facebook.com/GLASummit/'
-    },
+    // {
+    //   path: mdiFacebook,
+    //   title: 'FaceBook link',
+    //   href: 'https://www.facebook.com/GLASummit/'
+    // },
     {
       path: mdiYoutube,
       title: 'YouTube link',
       href: 'https://www.youtube.com/@GlobalLabVIEWArchitects'
     },
-    {
-      path: mdiInstagram,
-      title: 'Instagram link',
-      href: 'https://www.instagram.com/glasummit/'
-    },
+    // {
+    //   path: mdiInstagram,
+    //   title: 'Instagram link',
+    //   href: 'https://www.instagram.com/glasummit/'
+    // },
     {
       path: mdiLinkedin,
       title: 'LinkedIn link',

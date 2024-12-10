@@ -1,11 +1,14 @@
+import { NextParams, satisfy } from '@/lib/NextTypes';
 import { createRouteHandlerClient } from '@/lib/supabaseServer';
+
+type RouteParams = satisfy<NextParams, Promise<{ id: string }>>;
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: RouteParams }
 ) {
-  const supabase = createRouteHandlerClient();
-  const { id } = params;
+  const supabase = await createRouteHandlerClient();
+  const { id } = await params;
 
   // Check if presentation ID matches something the logged-in user can confirm
   const user = await supabase.auth.getUser().then(({ data, error }) => {

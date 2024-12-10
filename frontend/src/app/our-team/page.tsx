@@ -43,12 +43,6 @@ const OurTeam = () => {
       image: Image_CB
     },
     {
-      firstName: 'Sreejith',
-      lastName: 'Sreenivasan',
-      description: descriptions.SreejithSreenivasan,
-      image: Image_SS
-    },
-    {
       firstName: 'Sam',
       lastName: 'Taggart',
       description: descriptions.SamTaggart,
@@ -86,6 +80,12 @@ const OurTeam = () => {
       lastName: 'McQuillan',
       description: descriptions.TomMcQuillan,
       image: Image_TM
+    },
+    {
+      firstName: 'Sreejith',
+      lastName: 'Sreenivasan',
+      description: descriptions.SreejithSreenivasan,
+      image: Image_SS
     },
     {
       firstName: 'Chris',
@@ -128,12 +128,15 @@ const OurTeam = () => {
         })}
       </div>
       {/* <div className='flex max-w-none flex-col space-y-2'> */}
-      <div className='flex flex-col'>
+      <div className='flex flex-col items-center'>
         <h2>Past Organizers</h2>
-        <div className='flex flex-row flex-wrap space-x-4 pl-4'>
+        <div className='flex flex-row flex-wrap justify-center space-x-4'>
           {pastOrganizers.map((p, idx) => {
             return (
-              <span className='text-lg font-semibold' key={idx}>
+              <span
+                className='whitespace-nowrap text-lg font-semibold'
+                key={idx}
+              >
                 {[p.firstName, p.lastName].join(' ')}
               </span>
             );

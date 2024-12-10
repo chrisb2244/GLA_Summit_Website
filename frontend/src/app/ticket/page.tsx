@@ -1,9 +1,10 @@
 import { redirect, RedirectType } from 'next/navigation';
-import { ticketYear } from '../api/ticket/constants';
-import { createServerComponentClient } from '@/lib/supabaseServer';
+import { ticketYear } from '@/app/configConstants';
+import { createServerClient } from '@/lib/supabaseServer';
 import { ticketDataAndTokenToPageUrl } from './utils';
 import { createHmac } from 'node:crypto';
 import { logErrorToDb } from '@/lib/utils';
+import { getUser } from '@/lib/supabase/userFunctions';
 
 export type TicketData = {
   firstName: string;
@@ -29,20 +30,13 @@ const getToken = (jsonString: string) => {
 };
 
 const TicketGeneratorPage = async () => {
-  const supabase = createServerComponentClient();
-  const user = await supabase.auth.getUser().then(({ data, error }) => {
-    if (error) {
-      console.error(error);
-      return null;
-    }
-    return data.user;
-  });
-
+  const user = await getUser();
   if (user === null) {
     redirect('/auth/login?redirectTo=/ticket', RedirectType.replace);
   }
   const userId = user.id;
 
+  const supabase = await createServerClient();
   const fetchExistingTicket = async () => {
     return await supabase
       .from('tickets')

@@ -18,6 +18,7 @@ xl:w-1/2 xl:pr-2 xl:pl-2 xl:mr-2 xl:ml-2 xl:before:ml-[6px] xl:pl-[10px] xl:flex
 `;
 
 type SharedProps = {
+  giveFocus?: boolean;
   defaultValue?: PersonProps;
   locked?: boolean;
   heading?: string;
@@ -74,6 +75,8 @@ export function Person<FV extends FieldValues>(props: PersonTypeProps<FV>) {
     };
   };
 
+  const shouldFocus = props.giveFocus ?? false;
+
   return (
     <div>
       {headElem}
@@ -83,6 +86,7 @@ export function Person<FV extends FieldValues>(props: PersonTypeProps<FV>) {
           required={true}
           maxLength={80}
           className={`w-full px-0 ${splitSize}:w-1/2 ${splitSize}:pr-2`}
+          autoFocus={shouldFocus}
           {...fieldProps('firstName')}
         />
         <FormField

@@ -4,7 +4,7 @@ import type {
   ScheduledAgendaEntry
 } from '@/Components/Agenda/Agenda';
 import type { ContainerHint } from '@/Components/Agenda/AgendaCalculations';
-import { currentDisplayYear } from '@/lib/databaseModels';
+import { currentDisplayYear } from '@/app/configConstants';
 import { createAnonServerClient } from '@/lib/supabaseClient';
 
 export const revalidate = 300;

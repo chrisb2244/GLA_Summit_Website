@@ -1,6 +1,8 @@
 // This file must only use elements that can be rendered by next/og.
 // See https://github.com/vercel/satori for more information.
 
+import { ticketYear, startDate } from '@/app/configConstants';
+
 type TicketProps = {
   firstName: string;
   lastName: string;
@@ -27,6 +29,12 @@ export const Ticket = (props: TicketProps) => {
     </div>
   );
 
+  const endDate = new Date(startDate.getTime() + 24 * 60 * 60 * 1000);
+  const dateString = `${startDate.toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric'
+  })} and ${endDate.toLocaleDateString('en-US', { day: 'numeric' })}`;
+
   return (
     <div
       tw='flex flex-row  text-white font-black text-2xl w-full h-full'
@@ -43,7 +51,7 @@ export const Ticket = (props: TicketProps) => {
           <h2 tw='my-1'>
             I&apos;M {isPresenter ? 'PRESENTING AT' : 'ATTENDING'} THE
           </h2>
-          <h1 tw='my-1'>GLA SUMMIT 2024</h1>
+          <h1 tw='my-1'>GLA SUMMIT {ticketYear}</h1>
           <div tw='border-2 border-white w-full h-0.5 my-2' />
           <h4 tw='my-0'>A Global LabVIEW and Automated Test Conference</h4>
         </div>
@@ -60,7 +68,7 @@ export const Ticket = (props: TicketProps) => {
           <img width={320} height={320} alt='GLA Summit Logo' src={logoData} />
         </div>
         <div tw='flex flex-col items-center justify-center mx-auto pt-8'>
-          <p tw='my-0'>March 25th and 26th</p>
+          <p tw='my-0'>{dateString}</p>
           <p tw='my-0'>12:00 UTC for 24 hours</p>
         </div>
         <div tw='flex flex-col items-center mx-auto pt-8'>

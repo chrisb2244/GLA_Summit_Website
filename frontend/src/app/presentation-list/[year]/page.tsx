@@ -8,19 +8,16 @@ import {
   sortPresentationsByPresenterName,
   sortPresentationsBySchedule
 } from '@/lib/utils';
+import type { NextParams, satisfy } from '@/lib/NextTypes';
 
 type PageProps = {
-  params: {
-    year: string;
-  };
+  params: satisfy<NextParams, Promise<{ year: string }>>;
 };
 
 export const revalidate = 600;
 
 const PresentationsForYearPage = async (props: PageProps) => {
-  const {
-    params: { year }
-  } = props;
+  const { year } = await props.params;
   const supabase = createAnonServerClient();
   const { data, error } = await supabase
     .from('all_presentations')
@@ -45,8 +42,8 @@ const PresentationsForYearPage = async (props: PageProps) => {
         speakerNames: p.all_presenters_names,
         presentationId: p.presentation_id,
         presentationType: p.presentation_type,
-        // Mask the schedule for 2024 for now
-        scheduledFor: p.year === '2024' ? null : p.scheduled_for
+        // Mask the schedule for 2025 for now
+        scheduledFor: p.year === '2025' ? null : p.scheduled_for
       };
       return presentation;
     })

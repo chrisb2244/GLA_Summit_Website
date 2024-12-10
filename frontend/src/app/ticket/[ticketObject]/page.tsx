@@ -1,18 +1,25 @@
 import type { Metadata, NextPage } from 'next';
-import { IMG_HEIGHT, IMG_WIDTH, ticketYear } from '@/app/api/ticket/constants';
-import { createServerComponentClient } from '@/lib/supabaseServer';
+import { IMG_HEIGHT, IMG_WIDTH } from '@/app/api/ticket/constants';
+import { startDate, ticketYear } from '@/app/configConstants';
 import { paramStringToData, ticketDataAndTokenToPageUrl } from '../utils';
 import type { TransferObject } from '../page';
 import Link from 'next/link';
 import { Button } from '@/Components/Form/Button';
-import { Suspense } from 'react';
+import { Suspense, JSX } from 'react';
 import { WaitingIndicator } from '@/Components/Utilities/WaitingIndicator';
+import { getUser } from '@/lib/supabase/userFunctions';
+import { NextParams, NextSearchParams, satisfy } from '@/lib/NextTypes';
+
+type PageParams = satisfy<
+  NextParams,
+  Promise<{
+    ticketObject: string;
+  }>
+>;
 
 type PageProps = {
-  params: {
-    ticketObject: string;
-  };
-  searchParams: { [key: string]: string | string[] | undefined };
+  params: PageParams;
+  searchParams: NextSearchParams;
 };
 
 const getPrefix = () => {
@@ -46,7 +53,7 @@ const ticketDataToRouteUrl = (obj: TransferObject, prefix?: string) => {
 export async function generateMetadata({
   params
 }: PageProps): Promise<Metadata> {
-  const { ticketObject } = params;
+  const { ticketObject } = await params;
 
   const ticketObj = paramStringToData(ticketObject);
   if (!ticketObj) {
@@ -60,8 +67,7 @@ export async function generateMetadata({
     title: 'Ticket',
     openGraph: {
       title: 'My GLA Summit Ticket',
-      description:
-        "I've got my ticket for the GLA Summit 2024!\r\nGet yours at https://glasummit.org/ticket",
+      description: `I've got my ticket for the GLA Summit ${ticketYear}!\r\nGet yours at https://glasummit.org/ticket`,
       type: 'website',
       images: [
         {
@@ -76,8 +82,7 @@ export async function generateMetadata({
       card: 'summary',
       site: '@GlaSummit',
       title: 'My GLA Summit Ticket',
-      description:
-        "I've got my ticket for the GLA Summit 2024!\r\nGet yours at https://glasummit.org/ticket",
+      description: `I've got my ticket for the GLA Summit ${ticketYear}!\r\nGet yours at https://glasummit.org/ticket`,
       images: [
         {
           url: ogImageUrl,
@@ -88,13 +93,12 @@ export async function generateMetadata({
   };
 }
 
-const TicketPage: NextPage<PageProps> = async ({
-  params: { ticketObject: transferObjectString },
-  searchParams: { share }
-}) => {
+const TicketPage: NextPage<PageProps> = async ({ params, searchParams }) => {
+  const { ticketObject: transferObjectString } = await params;
+  const { share } = await searchParams;
+
   // Display different page if viewing someone else's shared ticket view.
-  const supabase = createServerComponentClient();
-  const user = (await supabase.auth.getUser()).data.user;
+  const user = await getUser();
   const userId = user?.id;
 
   const transferObject = paramStringToData(transferObjectString);
@@ -196,6 +200,20 @@ const AsyncElem = ({
       return `data:image/png;base64,${btoa(binary)}`;
     })
     .then((srcData) => {
+      const endDate = new Date(startDate.getTime() + 24 * 60 * 60 * 1000);
+      const monthString = startDate.toLocaleDateString('en-US', {
+        month: 'long'
+      });
+      const getSuffixedDate = (date: number) => {
+        if (date === 1 || date === 21 || date === 31) return `${date}st`;
+        if (date === 2 || date === 22) return `${date}nd`;
+        if (date === 3 || date === 23) return `${date}rd`;
+        return `${date}th`;
+      };
+      const dateString = `the ${getSuffixedDate(
+        startDate.getDate()
+      )} and ${getSuffixedDate(endDate.getDate())} of ${monthString}`;
+
       return (
         <>
           <div className='relative mx-auto my-4 max-w-full md:max-w-[700px]'>
@@ -217,7 +235,7 @@ const AsyncElem = ({
           ) : (
             <div className='flex flex-col items-center'>
               <h3>You&apos;re all set to go!</h3>
-              <p>We can&apos;t wait to see you on the 25th and 26th March</p>
+              <p>We can&apos;t wait to see you on {dateString}</p>
               {icsElem}
               {shareElements}
             </div>

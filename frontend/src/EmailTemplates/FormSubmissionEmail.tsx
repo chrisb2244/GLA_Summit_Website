@@ -2,6 +2,7 @@ import { EmailProps } from '@/Components/Form/Person';
 import type { SubmissionFormData } from '@/Components/Forms/PresentationSubmissionForm';
 import { LogoImg, UnexpectedPresentationEmail } from './emailComponents';
 import { PresentationType } from '@/lib/databaseModels';
+import { submissionsForYear } from '@/app/configConstants';
 
 const DearPerson = (nameString: string) => {
   if (nameString.trim().length === 0) {
@@ -91,13 +92,13 @@ export const FormSubmissionEmailFn = (
         <tbody>
           <tr style="width:100%">
             <td>${LogoImg}
-              <h1 style="color:#444;font-size:32px;font-weight:700;text-align:center">GLA Summmit 2024</h1>
+              <h1 style="color:#444;font-size:32px;font-weight:700;text-align:center">GLA Summit ${submissionsForYear}</h1>
               <table align="center" width="100%" role="presentation" cellSpacing="0" cellPadding="0" border="0" style="max-width:37.5em;width:324px">
                 <tbody>
                   <tr style="width:100%">
                     <td>
                       ${DearPerson(nameString)}
-                      <p style="font-size:14px;line-height:24px;margin:16px 0">Thank you for submitting a presentation for GLA Summit 2024!</p>
+                      <p style="font-size:14px;line-height:24px;margin:16px 0">Thank you for submitting a presentation for GLA Summit ${submissionsForYear}!</p>
                       <p style="font-size:14px;line-height:24px;margin:16px 0">The data that was submitted is shown below.</p>
                       <table style="border-spacing:0px;border-collapse:collapse;color:#444;width:100%;table-layout:fixed">
                         <tr>
@@ -186,13 +187,13 @@ export const NewCopresenterEmailFn = (
         <tbody>
           <tr style="width:100%">
             <td>${LogoImg}
-              <h1 style="color:#444;font-size:32px;font-weight:700;text-align:center">GLA Summmit 2024</h1>
+              <h1 style="color:#444;font-size:32px;font-weight:700;text-align:center">GLA Summit ${submissionsForYear}</h1>
               <table align="center" width="100%" role="presentation" cellSpacing="0" cellPadding="0" border="0" style="max-width:37.5em;width:324px">
                 <tbody>
                   <tr style="width:100%">
                     <td>
                       ${DearPerson(nameString)}
-                      <p style="font-size:14px;line-height:24px;margin:16px 0">You have been added as a copresenter for a presentation for GLA Summit 2024!</p>
+                      <p style="font-size:14px;line-height:24px;margin:16px 0">You have been added as a copresenter for a presentation for GLA Summit ${submissionsForYear}!</p>
                       <p style="font-size:14px;line-height:24px;margin:16px 0">As a result of this, an account has been created for you at <a href="https://glasummit.org" target="_blank" style="color:#a25bcd;;text-decoration:underline">https://glasummit.org</a>.</p>
                       <p style="font-size:14px;line-height:24px;margin:16px 0">You can validate this account by visiting <a href="https://glasummit.org/validateLogin" target="_blank" style="color:#a25bcd;text-decoration:underline">https://glasummit.org/validateLogin</a> and using the code ${otpString}.</p>
                       <p style="font-size:14px;line-height:24px;margin:16px 0">The data that was submitted is shown below.</p>
