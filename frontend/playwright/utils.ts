@@ -1,6 +1,8 @@
 import type { Database } from '@/lib/sb_databaseModels';
+import { Page } from '@playwright/test';
 import { createClient } from '@supabase/supabase-js';
 import { InbucketAPIClient, MessageModel } from 'inbucket-js-client';
+import { LoginablePage } from './models/LoginablePage';
 
 // Setup an admin client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
@@ -83,4 +85,22 @@ export const getInbucketVerificationCode = async (
     return Promise.reject('Text and HTML verification codes do not match');
   }
   return textOtp;
+};
+
+export const loginOnPage = async (page: Page, email: string) => {
+  const loginablePage = new LoginablePage(page);
+  await loginablePage.openLoginOrRegisterForm('login');
+  await loginablePage.fillInLoginForm(email);
+  await loginablePage
+    .submitForm()
+    // Delay to allow the email to be sent - old emails exist for existing accounts
+    .then(() => new Promise((resolve) => setTimeout(resolve, 500)));
+
+  const otp = await getInbucketVerificationCode(email, 5000, 5000);
+  await loginablePage.fillInVerificationForm(otp);
+  await loginablePage.submitForm();
+
+  // Assert the user menu button is populated
+  const userButton = page.locator('[data-testid="user-menu-button"]');
+  await userButton.waitFor({ state: 'visible', timeout: 2000 });
 };
