@@ -18,13 +18,14 @@ export const getInbucketEmail = async (email: string) => {
 };
 
 export const countEmailsInInbox = async (email: string) => {
+  const mailbox = email.split('@')[0];
   const client = new InbucketAPIClient(inbucketUrl);
-  const inbox = await client.mailbox(email);
+  const inbox = await client.mailbox(mailbox);
   return inbox.length;
 };
 
 const getInbucketVerificationMsg = async (
-  email: string,
+  mailbox: string,
   timeout: number = 3000,
   sentWithin: number = 3000
 ): Promise<MessageModel> => {
@@ -34,10 +35,10 @@ const getInbucketVerificationMsg = async (
 
   const client = new InbucketAPIClient(inbucketUrl);
   return client
-    .mailbox(email)
+    .mailbox(mailbox)
     .then((inbox) => {
       const lastId = inbox.length > 0 ? inbox.length - 1 : 0;
-      return client.message(email, inbox[lastId].id).then((msg) => {
+      return client.message(mailbox, inbox[lastId].id).then((msg) => {
         const sentTime = new Date(msg.date);
         if (sentTime.getTime() > Date.now() - sentWithin) {
           return msg;
@@ -50,7 +51,9 @@ const getInbucketVerificationMsg = async (
     .catch((e) => {
       return new Promise((resolve) => {
         setTimeout(() => {
-          resolve(getInbucketVerificationMsg(email, timeout - 500, sentWithin));
+          resolve(
+            getInbucketVerificationMsg(mailbox, timeout - 500, sentWithin)
+          );
         }, 500);
       });
     });
@@ -61,7 +64,8 @@ export const getInbucketVerificationCode = async (
   timeout: number = 3000,
   sentWithin: number = 3000
 ) => {
-  const mail = await getInbucketVerificationMsg(email, timeout, sentWithin);
+  const mailbox = email.split('@')[0];
+  const mail = await getInbucketVerificationMsg(mailbox, timeout, sentWithin);
   const { text, html } = mail.body;
 
   const textMatcher = /Your One-Time-Passcode \(OTP\) token is ([0-9]{6})/i;

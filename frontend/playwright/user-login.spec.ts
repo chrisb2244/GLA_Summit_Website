@@ -16,8 +16,7 @@ test.describe('User Authentication Tests', () => {
     return {
       firstname,
       lastname,
-      email: `${emailWithoutDomain}@test.email`,
-      emailPrefix: emailWithoutDomain
+      email: `${emailWithoutDomain}@test.email`
     };
   };
   const newUser = generateUser('New', 'User');
@@ -56,7 +55,7 @@ test.describe('User Authentication Tests', () => {
     await loginablePage.fillInRegistrationForm(newUser);
     await loginablePage.submitForm();
 
-    const otp = await getInbucketVerificationCode(newUser.emailPrefix, 5000);
+    const otp = await getInbucketVerificationCode(newUser.email, 5000);
     expect(otp).toBeDefined();
 
     await loginablePage.fillInVerificationForm(otp);
@@ -92,10 +91,7 @@ test.describe('User Authentication Tests', () => {
     await loginablePage.fillInLoginForm(existingUser.email);
     await loginablePage.submitForm();
 
-    const otp = await getInbucketVerificationCode(
-      existingUser.emailPrefix,
-      5000
-    );
+    const otp = await getInbucketVerificationCode(existingUser.email, 5000);
     expect(otp).toBeDefined();
 
     await loginablePage.fillInVerificationForm(otp);
@@ -150,10 +146,10 @@ test.describe('User Authentication Tests', () => {
       loginablePage.submitForm()
     ]).then(() => new Promise((r) => setTimeout(r, 500)));
 
-    const numEmailsInBucket = await countEmailsInInbox(user.emailPrefix);
+    const numEmailsInBucket = await countEmailsInInbox(user.email);
     expect(numEmailsInBucket).toBe(1);
 
-    const otp = await getInbucketVerificationCode(user.emailPrefix, 1000);
+    const otp = await getInbucketVerificationCode(user.email, 1000);
     expect(otp).toBeDefined();
 
     await loginablePage.fillInVerificationForm(otp);
@@ -194,10 +190,10 @@ test.describe('User Authentication Tests', () => {
       loginablePage.submitForm()
     ]).then(() => new Promise((r) => setTimeout(r, 500)));
 
-    const numEmailsInBucket = await countEmailsInInbox(user.emailPrefix);
+    const numEmailsInBucket = await countEmailsInInbox(user.email);
     expect(numEmailsInBucket).toBe(1);
 
-    const otp = await getInbucketVerificationCode(user.emailPrefix, 2000);
+    const otp = await getInbucketVerificationCode(user.email, 2000);
     expect(otp).toBeDefined();
 
     await loginablePage.fillInVerificationForm(otp);
