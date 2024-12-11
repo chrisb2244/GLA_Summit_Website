@@ -1,13 +1,19 @@
 'use client';
 import { ProfileModel } from '@/lib/databaseModels';
-import { useActionState, useEffect, useReducer } from 'react';
-import { ActionState, updateProfileAction } from './ProfileFormServerActions';
+import { useActionState, useEffect } from 'react';
+import {
+  ActionState,
+  ProfileFormErrors,
+  updateProfileAction
+} from './ProfileFormServerActions';
 import {
   FormField,
   TextArea,
   FormFieldIndicator
 } from '@/Components/Form/FormFieldSrv';
 import { SubmitButton } from '@/Components/Form/SubmitButton';
+import { useFormDirtyCheck } from '@/Components/Utilities/useFormDirtyCheck';
+import { useFormValidation } from '@/Components/Utilities/useFormValidation';
 
 type ProfileData = ProfileModel['Row'];
 
@@ -21,39 +27,21 @@ export const ProfileForm = (props: ProfileFormProps) => {
     updateProfileAction,
     { errors: undefined, success: undefined, data: props.profile }
   );
-
-  const [dirtyElems, dispatchDirtyElems] = useReducer(
-    (
-      prevElems,
-      changedElem: HTMLInputElement | HTMLTextAreaElement | 'reset'
-    ) => {
-      if (changedElem === 'reset') {
-        return new Set<string>();
-      }
-      const { name } = changedElem;
-      let { value, defaultValue } = changedElem;
-      const newElems = new Set(prevElems);
-      value = value.replaceAll('\r\n', '\n');
-      defaultValue = defaultValue.replaceAll('\r\n', '\n');
-      if (value !== defaultValue) {
-        newElems.add(name);
-      } else {
-        newElems.delete(name);
-      }
-      return newElems;
-    },
-    new Set<string>()
-  );
+  const { isDirty, reset: resetDirty, updateDirtiness } = useFormDirtyCheck();
+  const { validationMessages, checkValidity } = useFormValidation();
 
   // Reset dirtyElems when the form is successfully submitted.
   useEffect(() => {
     if (state.success) {
-      dispatchDirtyElems('reset');
+      resetDirty();
     }
   }, [state]);
 
-  const isDirty = dirtyElems.size > 0;
-  const enableSubmit = isDirty && !pending;
+  const enableSubmit = isDirty && validationMessages.size === 0 && !pending;
+
+  const fieldError = (field: keyof Omit<ProfileFormErrors, 'form'>) => {
+    return validationMessages.get(field) ?? state.errors?.[field];
+  };
 
   return (
     <form
@@ -63,10 +51,14 @@ export const ProfileForm = (props: ProfileFormProps) => {
           ev.target instanceof HTMLInputElement ||
           ev.target instanceof HTMLTextAreaElement
         ) {
-          dispatchDirtyElems(ev.target);
+          updateDirtiness(ev.target);
+          checkValidity(ev.target);
         } else {
           console.error('Unexpected event target:', ev.target);
         }
+      }}
+      onInvalidCapture={(ev) => {
+        ev.preventDefault();
       }}
     >
       <div className='px-4'>
@@ -83,7 +75,7 @@ export const ProfileForm = (props: ProfileFormProps) => {
             name='firstname'
             label='First Name'
             defaultValue={state.data.firstname}
-            error={state.errors?.firstname}
+            error={fieldError('firstname')}
             fullWidth
             required
           />
@@ -93,7 +85,7 @@ export const ProfileForm = (props: ProfileFormProps) => {
             name='lastname'
             label='Last Name'
             defaultValue={state.data.lastname}
-            error={state.errors?.lastname}
+            error={fieldError('lastname')}
             fullWidth
             required
           />
@@ -103,7 +95,7 @@ export const ProfileForm = (props: ProfileFormProps) => {
             name='bio'
             label='Biography'
             defaultValue={props.profile.bio ?? ''}
-            error={state.errors?.bio}
+            error={fieldError('bio')}
             rows={5}
             placeholder={`${props.profile.firstname} ${props.profile.lastname} is an awesome LabVIEW developer who hasn't yet filled out a bio...`}
             fullWidth

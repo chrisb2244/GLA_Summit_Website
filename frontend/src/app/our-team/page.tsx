@@ -43,6 +43,12 @@ const OurTeam = () => {
       image: Image_CB
     },
     {
+      firstName: 'Sreejith',
+      lastName: 'Sreenivasan',
+      description: descriptions.SreejithSreenivasan,
+      image: Image_SS
+    },
+    {
       firstName: 'Sam',
       lastName: 'Taggart',
       description: descriptions.SamTaggart,
@@ -80,12 +86,6 @@ const OurTeam = () => {
       lastName: 'McQuillan',
       description: descriptions.TomMcQuillan,
       image: Image_TM
-    },
-    {
-      firstName: 'Sreejith',
-      lastName: 'Sreenivasan',
-      description: descriptions.SreejithSreenivasan,
-      image: Image_SS
     },
     {
       firstName: 'Chris',
