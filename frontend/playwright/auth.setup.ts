@@ -46,11 +46,7 @@ const signInWithEmail = async (page: Page, email?: string) => {
     // Delay to allow the email to be sent - old emails exist for existing accounts
     .then(() => new Promise((resolve) => setTimeout(resolve, 1000)));
 
-  const otp = await getInbucketVerificationCode(
-    email.split('@')[0],
-    5000,
-    5000
-  );
+  const otp = await getInbucketVerificationCode(email, 5000, 5000);
   expect(otp).toBeDefined();
 
   await loginablePage.fillInVerificationForm(otp);

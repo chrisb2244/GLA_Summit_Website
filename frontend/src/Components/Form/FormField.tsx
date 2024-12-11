@@ -29,6 +29,7 @@ export const FormField: React.FC<FormFieldProps> = (props) => {
     <FormFieldSrv
       name={name}
       error={fieldError?.message}
+      aria-invalid={!!fieldError}
       {...otherRegisterProps}
       {...inputProps}
     />

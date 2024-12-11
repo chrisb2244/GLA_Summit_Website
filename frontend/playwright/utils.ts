@@ -1,6 +1,8 @@
 import type { Database } from '@/lib/sb_databaseModels';
+import { Page } from '@playwright/test';
 import { createClient } from '@supabase/supabase-js';
 import { InbucketAPIClient, MessageModel } from 'inbucket-js-client';
+import { LoginablePage } from './models/LoginablePage';
 
 // Setup an admin client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
@@ -10,21 +12,15 @@ export const createSupabaseAdmin = () =>
 
 const inbucketUrl = 'http://localhost:54324';
 
-export const getInbucketEmail = async (email: string) => {
-  const client = new InbucketAPIClient(inbucketUrl);
-  const inbox = await client.mailbox(email);
-  const message = await client.message(email, inbox[0].id);
-  return message;
-};
-
 export const countEmailsInInbox = async (email: string) => {
+  const mailbox = email.split('@')[0];
   const client = new InbucketAPIClient(inbucketUrl);
-  const inbox = await client.mailbox(email);
+  const inbox = await client.mailbox(mailbox);
   return inbox.length;
 };
 
-const getInbucketVerificationMsg = async (
-  email: string,
+export const getInbucketEmail = async (
+  mailbox: string,
   timeout: number = 3000,
   sentWithin: number = 3000
 ): Promise<MessageModel> => {
@@ -34,10 +30,10 @@ const getInbucketVerificationMsg = async (
 
   const client = new InbucketAPIClient(inbucketUrl);
   return client
-    .mailbox(email)
+    .mailbox(mailbox)
     .then((inbox) => {
       const lastId = inbox.length > 0 ? inbox.length - 1 : 0;
-      return client.message(email, inbox[lastId].id).then((msg) => {
+      return client.message(mailbox, inbox[lastId].id).then((msg) => {
         const sentTime = new Date(msg.date);
         if (sentTime.getTime() > Date.now() - sentWithin) {
           return msg;
@@ -50,7 +46,7 @@ const getInbucketVerificationMsg = async (
     .catch((e) => {
       return new Promise((resolve) => {
         setTimeout(() => {
-          resolve(getInbucketVerificationMsg(email, timeout - 500, sentWithin));
+          resolve(getInbucketEmail(mailbox, timeout - 500, sentWithin));
         }, 500);
       });
     });
@@ -61,7 +57,8 @@ export const getInbucketVerificationCode = async (
   timeout: number = 3000,
   sentWithin: number = 3000
 ) => {
-  const mail = await getInbucketVerificationMsg(email, timeout, sentWithin);
+  const mailbox = email.split('@')[0];
+  const mail = await getInbucketEmail(mailbox, timeout, sentWithin);
   const { text, html } = mail.body;
 
   const textMatcher = /Your One-Time-Passcode \(OTP\) token is ([0-9]{6})/i;
@@ -79,4 +76,22 @@ export const getInbucketVerificationCode = async (
     return Promise.reject('Text and HTML verification codes do not match');
   }
   return textOtp;
+};
+
+export const loginOnPage = async (page: Page, email: string) => {
+  const loginablePage = new LoginablePage(page);
+  await loginablePage.openLoginOrRegisterForm('login');
+  await loginablePage.fillInLoginForm(email);
+  await loginablePage
+    .submitForm()
+    // Delay to allow the email to be sent - old emails exist for existing accounts
+    .then(() => new Promise((resolve) => setTimeout(resolve, 500)));
+
+  const otp = await getInbucketVerificationCode(email, 5000, 5000);
+  await loginablePage.fillInVerificationForm(otp);
+  await loginablePage.submitForm();
+
+  // Assert the user menu button is populated
+  const userButton = page.locator('[data-testid="user-menu-button"]');
+  await userButton.waitFor({ state: 'visible', timeout: 2000 });
 };
