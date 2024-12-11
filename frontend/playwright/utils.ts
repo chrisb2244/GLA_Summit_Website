@@ -12,13 +12,6 @@ export const createSupabaseAdmin = () =>
 
 const inbucketUrl = 'http://localhost:54324';
 
-export const getInbucketEmail = async (email: string) => {
-  const client = new InbucketAPIClient(inbucketUrl);
-  const inbox = await client.mailbox(email);
-  const message = await client.message(email, inbox[0].id);
-  return message;
-};
-
 export const countEmailsInInbox = async (email: string) => {
   const mailbox = email.split('@')[0];
   const client = new InbucketAPIClient(inbucketUrl);
@@ -26,7 +19,7 @@ export const countEmailsInInbox = async (email: string) => {
   return inbox.length;
 };
 
-const getInbucketVerificationMsg = async (
+export const getInbucketEmail = async (
   mailbox: string,
   timeout: number = 3000,
   sentWithin: number = 3000
@@ -53,9 +46,7 @@ const getInbucketVerificationMsg = async (
     .catch((e) => {
       return new Promise((resolve) => {
         setTimeout(() => {
-          resolve(
-            getInbucketVerificationMsg(mailbox, timeout - 500, sentWithin)
-          );
+          resolve(getInbucketEmail(mailbox, timeout - 500, sentWithin));
         }, 500);
       });
     });
@@ -67,7 +58,7 @@ export const getInbucketVerificationCode = async (
   sentWithin: number = 3000
 ) => {
   const mailbox = email.split('@')[0];
-  const mail = await getInbucketVerificationMsg(mailbox, timeout, sentWithin);
+  const mail = await getInbucketEmail(mailbox, timeout, sentWithin);
   const { text, html } = mail.body;
 
   const textMatcher = /Your One-Time-Passcode \(OTP\) token is ([0-9]{6})/i;
