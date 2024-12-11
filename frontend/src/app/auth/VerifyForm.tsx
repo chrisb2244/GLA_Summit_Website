@@ -15,7 +15,7 @@ type VerifyFormProps = {
 
 const ErrorElement = (props: { state: VerificationState }) => {
   const { pending } = useFormStatus();
-  if (props.state === null) {
+  if (props.state === null || pending) {
     return null;
   }
 
@@ -25,11 +25,7 @@ const ErrorElement = (props: { state: VerificationState }) => {
   }
   return (
     <div className='pt-2 text-center text-base'>
-      {pending ? (
-        <p className='text-gray-400'>Submitting...</p>
-      ) : (
-        <p className='text-red-500'>{message}</p>
-      )}
+      <p className='text-red-500'>{message}</p>
     </div>
   );
 };
