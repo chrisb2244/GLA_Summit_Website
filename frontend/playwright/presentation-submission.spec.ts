@@ -111,6 +111,33 @@ test.describe('logged-in tests for presentation submission', () => {
     await expect(statusDiv).toBeVisible();
   });
 
+  test('Missing title cannot submit', async ({ page }) => {
+    await page.goto('/submit-presentation');
+
+    const formPage = new PresentationSubmissionPage(page);
+    await formPage.waitForFormLoad();
+
+    // Need to exceed 100 chars
+    const abstract = 'Blah blah '.repeat(20);
+    // Need to exceed 50 chars
+    const learningPoints = 'Blah'.repeat(15);
+
+    await formPage.fillFormData({
+      abstract,
+      learningPoints,
+      presentationType: '15 minutes',
+      isFinal: true
+    });
+
+    await formPage.submitForm();
+
+    await expect(formPage.titleInput).toHaveAttribute('aria-invalid', 'true');
+
+    // Check that the other elements are still filled
+    await expect(formPage.abstractInput).toHaveValue(abstract);
+    await expect(formPage.learningPointsInput).toHaveValue(learningPoints);
+  });
+
   // test('Switching tabs does not change form content', async ({ page, context }) => {
   //   const formPage = new PresentationSubmissionPage(page)
   //   await formPage.goto('/submit-presentation')
