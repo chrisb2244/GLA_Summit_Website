@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { PresentationSubmissionPage } from './models/PresentationSubmissionPage';
 import { CAN_SUBMIT_PRESENTATION } from '@/app/configConstants';
 import path from 'path';
-import { getInbucketEmail, loginOnPage } from './utils';
+import { createSupabaseAdmin, getInbucketEmail, loginOnPage } from './utils';
 
 [true, false].forEach((jsEnabled) => {
   const trailing = `with JS ${jsEnabled ? 'enabled' : 'disabled'}`;
@@ -135,6 +135,15 @@ import { getInbucketEmail, loginOnPage } from './utils';
       expect(html).toContain(testTitle);
       expect(html).toContain(abstract);
       expect(html).toContain(learningPoints);
+
+      // Check the database entry is created
+      const adminSB = createSupabaseAdmin();
+      const { data: presentations } = await adminSB
+        .from('presentation_submissions')
+        .select('*')
+        .eq('title', testTitle)
+        .single();
+      expect(presentations?.is_submitted).toEqual(isFinal);
     });
 
     test('Missing title cannot submit', async ({ page }) => {
