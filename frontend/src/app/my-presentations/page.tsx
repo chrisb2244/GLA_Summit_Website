@@ -1,5 +1,5 @@
 import { PersonProps } from '@/Components/Form/Person';
-import { PresentationSubmissionForm } from '@/Components/Forms/PresentationSubmissionForm';
+import { PresentationSubmissionForm } from './PresentationSubmissionForm';
 import { getProfileInfo } from '@/lib/databaseFunctions';
 import { getUser } from '@/lib/supabase/userFunctions';
 import { createServerClient } from '@/lib/supabaseServer';
