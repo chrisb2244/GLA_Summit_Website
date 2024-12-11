@@ -26,16 +26,15 @@ export class PresentationSubmissionPage {
   readonly isFinalInput: Locator;
 
   constructor(page: Page) {
+    const opt = { exact: true };
     this.page = page;
-    this.titleInput = this.page.locator('label:has-text("Title")');
-    this.abstractInput = this.page.locator('label:has-text("Abstract")');
-    this.learningPointsInput = this.page.locator(
-      'label:has-text("Learning Points")'
-    );
+    this.titleInput = this.page.getByLabel('Title', opt);
+    this.abstractInput = this.page.getByLabel('Abstract', opt);
+    this.learningPointsInput = this.page.getByLabel('Learning Points', opt);
     this.presentationTypeInput = this.page.locator(
       'select[name="presentationType"]'
     );
-    this.isFinalInput = this.page.locator('role=checkbox');
+    this.isFinalInput = this.page.getByRole('checkbox');
   }
 
   async goto(url: string) {
