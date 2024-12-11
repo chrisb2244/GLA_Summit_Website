@@ -4,28 +4,37 @@ import { CAN_SUBMIT_PRESENTATION } from '@/app/configConstants';
 import path from 'path';
 import { getInbucketEmail, loginOnPage } from './utils';
 
-test.describe('logged-out tests for presentation submission', () => {
-  test('Form submission unavailable if logged out', async ({ page }) => {
-    await page.goto('/submit-presentation');
-    await expect(page.getByText('You need to be logged in')).toBeVisible();
-  });
+[true, false].forEach((jsEnabled) => {
+  const blockName = `logged-out tests for presentation submission with JS ${
+    jsEnabled ? 'enabled' : 'disabled'
+  }`;
+  test.describe(blockName, () => {
+    test.use({ javaScriptEnabled: jsEnabled });
 
-  test('Form loads correctly after logging in', async ({ page }) => {
-    await page.goto('/submit-presentation');
-    await expect(page.getByText('You need to be logged in')).toBeVisible();
+    test('Form submission unavailable if logged out', async ({ page }) => {
+      await page.goto('/submit-presentation');
+      await expect(page.getByText('You need to be logged in')).toBeVisible();
+    });
 
-    const email = process.env.TEST_ATTENDEE_EMAIL as string;
-    await loginOnPage(page, email);
+    test('Form loads correctly after logging in', async ({ page }) => {
+      test.fixme(!jsEnabled, 'JS disabled');
 
-    if (CAN_SUBMIT_PRESENTATION) {
-      await expect(
-        page.getByRole('heading', { name: /Submit a .*Presentation/ })
-      ).toBeVisible();
-    } else {
-      await expect(
-        page.getByText('The presentation submission process is closed.')
-      ).toBeVisible();
-    }
+      await page.goto('/submit-presentation');
+      await expect(page.getByText('You need to be logged in')).toBeVisible();
+
+      const email = process.env.TEST_ATTENDEE_EMAIL as string;
+      await loginOnPage(page, email);
+
+      if (CAN_SUBMIT_PRESENTATION) {
+        await expect(
+          page.getByRole('heading', { name: /Submit a .*Presentation/ })
+        ).toBeVisible();
+      } else {
+        await expect(
+          page.getByText('The presentation submission process is closed.')
+        ).toBeVisible();
+      }
+    });
   });
 });
 
