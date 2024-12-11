@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { PresentationSubmissionPage } from './models/PresentationSubmissionPage';
 import { CAN_SUBMIT_PRESENTATION } from '@/app/configConstants';
 import path from 'path';
-import { loginOnPage } from './utils';
+import { getInbucketEmail, loginOnPage } from './utils';
 
 test.describe('logged-out tests for presentation submission', () => {
   test('Form submission unavailable if logged out', async ({ page }) => {
@@ -82,10 +82,14 @@ test.describe('logged-in tests for presentation submission', () => {
     expect(await formPage.hasVisibleForm()).toBeTruthy();
 
     const testTitle = 'Test presentation title' + Math.random();
+    // Repeat to exceed required lengths
+    const abstract = 'Blah blah '.repeat(20);
+    const learningPoints = 'Other text '.repeat(10);
+
     await formPage.fillFormData({
       title: testTitle,
-      abstract: 'Blah blah '.repeat(20), // Need to exceed 100 chars
-      learningPoints: 'Blah'.repeat(15), // Need to exceed 50 chars
+      abstract,
+      learningPoints,
       presentationType: '15 minutes',
       isFinal: true
     });
@@ -109,6 +113,18 @@ test.describe('logged-in tests for presentation submission', () => {
     // Check it is marked as under consideration
     const statusDiv = newSubmittedPresentation.getByText('Under Consideration');
     await expect(statusDiv).toBeVisible();
+
+    // Check an email is received for the submission
+    const mailboxId = attendeeEmail.split('@')[0];
+    const emailMsg = await getInbucketEmail(mailboxId, 5000, 3000);
+    const {
+      subject,
+      body: { html }
+    } = emailMsg;
+    expect(subject).toContain('Thank you for submitting a presentation');
+    expect(html).toContain(testTitle);
+    expect(html).toContain(abstract);
+    expect(html).toContain(learningPoints);
   });
 
   test('Missing title cannot submit', async ({ page }) => {
