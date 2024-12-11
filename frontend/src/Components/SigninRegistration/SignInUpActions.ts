@@ -32,7 +32,7 @@ export const signOut = async () => {
   revalidatePath('/');
 };
 
-export const verifyLogin = async (data: {
+const verifyLogin = async (data: {
   email: string;
   verificationCode: string;
 }) => {
@@ -87,7 +87,7 @@ export const verifyLoginWithRedirectFromForm = async (
   };
 };
 
-export const signIn = async (
+const signIn = async (
   email: string,
   options?: { redirectTo?: string; scopes?: string; captchaToken?: string }
 ): Promise<boolean> => {
@@ -146,7 +146,7 @@ export const signInFromFormWithRedirect = async (formData: FormData) => {
   }
 };
 
-export const signUp = async (
+const signUp = async (
   newUser: PersonProps,
   redirectTo?: string
 ): Promise<boolean> => {
