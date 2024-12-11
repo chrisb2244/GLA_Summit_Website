@@ -5,12 +5,10 @@ import path from 'path';
 import { getInbucketEmail, loginOnPage } from './utils';
 
 [true, false].forEach((jsEnabled) => {
-  const blockName = `logged-out tests for presentation submission with JS ${
-    jsEnabled ? 'enabled' : 'disabled'
-  }`;
-  test.describe(blockName, () => {
-    test.use({ javaScriptEnabled: jsEnabled });
+  const trailing = `with JS ${jsEnabled ? 'enabled' : 'disabled'}`;
 
+  test.describe(`logged-out tests fro presentation submission ${trailing}`, () => {
+    test.use({ javaScriptEnabled: jsEnabled });
     test('Form submission unavailable if logged out', async ({ page }) => {
       await page.goto('/submit-presentation');
       await expect(page.getByText('You need to be logged in')).toBeVisible();
@@ -36,157 +34,161 @@ import { getInbucketEmail, loginOnPage } from './utils';
       }
     });
   });
-});
 
-test.describe('logged-in tests for presentation submission', () => {
-  test.skip(!CAN_SUBMIT_PRESENTATION, 'Presentation submission closed');
+  test.describe(`logged-in tests for presentation submission ${trailing}`, () => {
+    test.skip(!CAN_SUBMIT_PRESENTATION, 'Presentation submission closed');
+    test.use({
+      javaScriptEnabled: jsEnabled,
+      storageState: async ({}, use) =>
+        use(path.resolve(__dirname, '.auth', 'attendee.json'))
+    });
 
-  // Use an existing user who is not a presenter or organizer
-  const attendeeEmail = process.env.TEST_ATTENDEE_EMAIL as string;
-  test.use({
-    storageState: async ({}, use) =>
-      use(path.resolve(__dirname, '.auth', 'attendee.json'))
-  });
+    // Use an existing user who is not a presenter or organizer
+    const attendeeEmail = process.env.TEST_ATTENDEE_EMAIL as string;
 
-  test(
-    '/submit-presentation is accessible',
-    { tag: '@smoke' },
-    async ({ page }) => {
-      // This page should be accessible to all logged-in users
+    test(
+      '/submit-presentation is accessible',
+      { tag: '@smoke' },
+      async ({ page }) => {
+        // This page should be accessible to all logged-in users
+        await page.goto('/submit-presentation');
+
+        await expect(
+          page.getByRole('heading', { name: /Submit a .*Presentation/ })
+        ).toBeVisible();
+      }
+    );
+
+    test('Submitter is prefilled and locked', async ({ page }) => {
       await page.goto('/submit-presentation');
 
-      await expect(
-        page.getByRole('heading', { name: /Submit a .*Presentation/ })
-      ).toBeVisible();
-    }
-  );
+      const formPage = new PresentationSubmissionPage(page);
 
-  test('Submitter is prefilled and locked', async ({ page }) => {
-    await page.goto('/submit-presentation');
+      // Wait for the login dialog to disappear (have saved session state)
+      await formPage.waitForFormLoad();
 
-    const formPage = new PresentationSubmissionPage(page);
+      expect(await formPage.hasVisibleForm()).toBeTruthy();
 
-    // Wait for the login dialog to disappear (have saved session state)
-    await formPage.waitForFormLoad();
-
-    expect(await formPage.hasVisibleForm()).toBeTruthy();
-
-    // Using the test attendee user, we expect
-    const submitterEmailInput = page.locator('label:has-text("Email")');
-    expect(await submitterEmailInput.isVisible()).toBeTruthy();
-    expect(await submitterEmailInput.isEditable()).toBeFalsy();
-    expect(await submitterEmailInput.inputValue()).toEqual(attendeeEmail);
-  });
-
-  test('Form fill testing', async ({ page }) => {
-    // Skip if the presentation submission is closed
-    // The message is checked in a different test
-    await page.goto('/my-presentations');
-
-    const formPage = new PresentationSubmissionPage(page);
-
-    // Wait for the login dialog to disappear (have saved session state)
-    await formPage.waitForFormLoad();
-
-    expect(await formPage.hasVisibleForm()).toBeTruthy();
-
-    const testTitle = 'Test presentation title' + Math.random();
-    // Repeat to exceed required lengths
-    const abstract = 'Blah blah '.repeat(20);
-    const learningPoints = 'Other text '.repeat(10);
-
-    await formPage.fillFormData({
-      title: testTitle,
-      abstract,
-      learningPoints,
-      presentationType: '15 minutes',
-      isFinal: true
+      // Using the test attendee user, we expect
+      const submitterEmailInput = page.locator('label:has-text("Email")');
+      expect(await submitterEmailInput.isVisible()).toBeTruthy();
+      expect(await submitterEmailInput.isEditable()).toBeFalsy();
+      expect(await submitterEmailInput.inputValue()).toEqual(attendeeEmail);
     });
 
-    await expect(formPage.titleInput).toHaveValue(testTitle);
-    // expect(await formPage.isFinalInput.isChecked()).toEqual(true);
+    test('Form fill testing', async ({ page }) => {
+      // Skip if the presentation submission is closed
+      // The message is checked in a different test
+      await page.goto('/my-presentations');
 
-    await formPage.submitForm();
+      const formPage = new PresentationSubmissionPage(page);
 
-    // Should blank out on successful submission
-    // Can't use the toBeEmpty here
-    await expect(formPage.titleInput).toHaveValue('');
+      // Wait for the login dialog to disappear (have saved session state)
+      await formPage.waitForFormLoad();
 
-    const submittedPresentationsDiv = page.locator(
-      'div:has-text("Submitted Presentations")'
-    );
-    const newSubmittedPresentation =
-      submittedPresentationsDiv.getByLabel(testTitle);
-    await expect(newSubmittedPresentation).toBeVisible();
+      expect(await formPage.hasVisibleForm()).toBeTruthy();
 
-    // Check it is marked as under consideration
-    const statusDiv = newSubmittedPresentation.getByText('Under Consideration');
-    await expect(statusDiv).toBeVisible();
+      const testTitle = 'Test presentation title' + Math.random();
+      // Repeat to exceed required lengths
+      const abstract = 'Blah blah '.repeat(20);
+      const learningPoints = 'Other text '.repeat(10);
+      const isFinal = true;
 
-    // Check an email is received for the submission
-    const mailboxId = attendeeEmail.split('@')[0];
-    const emailMsg = await getInbucketEmail(mailboxId, 5000, 3000);
-    const {
-      subject,
-      body: { html }
-    } = emailMsg;
-    expect(subject).toContain('Thank you for submitting a presentation');
-    expect(html).toContain(testTitle);
-    expect(html).toContain(abstract);
-    expect(html).toContain(learningPoints);
-  });
+      await formPage.fillFormData({
+        title: testTitle,
+        abstract,
+        learningPoints,
+        presentationType: '15 minutes',
+        isFinal
+      });
 
-  test('Missing title cannot submit', async ({ page }) => {
-    await page.goto('/submit-presentation');
+      await expect(formPage.titleInput).toHaveValue(testTitle);
+      // expect(await formPage.isFinalInput.isChecked()).toEqual(true);
 
-    const formPage = new PresentationSubmissionPage(page);
-    await formPage.waitForFormLoad();
+      await formPage.submitForm();
 
-    // Need to exceed 100 chars
-    const abstract = 'Blah blah '.repeat(20);
-    // Need to exceed 50 chars
-    const learningPoints = 'Blah'.repeat(15);
+      // Should blank out on successful submission
+      // Can't use the toBeEmpty here
+      await expect(formPage.titleInput).toHaveValue('');
 
-    await formPage.fillFormData({
-      abstract,
-      learningPoints,
-      presentationType: '15 minutes',
-      isFinal: true
+      const submittedPresentationsDiv = page.locator(
+        'div:has-text("Submitted Presentations")'
+      );
+      const newSubmittedPresentation =
+        submittedPresentationsDiv.getByLabel(testTitle);
+      await expect(newSubmittedPresentation).toBeVisible();
+
+      // Check it is marked as under consideration
+      const statusDiv = newSubmittedPresentation.getByText(
+        'Under Consideration'
+      );
+      await expect(statusDiv).toBeVisible();
+
+      // Check an email is received for the submission
+      const mailboxId = attendeeEmail.split('@')[0];
+      const emailMsg = await getInbucketEmail(mailboxId, 5000, 3000);
+      const {
+        subject,
+        body: { html }
+      } = emailMsg;
+      expect(subject).toContain('Thank you for submitting a presentation');
+      expect(html).toContain(testTitle);
+      expect(html).toContain(abstract);
+      expect(html).toContain(learningPoints);
     });
 
-    await formPage.submitForm();
+    test('Missing title cannot submit', async ({ page }) => {
+      await page.goto('/submit-presentation');
 
-    await expect(formPage.titleInput).toHaveAttribute('aria-invalid', 'true');
+      const formPage = new PresentationSubmissionPage(page);
+      await formPage.waitForFormLoad();
 
-    // Check that the other elements are still filled
-    await expect(formPage.abstractInput).toHaveValue(abstract);
-    await expect(formPage.learningPointsInput).toHaveValue(learningPoints);
+      // Need to exceed 100 chars
+      const abstract = 'Blah blah '.repeat(20);
+      // Need to exceed 50 chars
+      const learningPoints = 'Blah'.repeat(15);
+
+      await formPage.fillFormData({
+        abstract,
+        learningPoints,
+        presentationType: '15 minutes',
+        isFinal: true
+      });
+
+      await formPage.submitForm();
+
+      await expect(formPage.titleInput).toHaveAttribute('aria-invalid', 'true');
+
+      // Check that the other elements are still filled
+      await expect(formPage.abstractInput).toHaveValue(abstract);
+      await expect(formPage.learningPointsInput).toHaveValue(learningPoints);
+    });
+
+    // test('Switching tabs does not change form content', async ({ page, context }) => {
+    //   const formPage = new PresentationSubmissionPage(page)
+    //   await formPage.goto('/submit-presentation')
+    //   // Wait for the login dialog to disappear (have saved session state)
+    //   await formPage.waitForFormLoad()
+
+    //   // Expect a clean form
+    //   expect(await formPage.titleInput.inputValue()).toEqual("")
+
+    //   const testTitle = 'Form title for checking values dont change';
+    //   const abstract = new Array(10).fill(testTitle).join(" ")
+    //   await formPage.fillFormData({
+    //     title: testTitle,
+    //     abstract
+    //   })
+
+    //   expect(await formPage.titleInput.inputValue()).toEqual(testTitle)
+
+    //   const otherPage = await context.newPage();
+    //   await otherPage.goto("https://google.com");
+    //   await otherPage.bringToFront();
+
+    //   await page.bringToFront();
+    //   expect(await formPage.titleInput.inputValue()).toEqual(testTitle)
+    //   expect(await formPage.abstractInput.textContent()).not.toEqual("")
+    // })
   });
-
-  // test('Switching tabs does not change form content', async ({ page, context }) => {
-  //   const formPage = new PresentationSubmissionPage(page)
-  //   await formPage.goto('/submit-presentation')
-  //   // Wait for the login dialog to disappear (have saved session state)
-  //   await formPage.waitForFormLoad()
-
-  //   // Expect a clean form
-  //   expect(await formPage.titleInput.inputValue()).toEqual("")
-
-  //   const testTitle = 'Form title for checking values dont change';
-  //   const abstract = new Array(10).fill(testTitle).join(" ")
-  //   await formPage.fillFormData({
-  //     title: testTitle,
-  //     abstract
-  //   })
-
-  //   expect(await formPage.titleInput.inputValue()).toEqual(testTitle)
-
-  //   const otherPage = await context.newPage();
-  //   await otherPage.goto("https://google.com");
-  //   await otherPage.bringToFront();
-
-  //   await page.bringToFront();
-  //   expect(await formPage.titleInput.inputValue()).toEqual(testTitle)
-  //   expect(await formPage.abstractInput.textContent()).not.toEqual("")
-  // })
 });
