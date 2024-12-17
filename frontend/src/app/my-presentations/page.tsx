@@ -59,6 +59,16 @@ const MyPresentationsPage = async () => {
   const submissionElements = CAN_SUBMIT_PRESENTATION ? (
     submitter && (
       <div className='mx-auto flex flex-col'>
+        <div className='prose rounded-md bg-orange-300 p-4 prose-p:my-2'>
+          <p>
+            <span className='font-bold'>Known issue:</span> incomplete or
+            invalid entries cause a full reset of the form.
+          </p>
+          <p>
+            Please ensure all fields are filled in correctly before submitting,
+            and consider copy-pasting from a text editor to avoid frustration!
+          </p>
+        </div>
         {/* <p>The presentation submission page is currently being reworked!</p>
         <p>We look forwards to being able to accept submissions soon.</p> */}
         <h3>Submit a new Presentation</h3>
