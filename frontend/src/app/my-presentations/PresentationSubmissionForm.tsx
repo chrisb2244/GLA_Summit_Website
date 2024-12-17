@@ -7,21 +7,11 @@ import { EmailProps, Person, PersonProps } from '@/Components/Form/Person';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { submitNewPresentation } from '@/actions/presentationSubmission';
 import { FormField, TextArea } from '@/Components/Form/FormField';
-import type { PresentationType } from '@/lib/databaseModels';
+import type { SubmissionFormData } from './PresentationSubmissionActions';
 import { Select } from '@/Components/Form/Select';
 
 type PresentationSubmissionFormProps = {
   submitter: PersonProps;
-};
-
-export type SubmissionFormData = {
-  submitter: PersonProps;
-  otherPresenters: EmailProps[];
-  isFinal: boolean;
-  title: string;
-  abstract: string;
-  learningPoints: string;
-  presentationType: PresentationType;
 };
 
 export const PresentationSubmissionForm = (
