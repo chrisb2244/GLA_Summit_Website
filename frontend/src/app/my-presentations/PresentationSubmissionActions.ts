@@ -26,7 +26,9 @@ export type SubmissionFormData = {
 };
 
 export type PresentationSubmissionFormErrors = Partial<
-  Record<keyof SubmissionFormData | 'form', string>
+  Omit<Record<keyof SubmissionFormData | 'form', string>, 'otherPresenters'> & {
+    otherPresenters: Record<number, string>;
+  }
 >;
 
 export type PresentationSubmissionActionState = {
