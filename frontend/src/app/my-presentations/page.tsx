@@ -80,7 +80,7 @@ const MyPresentationsPage = async () => {
         {draftEntries}
       </div> */}
 
-      <div>
+      <div className='mx-auto max-w-4xl'>
         <h3>Submitted Presentations</h3>
         <Suspense fallback={<PastPresentationSubmissionsFallback />}>
           {<PastPresentationSubmissions />}

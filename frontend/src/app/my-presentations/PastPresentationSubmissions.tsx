@@ -123,7 +123,7 @@ const renderPresentationSubmission = (
     <div
       key={p.presentation_id}
       aria-label={p.title}
-      className='relative left-4 mr-6 border border-secondaryc p-2'
+      className='relative left-4 mr-6 flex flex-col border border-secondaryc p-2'
     >
       <div className='flex flex-col md:flex-row'>
         <h5>
@@ -139,7 +139,7 @@ const renderPresentationSubmission = (
           {p.accepted ?? 'Under consideration'}
         </span>
       </div>
-      <div className='[&>p]:my-1'>{formatTextToPs(p.abstract)}</div>
+      <div className='break-words [&>p]:my-1'>{formatTextToPs(p.abstract)}</div>
     </div>
   );
 };
