@@ -58,14 +58,14 @@ export default async function Page() {
       <p className='prose-lg text-center'>
         The GLA&nbsp;Summit Organizers are excited to announce the next
         GLA&nbsp;Summit, scheduled for{' '}
-        <span className='whitespace-nowrap'>24-25 March 2025!</span>
+        <span className='whitespace-nowrap'>23-24 June 2025!</span>
       </p>
       {/* <p className='prose-lg text-center'>
         The GLA Summit Organizers would like to thank all those
         <br />
         who presented at, or attended,
         <br />
-        the GLA Summit 2024 on 25-26 March 2024!
+        the GLA Summit 2025 on 223-24 June 2025!
       </p>*/}
       <p>
         We are excited to welcome advanced LabVIEW developers and Architects
