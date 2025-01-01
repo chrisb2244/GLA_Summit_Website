@@ -77,12 +77,12 @@ export default async function Page() {
       {/* <div>{ticketButton}</div> */}
       {/* <div>
         <p className='text-center'>
-          The GLA Summit event page is now open! You can find the event page at{' '}
+          The GLA Summit is open for 2025 tickets! You can register at{' '}
           <a
-            href='https://app.events.ringcentral.com/events/gla-2024'
+            href='https://events.ringcentral.com/events/gla-summit-2025'
             className='link'
           >
-            https://app.events.ringcentral.com/events/gla-2024
+            https://events.ringcentral.com/events/gla-summit-2025
           </a>
           .
         </p>
