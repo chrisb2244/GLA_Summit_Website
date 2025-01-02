@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { SponsorBar } from './_rootElements/SponsorBar';
 import { SubmitPresentationButton } from './_homepage/SubmitPresentationButton';
+import { Button } from '@/Components/Form/Button';
 // import { Countdown } from './_rootElements/Countdown'
 
 export const metadata: Metadata = {
@@ -29,11 +30,11 @@ export default async function Page() {
   //   </>
   // )
 
-  // const generalEventButton = (
-  //   <a href='https://app.events.ringcentral.com/events/gla-2024'>
-  //     <Button fullWidth>Go to the Event!</Button>
-  //   </a>
-  // );
+  const generalEventButton = (
+    <a href='https://events.ringcentral.com/events/gla-summit-2025'>
+      <Button fullWidth>Go to the Event!</Button>
+    </a>
+  );
 
   // const websiteUpdateNotice = (
   //   <>
@@ -65,7 +66,7 @@ export default async function Page() {
         <br />
         who presented at, or attended,
         <br />
-        the GLA Summit 2025 on 223-24 June 2025!
+        the GLA Summit 2024 on 25-26 March 2024!
       </p>*/}
       <p>
         We are excited to welcome advanced LabVIEW developers and Architects
@@ -73,9 +74,9 @@ export default async function Page() {
         participate in an inclusive, all-digital, free event.
       </p>
       <SubmitPresentationButton />
-      <p>Our event ticketing system will open soon.</p>
+      {/* <p>Our event ticketing system will open soon.</p> */}
       {/* <div>{ticketButton}</div> */}
-      {/* <div>
+      <div>
         <p className='text-center'>
           The GLA Summit is open for 2025 tickets! You can register at{' '}
           <a
@@ -87,12 +88,12 @@ export default async function Page() {
           .
         </p>
         {generalEventButton}
-        <p>
+        {/* <p>
           If you registered for a ticket using this website, you should have
           received an email with a customised link - you can use that directly
           to access the platform rather than using the generic link above.
-        </p>
-      </div> */}
+        </p> */}
+      </div>
       {/* <div>
         <p>
           <span className='font-semibold'>
