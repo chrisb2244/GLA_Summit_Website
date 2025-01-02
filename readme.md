@@ -195,7 +195,7 @@ To get started with this project, follow these steps:
   ```
 - It will initially dowload various Docker images for their containers, and then start the containers.
 - When it completes, it will print a status with various lines giving URLs or endpoints.
-- Insert the 'anon key' and 'service_role key' to a .env.local file in the frontend directory, along with the 'API URL':
+- Insert the 'anon key' and 'service_role key' to a .env.local file in the frontend directory (a sample can be copied from .env.local.sample), along with the 'API URL':
 
   ```sh
   NEXT_PUBLIC_SUPABASE_URL="http://127.0.0.1:54321"

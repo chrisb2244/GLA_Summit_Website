@@ -34,11 +34,15 @@
     "dev": "next dev --turbo",
     "dev_fakeEmail": "USE_MOCK_EMAIL=true next dev --turbo",
     "playwright": "playwright test",
+    "test": "vitest",
     "lint": "next lint ."
   },
   "devDependencies": {
     "@playwright/test": "^1.48.0",
     "@tailwindcss/typography": "^0.5.7",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/react": "^16.1.0",
+    "@testing-library/user-event": "^14.5.2",
     "@types/node": "^18.16.16",
     "@types/nodemailer": "^6.4.4",
     "@types/react": "npm:types-react@rc",
@@ -46,6 +50,7 @@
     "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^8.11.0",
     "@typescript-eslint/parser": "^8.11.0",
+    "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.13",
     "dotenv": "^16.0.3",
     "encoding": "^0.1.13",
@@ -54,6 +59,7 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-testing-library": "^7.1.1",
     "inbucket-js-client": "^2.0.0",
+    "jsdom": "^25.0.1",
     "postcss": "^8.4.18",
     "postcss-cli": "^10.0.0",
     "prettier": "3.0.3",
@@ -62,7 +68,9 @@
     "ts-node": "^10.9.1",
     "types-react": "^19.0.0-rc.1",
     "types-react-dom": "^19.0.0-rc.1",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^2.1.8"
   },
   "overrides": {
     "@types/react": "npm:types-react@rc",

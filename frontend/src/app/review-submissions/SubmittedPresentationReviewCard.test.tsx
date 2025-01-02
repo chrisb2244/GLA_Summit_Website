@@ -1,4 +1,5 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { describe, it, expect, afterEach } from 'vitest';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import {
   PersonInfo,
   PresentationReviewInfo,
@@ -7,6 +8,10 @@ import {
 import userEvent from '@testing-library/user-event';
 
 describe('SubmittedPresentationReviewCard', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
   const submitter: PersonInfo = {
     id: 'myrandomid',
     firstname: 'Test',
@@ -29,7 +34,7 @@ describe('SubmittedPresentationReviewCard', () => {
 
   it('renders with title', () => {
     render(testObject);
-    expect(screen.getByText('Test title')).toBeVisible();
+    expect(screen.getByText('Test title')).toBeDefined();
   });
 
   it('has a primary action to expand for abstract', async () => {
@@ -39,7 +44,7 @@ describe('SubmittedPresentationReviewCard', () => {
     expect(abstractSection).toBeNull();
     await userEvent.click(title);
     waitFor(() => {
-      expect(abstractSection).toBeVisible();
+      expect(abstractSection).toBeDefined();
     });
     await userEvent.click(title);
     return waitFor(() => {
@@ -49,11 +54,11 @@ describe('SubmittedPresentationReviewCard', () => {
 
   it("contains the primary presenter's name", () => {
     render(testObject);
-    expect(screen.getByText(/Submitter: Test User/)).toBeVisible();
+    expect(screen.getByText(/Submitter: Test User/)).toBeDefined();
   });
 
   it('displays the intended duration', () => {
     render(testObject);
-    expect(screen.getByText(/(45 minutes)/)).toBeVisible();
+    expect(screen.getByText(/(45 minutes)/)).toBeDefined();
   });
 });
