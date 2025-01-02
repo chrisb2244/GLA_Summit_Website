@@ -1,12 +1,14 @@
 import { ImageResponse } from 'next/og';
-import { IMG_WIDTH, IMG_HEIGHT, ticketYear } from './constants';
+import { IMG_WIDTH, IMG_HEIGHT } from './constants';
+import { ticketYear } from '@/app/configConstants';
 import { Ticket } from './Ticket';
 import { checkToken, paramStringToData } from '@/app/ticket/utils';
+import type { NextRequest } from 'next/server';
 
 export const runtime = 'edge';
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams;
   const data = searchParams.get('data');
 
   if (!data) {

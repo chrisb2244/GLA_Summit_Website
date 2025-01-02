@@ -1,4 +1,4 @@
-import { ReactNode, ReactElement } from 'react';
+import { ReactNode, ReactElement, JSX } from 'react';
 import Image, { StaticImageData } from 'next/image';
 import { mdiAccount } from '@mdi/js';
 import Icon from '@mdi/react';

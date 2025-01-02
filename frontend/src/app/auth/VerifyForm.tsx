@@ -1,11 +1,12 @@
 'use client';
-import { Button } from '@/Components/Form/Button';
 import { FormField } from '@/Components/Form/FormFieldSrv';
 import {
   VerificationState,
   verifyLoginWithRedirectFromForm
 } from '@/Components/SigninRegistration/SignInUpActions';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useFormStatus } from 'react-dom';
+import { useActionState } from 'react';
+import { SubmitButton } from '@/Components/Form/SubmitButton';
 
 type VerifyFormProps = {
   email?: string;
@@ -34,7 +35,7 @@ const ErrorElement = (props: { state: VerificationState }) => {
 };
 
 export const VerifyForm = (props: VerifyFormProps) => {
-  const [lastReturnState, formAction] = useFormState(
+  const [lastReturnState, formAction] = useActionState(
     verifyLoginWithRedirectFromForm,
     null
   );
@@ -43,7 +44,7 @@ export const VerifyForm = (props: VerifyFormProps) => {
   const hideEmail = typeof email !== 'undefined';
   return (
     <div className='mx-auto flex max-w-lg flex-col py-4'>
-      <form action={formAction}>
+      <form action={formAction} aria-label='Verification Code form'>
         <input
           type='hidden'
           name='redirectTo'
@@ -66,9 +67,11 @@ export const VerifyForm = (props: VerifyFormProps) => {
           fullWidth
           autoFocus
         />
-        <Button type='submit' fullWidth>
-          Submit
-        </Button>
+        <SubmitButton
+          fullWidth
+          staticText='Submit'
+          pendingText='Submitting...'
+        />
         <ErrorElement state={lastReturnState} />
       </form>
     </div>

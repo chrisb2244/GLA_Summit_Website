@@ -7,7 +7,7 @@ import {
   mdiTicket
 } from '@mdi/js';
 import { Icon } from '@mdi/react';
-import React, { PropsWithChildren, Suspense, useEffect, useState } from 'react';
+import { JSX, PropsWithChildren, Suspense, useEffect, useState } from 'react';
 import NextLink from 'next/link';
 import {
   downloadIconAvatarAndGenerateIfNeeded,
@@ -29,7 +29,7 @@ type UserMenuProps = {
 type UserMenuEntry = {
   title: string;
   href: Route | undefined;
-  imgObj: React.JSX.Element;
+  imgObj: JSX.Element;
   clickFn?: () => void;
 };
 

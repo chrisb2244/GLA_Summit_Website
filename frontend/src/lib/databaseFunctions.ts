@@ -99,19 +99,6 @@ export const adminUpdateExistingPresentationSubmission = async (
     });
 };
 
-export const getPresenterIds = async () => {
-  const supabase = createAnonServerClient();
-  return await getPublicPresentations(supabase).then((presentationsData) => {
-    return presentationsData.flatMap((d) => {
-      return d.all_presenters.map((presenterId) => {
-        return {
-          id: presenterId
-        };
-      });
-    });
-  });
-};
-
 export const getPresentationIds = async () => {
   const supabase = createAnonServerClient();
   const { data, error } = await supabase
@@ -121,20 +108,6 @@ export const getPresentationIds = async () => {
     return [];
   }
   return data;
-};
-
-export const speakerIdsToSpeakers = async (
-  speakerIds: string[],
-  client: Client
-): Promise<PersonDisplayProps[]> => {
-  return await Promise.all(
-    speakerIds.map(async (speakerId) => {
-      return {
-        ...(await getPerson(speakerId, client)),
-        pageLink: `/presenters/${speakerId}`
-      };
-    })
-  );
 };
 
 export const getVideoLink = async (
@@ -322,7 +295,10 @@ export const downloadAvatar = async (userId: string) => {
     .from('avatars')
     .download(data.avatar_url)
     .then(({ data, error }) => {
-      if (error) throw error;
+      if (error) {
+        // Can't get the image for some reason
+        return null;
+      }
       return data;
     });
 };
@@ -343,39 +319,6 @@ export const deleteAvatar = async (remotePath: string) => {
     .remove([remotePath]);
   if (error) throw error;
   return data.length === 1;
-};
-
-export const getPerson = async (
-  userId: string,
-  client: Client = supabase
-): Promise<PersonDisplayProps> => {
-  return (await getPeople([userId], client))[0];
-};
-
-export const getPeople = async (
-  userIds: string[],
-  client: Client = supabase
-): Promise<Array<PersonDisplayProps & { id: string; updated_at: string }>> => {
-  return client
-    .from('profiles')
-    .select()
-    .in('id', userIds)
-    .then(({ data, error }) => {
-      if (error) throw error;
-      return data.map((person) => {
-        const avatarUrl = person.avatar_url
-          ? getAvatarPublicUrl(person.avatar_url)
-          : null;
-        const personProps: PersonDisplayProps = {
-          firstName: person.firstname,
-          lastName: person.lastname,
-          description:
-            person.bio ?? 'This presenter has not provided a description',
-          image: avatarUrl
-        };
-        return { ...personProps, id: person.id, updated_at: person.updated_at };
-      });
-    });
 };
 
 export const getPublicProfileIds = async (client: Client = supabase) => {
@@ -440,14 +383,6 @@ export const getPublicPresentation = async (
       if (error) throw error;
       return data;
     });
-};
-
-export const getAcceptedPresentationIds = async (): Promise<string[]> => {
-  const { data, error } = await supabase
-    .from('accepted_presentations')
-    .select('id');
-  if (error) throw error;
-  return data.map((d) => d.id);
 };
 
 export const getMyPresentations = async (client: Client = supabase) => {

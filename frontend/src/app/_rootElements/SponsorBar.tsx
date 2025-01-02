@@ -3,8 +3,8 @@ import NI_Logo from '@/media/NI-Logo.png';
 // import SAS_Logo from '@/media/SAS-Logo.png';
 // import CorgiBytes_Logo from '@/media/corgibytes-logo.png';
 // import HeartWare_Dev_Logo from '@/media/heartware-dev-logo.png'; // #1e143e_bg
-import Quimby_Logo from 'public/assets/sponsors/Quimby_sticker.png';
-import Newton_Logo from 'public/assets/sponsors/newtondynamics.svg';
+// import Quimby_Logo from 'public/assets/sponsors/Quimby_sticker.png';
+// import Newton_Logo from 'public/assets/sponsors/newtondynamics.svg';
 
 import Link from 'next/link';
 import NextImage, { type StaticImageData } from 'next/image';
@@ -20,13 +20,13 @@ export const SponsorBar: React.FC<React.PropsWithChildren<unknown>> = () => {
   };
 
   const supporters: Array<Supporter> = [
-    {
-      title: 'Quimby App',
-      src: Quimby_Logo,
-      href: 'https://www.quimbyapp.com/home',
-      width: 1386,
-      height: 484
-    }
+    // {
+    //   title: 'Quimby App',
+    //   src: Quimby_Logo,
+    //   href: 'https://www.quimbyapp.com/home',
+    //   width: 1386,
+    //   height: 484
+    // }
     // {
     //   title: 'Newton Dynamics',
     //   src: Newton_Logo,
@@ -35,7 +35,6 @@ export const SponsorBar: React.FC<React.PropsWithChildren<unknown>> = () => {
     //   height: 56.1,
     //   imgWrapperCName: 'bg-[#000] p-2 rounded-md'
     // }
-
     // {
     //   title: 'GCentral',
     //   src: GCentral_Logo,
@@ -104,12 +103,14 @@ export const SponsorBar: React.FC<React.PropsWithChildren<unknown>> = () => {
         </Link>
       </div>
 
-      <div className='mx-8 mb-4 mt-2 flex flex-col items-center justify-center pb-12'>
-        <h5>Supported by:</h5>
-        <div className='flex flex-col space-y-4 pt-4 md:flex-row md:space-x-4 md:space-y-0'>
-          {supporterElements}
+      {supporterElements.length > 0 && (
+        <div className='mx-8 mb-4 mt-2 flex flex-col items-center justify-center pb-12'>
+          <h5>Supported by:</h5>
+          <div className='flex flex-col space-y-4 pt-4 md:flex-row md:space-x-4 md:space-y-0'>
+            {supporterElements}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

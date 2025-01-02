@@ -1,28 +1,25 @@
-import { createServerComponentClient } from '@/lib/supabaseServer';
 import { redirect } from 'next/navigation';
 import { VerifyForm } from '../VerifyForm';
-
-type SearchParams = { [key: string]: string | string[] | undefined };
+import { getUser } from '@/lib/supabase/userFunctions';
+import { NextSearchParams } from '@/lib/NextTypes';
 
 const ValidateLoginPage = async ({
   searchParams
 }: {
-  searchParams?: SearchParams;
+  searchParams?: NextSearchParams;
 }) => {
-  const redirectToParam = searchParams?.redirectTo;
+  const redirectToParam = (await searchParams)?.redirectTo;
   const redirectTo =
     typeof redirectToParam === 'string'
       ? decodeURI(redirectToParam)
       : undefined;
 
-  const supabase = createServerComponentClient();
-  const session = (await supabase.auth.getSession()).data.session;
-  const isLoggedIn = session !== null;
-  if (isLoggedIn) {
+  const user = await getUser();
+  if (user !== null) {
     redirect(redirectTo ?? '/');
   }
 
-  const emailParam = searchParams?.email;
+  const emailParam = (await searchParams)?.email;
   const email =
     typeof emailParam === 'string' ? decodeURI(emailParam) : undefined;
 

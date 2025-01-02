@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import type { Database } from './lib/sb_databaseModels';
+import { updateSession } from './lib/supabase/middlewareUpdater';
 
 // Second arg is "event: NextFetchEvent"
 export async function middleware(request: NextRequest) {
@@ -8,65 +7,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect('/');
   }
 
+  const { response, user, supabase } = await updateSession(request);
   const targetPath = request.nextUrl.pathname;
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers
-    }
-  });
-
-  // This is called before returning to refresh the cookie-based session.
-  const supabase = createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL as string,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string,
-    {
-      cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value;
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          request.cookies.set({
-            name,
-            value,
-            ...options
-          });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers
-            }
-          });
-          response.cookies.set({
-            name,
-            value,
-            ...options
-          });
-        },
-        remove(name: string, options: CookieOptions) {
-          request.cookies.set({
-            name,
-            value: '',
-            ...options
-          });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers
-            }
-          });
-          response.cookies.set({
-            name,
-            value: '',
-            ...options
-          });
-        }
-      }
-    }
-  );
-
-  // getSession only performs network operations if the session exists but has expired
-  // With no session or a valid session, only the storage method is accessed (e.g. cookies)
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
 
   const pathsRequiringLogin = ['/my-profile', '/my-presentations'];
   const pathsRequiringOrganizer = ['/review-submissions', '/logs'];

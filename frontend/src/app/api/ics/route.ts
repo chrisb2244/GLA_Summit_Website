@@ -1,6 +1,6 @@
 import { createEvent } from 'ics';
 import type { EventAttributes, DateArray } from 'ics';
-import { ticketYear } from '../ticket/constants';
+import { ticketYear, startDate, eventUrl } from '@/app/configConstants';
 
 const dateToDateArray = (d: Date): DateArray => {
   return [
@@ -13,22 +13,18 @@ const dateToDateArray = (d: Date): DateArray => {
 };
 
 export async function GET() {
-  const startDate = new Date(2024, 2, 25, 12, 0, 0);
-
   const start = dateToDateArray(startDate);
 
   const abstract = `Join us for the GLA Summit - a Global LabVIEW and Automated Test conference.`;
-  // presentationData.abstract.replaceAll('\r\n', '\\n');
 
-  const hopinUrl = 'https://hopin.com/events/gla-summit-2022';
   const eventAttributes: EventAttributes = {
     start,
     startInputType: 'utc',
     duration: { minutes: 24 * 60 },
     title: `GLA Summit ${ticketYear}`,
     description: abstract,
-    url: hopinUrl,
-    location: hopinUrl
+    url: eventUrl,
+    location: eventUrl
   };
 
   const { error: eventError, value } = createEvent(eventAttributes);

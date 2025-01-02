@@ -14,7 +14,8 @@ test.describe('Homepage tests', () => {
     await expect(page).toHaveURL(/https:\/\/www.ni.com\/.*/);
   });
 
-  test('Clicking "our team" link navigates to the our-team page', async ({
+  // The following test is skipped because the "Our Team" link was removed from the homepage
+  test.skip('Clicking "our team" link navigates to the our-team page', async ({
     page
   }) => {
     await page.goto('/');

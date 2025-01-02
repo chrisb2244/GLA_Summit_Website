@@ -12,10 +12,6 @@ import { SignInEmailFn } from '@/EmailTemplates/SignInEmail';
 import { RegistrationEmailFn } from '@/EmailTemplates/RegistrationEmail';
 import { RedirectType, redirect } from 'next/navigation';
 
-export const mailUser = async () => {
-  // Send email
-};
-
 const filterEmails = (email: string) => {
   if (email.match(/.*@mail\.ru/) || email.match(/.*@yandex\.ru/)) {
     // Block signups from @mail.ru
@@ -32,26 +28,17 @@ const filterProfileData = ({ firstName, lastName, email }: PersonProps) => {
 };
 
 export const signOut = async () => {
-  await createServerActionClient().auth.signOut();
+  await (await createServerActionClient()).auth.signOut();
   revalidatePath('/');
-};
-
-export const getUser = async () => {
-  const supabase = createServerActionClient();
-  return await supabase.auth.getUser().then(({ data, error }) => {
-    if (error) {
-      return null;
-    }
-    return data.user;
-  });
 };
 
 export const verifyLogin = async (data: {
   email: string;
   verificationCode: string;
 }) => {
-  return await createServerActionClient()
-    .auth.verifyOtp({
+  const supabase = await createServerActionClient();
+  return await supabase.auth
+    .verifyOtp({
       email: data.email,
       token: data.verificationCode,
       type: 'email'
@@ -154,7 +141,8 @@ export const signInFromFormWithRedirect = async (formData: FormData) => {
   }
   const signInSuccessful = await signIn(email);
   if (signInSuccessful) {
-    redirect(`validateLogin?${params.toString()}`, RedirectType.push);
+    const redirectUrl = `/auth/validateLogin?${params.toString()}`;
+    redirect(redirectUrl, RedirectType.push);
   }
 };
 
@@ -227,13 +215,13 @@ export const registerFromFormWithRedirect = async (formData: FormData) => {
   }
   const signUpSuccessful = await signUp(newUser);
   if (signUpSuccessful) {
-    redirect(`validateLogin?${params.toString()}`, RedirectType.push);
+    redirect(`/auth/validateLogin?${params.toString()}`, RedirectType.push);
   }
 };
 
 const otpEmailText = (fname: string, lname: string, otp: string) => {
   const firstline = `Dear ${fname} ${lname},\r\n`;
-  const mainline = 'Your One-Time-Passode (OTP) token is ' + otp + '\r\n';
+  const mainline = 'Your One-Time-Passcode (OTP) token is ' + otp + '\r\n';
   const signature = 'GLA Summit Organizers';
   return [firstline, mainline, signature].join('\r\n');
 };

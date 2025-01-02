@@ -5,21 +5,26 @@ import {
 import {
   getPresentationIds,
   getPublicPresentation,
-  getVideoLink,
-  speakerIdsToSpeakers
+  getVideoLink
 } from '@/lib/databaseFunctions';
 import { createAnonServerClient } from '@/lib/supabaseClient';
-import { createServerComponentClient } from '@/lib/supabaseServer';
+import { createServerClient } from '@/lib/supabaseServer';
 import { calculateSchedule, myLog } from '@/lib/utils';
 import type { Metadata, NextPage } from 'next';
 import { notFound } from 'next/navigation';
 import { redirect } from 'next/navigation';
 import { getPanelLink } from '@/app/panels/panelLinks';
+import { getPeople } from '@/lib/supabase/public';
+import { getPeople_Authed } from '@/lib/supabase/authorized';
+import type { NextParams, satisfy } from '@/lib/NextTypes';
 
 type PageProps = {
-  params: {
-    id: string;
-  };
+  params: satisfy<
+    NextParams,
+    Promise<{
+      id: string;
+    }>
+  >;
 };
 
 export const revalidate = 600;
@@ -29,7 +34,7 @@ export async function generateStaticParams(): Promise<{ id: string }[]> {
 }
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
-  const { id } = props.params;
+  const { id } = await props.params;
   try {
     const supabase = createAnonServerClient();
     const title = (await getPublicPresentation(id, supabase)).title;
@@ -39,8 +44,8 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   }
 }
 
-const PresentationsForYearPage: NextPage<PageProps> = async ({ params }) => {
-  const pId = params.id;
+const PresentationsForYearPage: NextPage<PageProps> = async (props) => {
+  const pId = (await props.params).id;
   if (typeof pId !== 'string') {
     return null;
   }
@@ -59,10 +64,9 @@ const PresentationsForYearPage: NextPage<PageProps> = async ({ params }) => {
     supabase
   ).then(
     async (data) => {
-      const presenters = await speakerIdsToSpeakers(
-        data.all_presenters,
-        supabase
-      );
+      const presenters = (await getPeople(data.all_presenters)).map((p) => {
+        return { ...p, pageLink: `/presenters/${p.id}` };
+      });
 
       const type = data.presentation_type;
       if (type === 'panel') {
@@ -73,8 +77,8 @@ const PresentationsForYearPage: NextPage<PageProps> = async ({ params }) => {
         };
       }
 
-      // Allow masking the schedule for 2024
-      const mask = false; // data.year === '2024';
+      // Allow masking the schedule for 2025
+      const mask = data.year === '2025';
       const scheduledFor = mask ? null : data.scheduled_for;
       const schedule = calculateSchedule(type, scheduledFor);
 
@@ -88,7 +92,7 @@ const PresentationsForYearPage: NextPage<PageProps> = async ({ params }) => {
     },
     async (err) => {
       // Not returned by getPublicPresentations.
-      const supabaseLoggedIn = createServerComponentClient();
+      const supabaseLoggedIn = await createServerClient();
       const { data, error } = await supabaseLoggedIn
         .from('my_submissions')
         .select('*')
@@ -106,7 +110,7 @@ const PresentationsForYearPage: NextPage<PageProps> = async ({ params }) => {
         return {
           title: data.title,
           abstract: data.abstract,
-          speakers: await speakerIdsToSpeakers(
+          speakers: await getPeople_Authed(
             data.all_presenters_ids,
             supabaseLoggedIn
           ),

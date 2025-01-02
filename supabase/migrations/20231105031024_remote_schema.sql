@@ -59,8 +59,7 @@ ALTER TYPE "public"."presenter_info" OWNER TO "postgres";
 CREATE TYPE "public"."summit_year" AS ENUM (
     '2020',
     '2021',
-    '2022',
-    '2023'
+    '2022'
 );
 
 ALTER TYPE "public"."summit_year" OWNER TO "postgres";

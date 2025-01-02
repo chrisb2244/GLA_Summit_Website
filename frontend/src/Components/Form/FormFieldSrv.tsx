@@ -19,8 +19,8 @@ const inputFieldStyles = cva(inputAlways, {
       true: 'w-full'
     },
     readOnly: {
-      true: 'text-gray-500 bg-gray-100',
-      false: 'border-b-4 focus:border-b-secondaryc'
+      true: 'text-gray-500 bg-gray-100 before:peer-focus:bg-gray-100',
+      false: 'border-b-4 focus:border-b-secondaryc before:peer-focus:bg-white'
     },
     placeholderVisible: {
       false: 'placeholder-transparent',
@@ -48,7 +48,7 @@ const labelAlways = [
   'before:h-[10px] before:rounded-b before:peer-focus:w-[105%]',
   'before:peer-focus:absolute before:peer-focus:flex',
   'before:peer-focus:top-2 before:peer-focus:-left-[2px]',
-  'before:peer-focus:z-[-1] before:peer-focus:bg-white',
+  'before:peer-focus:z-[-1]',
   'before:peer-focus:h-[10px] before:peer-focus:rounded-b',
   'peer-placeholder-shown:text-gray-500'
 ].join(' ');
@@ -118,11 +118,12 @@ const calculateLabelPadding = (cname?: string) => {
   }, '');
 };
 
-type VariantPropTypes = VariantProps<typeof inputFieldStyles>;
+export type VariantPropTypes = VariantProps<typeof inputFieldStyles>;
 
 type FormProps = {
   name: string;
   type?: HTMLInputTypeAttribute;
+  error?: string;
   placeholder?: string;
   hidden?: boolean;
 };
@@ -133,12 +134,19 @@ type FormFieldProps = FormProps &
 
 // This provides a wrapper for the TextField, providing the error behaviour.
 export const FormField: React.FC<FormFieldProps> = (props) => {
-  const { fullWidth, className: pCN, readOnly = false, ...inputProps } = props;
+  const {
+    fullWidth,
+    className: pCN,
+    readOnly = false,
+    label,
+    ...inputProps
+  } = props;
   const id = props.name;
   // if (readOnly) {
   //   return <FormFieldIndicator {...props} />;
   // }
 
+  const isError = typeof props.error !== 'undefined';
   const placeholderVisible = typeof props.placeholder !== 'undefined';
 
   const labelPadding = calculateLabelPadding(pCN);
@@ -166,6 +174,7 @@ export const FormField: React.FC<FormFieldProps> = (props) => {
         })}
         placeholder={props.placeholder ?? id}
         readOnly={readOnly}
+        aria-labelledby={`${id}-label`}
         {...inputProps}
       />
       <TopBorderElement paddingElems={borderMargin} />
@@ -176,11 +185,67 @@ export const FormField: React.FC<FormFieldProps> = (props) => {
         htmlFor={id}
         className={`${labelPadding} ${labelStyles({
           placeholderVisible,
+          isError,
           readOnly
         })}`}
       >
+        {label ?? id}
+      </label>
+      <ErrorMessage error={props.error} />
+    </div>
+  );
+};
+
+type IndicatorProps = Omit<FormFieldProps, 'readOnly'>;
+
+export const FormFieldIndicator: React.FC<IndicatorProps> = (props) => {
+  return <FormField {...props} readOnly />;
+};
+
+type TextAreaProps = FormProps &
+  VariantPropTypes &
+  HTMLProps<HTMLTextAreaElement>;
+
+export const TextArea: React.FC<TextAreaProps> = (props) => {
+  const { error, fullWidth, readOnly = false, ...inputProps } = props;
+  const id = props.name;
+  const isError = typeof error !== 'undefined';
+  const placeholderVisible = typeof props.placeholder !== 'undefined';
+
+  return (
+    <div className={wrapperStyles({ fullWidth, hidden: props.hidden })}>
+      <textarea
+        id={id}
+        className={inputFieldStyles({
+          fullWidth,
+          readOnly: readOnly,
+          placeholderVisible
+        })}
+        placeholder={props.placeholder ?? id}
+        {...inputProps}
+      />
+      <TopBorderElement />
+      <label
+        id={`${id}-label`}
+        htmlFor={id}
+        className={labelStyles({ isError, placeholderVisible, readOnly })}
+      >
         {props.label ?? id}
       </label>
+      <ErrorMessage error={error} />
+    </div>
+  );
+};
+
+const ErrorMessage = (props: { error?: string }) => {
+  if (typeof props.error === 'undefined') {
+    return null;
+  }
+  return (
+    <div className={'relative h-0'}>
+      <span className={errorTextClassName} role='alert'>
+        {props.error}
+      </span>
     </div>
   );
 };

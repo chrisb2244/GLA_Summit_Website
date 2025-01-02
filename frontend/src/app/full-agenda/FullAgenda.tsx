@@ -9,6 +9,7 @@ import type {
 import { supabase } from '@/lib/supabaseClient';
 import { ContainerHint } from '@/Components/Agenda/AgendaCalculations';
 import { myLog } from '@/lib/utils';
+import { startDate } from '../configConstants';
 
 type DB_SubscriptionEvent = RealtimePostgresChangesPayload<
   Database['public']['Tables']['agenda_favourites']['Row']
@@ -113,7 +114,6 @@ export const FullAgenda = (props: {
   if (fullAgenda === null) {
     return unableToRenderElem;
   }
-  const conferenceStart = new Date(Date.UTC(2024, 2, 25, 12, 0, 0));
 
   if (typeof window !== 'undefined') {
     window.matchMedia('(min-width: 768px)').addEventListener('change', (e) => {
@@ -125,7 +125,7 @@ export const FullAgenda = (props: {
     <Agenda
       agendaEntries={fullAgenda}
       hoursToShow={hoursToShow}
-      startDate={conferenceStart}
+      startDate={startDate}
       durationInHours={24}
       favourites={favouriteIds}
       containerHints={containerHints}

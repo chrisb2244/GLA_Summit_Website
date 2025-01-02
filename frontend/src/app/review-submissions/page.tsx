@@ -2,11 +2,11 @@ import {
   PresentationReviewInfo,
   SubmittedPresentationReviewCard
 } from './SubmittedPresentationReviewCard';
-import { createServerComponentClient } from '@/lib/supabaseServer';
-import { submissionsForYear } from '@/lib/databaseModels';
+import { createServerClient } from '@/lib/supabaseServer';
+import { submissionsForYear } from '@/app/configConstants';
 
 const ReviewSubmissionsPage = async () => {
-  const supabase = createServerComponentClient();
+  const supabase = await createServerClient();
   const { data, error } = await supabase.rpc('get_reviewable_submissions', {
     target_year: submissionsForYear
   });
