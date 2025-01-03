@@ -23,6 +23,23 @@ const StaticPresentationFormSchema = z.object({
 });
 const StaticKeys = StaticPresentationFormSchema.shape;
 
+export const OtherPresentersSchema = z
+  .object({ otherPresenters: z.array(z.string().email()).optional() })
+  .catchall(z.any())
+  .transform((input) => {
+    const otherPresenters = Object.entries(input)
+      .map(([key, value]) => {
+        if (/otherPresenters\.[0-9]+\.email/.test(key)) {
+          return value as string;
+        }
+        return null;
+      })
+      .filter((v) => v !== null);
+    return {
+      otherPresenters
+    };
+  });
+
 export const PresentationSubmissionFormSchema =
   StaticPresentationFormSchema.catchall(z.any()).transform((input, ctx) => {
     const otherPresenters = Object.entries(input)
