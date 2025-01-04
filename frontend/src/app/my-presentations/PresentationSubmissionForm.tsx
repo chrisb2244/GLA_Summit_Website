@@ -2,13 +2,16 @@
 
 import { Button } from '@/Components/Form/Button';
 import { SubmitButton } from '@/Components/Form/SubmitButton';
-import { EmailProps, Person, PersonProps } from '@/Components/Form/Person';
+import { Person, PersonProps } from '@/Components/Form/Person';
 // import { Checkbox } from '../Form/Checkbox';
-import { useFieldArray, useForm } from 'react-hook-form';
-import { submitNewPresentation } from '@/actions/presentationSubmission';
-import { FormField, TextArea } from '@/Components/Form/FormField';
+// import { submitNewPresentation } from '@/actions/presentationSubmission';
+import { submitNewPresentation } from './PresentationSubmissionActions';
+import { useForm } from 'react-hook-form';
+
+import { FormField, TextArea } from '@/Components/Form/FormFieldSrv';
 import type { SubmissionFormData } from './PresentationSubmissionActions';
 import { Select } from '@/Components/Form/Select';
+import { useActionState } from 'react';
 
 type PresentationSubmissionFormProps = {
   submitter: PersonProps;
@@ -20,16 +23,7 @@ export const PresentationSubmissionForm = (
   // const readyLabel =
   //   'I am ready to submit this presentation (leave unchecked to save a draft)';
 
-  const {
-    register,
-    formState: { errors },
-    control,
-    setFocus,
-    watch,
-    trigger,
-    reset: resetForm,
-    handleSubmit
-  } = useForm<SubmissionFormData>({
+  const { register } = useForm<SubmissionFormData>({
     mode: 'onTouched',
     defaultValues: {
       submitter: props.submitter,
@@ -42,16 +36,16 @@ export const PresentationSubmissionForm = (
     }
   });
 
-  const {
-    fields: otherPresenterFields,
-    append: addPresenter,
-    remove: removePresenter
-  } = useFieldArray<SubmissionFormData, 'otherPresenters'>({
-    name: 'otherPresenters',
-    control
-  });
+  // const {
+  //   fields: otherPresenterFields,
+  //   append: addPresenter,
+  //   remove: removePresenter
+  // } = useFieldArray<SubmissionFormData, 'otherPresenters'>({
+  //   name: 'otherPresenters',
+  //   control
+  // });
 
-  const isFinal = watch('isFinal');
+  const isFinal = true; // watch('isFinal');
   const staticSubmitText = isFinal ? 'Submit Presentation' : 'Save Draft';
   const pendingSubmitText = isFinal ? 'Submitting now...' : 'Saving now...';
 
@@ -60,12 +54,24 @@ export const PresentationSubmissionForm = (
     readOnly: false
   };
 
-  const onSubmit = (data: SubmissionFormData) => {
-    console.log(data);
-  };
+  const [formState, formAction] = useActionState(submitNewPresentation, {
+    data: {
+      submitter: props.submitter,
+      isFinal: true,
+      title: '',
+      abstract: '',
+      learningPoints: '',
+      presentationType: 'full length',
+      otherPresenters: []
+    }
+  });
+  const otherPresenters = formState.data.otherPresenters ?? [];
 
   return (
     <div className='prose'>
+      <noscript>
+        <style>{`.js-only { display: none }`}</style>
+      </noscript>
       <p>Please enter the information below and submit your presentation!</p>
       <p>
         Any additional presenters that you add here will be emailed inviting
@@ -76,61 +82,36 @@ export const PresentationSubmissionForm = (
         presentation. */}
       </p>
       <form
-        action={async (data: FormData) => {
-          const formValid = await trigger();
-          if (formValid) {
-            const result = await submitNewPresentation(data);
-            if (result.success) {
-              resetForm();
-            } else {
-              console.error(result.error);
-            }
-          } else {
-            const firstError = Object.entries(errors).find(([_, err]) => {
-              return err !== null && typeof err !== 'undefined';
-            });
-            if (typeof firstError?.[0] === 'string') {
-              setFocus(firstError[0] as keyof SubmissionFormData, {
-                shouldSelect: true
-              });
-            }
-          }
-        }}
-        onSubmit={handleSubmit(onSubmit)}
+        action={formAction}
+        // onSubmit={handleSubmit(onSubmit)}
       >
+        <input type='hidden' name='action' value='submit' />
         <div className='border border-gray-200 bg-gray-100 p-2 shadow-lg'>
           <Person<SubmissionFormData>
             heading='Submitter'
             defaultValue={props.submitter}
             locked
-            errors={errors.submitter}
+            errors={undefined}
             path={'submitter'}
             register={register}
           />
-          {otherPresenterFields.map((field, idx) => {
+          {otherPresenters.map((email, idx) => {
             return (
-              <div className='pb-2' key={field.id}>
+              <div className='js-only pb-2' key={`otherPresenters.${idx}`}>
                 <div className='flex flex-col items-start justify-between sm:flex-row'>
                   <div className='flex w-full flex-grow'>
                     <div className='flex flex-1'>
                       <div className='flex flex-1'>
                         <FormField
-                          registerReturn={register(
-                            `otherPresenters.${idx}.email`,
-                            {
-                              required: 'Required',
-                              pattern: {
-                                value:
-                                  /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                                message: 'Invalid email address'
-                              }
-                            }
-                          )}
+                          name={`otherPresenters.${idx}.email`}
+                          required
                           type='email'
-                          fieldError={errors.otherPresenters?.[idx]?.email}
+                          error={formState.errors?.otherPresenters?.[idx]}
                           fullWidth
                           label='Co-presenter Email'
-                          defaultValue=''
+                          defaultValue={
+                            formState.data.otherPresenters[idx] ?? ''
+                          }
                         />
                       </div>
                     </div>
@@ -138,7 +119,12 @@ export const PresentationSubmissionForm = (
                   <div
                     className={`ml-auto flex w-1/2 text-center sm:ml-0 sm:w-auto sm:flex-grow-0 sm:p-2`}
                   >
-                    <Button onClick={() => removePresenter(idx)} fullWidth>
+                    <Button
+                      // onClick={() => {}}
+                      // formAction={otherPresentersAction}
+                      fullWidth
+                      formNoValidate={true}
+                    >
                       Remove
                     </Button>
                   </div>
@@ -146,12 +132,19 @@ export const PresentationSubmissionForm = (
               </div>
             );
           })}
-          <div className='mx-auto -mb-6 mt-1 w-1/2'>
+          <noscript>
+            <p>
+              No javascript - enter other presenters as a semicolon-separated
+              list
+            </p>
+          </noscript>
+          <div className='js-only mx-auto -mb-6 mt-1 w-1/2'>
             <Button
-              type='button'
-              onClick={() => {
-                addPresenter({ email: '' });
-              }}
+              // onClick={() => {
+              //   // addPresenter({ email: '' });
+              // }}
+              // formAction={otherPresentersAction}
+              formNoValidate={true}
               fullWidth
             >
               Add co-presenter
@@ -159,29 +152,20 @@ export const PresentationSubmissionForm = (
           </div>
           <div className='py-8'>
             <FormField
-              registerReturn={register('title', {
-                required: 'Required'
-              })}
+              required
               name='title'
+              label='Title'
               fullWidth
               placeholder='Presentation Title'
-              fieldError={errors.title}
-              label='Title'
+              error={formState.errors?.title}
               {...lockProps}
             />
             <TextArea
-              registerReturn={register('abstract', {
-                required: 'Required',
-                minLength: {
-                  value: 100,
-                  message: 'This field has a minimum length of 100 characters'
-                },
-                maxLength: {
-                  value: 5000,
-                  message: 'This field has a maximum length of 5000 characters'
-                }
-              })}
-              fieldError={errors.abstract}
+              name='abstract'
+              required
+              minLength={100}
+              maxLength={5000}
+              error={formState.errors?.abstract}
               placeholder='Presentation Abstract - What are you going to talk about?'
               fullWidth
               rows={5}
@@ -189,14 +173,10 @@ export const PresentationSubmissionForm = (
               {...lockProps}
             />
             <TextArea
-              registerReturn={register('learningPoints', {
-                required: 'Required',
-                minLength: {
-                  value: 50,
-                  message: 'This field has a minimum length of 50 characters'
-                }
-              })}
-              fieldError={errors.learningPoints}
+              name='learningPoints'
+              required
+              minLength={50}
+              error={formState.errors?.learningPoints}
               placeholder='What are the most important things attendees would learn from your presentation?'
               fullWidth
               rows={3}

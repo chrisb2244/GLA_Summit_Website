@@ -2,7 +2,7 @@
 
 import { createServerActionClient } from '@/lib/supabaseServer';
 import type { PresentationType } from '@/lib/databaseModels';
-import type { EmailProps, PersonProps } from '@/Components/Form/Person';
+import type { PersonProps } from '@/Components/Form/Person';
 import { getUser, registerEmailAddress } from '@/lib/supabase/userFunctions';
 // Maybe move or check this one...
 import { PresentationSubmissionFormSchema } from '@/Components/Forms/PresentationSubmissionFormSchema';
