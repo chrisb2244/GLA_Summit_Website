@@ -20,6 +20,9 @@ export const YouTubeFrame: React.FC<{
     }
   }
 
+  // Prevent the addition of 3rd-party tracking cookie from YouTube
+  videoSrc = videoSrc.replace('youtube.com', 'youtube-nocookie.com');
+
   return (
     <div className='relative my-4 h-0 w-full pb-[56.5%]'>
       <iframe
@@ -27,6 +30,10 @@ export const YouTubeFrame: React.FC<{
         id='yt_player'
         typeof='text/html'
         src={videoSrc}
+        allowFullScreen
+        referrerPolicy='strict-origin-when-cross-origin' // This is the default anyway
+        // The allow line is copied from the YT embed example for reference in case of future use
+        // allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
       />
     </div>
   );

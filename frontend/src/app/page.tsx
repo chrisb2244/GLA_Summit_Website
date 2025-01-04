@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { SponsorBar } from './_rootElements/SponsorBar';
 import { SubmitPresentationButton } from './_homepage/SubmitPresentationButton';
+import { Button } from '@/Components/Form/Button';
 // import { Countdown } from './_rootElements/Countdown'
 
 export const metadata: Metadata = {
@@ -29,11 +30,11 @@ export default async function Page() {
   //   </>
   // )
 
-  // const generalEventButton = (
-  //   <a href='https://app.events.ringcentral.com/events/gla-2024'>
-  //     <Button fullWidth>Go to the Event!</Button>
-  //   </a>
-  // );
+  const generalEventButton = (
+    <a href='https://events.ringcentral.com/events/gla-summit-2025'>
+      <Button fullWidth>Go to the Event!</Button>
+    </a>
+  );
 
   // const websiteUpdateNotice = (
   //   <>
@@ -58,7 +59,7 @@ export default async function Page() {
       <p className='prose-lg text-center'>
         The GLA&nbsp;Summit Organizers are excited to announce the next
         GLA&nbsp;Summit, scheduled for{' '}
-        <span className='whitespace-nowrap'>24-25 March 2025!</span>
+        <span className='whitespace-nowrap'>23-24 June 2025!</span>
       </p>
       {/* <p className='prose-lg text-center'>
         The GLA Summit Organizers would like to thank all those
@@ -73,26 +74,26 @@ export default async function Page() {
         participate in an inclusive, all-digital, free event.
       </p>
       <SubmitPresentationButton />
-      <p>Our event ticketing system will open soon.</p>
+      {/* <p>Our event ticketing system will open soon.</p> */}
       {/* <div>{ticketButton}</div> */}
-      {/* <div>
+      <div>
         <p className='text-center'>
-          The GLA Summit event page is now open! You can find the event page at{' '}
+          The GLA Summit is open for 2025 tickets! You can register at{' '}
           <a
-            href='https://app.events.ringcentral.com/events/gla-2024'
+            href='https://events.ringcentral.com/events/gla-summit-2025'
             className='link'
           >
-            https://app.events.ringcentral.com/events/gla-2024
+            https://events.ringcentral.com/events/gla-summit-2025
           </a>
           .
         </p>
         {generalEventButton}
-        <p>
+        {/* <p>
           If you registered for a ticket using this website, you should have
           received an email with a customised link - you can use that directly
           to access the platform rather than using the generic link above.
-        </p>
-      </div> */}
+        </p> */}
+      </div>
       {/* <div>
         <p>
           <span className='font-semibold'>
