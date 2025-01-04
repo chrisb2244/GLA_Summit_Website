@@ -3,7 +3,7 @@ import { devices } from '@playwright/test';
 import dotenv from 'dotenv';
 import path from 'path';
 
-const envPath = path.join(__dirname, './.env.test');
+const envPath = path.join(__dirname, './.env.local');
 const envConfig = dotenv.config({ path: envPath });
 if (envConfig.error) {
   throw envConfig.error;
