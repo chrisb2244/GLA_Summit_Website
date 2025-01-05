@@ -4,7 +4,6 @@ import { Button } from '@/Components/Form/Button';
 import { SubmitButton } from '@/Components/Form/SubmitButton';
 import { Person, PersonProps } from '@/Components/Form/Person';
 // import { Checkbox } from '../Form/Checkbox';
-// import { submitNewPresentation } from '@/actions/presentationSubmission';
 import { submitNewPresentation } from './PresentationSubmissionActions';
 
 import { FormField, TextArea } from '@/Components/Form/FormFieldSrv';
