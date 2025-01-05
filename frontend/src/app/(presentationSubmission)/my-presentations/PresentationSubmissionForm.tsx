@@ -43,13 +43,20 @@ export const PresentationSubmissionForm = (
 
   const otherPresentersReducer = (
     state: string[],
-    action: { type: 'add' } | { type: 'remove'; idx: number }
+    action:
+      | { type: 'add' }
+      | { type: 'remove'; idx: number }
+      | { type: 'update'; idx: number; email: string }
   ) => {
     switch (action.type) {
       case 'add':
         return [...state, ''];
       case 'remove':
         return state.filter((_, idx) => idx !== action.idx);
+      case 'update':
+        return state.map((email, idx) =>
+          idx === action.idx ? action.email : email
+        );
     }
   };
   const [otherPresenters, changeOtherPresenters] = useReducer(
@@ -97,7 +104,16 @@ export const PresentationSubmissionForm = (
                       error={formState.errors?.otherPresenters?.[idx]}
                       fullWidth
                       label='Co-presenter Email'
-                      defaultValue={email}
+                      // defaultValue={email}
+                      onChange={(e) =>
+                        changeOtherPresenters({
+                          type: 'update',
+                          idx,
+                          email: e.currentTarget.value
+                        })
+                      }
+                      value={email}
+                      {...lockProps}
                     />
                   </div>
                   <div
