@@ -1,5 +1,4 @@
-import { UseFormRegister, FieldErrors, FieldValues } from 'react-hook-form';
-import { FormField } from './FormField';
+import { FormField } from './FormFieldSrv';
 
 export type PersonProps = {
   firstName: string;
@@ -17,37 +16,17 @@ lg:w-1/2 lg:pr-2 lg:pl-2 lg:mr-2 lg:ml-2 lg:before:ml-[6px] lg:pl-[10px] lg:flex
 xl:w-1/2 xl:pr-2 xl:pl-2 xl:mr-2 xl:ml-2 xl:before:ml-[6px] xl:pl-[10px] xl:flex-row
 `;
 
-type SharedProps = {
-  errors: FieldErrors<PersonProps> | undefined;
+type PersonControlProps = {
+  errors: Record<keyof PersonProps, string> | undefined;
   defaultValue?: PersonProps;
   locked?: boolean;
   heading?: string;
   splitSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | null;
+  path?: string;
 };
 
-type PropsInNestedPerson<KeyName, FV extends FieldValues> = {
-  register: UseFormRegister<FV>;
-  path: KeyName;
-} & SharedProps;
-
-type PropsInStandalonePerson = {
-  register: UseFormRegister<PersonProps>;
-  path?: undefined;
-} & SharedProps;
-
-/* prettier-ignore */
-type PersonTypeProps<FV extends FieldValues, K = keyof FV> =
-  FV extends PersonProps
-    ? PropsInStandalonePerson
-    : K extends keyof FV
-      ? FV[K] extends PersonProps
-        ? PropsInNestedPerson<K, FV>
-        : never
-      : never
-
-export function Person<FV extends FieldValues>(props: PersonTypeProps<FV>) {
+export function Person(props: PersonControlProps) {
   const { defaultValue, locked, heading } = props;
-  const register = props.register;
 
   const path =
     typeof props.path !== 'undefined' ? `${String(props.path)}.` : '';
@@ -73,7 +52,7 @@ export function Person<FV extends FieldValues>(props: PersonTypeProps<FV>) {
   const fieldProps = (field: keyof PersonProps) => {
     const error = props.errors?.[field];
     return {
-      fieldError: error,
+      error,
       defaultValue: defaultValue?.[field],
       label: labels[field],
       readOnly: locked
@@ -85,37 +64,25 @@ export function Person<FV extends FieldValues>(props: PersonTypeProps<FV>) {
       {headElem}
       <div className={`flex flex-col ${splitSize}:flex-row`}>
         <FormField
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          registerReturn={register(`${path}firstName`, {
-            required: 'Required',
-            maxLength: 80
-          })}
+          required
+          name={`${path}firstName`}
+          maxLength={80}
           className={`w-full px-0 ${splitSize}:w-1/2 ${splitSize}:pr-2`}
           {...fieldProps('firstName')}
         />
         <FormField
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          registerReturn={register(`${path}lastName`, {
-            required: 'Required',
-            maxLength: 100
-          })}
+          required
+          maxLength={100}
+          name={`${path}lastName`}
           className={`w-full px-0 ${splitSize}:w-1/2 ${splitSize}:pl-2`}
           {...fieldProps('lastName')}
         />
       </div>
       <div>
         <FormField
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          registerReturn={register(`${path}email`, {
-            required: 'Required',
-            pattern: {
-              value: /^\S+@\S+\.\S+$/i,
-              message: "This email doesn't match the expected pattern"
-            }
-          })}
+          required
+          name={`${path}email`}
+          type='email'
           fullWidth
           {...fieldProps('email')}
         />

@@ -1,8 +1,8 @@
-import { useForm } from 'react-hook-form';
-import { useEffect, useState } from 'react';
+import { useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
 
-import { Person, type PersonProps } from '@/Components/Form/Person';
-import { Button } from '../Form/Button';
+import { Person, type PersonProps } from "@/Components/Form/Person";
+import { Button } from "../frontend/src/Components/Form/Button";
 
 type FormProps = {
   defaultEntry?: PersonProps;
@@ -14,7 +14,7 @@ type FormData = {
   person: PersonProps;
 };
 
-export type RegistrationType = 'mentor' | 'mentee';
+export type RegistrationType = "mentor" | "mentee";
 export type RegistrationData = {
   person: PersonProps;
   type: RegistrationType;
@@ -23,39 +23,40 @@ export type RegistrationData = {
 export const MentoringForm: React.FC<React.PropsWithChildren<FormProps>> = ({
   defaultEntry,
   registered,
-  registrationFn
+  registrationFn,
 }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-    setValue
-  } = useForm<FormData>({ mode: 'onTouched' });
+    setValue,
+  } = useForm<FormData>({ mode: "onTouched" });
 
   useEffect(() => {
-    if (typeof defaultEntry !== 'undefined') {
-      setValue('person', defaultEntry, {
+    if (typeof defaultEntry !== "undefined") {
+      setValue("person", defaultEntry, {
         shouldTouch: true,
-        shouldDirty: true
+        shouldDirty: true,
       });
     }
   }, [defaultEntry, setValue]);
 
   const entryTypes = [
     {
-      entryType: 'mentor',
+      entryType: "mentor",
       tabLabel: "I'd like to be a mentor!",
-      confirmationResponse: 'Thank you for offering to be a mentor',
-      registeredMessage: 'Thank you - you are already registered to be a mentor'
+      confirmationResponse: "Thank you for offering to be a mentor",
+      registeredMessage:
+        "Thank you - you are already registered to be a mentor",
     },
     {
-      entryType: 'mentee',
+      entryType: "mentee",
       tabLabel: "I'd like to receive mentorship",
       confirmationResponse:
-        'Thank you for your interest! We will be in touch soon!',
+        "Thank you for your interest! We will be in touch soon!",
       registeredMessage:
-        'Thank you - we already received your registration of interest for mentoring'
-    }
+        "Thank you - we already received your registration of interest for mentoring",
+    },
   ] as const;
 
   const [tabIndex, setTabIndex] = useState(0);
@@ -98,19 +99,19 @@ export const MentoringForm: React.FC<React.PropsWithChildren<FormProps>> = ({
               onSubmit={handleSubmit(async (data) => {
                 registrationFn({
                   person: data.person,
-                  type: entryTypes[tabIndex].entryType
+                  type: entryTypes[tabIndex].entryType,
                 });
                 setShowConfirmation(true);
               })}
             >
               <Person<FormData>
                 register={register}
-                path={'person'}
+                path={"person"}
                 errors={errors.person}
                 defaultValue={defaultEntry}
-                locked={typeof defaultEntry !== 'undefined'}
+                locked={typeof defaultEntry !== "undefined"}
               />
-              <Button type='submit' fullWidth>
+              <Button type="submit" fullWidth>
                 Submit
               </Button>
             </form>

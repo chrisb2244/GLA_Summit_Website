@@ -6,10 +6,8 @@ import { Person, PersonProps } from '@/Components/Form/Person';
 // import { Checkbox } from '../Form/Checkbox';
 // import { submitNewPresentation } from '@/actions/presentationSubmission';
 import { submitNewPresentation } from './PresentationSubmissionActions';
-import { useForm } from 'react-hook-form';
 
 import { FormField, TextArea } from '@/Components/Form/FormFieldSrv';
-import type { SubmissionFormData } from './PresentationSubmissionActions';
 import { Select } from '@/Components/Form/Select';
 import { useActionState } from 'react';
 
@@ -22,28 +20,6 @@ export const PresentationSubmissionForm = (
 ) => {
   // const readyLabel =
   //   'I am ready to submit this presentation (leave unchecked to save a draft)';
-
-  const { register } = useForm<SubmissionFormData>({
-    mode: 'onTouched',
-    defaultValues: {
-      submitter: props.submitter,
-      isFinal: true,
-      title: '',
-      abstract: '',
-      learningPoints: '',
-      presentationType: 'full length',
-      otherPresenters: []
-    }
-  });
-
-  // const {
-  //   fields: otherPresenterFields,
-  //   append: addPresenter,
-  //   remove: removePresenter
-  // } = useFieldArray<SubmissionFormData, 'otherPresenters'>({
-  //   name: 'otherPresenters',
-  //   control
-  // });
 
   const isFinal = true; // watch('isFinal');
   const staticSubmitText = isFinal ? 'Submit Presentation' : 'Save Draft';
@@ -87,13 +63,12 @@ export const PresentationSubmissionForm = (
       >
         <input type='hidden' name='action' value='submit' />
         <div className='border border-gray-200 bg-gray-100 p-2 shadow-lg'>
-          <Person<SubmissionFormData>
+          <Person
             heading='Submitter'
             defaultValue={props.submitter}
             locked
             errors={undefined}
             path={'submitter'}
-            register={register}
           />
           {otherPresenters.map((email, idx) => {
             return (
@@ -109,9 +84,7 @@ export const PresentationSubmissionForm = (
                           error={formState.errors?.otherPresenters?.[idx]}
                           fullWidth
                           label='Co-presenter Email'
-                          defaultValue={
-                            formState.data.otherPresenters[idx] ?? ''
-                          }
+                          defaultValue={email}
                         />
                       </div>
                     </div>
@@ -137,6 +110,14 @@ export const PresentationSubmissionForm = (
               No javascript - enter other presenters as a semicolon-separated
               list
             </p>
+            <FormField
+              name='otherPresentersList'
+              label='Co-presenter Emails (semicolon-separated)'
+              defaultValue={formState.data.otherPresentersList}
+              fullWidth
+              error={formState.errors?.otherPresentersList}
+              {...lockProps}
+            />
           </noscript>
           <div className='js-only mx-auto -mb-6 mt-1 w-1/2'>
             <Button
@@ -185,7 +166,8 @@ export const PresentationSubmissionForm = (
             />
             <Select
               fullWidth
-              {...register('presentationType')}
+              name='presentationType'
+              // {...register('presentationType')}
               options={[
                 {
                   key: 'full length',
