@@ -18,6 +18,7 @@ import { revalidatePath } from 'next/cache';
 export type SubmissionFormData = {
   submitter: PersonProps;
   otherPresenters: string[];
+  otherPresentersList?: string;
   isFinal: boolean;
   title: string;
   abstract: string;
