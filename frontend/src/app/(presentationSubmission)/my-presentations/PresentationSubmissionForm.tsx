@@ -104,11 +104,12 @@ export const PresentationSubmissionForm = (
                     className={`ml-auto flex w-1/2 text-center sm:ml-0 sm:w-auto sm:flex-grow-0 sm:p-2`}
                   >
                     <Button
+                      type='button'
                       onClick={() =>
                         changeOtherPresenters({ type: 'remove', idx })
                       }
                       fullWidth
-                      formNoValidate={true}
+                      // formNoValidate={true}
                     >
                       Remove
                     </Button>
@@ -119,10 +120,11 @@ export const PresentationSubmissionForm = (
           })}
           <div className='js-only mx-auto w-1/2'>
             <Button
+              type='button'
               onClick={() => {
                 changeOtherPresenters({ type: 'add' });
               }}
-              formNoValidate={true}
+              // formNoValidate={true}
               fullWidth
             >
               Add co-presenter
