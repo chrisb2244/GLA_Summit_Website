@@ -22,7 +22,7 @@ export const createServerClient = async () => {
         } catch (error) {
           // The 'setAll' method was called from a Server Component.
           // This can be ignored if middleware is refreshing user sessions.
-          console.log(error);
+          // console.log(error);
         }
       }
     },
