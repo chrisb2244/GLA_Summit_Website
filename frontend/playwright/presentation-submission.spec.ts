@@ -70,7 +70,7 @@ import { createSupabaseAdmin, getInbucketEmail, loginOnPage } from './utils';
       expect(await formPage.hasVisibleForm()).toBeTruthy();
 
       // Using the test attendee user, we expect
-      const submitterEmailInput = page.locator('label:has-text("Email")');
+      const submitterEmailInput = page.getByLabel('Email', { exact: true });
       expect(await submitterEmailInput.isVisible()).toBeTruthy();
       expect(await submitterEmailInput.isEditable()).toBeFalsy();
       expect(await submitterEmailInput.inputValue()).toEqual(attendeeEmail);
