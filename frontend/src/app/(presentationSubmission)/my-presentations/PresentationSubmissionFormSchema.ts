@@ -122,3 +122,7 @@ export const PresentationSubmissionFormSchema =
       ]
     };
   });
+
+export type PresentationSubmissionData = z.infer<
+  typeof PresentationSubmissionFormSchema
+>;

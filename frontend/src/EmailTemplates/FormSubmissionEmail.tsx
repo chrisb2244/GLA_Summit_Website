@@ -1,5 +1,4 @@
-import { EmailProps } from '@/Components/Form/Person';
-import type { SubmissionFormData } from '@/Components/Forms/PresentationSubmissionForm';
+import type { PresentationSubmissionData } from '@/app/(presentationSubmission)/my-presentations/PresentationSubmissionFormSchema';
 import { LogoImg, UnexpectedPresentationEmail } from './emailComponents';
 import { PresentationType } from '@/lib/databaseModels';
 import { submissionsForYear } from '@/app/configConstants';
@@ -11,8 +10,8 @@ const DearPerson = (nameString: string) => {
   return `<p style="font-size:14px;line-height:24px;margin:16px 0">Dear ${nameString},</p>`;
 };
 
-const OtherPresenterRowsFn = (presenters: EmailProps[], tdStyle: string) => {
-  const nRows = presenters.length;
+const OtherPresenterRowsFn = (emails: string[], tdStyle: string) => {
+  const nRows = emails.length;
   if (nRows === 0) {
     return `<tr>
     <td style="padding:8px 8px 8px 0;vertical-align:middle;font-size:10px;text-transform:uppercase;width:100px" rowSpan="${nRows}">Other Presenters</td>
@@ -20,13 +19,13 @@ const OtherPresenterRowsFn = (presenters: EmailProps[], tdStyle: string) => {
     </tr>
     `;
   }
-  const otherRows = presenters.slice(1);
+  const otherRows = emails.slice(1);
   return `
       <tr>
         <td style="padding:8px 8px 8px 0;vertical-align:middle;font-size:10px;text-transform:uppercase;width:100px" rowSpan="${nRows}">Other Presenters</td>
-        <td style="${tdStyle}">${presenters[0].email}</td>
+        <td style="${tdStyle}">${emails[0]}</td>
       </tr>
-      ${otherRows.map(({ email }) => {
+      ${otherRows.map((email) => {
         return `<tr>
             <td style="${tdStyle}">${email}</td>
           </tr>
@@ -59,7 +58,7 @@ const PresentationTypeToString = (presentationType: PresentationType) => {
 };
 
 export const FormSubmissionEmailFn = (
-  formData: SubmissionFormData,
+  formData: PresentationSubmissionData,
   nameString: string
 ) => {
   const {
@@ -153,7 +152,7 @@ export const FormSubmissionEmailFn = (
 };
 
 export const NewCopresenterEmailFn = (
-  formData: SubmissionFormData,
+  formData: PresentationSubmissionData,
   nameString: string,
   otpString: string
 ) => {

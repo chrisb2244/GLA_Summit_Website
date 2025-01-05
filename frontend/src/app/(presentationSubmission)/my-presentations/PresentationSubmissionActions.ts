@@ -158,9 +158,6 @@ export const submitNewPresentation = async (
   // Email each group
   const dataForEmails = {
     ...parsedData.data,
-    otherPresenters: parsedData.data.otherPresenters.map((e) => {
-      return { email: e };
-    }),
     timeWindows: []
   };
   // Submitter
