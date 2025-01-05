@@ -6,7 +6,7 @@ import type { PersonProps } from '@/Components/Form/Person';
 import { getUser, registerEmailAddress } from '@/lib/supabase/userFunctions';
 // Maybe move or check this one...
 import { PresentationSubmissionFormSchema } from './PresentationSubmissionFormSchema';
-import { submissionsForYear } from '../configConstants';
+import { submissionsForYear } from '../../configConstants';
 import { createAdminClient } from '@/lib/supabaseClient';
 import { sendMailApi } from '@/lib/sendMail';
 import {
@@ -14,6 +14,7 @@ import {
   NewCopresenterEmailFn
 } from '@/EmailTemplates/FormSubmissionEmail';
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 
 export type SubmissionFormData = {
   submitter: PersonProps;
@@ -220,9 +221,10 @@ export const submitNewPresentation = async (
   // TODO: Consider logging the email results? Or the unsuccessful ones?
 
   revalidatePath('/my-presentations');
-  return {
-    errors: undefined,
-    success: true,
-    data: parsedData.data
-  };
+  redirect('/presentation-submitted');
+  // return {
+  //   errors: undefined,
+  //   success: true,
+  //   data: parsedData.data
+  // };
 };

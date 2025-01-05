@@ -8,7 +8,7 @@ import { submitNewPresentation } from './PresentationSubmissionActions';
 
 import { FormField, TextArea } from '@/Components/Form/FormFieldSrv';
 import { Select } from '@/Components/Form/Select';
-import { useActionState } from 'react';
+import { useActionState, useReducer } from 'react';
 
 type PresentationSubmissionFormProps = {
   submitter: PersonProps;
@@ -40,7 +40,22 @@ export const PresentationSubmissionForm = (
       otherPresenters: []
     }
   });
-  const otherPresenters = formState.data.otherPresenters ?? [];
+
+  const otherPresentersReducer = (
+    state: string[],
+    action: { type: 'add' } | { type: 'remove'; idx: number }
+  ) => {
+    switch (action.type) {
+      case 'add':
+        return [...state, ''];
+      case 'remove':
+        return state.filter((_, idx) => idx !== action.idx);
+    }
+  };
+  const [otherPresenters, changeOtherPresenters] = useReducer(
+    otherPresentersReducer,
+    formState.data.otherPresenters
+  );
 
   return (
     <div className='prose'>
@@ -69,31 +84,29 @@ export const PresentationSubmissionForm = (
             errors={undefined}
             path={'submitter'}
           />
+
           {otherPresenters.map((email, idx) => {
             return (
-              <div className='js-only pb-2' key={`otherPresenters.${idx}`}>
-                <div className='flex flex-col items-start justify-between sm:flex-row'>
+              <div className='js-only' key={`otherPresenters.${idx}`}>
+                <div className='mb-4 flex flex-col items-start justify-between sm:mb-0 sm:flex-row'>
                   <div className='flex w-full flex-grow'>
-                    <div className='flex flex-1'>
-                      <div className='flex flex-1'>
-                        <FormField
-                          name={`otherPresenters.${idx}.email`}
-                          required
-                          type='email'
-                          error={formState.errors?.otherPresenters?.[idx]}
-                          fullWidth
-                          label='Co-presenter Email'
-                          defaultValue={email}
-                        />
-                      </div>
-                    </div>
+                    <FormField
+                      name={`otherPresenters.${idx}.email`}
+                      required
+                      type='email'
+                      error={formState.errors?.otherPresenters?.[idx]}
+                      fullWidth
+                      label='Co-presenter Email'
+                      defaultValue={email}
+                    />
                   </div>
                   <div
                     className={`ml-auto flex w-1/2 text-center sm:ml-0 sm:w-auto sm:flex-grow-0 sm:p-2`}
                   >
                     <Button
-                      // onClick={() => {}}
-                      // formAction={otherPresentersAction}
+                      onClick={() =>
+                        changeOtherPresenters({ type: 'remove', idx })
+                      }
                       fullWidth
                       formNoValidate={true}
                     >
@@ -104,6 +117,18 @@ export const PresentationSubmissionForm = (
               </div>
             );
           })}
+          <div className='js-only mx-auto w-1/2'>
+            <Button
+              onClick={() => {
+                changeOtherPresenters({ type: 'add' });
+              }}
+              formNoValidate={true}
+              fullWidth
+            >
+              Add co-presenter
+            </Button>
+          </div>
+
           <noscript>
             <p>
               No javascript - enter other presenters as a semicolon-separated
@@ -118,19 +143,8 @@ export const PresentationSubmissionForm = (
               {...lockProps}
             />
           </noscript>
-          <div className='js-only mx-auto -mb-6 mt-1 w-1/2'>
-            <Button
-              // onClick={() => {
-              //   // addPresenter({ email: '' });
-              // }}
-              // formAction={otherPresentersAction}
-              formNoValidate={true}
-              fullWidth
-            >
-              Add co-presenter
-            </Button>
-          </div>
-          <div className='py-8'>
+
+          <div className='pb-8 pt-4'>
             <FormField
               required
               name='title'

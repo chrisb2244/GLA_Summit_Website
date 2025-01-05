@@ -5,7 +5,7 @@ import { getUser } from '@/lib/supabase/userFunctions';
 import { createServerClient } from '@/lib/supabaseServer';
 import type { User } from '@supabase/supabase-js';
 import { Metadata } from 'next';
-import { CAN_SUBMIT_PRESENTATION } from '../configConstants';
+import { CAN_SUBMIT_PRESENTATION } from '../../configConstants';
 import { Suspense } from 'react';
 import {
   PastPresentationSubmissions,
