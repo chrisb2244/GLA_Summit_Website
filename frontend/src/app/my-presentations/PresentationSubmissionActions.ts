@@ -5,7 +5,7 @@ import type { PresentationType } from '@/lib/databaseModels';
 import type { PersonProps } from '@/Components/Form/Person';
 import { getUser, registerEmailAddress } from '@/lib/supabase/userFunctions';
 // Maybe move or check this one...
-import { PresentationSubmissionFormSchema } from '@/Components/Forms/PresentationSubmissionFormSchema';
+import { PresentationSubmissionFormSchema } from './PresentationSubmissionFormSchema';
 import { submissionsForYear } from '../configConstants';
 import { createAdminClient } from '@/lib/supabaseClient';
 import { sendMailApi } from '@/lib/sendMail';
