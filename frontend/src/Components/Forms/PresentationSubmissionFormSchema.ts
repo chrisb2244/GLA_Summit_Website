@@ -19,15 +19,45 @@ const StaticPresentationFormSchema = z.object({
   abstract: z.string(),
   learningPoints: z.string(),
   presentationType: SubmittablePresentationTypeSchema,
-  otherPresenters: z.array(z.string().email()).optional()
+  otherPresenters: z.array(z.string().email()).optional(),
+  otherPresentersList: z.string().optional()
 });
 const StaticKeys = StaticPresentationFormSchema.shape;
 
+const getPresentersFromList = (
+  list: string | undefined,
+  ctx: z.RefinementCtx
+) => {
+  const resultList = list
+    ? list.split(';').map((str) => {
+        const result = z.string().email().safeParse(str.trim());
+        if (result.success) {
+          return result.data;
+        }
+        ctx.addIssue({
+          code: 'invalid_string',
+          message: 'Invalid email',
+          validation: 'email',
+          path: ['otherPresentersList']
+        });
+        return null;
+      })
+    : [];
+  return resultList.filter((v) => v !== null);
+};
+
 export const OtherPresentersSchema = z
-  .object({ otherPresenters: z.array(z.string().email()).optional() })
+  .object({
+    otherPresenters: z.array(z.string().email()).optional(),
+    otherPresentersList: z.string().optional()
+  })
   .catchall(z.any())
-  .transform((input) => {
-    const otherPresenters = Object.entries(input)
+  .transform((input, ctx) => {
+    const otherPresentersFromList = getPresentersFromList(
+      input.otherPresentersList,
+      ctx
+    );
+    const otherPresentersFromEntries = Object.entries(input)
       .map(([key, value]) => {
         if (/otherPresenters\.[0-9]+\.email/.test(key)) {
           return value as string;
@@ -35,6 +65,10 @@ export const OtherPresentersSchema = z
         return null;
       })
       .filter((v) => v !== null);
+    const otherPresenters = [
+      ...otherPresentersFromList,
+      ...otherPresentersFromEntries
+    ];
     return {
       otherPresenters
     };
@@ -42,7 +76,12 @@ export const OtherPresentersSchema = z
 
 export const PresentationSubmissionFormSchema =
   StaticPresentationFormSchema.catchall(z.any()).transform((input, ctx) => {
-    const otherPresenters = Object.entries(input)
+    const otherPresentersFromList = getPresentersFromList(
+      input.otherPresentersList,
+      ctx
+    );
+
+    const otherPresentersFromEntries = Object.entries(input)
       .map(([key, value]) => {
         if (/otherPresenters\.[0-9]+\.email/.test(key)) {
           return value as string;
@@ -77,6 +116,9 @@ export const PresentationSubmissionFormSchema =
       learningPoints: input.learningPoints,
       presentationType: input.presentationType,
       isFinal: input.isFinal ?? false,
-      otherPresenters
+      otherPresenters: [
+        ...otherPresentersFromList,
+        ...otherPresentersFromEntries
+      ]
     };
   });
