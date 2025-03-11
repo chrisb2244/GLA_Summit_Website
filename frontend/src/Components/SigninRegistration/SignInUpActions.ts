@@ -22,7 +22,11 @@ const filterEmails = (email: string) => {
 const filterProfileData = ({ firstName, lastName, email }: PersonProps) => {
   filterEmails(email);
   const urlMatcher = /https?:\/\/.*/;
+  const blogspotMatcher = /blogspot\./;
   if (firstName.match(urlMatcher) || lastName.match(urlMatcher)) {
+    redirect('/auth-blocked', RedirectType.push);
+  }
+  if (firstName.match(blogspotMatcher) || lastName.match(blogspotMatcher)) {
     redirect('/auth-blocked', RedirectType.push);
   }
 };
