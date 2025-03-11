@@ -21,14 +21,25 @@ const filterEmails = (email: string) => {
 
 const filterProfileData = ({ firstName, lastName, email }: PersonProps) => {
   filterEmails(email);
-  const urlMatcher = /https?:\/\/.*/;
-  const blogspotMatcher = /blogspot\./;
-  if (firstName.match(urlMatcher) || lastName.match(urlMatcher)) {
-    redirect('/auth-blocked', RedirectType.push);
-  }
-  if (firstName.match(blogspotMatcher) || lastName.match(blogspotMatcher)) {
-    redirect('/auth-blocked', RedirectType.push);
-  }
+  const flaggedMatchers = [
+    /https?:\/\/.*/,
+    /blogspot\./,
+    /ok\.me/
+  ];
+  
+  flaggedMatchers.forEach((m) => {
+    if (firstName.match(m) || lastName.match(m)) {
+      redirect('/auth-blocked', RedirectType.push);
+    }
+  })
+
+  // Add more dubious text entries that may be valid in a name
+  const captureMatchers = [];
+  captureMatchers.forEach((m) => {
+    if (firstName.match(m) || lastName.match(m)) {
+      // Add a capture-based check or similar here
+    }
+  })
 };
 
 export const signOut = async () => {
