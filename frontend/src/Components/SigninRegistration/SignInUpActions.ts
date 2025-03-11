@@ -34,7 +34,8 @@ const filterProfileData = ({ firstName, lastName, email }: PersonProps) => {
   })
 
   // Add more dubious text entries that may be valid in a name
-  const captureMatchers = [];
+  // Add an explicit type, because an empty array otherwise triggers an "any[]" type failure linting issue.
+  const captureMatchers: string[] = [];
   captureMatchers.forEach((m) => {
     if (firstName.match(m) || lastName.match(m)) {
       // Add a capture-based check or similar here
