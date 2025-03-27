@@ -420,6 +420,32 @@ export type Database = {
           }
         ];
       };
+      review_download_information: {
+        Row: {
+          last_downloaded: string | null;
+          presentation_id: string;
+          viewer_id: string;
+        };
+        Insert: {
+          last_downloaded?: string | null;
+          presentation_id: string;
+          viewer_id?: string;
+        };
+        Update: {
+          last_downloaded?: string | null;
+          presentation_id?: string;
+          viewer_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'review_download_information_presentation_id_fkey';
+            columns: ['presentation_id'];
+            isOneToOne: false;
+            referencedRelation: 'presentation_submissions';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
       ticket_sequences: {
         Row: {
           name: string | null;
