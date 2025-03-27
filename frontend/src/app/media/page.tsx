@@ -143,7 +143,7 @@ const MediaPage = () => {
         {jkiDiv}
         <p>
           Please feel free to use the images on this page on your social media
-          or website (including your NI forum signature). Links to the images
+          or website. Links to the images
           can be found in the &lsquo;href&rsquo; attributes of the HTML samples,
           or by right-clicking and choosing an option like &ldquo;Copy image
           address&rdquo;.
@@ -170,15 +170,15 @@ const MediaPage = () => {
           src={TW_Speaker}
           className='mx-auto'
         />
-        
+
         {
-        /* <div className='prose max-w-2xl text-center'>
-          <p>
-            The GLA Summit Organizers are currently updating the banners for the
-            2025 event.
-          </p>
-          <p>We look forward to sharing the new banners with you soon.</p>
-        </div> */
+          /* <div className='prose max-w-2xl text-center'>
+            <p>
+              The GLA Summit Organizers are currently updating the banners for the
+              2025 event.
+            </p>
+            <p>We look forward to sharing the new banners with you soon.</p>
+          </div> */
         }
       </StackedBoxes>
     </div>
