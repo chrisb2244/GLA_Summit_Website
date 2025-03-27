@@ -70,7 +70,7 @@
     "types-react-dom": "^19.0.0-rc.1",
     "typescript": "^5.3.3",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^2.1.8"
+    "vitest": "^3.0.9"
   },
   "overrides": {
     "@types/react": "npm:types-react@rc",
