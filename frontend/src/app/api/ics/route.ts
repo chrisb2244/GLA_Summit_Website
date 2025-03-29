@@ -1,16 +1,7 @@
 import { createEvent } from 'ics';
 import type { EventAttributes, DateArray } from 'ics';
 import { ticketYear, startDate, eventUrl } from '@/app/configConstants';
-
-const dateToDateArray = (d: Date): DateArray => {
-  return [
-    d.getUTCFullYear(),
-    d.getUTCMonth() + 1,
-    d.getUTCDate(),
-    d.getUTCHours(),
-    d.getUTCMinutes()
-  ];
-};
+import { dateToDateArray } from '@/lib/utils';
 
 export async function GET() {
   const start = dateToDateArray(startDate);

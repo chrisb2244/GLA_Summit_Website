@@ -1,6 +1,7 @@
 import { Presentation } from '@/Components/PresentationSummary';
 import { PresentationType } from './databaseModels';
 import { createAdminClient } from './supabaseClient';
+import type { DateArray } from 'ics';
 
 const shouldLog = process.env.NODE_ENV !== 'production';
 const dbLog = true; // process.env.NODE_ENV === 'production'
@@ -201,4 +202,14 @@ export const formatTextToPs = (text: string, extraClassNames?: string) => {
       </p>
     );
   });
+};
+
+export const dateToDateArray = (d: Date): DateArray => {
+  return [
+    d.getUTCFullYear(),
+    d.getUTCMonth() + 1,
+    d.getUTCDate(),
+    d.getUTCHours(),
+    d.getUTCMinutes()
+  ];
 };
