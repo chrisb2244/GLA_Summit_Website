@@ -213,3 +213,16 @@ export const dateToDateArray = (d: Date): DateArray => {
     d.getUTCMinutes()
   ];
 };
+
+export const joinNames = (
+  { firstname, lastname }: { firstname: string; lastname: string },
+  unknownName: string = 'Unknown User'
+) => {
+  const joinedNamesOmitEmpty = [firstname, lastname]
+    .filter((s) => s.trim().length !== 0)
+    .map((s) => s.trim())
+    .join(' ');
+  return joinedNamesOmitEmpty.trim().length !== 0
+    ? joinedNamesOmitEmpty
+    : unknownName;
+};
