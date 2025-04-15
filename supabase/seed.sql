@@ -386,8 +386,8 @@ INSERT INTO "public"."ticket_sequences" ("year", "name") VALUES
 	('2024', 'ticket_sequence_2024'),
 	('2025', 'ticket_sequence_2025');
 -- Manually added sequences - normally, this is added by a trigger but here the triggers are not used during the seed
-CREATE SEQUENCE IF NOT EXISTS ticket_sequence_2024;
-CREATE SEQUENCE IF NOT EXISTS ticket_sequence_2025;
+CREATE SEQUENCE IF NOT EXISTS public.ticket_sequence_2024;
+CREATE SEQUENCE IF NOT EXISTS public.ticket_sequence_2025;
 
 
 --
