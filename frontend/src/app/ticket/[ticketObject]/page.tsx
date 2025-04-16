@@ -217,6 +217,7 @@ const AsyncElem = ({
       return (
         <>
           <div className='relative mx-auto my-4 max-w-full md:max-w-[700px]'>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={srcData}
               alt='My GLA Summit Ticket'
