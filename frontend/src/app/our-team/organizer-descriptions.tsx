@@ -191,7 +191,7 @@ export const descriptions = {
       </p>
     </>
   ),
-  
+
   QuentinAlldredge: (
     <>
       <p>
@@ -199,23 +199,23 @@ export const descriptions = {
         connotations.
       </p>
       <p>
-        Q graduated from Utah State University with a B.S. and M.S. in Mechanical
-        Engineering in 2006. After graduation, Q worked first at Alliance Tech
-        Systems (ATK) at the site where the Space Shuttle solid rocket boosters
-        were built in northern Utah. It was there that Q was sent to take all the
-        LabVIEW training.
+        Q graduated from Utah State University with a B.S. and M.S. in
+        Mechanical Engineering in 2006. After graduation, Q worked first at
+        Alliance Tech Systems (ATK) at the site where the Space Shuttle solid
+        rocket boosters were built in northern Utah. It was there that Q was
+        sent to take all the LabVIEW training.
       </p>
       <p>
         After Q left ATK, he began working at Hill Air Force Base. In 2016, Q
         became a CLA, and his team was certified as a LabVIEW Center of
         Excellence. In 2018, Q was accepted as a LabVIEW Champion and at NIWeek
-        2019 he received the Community Contribution Award for his creation of the
-        QControl Toolkit.
+        2019 he received the Community Contribution Award for his creation of
+        the QControl Toolkit.
       </p>
       <p>
-        In August 2021, Q left working for the Air Force and joined Testeract, as
-        their Chief LabVIEW Architect. Q also serves on the board of GCentral and
-        is involved in the LabVIEW Community.
+        In August 2021, Q left working for the Air Force and joined Testeract,
+        as their Chief LabVIEW Architect. Q also serves on the board of GCentral
+        and is involved in the LabVIEW Community.
       </p>
     </>
   ),
@@ -223,12 +223,16 @@ export const descriptions = {
   HemantChourasia: (
     <>
       <p>
-      Hemant Chourasia, a Certified LabVIEW Architect, works as an RF Product Engineer at Qualcomm, 
-      specializing in Post-Silicon Validation with a focus on RF and communication systems.
+        Hemant Chourasia, a Certified LabVIEW Architect, works as an RF Product
+        Engineer at Qualcomm, specializing in Post-Silicon Validation with a
+        focus on RF and communication systems.
       </p>
       <p>
-      Hemant is an active member of the LabVIEW community in India, frequently organizing and delivering presentations at User Group meetings. Hemant has also presented at the GLA Summit, showcasing expertise and contributing to the broader LabVIEW community. 
-      Hemant remains dedicated to sharing knowledge and supporting the growth of the community.
+        Hemant is an active member of the LabVIEW community in India, frequently
+        organizing and delivering presentations at User Group meetings. Hemant
+        has also presented at the GLA Summit, showcasing expertise and
+        contributing to the broader LabVIEW community. Hemant remains dedicated
+        to sharing knowledge and supporting the growth of the community.
       </p>
     </>
   )
