@@ -55,7 +55,10 @@ const TicketGeneratorPage = async () => {
 
   const existingTicket = await fetchExistingTicket();
 
-  const [isPresenter, _]: [true, string[]] | [false, null] = await supabase
+  // The second element of the array here is the list of titles
+  // This can be used if they should be written on the ticket,
+  // but at present it was determined that was too long/verbose.
+  const [isPresenter]: [true, string[]] | [false, null] = await supabase
     .from('presentation_submissions')
     .select(
       'title, presentation_presenters!inner(presenter_id), accepted_presentations!inner(year)'

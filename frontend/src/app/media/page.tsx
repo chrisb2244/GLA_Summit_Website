@@ -123,19 +123,19 @@ const MediaPage = () => {
   const bannerImagesAttendee = buildImageTableRows(images, 'Attendee');
   const bannerImagesSpeaker = buildImageTableRows(images, 'Speaker');
 
-  const niSignatureElems = (
-    <>
-      <p>
-        To access your signature on the NI Community pages, go to your community
-        account &ldquo;My Profile&rdquo; settings and then Personal &gt;
-        Personal Information.
-      </p>
-      <p>
-        Examples of HTML that could be copied into the signature line are below:
-      </p>
-      {/* {signatureDiv} */}
-    </>
-  );
+  // const niSignatureElems = (
+  //   <>
+  //     <p>
+  //       To access your signature on the NI Community pages, go to your community
+  //       account &ldquo;My Profile&rdquo; settings and then Personal &gt;
+  //       Personal Information.
+  //     </p>
+  //     <p>
+  //       Examples of HTML that could be copied into the signature line are below:
+  //     </p>
+  //     {/* {signatureDiv} */}
+  //   </>
+  // );
 
   return (
     <div className='-ml-6 mt-4 md:mx-auto md:max-w-4xl'>
@@ -143,10 +143,9 @@ const MediaPage = () => {
         {jkiDiv}
         <p>
           Please feel free to use the images on this page on your social media
-          or website. Links to the images
-          can be found in the &lsquo;href&rsquo; attributes of the HTML samples,
-          or by right-clicking and choosing an option like &ldquo;Copy image
-          address&rdquo;.
+          or website. Links to the images can be found in the &lsquo;href&rsquo;
+          attributes of the HTML samples, or by right-clicking and choosing an
+          option like &ldquo;Copy image address&rdquo;.
         </p>
         {/* niSignatureElems */}
         <h3 className='text-3xl'>Attendees</h3>
@@ -171,15 +170,13 @@ const MediaPage = () => {
           className='mx-auto'
         />
 
-        {
-          /* <div className='prose max-w-2xl text-center'>
+        {/* <div className='prose max-w-2xl text-center'>
             <p>
               The GLA Summit Organizers are currently updating the banners for the
               2025 event.
             </p>
             <p>We look forward to sharing the new banners with you soon.</p>
-          </div> */
-        }
+          </div> */}
       </StackedBoxes>
     </div>
   );

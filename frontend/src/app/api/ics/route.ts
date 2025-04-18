@@ -1,5 +1,5 @@
 import { createEvent } from 'ics';
-import type { EventAttributes, DateArray } from 'ics';
+import type { EventAttributes } from 'ics';
 import { ticketYear, startDate, eventUrl } from '@/app/configConstants';
 import { dateToDateArray } from '@/lib/utils';
 

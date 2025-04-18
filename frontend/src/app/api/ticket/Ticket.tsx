@@ -65,6 +65,9 @@ export const Ticket = (props: TicketProps) => {
       {/* Right side, image and date */}
       <div tw='flex flex-col w-1/3 items-center justify-center'>
         <div tw='flex w-[320px] h-[320px]'>
+          {/* eslint-disable-next-line @next/next/no-img-element -- 
+              Must avoid Image component for sharing as a response 
+          */}
           <img width={320} height={320} alt='GLA Summit Logo' src={logoData} />
         </div>
         <div tw='flex flex-col items-center justify-center mx-auto pt-8'>
