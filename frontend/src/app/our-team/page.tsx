@@ -10,6 +10,7 @@ import Image_MR from '@/media/MichalRadziwon.jpg';
 import Image_AB from '@/media/AmandaBacala.webp';
 import Image_ML from '@/media/MartinLentz.jpg';
 import Image_QA from '@/media/QuentinAlldredge.webp';
+import Image_HC from '@/media/HemantChourasia.jpg';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -42,6 +43,13 @@ const OurTeam = () => {
       description: descriptions.ChristianButcher,
       image: Image_CB
     },
+    {
+      firstName: 'Hemant',
+      lastName: 'Chourasia',
+      description: descriptions.HemantChourasia,
+      image: Image_HC
+    },
+
     {
       firstName: 'Sam',
       lastName: 'Taggart',
