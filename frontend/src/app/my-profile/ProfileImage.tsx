@@ -19,7 +19,8 @@ export const ProfileImage = (props: ProfileImageProps) => {
   const { src: profileImageSrc, mutate } = useProfileImage(userId) || {};
 
   const imageUploadFn = async (file: File) => {
-    const remoteName = `${userId}_${Math.random()}.png`;
+    const extn = file.name.split('.').pop();
+    const remoteName = `${userId}_${Math.random()}.${extn}`;
     setUploading(true);
     uploadAvatar(remoteName, file, userId, avatarUrl).finally(() => {
       setUploading(false);

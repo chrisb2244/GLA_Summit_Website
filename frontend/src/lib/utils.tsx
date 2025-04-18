@@ -1,6 +1,7 @@
 import { Presentation } from '@/Components/PresentationSummary';
 import { PresentationType } from './databaseModels';
 import { createAdminClient } from './supabaseClient';
+import type { DateArray } from 'ics';
 
 const shouldLog = process.env.NODE_ENV !== 'production';
 const dbLog = true; // process.env.NODE_ENV === 'production'
@@ -201,4 +202,27 @@ export const formatTextToPs = (text: string, extraClassNames?: string) => {
       </p>
     );
   });
+};
+
+export const dateToDateArray = (d: Date): DateArray => {
+  return [
+    d.getUTCFullYear(),
+    d.getUTCMonth() + 1,
+    d.getUTCDate(),
+    d.getUTCHours(),
+    d.getUTCMinutes()
+  ];
+};
+
+export const joinNames = (
+  { firstname, lastname }: { firstname: string; lastname: string },
+  unknownName: string = 'Unknown User'
+) => {
+  const joinedNamesOmitEmpty = [firstname, lastname]
+    .filter((s) => s.trim().length !== 0)
+    .map((s) => s.trim())
+    .join(' ');
+  return joinedNamesOmitEmpty.trim().length !== 0
+    ? joinedNamesOmitEmpty
+    : unknownName;
 };

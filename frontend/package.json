@@ -15,6 +15,7 @@
     "clsx": "^1.2.1",
     "form-data": "^4.0.0",
     "ics": "^2.41.0",
+    "jszip": "^3.10.1",
     "mailgun.js": "^10.2.1",
     "next": "^15.0.4-canary.49",
     "nodemailer": "^6.7.3",
