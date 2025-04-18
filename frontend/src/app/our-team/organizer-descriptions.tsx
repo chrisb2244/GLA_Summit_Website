@@ -217,6 +217,19 @@ const QuentinAlldredge = (
   </>
 );
 
+const HemantChourasia = (
+  <>
+    <p>
+    Hemant Chourasia, a Certified LabVIEW Architect, works as an RF Product Engineer at Qualcomm, 
+    specializing in Post-Silicon Validation with a focus on RF and communication systems.
+    </p>
+    <p>
+    Hemant is an active member of the LabVIEW community in India, frequently organizing and delivering presentations at User Group meetings. Hemant has also presented at the GLA Summit, showcasing expertise and contributing to the broader LabVIEW community. 
+    Hemant remains dedicated to sharing knowledge and supporting the growth of the community.
+    </p>
+  </>
+);
+
 export const descriptions = {
   TomMcQuillan: TomMcQuillan,
   OliverWachno: OliverWachno,
@@ -227,5 +240,6 @@ export const descriptions = {
   MichalRadziwon: MichalRadziwon,
   AmandaBacala: AmandaBacala,
   MartinLentz: MartinLentz,
-  QuentinAlldredge: QuentinAlldredge
+  QuentinAlldredge: QuentinAlldredge,
+  HemantChourasia: HemantChourasia,
 };
