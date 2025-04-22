@@ -40,14 +40,30 @@ export const downloadSharableSubmissionContent = async (
   const presenterIds = presenterData.map((p) => p.presenter_id);
   const { data: presenters, error: presentersError2 } = await supabase
     .from('profiles')
-    .select('firstname, lastname, avatar_url, bio')
+    .select('id, firstname, lastname, avatar_url, bio')
     .in('id', presenterIds);
   if (presentersError2) {
     console.error('Error downloading presenters:', presentersError2);
     return;
   }
 
+  const { data: presenterEmails, error: emailsError } = await supabase
+    .from('email_lookup')
+    .select('*')
+    .in('id', presenterIds);
+
+  if (emailsError) {
+    console.error('Error downloading presenter emails:', emailsError);
+    return;
+  }
+
+  const orderedEmails = presenters.map(({ id }) => {
+    const email = presenterEmails.find((email) => email.id === id);
+    return email ? email.email : '';
+  });
+
   const content = `${presenters.map((p) => joinNames(p)).join(', ')}
+${orderedEmails.join(', ')}
 
 ${presentation.title}
     
