@@ -62,16 +62,24 @@ export const downloadSharableSubmissionContent = async (
     return email ? email.email : '';
   });
 
-  const content = `${presenters.map((p) => joinNames(p)).join(', ')}
-${orderedEmails.join(', ')}
-
-${presentation.title}
-    
-${presentation.abstract}
-`;
+  const content =
+  'Name:\n' +
+  joinNames(presenters[0]) + '\n\n' +
+  'Email:\n' +
+  orderedEmails[0] + '\n\n' +
+  'Title:\n' +
+  presentation.title + '\n\n' +
+  'Abstract:\n' +
+  presentation.abstract;
 
   const zip = new JSZip();
-  zip.file('information.txt', content);
+  const firstPresenterName = joinNames(presenters[0]);
+  const rawFileName = `${firstPresenterName}_${presentation.title}`;
+  const safeFileName = rawFileName
+  .replace(/[^a-z0-9]/gi, '_')
+  .replace(/_+/g, '_') 
+  .slice(0, 100);   
+  zip.file(`${safeFileName}.txt`, content);
   const filePromises = Promise.all(
     presenters.map(async (p) => {
       if (!p.avatar_url) return;
