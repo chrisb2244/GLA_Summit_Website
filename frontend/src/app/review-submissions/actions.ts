@@ -41,7 +41,25 @@ export const downloadSharableSubmissionContent = async (
   const { data: presenters, error: presentersError2 } = await supabase
     .from('profiles')
     .select('id, firstname, lastname, avatar_url, bio')
-    .in('id', presenterIds);
+    .in('id', presenterIds)
+    .then((res) => {
+      // If error, return the original response
+      if (!res.data) {
+        return res;
+      }
+      // Find the submitter and place them at the top of the list
+      const submitterIdx = res.data.findIndex(
+        (presenter) => presenter.id === presentation.submitter_id
+      );
+      return {
+        ...res,
+        data: [
+          res.data[submitterIdx],
+          ...res.data.slice(0, submitterIdx),
+          ...res.data.slice(submitterIdx + 1)
+        ]
+      };
+    });
   if (presentersError2) {
     console.error('Error downloading presenters:', presentersError2);
     return;
@@ -63,14 +81,17 @@ export const downloadSharableSubmissionContent = async (
   });
 
   const content =
-  'Name:\n' +
-  joinNames(presenters[0]) + '\n\n' +
-  'Email:\n' +
-  orderedEmails[0] + '\n\n' +
-  'Title:\n' +
-  presentation.title + '\n\n' +
-  'Abstract:\n' +
-  presentation.abstract;
+    'Name:\n' +
+    presenters.map((p) => joinNames(p)).join('\n') +
+    '\n\n' +
+    'Email:\n' +
+    orderedEmails.join('\n') +
+    '\n\n' +
+    'Title:\n' +
+    presentation.title +
+    '\n\n' +
+    'Abstract:\n' +
+    presentation.abstract;
 
   const zip = new JSZip();
   const firstPresenterName = joinNames(presenters[0]);
