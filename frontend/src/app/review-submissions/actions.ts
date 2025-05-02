@@ -97,9 +97,9 @@ export const downloadSharableSubmissionContent = async (
   const firstPresenterName = joinNames(presenters[0]);
   const rawFileName = `${firstPresenterName}_${presentation.title}`;
   const safeFileName = rawFileName
-  .replace(/[^a-z0-9]/gi, '_')
-  .replace(/_+/g, '_') 
-  .slice(0, 100);   
+    .replace(/[^a-z0-9]/gi, '_')
+    .replace(/_+/g, '_')
+    .slice(0, 100);
   zip.file(`${safeFileName}.txt`, content);
   const filePromises = Promise.all(
     presenters.map(async (p) => {
