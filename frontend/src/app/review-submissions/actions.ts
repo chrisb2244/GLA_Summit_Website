@@ -40,22 +40,67 @@ export const downloadSharableSubmissionContent = async (
   const presenterIds = presenterData.map((p) => p.presenter_id);
   const { data: presenters, error: presentersError2 } = await supabase
     .from('profiles')
-    .select('firstname, lastname, avatar_url, bio')
-    .in('id', presenterIds);
+    .select('id, firstname, lastname, avatar_url, bio')
+    .in('id', presenterIds)
+    .then((res) => {
+      // If error, return the original response
+      if (!res.data) {
+        return res;
+      }
+      // Find the submitter and place them at the top of the list
+      const submitterIdx = res.data.findIndex(
+        (presenter) => presenter.id === presentation.submitter_id
+      );
+      return {
+        ...res,
+        data: [
+          res.data[submitterIdx],
+          ...res.data.slice(0, submitterIdx),
+          ...res.data.slice(submitterIdx + 1)
+        ]
+      };
+    });
   if (presentersError2) {
     console.error('Error downloading presenters:', presentersError2);
     return;
   }
 
-  const content = `${presenters.map((p) => joinNames(p)).join(', ')}
+  const { data: presenterEmails, error: emailsError } = await supabase
+    .from('email_lookup')
+    .select('*')
+    .in('id', presenterIds);
 
-${presentation.title}
-    
-${presentation.abstract}
-`;
+  if (emailsError) {
+    console.error('Error downloading presenter emails:', emailsError);
+    return;
+  }
+
+  const orderedEmails = presenters.map(({ id }) => {
+    const email = presenterEmails.find((email) => email.id === id);
+    return email ? email.email : '';
+  });
+
+  const content =
+    'Name:\n' +
+    presenters.map((p) => joinNames(p)).join('\n') +
+    '\n\n' +
+    'Email:\n' +
+    orderedEmails.join('\n') +
+    '\n\n' +
+    'Title:\n' +
+    presentation.title +
+    '\n\n' +
+    'Abstract:\n' +
+    presentation.abstract;
 
   const zip = new JSZip();
-  zip.file('information.txt', content);
+  const firstPresenterName = joinNames(presenters[0]);
+  const rawFileName = `${firstPresenterName}_${presentation.title}`;
+  const safeFileName = rawFileName
+    .replace(/[^a-z0-9]/gi, '_')
+    .replace(/_+/g, '_')
+    .slice(0, 100);
+  zip.file(`${safeFileName}.txt`, content);
   const filePromises = Promise.all(
     presenters.map(async (p) => {
       if (!p.avatar_url) return;
