@@ -21,10 +21,26 @@ const filterEmails = (email: string) => {
 
 const filterProfileData = ({ firstName, lastName, email }: PersonProps) => {
   filterEmails(email);
-  const urlMatcher = /https?:\/\/.*/;
-  if (firstName.match(urlMatcher) || lastName.match(urlMatcher)) {
-    redirect('/auth-blocked', RedirectType.push);
-  }
+  const flaggedMatchers = [
+    /https?:\/\/.*/,
+    /blogspot\./,
+    /ok\.me/
+  ];
+  
+  flaggedMatchers.forEach((m) => {
+    if (firstName.match(m) || lastName.match(m)) {
+      redirect('/auth-blocked', RedirectType.push);
+    }
+  })
+
+  // Add more dubious text entries that may be valid in a name
+  // Add an explicit type, because an empty array otherwise triggers an "any[]" type failure linting issue.
+  const captureMatchers: string[] = [];
+  captureMatchers.forEach((m) => {
+    if (firstName.match(m) || lastName.match(m)) {
+      // Add a capture-based check or similar here
+    }
+  })
 };
 
 export const signOut = async () => {
