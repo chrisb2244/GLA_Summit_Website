@@ -26,6 +26,12 @@ const filterProfileData = ({ firstName, lastName, email }: PersonProps) => {
     /blogspot\./,
     /ok\.me/
   ];
+
+  // Check the name lengths are not excessive
+  if (firstName.length > 35 || lastName.length > 35) {
+    // See https://webarchive.nationalarchives.gov.uk/ukgwa/20100407204354/http://www.cabinetoffice.gov.uk/govtalk/schemasstandards/e-gif/datastandards/person_information/person_name.aspx for reference on length
+    redirect('/auth-blocked', RedirectType.push);
+  }
   
   flaggedMatchers.forEach((m) => {
     if (firstName.match(m) || lastName.match(m)) {
