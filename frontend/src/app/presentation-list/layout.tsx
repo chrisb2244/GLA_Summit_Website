@@ -27,7 +27,7 @@ const PresentationListLayout = async ({
   //   </p>
   // );
 
-  const years: SummitYear[] = ['2024', '2022', '2021'];
+  const years: SummitYear[] = ['2025', '2024', '2022', '2021'];
 
   return (
     <div>
