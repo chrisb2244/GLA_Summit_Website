@@ -81,18 +81,21 @@ export const PresentationDisplay: React.FC<
   );
 
   const downloadButton = hasSchedule ? (
+    // If the presentation has a schedule, show the download button
     <a href={`/api/ics/${presentationId}`} target='_blank' rel='noreferrer'>
       <div className='flex flex-row items-center'>
         <Icon path={mdiCalendar} size={1} />
         <span className='pl-1'>Download ICS file</span>
       </div>
     </a>
-  ) : (
+  ) : !presentation.isPrivate ? (
+    // If the presentation does not have a schedule, but is not private, show a message
+    // indicating that the ICS file is coming soon
     <div className='flex flex-row items-center'>
       <Icon path={mdiCalendar} size={1} />
       <span className='pl-1'>ICS file coming soon</span>
     </div>
-  );
+  ) : null; // If the presentation is private, do not show the download button
 
   // const handleFavouriteClick = () => {
   //   if (user === null) {
