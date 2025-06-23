@@ -93,11 +93,13 @@ export const PersonDisplay: React.FC<
             {descriptionElem}
           </div>
         </div>
-        <div
-          className={`not-prose relative w-full flex-shrink-0 align-middle md:w-[30%] ${imgDispCName} flex flex-row justify-center px-8`}
-        >
-          {imageElem}
-        </div>
+        {imageElem !== null && (
+          <div
+            className={`not-prose relative w-full flex-shrink-0 align-middle md:w-[30%] ${imgDispCName} flex flex-row justify-center px-8`}
+          >
+            {imageElem}
+          </div>
+        )}
       </div>
     </div>
   );
