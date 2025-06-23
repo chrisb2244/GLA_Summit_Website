@@ -89,6 +89,7 @@ export const getPerson = nextjs_cache(
   },
   ['db:presenters:getPerson'],
   {
+    revalidate: 1200, // TODO: Remove this once we provide a trigger to revalidate the cache
     tags: ['db:presenters:getPerson']
   }
 );
