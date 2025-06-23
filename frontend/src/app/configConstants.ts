@@ -1,6 +1,6 @@
 import type { SummitYear } from '@/lib/databaseModels';
 
-export const CAN_SUBMIT_PRESENTATION: boolean = true;
+export const CAN_SUBMIT_PRESENTATION: boolean = false;
 export const currentDisplayYear: SummitYear = '2025';
 export const submissionsForYear: SummitYear = '2025';
 export const ticketYear: SummitYear = '2025';

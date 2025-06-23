@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { SponsorBar } from './_rootElements/SponsorBar';
 import { SubmitPresentationButton } from './_homepage/SubmitPresentationButton';
 import { Button } from '@/Components/Form/Button';
+import { CAN_SUBMIT_PRESENTATION } from './configConstants';
 // import { Countdown } from './_rootElements/Countdown'
 
 export const metadata: Metadata = {
@@ -73,7 +74,7 @@ export default async function Page() {
         (certified or self-proclaimed) from around the world to network and
         participate in an inclusive, all-digital, free event.
       </p>
-      <SubmitPresentationButton />
+      {CAN_SUBMIT_PRESENTATION && <SubmitPresentationButton />}
       {/* <p>Our event ticketing system will open soon.</p> */}
       {/* <div>{ticketButton}</div> */}
       <div>
