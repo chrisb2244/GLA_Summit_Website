@@ -57,20 +57,25 @@ export default async function Page() {
 
   return (
     <div className='prose prose-base mx-auto max-w-2xl text-justify xl:max-w-3xl'>
-      <p className='prose-lg text-center'>
+      {/* <p className='prose-lg text-center'>
         The GLA&nbsp;Summit Organizers are excited to announce the next
         GLA&nbsp;Summit, scheduled for{' '}
         <span className='whitespace-nowrap'>23-24 June 2025!</span>
-      </p>
-      {/* <p className='prose-lg text-center'>
+      </p> */}
+      {/* <p>
+        We are excited to welcome advanced LabVIEW developers and Architects
+        (certified or self-proclaimed) from around the world to network and
+        participate in an inclusive, all-digital, free event.
+      </p> */}
+      <p className='prose-lg text-center'>
         The GLA Summit Organizers would like to thank all those
         <br />
         who presented at, or attended,
         <br />
-        the GLA Summit 2024 on 25-26 March 2024!
-      </p>*/}
+        the GLA Summit 2025 on 23-24 June 2025!
+      </p>
       <p>
-        We are excited to welcome advanced LabVIEW developers and Architects
+        We were excited to welcome advanced LabVIEW developers and Architects
         (certified or self-proclaimed) from around the world to network and
         participate in an inclusive, all-digital, free event.
       </p>
@@ -78,7 +83,7 @@ export default async function Page() {
       {/* <p>Our event ticketing system will open soon.</p> */}
       {/* <div>{ticketButton}</div> */}
       <div>
-        <p className='text-center'>
+        {/* <p className='text-center'>
           The GLA Summit is open for 2025 tickets! You can register at{' '}
           <a
             href='https://events.ringcentral.com/events/gla-summit-2025'
@@ -88,7 +93,7 @@ export default async function Page() {
           </a>
           .
         </p>
-        {generalEventButton}
+        {generalEventButton} */}
         {/* <p>
           If you registered for a ticket using this website, you should have
           received an email with a customised link - you can use that directly
@@ -106,6 +111,10 @@ export default async function Page() {
         </p>
         </div> */}
 
+      <p>
+        We will be working on uploading recordings of our 2025 presentations to
+        our YouTube channel.
+      </p>
       <p>
         Recordings of past presentations are available on the{' '}
         <a
