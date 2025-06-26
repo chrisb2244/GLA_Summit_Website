@@ -34,7 +34,7 @@ export const PersonDisplay: React.FC<
       <img
         src={props.image}
         alt={`Image of ${props.firstName} ${props.lastName}`}
-        className='object-contain'
+        className='relative object-contain'
         sizes='(max-width: 899px) 100vw, 30vw'
       />
     );
@@ -81,7 +81,7 @@ export const PersonDisplay: React.FC<
   return (
     <div className={`${props.stripContainer ? '' : 'rounded shadow-md'}`}>
       <div
-        className={`flex flex-col ${md_direction} my-2 content-center justify-around space-x-4`}
+        className={`flex flex-col ${md_direction} my-2 content-center justify-around`}
       >
         <div className={`my-auto flex-grow items-center`}>
           <h3 className='my-0'>
@@ -95,7 +95,7 @@ export const PersonDisplay: React.FC<
         </div>
         {imageElem !== null && (
           <div
-            className={`not-prose relative w-full flex-shrink-0 align-middle md:w-[30%] ${imgDispCName} flex flex-row justify-center px-8`}
+            className={`not-prose relative w-full flex-shrink-0 align-middle md:w-[30%] ${imgDispCName} mx-4 flex flex-row justify-center`}
           >
             {imageElem}
           </div>
