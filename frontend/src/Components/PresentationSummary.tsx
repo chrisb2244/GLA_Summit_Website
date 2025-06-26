@@ -26,7 +26,7 @@ export const PresentationSummary = (props: PresentationProps) => {
   const { presentation: pres } = props;
 
   const speakerLine = Array.isArray(pres.speakerNames)
-    ? pres.speakerNames.join(', ')
+    ? pres.speakerNames.filter((s) => s.trim() !== '').join(', ')
     : pres.speakerNames;
 
   // prettier-ignore

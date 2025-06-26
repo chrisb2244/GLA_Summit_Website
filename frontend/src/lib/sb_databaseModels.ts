@@ -7,6 +7,31 @@ export type Json =
   | Json[];
 
 export type Database = {
+  graphql_public: {
+    Tables: {
+      [_ in never]: never;
+    };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      graphql: {
+        Args: {
+          operationName?: string;
+          query?: string;
+          variables?: Json;
+          extensions?: Json;
+        };
+        Returns: Json;
+      };
+    };
+    Enums: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
+    };
+  };
   public: {
     Tables: {
       accepted_presentations: {
@@ -390,6 +415,32 @@ export type Database = {
             foreignKeyName: 'public_rejected_presentations_id_fkey';
             columns: ['id'];
             isOneToOne: true;
+            referencedRelation: 'presentation_submissions';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+      review_download_information: {
+        Row: {
+          last_downloaded: string | null;
+          presentation_id: string;
+          viewer_id: string;
+        };
+        Insert: {
+          last_downloaded?: string | null;
+          presentation_id: string;
+          viewer_id?: string;
+        };
+        Update: {
+          last_downloaded?: string | null;
+          presentation_id?: string;
+          viewer_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'review_download_information_presentation_id_fkey';
+            columns: ['presentation_id'];
+            isOneToOne: false;
             referencedRelation: 'presentation_submissions';
             referencedColumns: ['id'];
           }

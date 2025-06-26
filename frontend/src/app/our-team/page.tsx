@@ -3,13 +3,13 @@ import { descriptions } from './organizer-descriptions';
 import Image_OW from '@/media/OliWachno.jpg';
 import Image_TM from '@/media/TomMcQuillan.png';
 import Image_CB from '@/media/ChristianButcher.jpg';
-import Image_SS from '@/media/SreejithSreenivasan.jpg';
 import Image_ST from '@/media/SamTaggart.jpg';
 import Image_WR from '@/media/WilliamRichards.jpg';
 import Image_MR from '@/media/MichalRadziwon.jpg';
 import Image_AB from '@/media/AmandaBacala.webp';
 import Image_ML from '@/media/MartinLentz.jpg';
 import Image_QA from '@/media/QuentinAlldredge.webp';
+import Image_HC from '@/media/HemantChourasia.jpg';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -43,10 +43,10 @@ const OurTeam = () => {
       image: Image_CB
     },
     {
-      firstName: 'Sreejith',
-      lastName: 'Sreenivasan',
-      description: descriptions.SreejithSreenivasan,
-      image: Image_SS
+      firstName: 'Hemant',
+      lastName: 'Chourasia',
+      description: descriptions.HemantChourasia,
+      image: Image_HC
     },
     {
       firstName: 'Sam',
@@ -88,6 +88,12 @@ const OurTeam = () => {
       image: Image_TM
     },
     {
+      firstName: 'Sreejith',
+      lastName: 'Sreenivasan',
+      description: descriptions.SreejithSreenivasan,
+      image: ''
+    },
+    {
       firstName: 'Chris',
       lastName: 'Stryker',
       description: '',
@@ -109,10 +115,6 @@ const OurTeam = () => {
 
   return (
     <div className='prose flex max-w-none flex-col'>
-      {/* <div>
-        <h2>The GLA Summit</h2>
-        <p>Description here</p>
-      </div> */}
       <div className='flex max-w-none flex-col space-y-2'>
         <h2>Current Organizers</h2>
         {elemSrcs.map((p, idx) => {
@@ -127,7 +129,6 @@ const OurTeam = () => {
           );
         })}
       </div>
-      {/* <div className='flex max-w-none flex-col space-y-2'> */}
       <div className='flex flex-col items-center'>
         <h2>Past Organizers</h2>
         <div className='flex flex-row flex-wrap justify-center space-x-4'>
@@ -140,15 +141,6 @@ const OurTeam = () => {
                 {[p.firstName, p.lastName].join(' ')}
               </span>
             );
-            // return (
-            //   <div className='border p-4 shadow-sm' key={idx}>
-            //     <PersonDisplay
-            //       {...p}
-            //       stripContainer
-            //       imageSide={idx % 2 === 0 ? 'right' : 'left'}
-            //     />
-            //   </div>
-            // );
           })}
         </div>
       </div>

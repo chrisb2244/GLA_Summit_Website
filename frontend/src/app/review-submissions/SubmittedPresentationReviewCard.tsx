@@ -2,7 +2,11 @@
 
 import { PresentationType } from '@/lib/databaseModels';
 import { Disclosure, Transition } from '@headlessui/react';
-import { formatTextToPs, getSessionDurationInMinutes } from '@/lib/utils';
+import {
+  formatTextToPs,
+  getSessionDurationInMinutes,
+  joinNames
+} from '@/lib/utils';
 
 export type PersonInfo = {
   id: string;
@@ -28,18 +32,9 @@ type SubmittedPresentationReviewCardProps = {
 export const SubmittedPresentationReviewCard: React.FC<
   React.PropsWithChildren<SubmittedPresentationReviewCardProps>
 > = (props) => {
-  const getName = (person: PersonInfo) => {
-    const joinedNamesOmitEmpty = [person.firstname, person.lastname]
-      .filter((s) => s.trim().length !== 0)
-      .join(' ');
-    return joinedNamesOmitEmpty.trim().length !== 0
-      ? joinedNamesOmitEmpty
-      : 'Unknown User';
-  };
-
   const p = props.presentationInfo;
   const duration = getSessionDurationInMinutes(p.presentation_type);
-  const byline = `Submitter: ${getName(p.submitter)} (${duration} minutes)`;
+  const byline = `Submitter: ${joinNames(p.submitter)} (${duration} minutes)`;
 
   return (
     <div className='prose w-full max-w-full rounded-lg shadow'>
@@ -64,7 +59,7 @@ export const SubmittedPresentationReviewCard: React.FC<
             <span>
               {'Presenters: '}
               {p.presenters.map((name, idx, arr) => {
-                const nameString = getName(name);
+                const nameString = joinNames(name);
                 return (
                   <span
                     className={nameString === 'Unknown User' ? 'italic' : ''}

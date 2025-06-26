@@ -21,10 +21,32 @@ const filterEmails = (email: string) => {
 
 const filterProfileData = ({ firstName, lastName, email }: PersonProps) => {
   filterEmails(email);
-  const urlMatcher = /https?:\/\/.*/;
-  if (firstName.match(urlMatcher) || lastName.match(urlMatcher)) {
+  const flaggedMatchers = [
+    /https?:\/\/.*/,
+    /blogspot\./,
+    /ok\.me/
+  ];
+
+  // Check the name lengths are not excessive
+  if (firstName.length > 35 || lastName.length > 35) {
+    // See https://webarchive.nationalarchives.gov.uk/ukgwa/20100407204354/http://www.cabinetoffice.gov.uk/govtalk/schemasstandards/e-gif/datastandards/person_information/person_name.aspx for reference on length
     redirect('/auth-blocked', RedirectType.push);
   }
+  
+  flaggedMatchers.forEach((m) => {
+    if (firstName.match(m) || lastName.match(m)) {
+      redirect('/auth-blocked', RedirectType.push);
+    }
+  })
+
+  // Add more dubious text entries that may be valid in a name
+  // Add an explicit type, because an empty array otherwise triggers an "any[]" type failure linting issue.
+  const captureMatchers: string[] = [];
+  captureMatchers.forEach((m) => {
+    if (firstName.match(m) || lastName.match(m)) {
+      // Add a capture-based check or similar here
+    }
+  })
 };
 
 export const signOut = async () => {

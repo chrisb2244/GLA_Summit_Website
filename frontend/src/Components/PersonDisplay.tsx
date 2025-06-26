@@ -29,7 +29,16 @@ export const PersonDisplay: React.FC<
 
   let isDefaultImage = false;
   let imageElem = null;
-  if (typeof props.image !== 'undefined' && props.image !== null) {
+  if (typeof props.image === 'string') {
+    imageElem = (
+      <img
+        src={props.image}
+        alt={`Image of ${props.firstName} ${props.lastName}`}
+        className='object-contain'
+        sizes='(max-width: 899px) 100vw, 30vw'
+      />
+    );
+  } else if (typeof props.image !== 'undefined' && props.image !== null) {
     // Static image file or by URL
     imageElem = (
       <Image
@@ -84,11 +93,13 @@ export const PersonDisplay: React.FC<
             {descriptionElem}
           </div>
         </div>
-        <div
-          className={`not-prose relative w-full flex-shrink-0 align-middle md:w-[30%] ${imgDispCName} flex flex-row justify-center`}
-        >
-          {imageElem}
-        </div>
+        {imageElem !== null && (
+          <div
+            className={`not-prose relative w-full flex-shrink-0 align-middle md:w-[30%] ${imgDispCName} flex flex-row justify-center px-8`}
+          >
+            {imageElem}
+          </div>
+        )}
       </div>
     </div>
   );

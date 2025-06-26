@@ -11,7 +11,11 @@ const PresentersListPage = async () => {
     return personArray.sort((a, b) => nameSorter(a.lastName, b.lastName));
   });
 
-  const presenterElements = people.map(({ id, ...person }) => {
+  const peopleWithNames = people.filter(
+    (person) => person.firstName && person.lastName
+  );
+
+  const presenterElements = peopleWithNames.map(({ id, ...person }) => {
     return (
       <div className='border p-4 shadow-sm [&_p]:line-clamp-6' key={id}>
         <PersonDisplay

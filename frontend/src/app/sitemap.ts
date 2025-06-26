@@ -58,15 +58,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticEntries: Entry[] = [
     generateEntry('/', 'weekly'),
     generateEntry('/full-agenda', 'monthly'),
-    generateEntry('/out-team', 'yearly'),
+    generateEntry('/our-team', 'yearly'),
     generateEntry('/panels/labview-and-python', 'never'),
     generateEntry('/panels/open-source', 'never'),
     generateEntry('/presentation-list/2021', 'never'),
     generateEntry('/presentation-list/2022', 'never'),
     generateEntry('/presentation-list/2024', 'never'),
     generateEntry('/presentation-list/2025', 'monthly'),
-    generateEntry('/presenters', 'monthly'),
-    generateEntry('/ticket', 'monthly')
+    generateEntry('/presenters', 'monthly')
   ];
 
   /*
