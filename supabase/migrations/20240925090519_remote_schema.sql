@@ -1,5 +1,4 @@
 set check_function_bodies = off;
-
 CREATE OR REPLACE FUNCTION public.calculate_ticket_number()
  RETURNS trigger
  LANGUAGE plpgsql
@@ -8,9 +7,7 @@ begin
   NEW.ticket_number := nextval('ticket_sequence_' || NEW.year);
   RETURN NEW;
 end
-$function$
-;
-
+$function$;
 CREATE OR REPLACE FUNCTION public.check_confirmer_is_submitter()
  RETURNS trigger
  LANGUAGE plpgsql
@@ -22,9 +19,7 @@ begin
     return null;
   end if;
 end;
-$function$
-;
-
+$function$;
 CREATE OR REPLACE FUNCTION public.create_ticket_sequence()
  RETURNS trigger
  LANGUAGE plpgsql
@@ -36,9 +31,7 @@ begin
   execute format('CREATE SEQUENCE IF NOT EXISTS %s', NEW.name);
   return NEW;
 end
-$function$
-;
-
+$function$;
 CREATE OR REPLACE FUNCTION public.get_all_presentations()
  RETURNS TABLE(presentation_id uuid, scheduled_for timestamp with time zone, year summit_year, title text, abstract text, presentation_type presentation_type, primary_presenter uuid, all_presenters uuid[], all_presenters_names text[], all_presenter_firstnames text[], all_presenter_lastnames text[])
  LANGUAGE sql
@@ -86,9 +79,7 @@ from
       ps.id
   ) p using (id)
   
-  $function$
-;
-
+  $function$;
 CREATE OR REPLACE FUNCTION public.get_email_by_id(user_id uuid)
  RETURNS text
  LANGUAGE sql
@@ -96,9 +87,7 @@ CREATE OR REPLACE FUNCTION public.get_email_by_id(user_id uuid)
  SET search_path TO 'auth'
 AS $function$
 select email from auth.users where id=user_id
-$function$
-;
-
+$function$;
 CREATE OR REPLACE FUNCTION public.get_my_submissions()
  RETURNS TABLE(presentation_id uuid, title text, abstract text, learning_points text, presentation_type presentation_type, submitter_id uuid, is_submitted boolean, year summit_year, all_presenters_ids uuid[], all_firstnames text[], all_lastnames text[], all_emails text[])
  LANGUAGE sql
@@ -137,27 +126,21 @@ from
 group by
   ps.id;
 
-  $function$
-;
-
+  $function$;
 CREATE OR REPLACE FUNCTION public.get_presentation_ids()
  RETURNS uuid[]
  LANGUAGE sql
  SET search_path TO 'public'
 AS $function$
 select array_agg(presentation_id) presentations from presentation_presenters where presenter_id=auth.uid() group by presenter_id
-$function$
-;
-
+$function$;
 CREATE OR REPLACE FUNCTION public.get_presentation_ids(p_id uuid)
  RETURNS uuid[]
  LANGUAGE sql
  SET search_path TO 'public'
 AS $function$
 select array_agg(presentation_id) presentations from presentation_presenters where presenter_id=p_id group by presenter_id
-$function$
-;
-
+$function$;
 CREATE OR REPLACE FUNCTION public.get_reviewable_submissions(target_year summit_year)
  RETURNS TABLE(presentation_id uuid, title text, abstract text, presentation_type presentation_type, learning_points text, submitter_id uuid, presenters presenter_info[], updated_at timestamp with time zone)
  LANGUAGE plpgsql
@@ -184,9 +167,7 @@ BEGIN
     JOIN profiles p ON p.id = pp.presenter_id
   WHERE ps.year = target_year
   GROUP BY ps.id;
-END; $function$
-;
-
+END; $function$;
 CREATE OR REPLACE FUNCTION public.handle_new_user()
  RETURNS trigger
  LANGUAGE plpgsql
@@ -198,9 +179,7 @@ insert into public.profiles (id, firstname, lastname)
   values (new.id, new.raw_user_meta_data->>'firstname', new.raw_user_meta_data->>'lastname');
   return new;
 end;
-$function$
-;
-
+$function$;
 CREATE OR REPLACE FUNCTION public.is_ok(presentation_presenters)
  RETURNS boolean
  LANGUAGE plpgsql
@@ -212,9 +191,7 @@ AS $function$BEGIN
    /* otherwise, recurse */
    RETURN EXISTS (SELECT 1 FROM presentation_presenters AS pp
                   WHERE ($1).presentation_id = pp.presentation_id AND pp.presenter_id = uid());
-END;$function$
-;
-
+END;$function$;
 CREATE OR REPLACE FUNCTION public.is_ok(presentation_submissions)
  RETURNS boolean
  LANGUAGE plpgsql
@@ -227,18 +204,14 @@ AS $function$BEGIN
    RETURN EXISTS (SELECT 1 FROM presentation_submissions AS ps
                   WHERE ($1).presentation_id = ps.presentation_id 
                   AND ps.presenter_id = auth.uid());
-END;$function$
-;
-
+END;$function$;
 CREATE OR REPLACE FUNCTION public.presenter_email_lookup(presentation_presenters)
  RETURNS SETOF email_lookup
  LANGUAGE sql
  STABLE ROWS 1
 AS $function$
   SELECT * FROM email_lookup WHERE id = $1.presenter_id
-$function$
-;
-
+$function$;
 CREATE OR REPLACE FUNCTION public.store_email()
  RETURNS trigger
  LANGUAGE plpgsql
@@ -250,9 +223,7 @@ insert into public.email_lookup (id, email)
   values (new.id, new.email);
   return new;
 end;
-$function$
-;
-
+$function$;
 CREATE OR REPLACE FUNCTION public.update_updated_at()
  RETURNS trigger
  LANGUAGE plpgsql
@@ -261,7 +232,4 @@ begin
   NEW.updated_at = (now() at time zone 'utc');
   return NEW;
 end;
-$function$
-;
-
-
+$function$;
