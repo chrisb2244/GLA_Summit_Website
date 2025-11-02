@@ -1,31 +1,13 @@
-SET statement_timeout = 0;
-SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
-SET check_function_bodies = false;
-SET xmloption = content;
-SET client_min_messages = warning;
-SET row_security = off;
-ALTER SCHEMA "public" OWNER TO "postgres";
-CREATE EXTENSION IF NOT EXISTS "pg_graphql" WITH SCHEMA "graphql";
-CREATE EXTENSION IF NOT EXISTS "pg_stat_statements" WITH SCHEMA "extensions";
-CREATE EXTENSION IF NOT EXISTS "pgcrypto" WITH SCHEMA "extensions";
-CREATE EXTENSION IF NOT EXISTS "pgjwt" WITH SCHEMA "extensions";
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
-CREATE TYPE "public"."log_type" AS ENUM (
+CREATE TYPE public.log_type AS ENUM (
     'info',
     'error',
     'severe'
 );
-ALTER TYPE "public"."log_type" OWNER TO "postgres";
-CREATE TYPE "public"."mentoring_type" AS ENUM (
+CREATE TYPE public.mentoring_type AS ENUM (
     'mentor',
     'mentee'
 );
-ALTER TYPE "public"."mentoring_type" OWNER TO "postgres";
-CREATE TYPE "public"."presentation_type" AS ENUM (
+CREATE TYPE public.presentation_type AS ENUM (
     '7x7',
     'full length',
     'panel',
@@ -33,25 +15,66 @@ CREATE TYPE "public"."presentation_type" AS ENUM (
     'quiz',
     'session-container'
 );
-ALTER TYPE "public"."presentation_type" OWNER TO "postgres";
-CREATE TYPE "public"."presenter_info" AS (
-	"id" "uuid",
-	"firstname" "text",
-	"lastname" "text"
+CREATE TYPE public.presenter_info AS (
+	id uuid,
+	firstname text,
+	lastname text
 );
-ALTER TYPE "public"."presenter_info" OWNER TO "postgres";
-CREATE TYPE "public"."summit_year" AS ENUM (
+CREATE TYPE public.summit_year AS ENUM (
     '2020',
     '2021',
     '2022',
-    '2023'
+    '2024',
+    '2025'
 );
-ALTER TYPE "public"."summit_year" OWNER TO "postgres";
-CREATE OR REPLACE FUNCTION "public"."get_all_presentations"() RETURNS TABLE("presentation_id" "uuid", "scheduled_for" timestamp with time zone, "year" "public"."summit_year", "title" "text", "abstract" "text", "presentation_type" "public"."presentation_type", "primary_presenter" "uuid", "all_presenters" "uuid"[], "all_presenters_names" "text"[], "all_presenter_firstnames" "text"[], "all_presenter_lastnames" "text"[])
-    LANGUAGE "sql"
-    SET "search_path" TO 'public'
-    AS $$
 
+CREATE TABLE IF NOT EXISTS public.profiles (
+    id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    updated_at timestamp with time zone DEFAULT ("now"() AT TIME ZONE 'utc'::"text") NOT NULL,
+    firstname text NOT NULL,
+    lastname text NOT NULL,
+    avatar_url text,
+    website text,
+    bio text
+);
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+CREATE TABLE IF NOT EXISTS public.public_profiles (
+    id uuid PRIMARY KEY REFERENCES public.profiles(id) ON DELETE CASCADE
+);
+ALTER TABLE public.public_profiles ENABLE ROW LEVEL SECURITY;
+
+CREATE TABLE IF NOT EXISTS public.presentation_submissions (
+    id uuid DEFAULT extensions.uuid_generate_v4() PRIMARY KEY,
+    submitter_id uuid NOT NULL REFERENCES public.profiles(id),
+    updated_at timestamp with time zone DEFAULT ("now"() AT TIME ZONE 'utc'::"text") NOT NULL,
+    title text NOT NULL,
+    abstract text NOT NULL,
+    is_submitted boolean NOT NULL,
+    presentation_type public.presentation_type NOT NULL,
+    learning_points text,
+    year public.summit_year NOT NULL
+);
+ALTER TABLE public.presentation_submissions ENABLE ROW LEVEL SECURITY;
+
+CREATE TABLE IF NOT EXISTS public.accepted_presentations (
+    id uuid PRIMARY KEY REFERENCES public.presentation_submissions(id),
+    accepted_at timestamp with time zone DEFAULT ("now"() AT TIME ZONE 'utc'::"text") NOT NULL,
+    scheduled_for timestamp with time zone,
+    year public.summit_year NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS public.presentation_presenters (
+    presentation_id uuid NOT NULL REFERENCES public.presentation_submissions(id) ON DELETE CASCADE,
+    presenter_id uuid NOT NULL REFERENCES public.profiles(id),
+    PRIMARY KEY (presentation_id, presenter_id)
+);
+
+CREATE OR REPLACE FUNCTION public.get_all_presentations()
+ RETURNS TABLE(presentation_id uuid, scheduled_for timestamp with time zone, year summit_year, title text, abstract text, presentation_type presentation_type, primary_presenter uuid, all_presenters uuid[], all_presenters_names text[], all_presenter_firstnames text[], all_presenter_lastnames text[])
+ LANGUAGE sql
+ SET search_path TO 'public'
+AS $function$
 select
   ap.id as presentation_id,
   scheduled_for,
@@ -92,20 +115,27 @@ from
     group by
       ps.id
   ) p using (id)
-  
-  $$;
-ALTER FUNCTION "public"."get_all_presentations"() OWNER TO "postgres";
-CREATE OR REPLACE FUNCTION "public"."get_email_by_id"("user_id" "uuid") RETURNS "text"
-    LANGUAGE "sql" SECURITY DEFINER
-    SET "search_path" TO 'auth'
-    AS $$
+  $function$;
+
+CREATE OR REPLACE FUNCTION public.get_email_by_id(user_id uuid)
+ RETURNS text
+ LANGUAGE sql
+ SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
 select email from auth.users where id=user_id
-$$;
-ALTER FUNCTION "public"."get_email_by_id"("user_id" "uuid") OWNER TO "postgres";
-CREATE OR REPLACE FUNCTION "public"."get_my_submissions"() RETURNS TABLE("presentation_id" "uuid", "title" "text", "abstract" "text", "learning_points" "text", "presentation_type" "public"."presentation_type", "submitter_id" "uuid", "is_submitted" boolean, "year" "public"."summit_year", "all_presenters_ids" "uuid"[], "all_firstnames" "text"[], "all_lastnames" "text"[], "all_emails" "text"[])
-    LANGUAGE "sql" SECURITY DEFINER
-    SET "search_path" TO 'public'
-    AS $$
+$function$;
+REVOKE ALL ON FUNCTION public.get_email_by_id FROM public;
+REVOKE ALL ON FUNCTION public.get_email_by_id FROM anon;
+REVOKE ALL ON FUNCTION public.get_email_by_id FROM authenticated;
+GRANT ALL ON FUNCTION public.get_email_by_id(user_id uuid) TO service_role;
+
+CREATE OR REPLACE FUNCTION public.get_my_submissions()
+ RETURNS TABLE(presentation_id uuid, title text, abstract text, learning_points text, presentation_type presentation_type, submitter_id uuid, is_submitted boolean, year summit_year, all_presenters_ids uuid[], all_firstnames text[], all_lastnames text[], all_emails text[])
+ LANGUAGE sql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
 
 select
   ps.id as presentation_id,
@@ -138,22 +168,23 @@ from
 group by
   ps.id;
 
-  $$;
-ALTER FUNCTION "public"."get_my_submissions"() OWNER TO "postgres";
+$function$;
+
+
 CREATE OR REPLACE FUNCTION "public"."get_presentation_ids"() RETURNS "uuid"[]
     LANGUAGE "sql"
     SET "search_path" TO 'public'
     AS $$
 select array_agg(presentation_id) presentations from presentation_presenters where presenter_id=auth.uid() group by presenter_id
 $$;
-ALTER FUNCTION "public"."get_presentation_ids"() OWNER TO "postgres";
+
 CREATE OR REPLACE FUNCTION "public"."get_presentation_ids"("p_id" "uuid") RETURNS "uuid"[]
     LANGUAGE "sql"
     SET "search_path" TO 'public'
     AS $$
 select array_agg(presentation_id) presentations from presentation_presenters where presenter_id=p_id group by presenter_id
 $$;
-ALTER FUNCTION "public"."get_presentation_ids"("p_id" "uuid") OWNER TO "postgres";
+
 CREATE OR REPLACE FUNCTION "public"."get_reviewable_submissions"("target_year" "public"."summit_year") RETURNS TABLE("presentation_id" "uuid", "title" "text", "abstract" "text", "presentation_type" "public"."presentation_type", "learning_points" "text", "submitter_id" "uuid", "presenters" "public"."presenter_info"[], "updated_at" timestamp with time zone)
     LANGUAGE "plpgsql"
     SET "search_path" TO 'public'
@@ -180,7 +211,6 @@ BEGIN
   WHERE ps.year = target_year
   GROUP BY ps.id;
 END; $$;
-ALTER FUNCTION "public"."get_reviewable_submissions"("target_year" "public"."summit_year") OWNER TO "postgres";
 CREATE OR REPLACE FUNCTION "public"."handle_new_user"() RETURNS "trigger"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO 'public'
@@ -191,14 +221,10 @@ insert into public.profiles (id, firstname, lastname)
   return new;
 end;
 $$;
-ALTER FUNCTION "public"."handle_new_user"() OWNER TO "postgres";
 SET default_tablespace = '';
 SET default_table_access_method = "heap";
-CREATE TABLE IF NOT EXISTS "public"."presentation_presenters" (
-    "presentation_id" "uuid" NOT NULL,
-    "presenter_id" "uuid" NOT NULL
-);
-ALTER TABLE "public"."presentation_presenters" OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."is_ok"("public"."presentation_presenters") RETURNS boolean
     LANGUAGE "plpgsql"
     AS $_$BEGIN
@@ -210,19 +236,9 @@ CREATE OR REPLACE FUNCTION "public"."is_ok"("public"."presentation_presenters") 
    RETURN EXISTS (SELECT 1 FROM presentation_presenters AS pp
                   WHERE ($1).presentation_id = pp.presentation_id AND pp.presenter_id = uid());
 END;$_$;
-ALTER FUNCTION "public"."is_ok"("public"."presentation_presenters") OWNER TO "postgres";
-CREATE TABLE IF NOT EXISTS "public"."presentation_submissions" (
-    "id" "uuid" DEFAULT "extensions"."uuid_generate_v4"() NOT NULL,
-    "submitter_id" "uuid" NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT ("now"() AT TIME ZONE 'utc'::"text") NOT NULL,
-    "title" "text" NOT NULL,
-    "abstract" "text" NOT NULL,
-    "is_submitted" boolean NOT NULL,
-    "presentation_type" "public"."presentation_type" NOT NULL,
-    "learning_points" "text",
-    "year" "public"."summit_year" NOT NULL
-);
-ALTER TABLE "public"."presentation_submissions" OWNER TO "postgres";
+
+
+
 CREATE OR REPLACE FUNCTION "public"."is_ok"("public"."presentation_submissions") RETURNS boolean
     LANGUAGE "plpgsql"
     AS $_$BEGIN
@@ -235,18 +251,18 @@ CREATE OR REPLACE FUNCTION "public"."is_ok"("public"."presentation_submissions")
                   WHERE ($1).presentation_id = ps.presentation_id 
                   AND ps.presenter_id = auth.uid());
 END;$_$;
-ALTER FUNCTION "public"."is_ok"("public"."presentation_submissions") OWNER TO "postgres";
+
 CREATE TABLE IF NOT EXISTS "public"."email_lookup" (
     "id" "uuid" NOT NULL,
     "email" "text" NOT NULL
 );
-ALTER TABLE "public"."email_lookup" OWNER TO "postgres";
+
 CREATE OR REPLACE FUNCTION "public"."presenter_email_lookup"("public"."presentation_presenters") RETURNS SETOF "public"."email_lookup"
     LANGUAGE "sql" STABLE ROWS 1
     AS $_$
   SELECT * FROM email_lookup WHERE id = $1.presenter_id
 $_$;
-ALTER FUNCTION "public"."presenter_email_lookup"("public"."presentation_presenters") OWNER TO "postgres";
+
 CREATE OR REPLACE FUNCTION "public"."store_email"() RETURNS "trigger"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO 'public'
@@ -257,7 +273,7 @@ insert into public.email_lookup (id, email)
   return new;
 end;
 $$;
-ALTER FUNCTION "public"."store_email"() OWNER TO "postgres";
+
 CREATE OR REPLACE FUNCTION "public"."update_updated_at"() RETURNS "trigger"
     LANGUAGE "plpgsql"
     AS $$
@@ -266,39 +282,34 @@ begin
   return NEW;
 end;
 $$;
-ALTER FUNCTION "public"."update_updated_at"() OWNER TO "postgres";
-CREATE TABLE IF NOT EXISTS "public"."accepted_presentations" (
-    "id" "uuid" NOT NULL,
-    "accepted_at" timestamp with time zone DEFAULT ("now"() AT TIME ZONE 'utc'::"text") NOT NULL,
-    "scheduled_for" timestamp with time zone,
-    "year" "public"."summit_year" NOT NULL
-);
-ALTER TABLE "public"."accepted_presentations" OWNER TO "postgres";
+
+
+
 CREATE TABLE IF NOT EXISTS "public"."agenda_favourites" (
     "user_id" "uuid" NOT NULL,
     "presentation_id" "uuid" NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL
 );
-ALTER TABLE "public"."agenda_favourites" OWNER TO "postgres";
+
 CREATE OR REPLACE VIEW "public"."all_presentations" AS
- SELECT "get_all_presentations"."presentation_id",
-    "get_all_presentations"."scheduled_for",
-    "get_all_presentations"."year",
-    "get_all_presentations"."title",
-    "get_all_presentations"."abstract",
-    "get_all_presentations"."presentation_type",
-    "get_all_presentations"."primary_presenter",
-    "get_all_presentations"."all_presenters",
-    "get_all_presentations"."all_presenters_names",
-    "get_all_presentations"."all_presenter_firstnames",
-    "get_all_presentations"."all_presenter_lastnames"
-   FROM "public"."get_all_presentations"() "get_all_presentations"("presentation_id", "scheduled_for", "year", "title", "abstract", "presentation_type", "primary_presenter", "all_presenters", "all_presenters_names", "all_presenter_firstnames", "all_presenter_lastnames");
-ALTER TABLE "public"."all_presentations" OWNER TO "postgres";
+ SELECT "gap"."presentation_id",
+    "gap"."scheduled_for",
+    "gap"."year",
+    "gap"."title",
+    "gap"."abstract",
+    "gap"."presentation_type",
+    "gap"."primary_presenter",
+    "gap"."all_presenters",
+    "gap"."all_presenters_names",
+    "gap"."all_presenter_firstnames",
+    "gap"."all_presenter_lastnames"
+   FROM "public"."get_all_presentations"() "gap"("presentation_id", "scheduled_for", "year", "title", "abstract", "presentation_type", "primary_presenter", "all_presenters", "all_presenters_names", "all_presenter_firstnames", "all_presenter_lastnames");
+
 CREATE TABLE IF NOT EXISTS "public"."container_groups" (
     "container_id" "uuid" NOT NULL,
     "presentation_id" "uuid" NOT NULL
 );
-ALTER TABLE "public"."container_groups" OWNER TO "postgres";
+
 CREATE TABLE IF NOT EXISTS "public"."log" (
     "id" bigint NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
@@ -306,7 +317,7 @@ CREATE TABLE IF NOT EXISTS "public"."log" (
     "message" "text" NOT NULL,
     "user_id" "uuid"
 );
-ALTER TABLE "public"."log" OWNER TO "postgres";
+
 ALTER TABLE "public"."log" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
     SEQUENCE NAME "public"."log_id_seq"
     START WITH 1
@@ -318,7 +329,7 @@ ALTER TABLE "public"."log" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTIT
 CREATE TABLE IF NOT EXISTS "public"."log_viewers" (
     "user_id" "uuid" NOT NULL
 );
-ALTER TABLE "public"."log_viewers" OWNER TO "postgres";
+
 CREATE TABLE IF NOT EXISTS "public"."mentoring" (
     "email" "text" NOT NULL,
     "firstname" "text" NOT NULL,
@@ -326,7 +337,7 @@ CREATE TABLE IF NOT EXISTS "public"."mentoring" (
     "entry_type" "public"."mentoring_type" NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL
 );
-ALTER TABLE "public"."mentoring" OWNER TO "postgres";
+
 CREATE OR REPLACE VIEW "public"."my_submissions" AS
  SELECT "get_my_submissions"."presentation_id",
     "get_my_submissions"."title",
@@ -341,34 +352,18 @@ CREATE OR REPLACE VIEW "public"."my_submissions" AS
     "get_my_submissions"."all_lastnames",
     "get_my_submissions"."all_emails"
    FROM "public"."get_my_submissions"() "get_my_submissions"("presentation_id", "title", "abstract", "learning_points", "presentation_type", "submitter_id", "is_submitted", "year", "all_presenters_ids", "all_firstnames", "all_lastnames", "all_emails");
-ALTER TABLE "public"."my_submissions" OWNER TO "postgres";
+
 CREATE TABLE IF NOT EXISTS "public"."organizers" (
     "id" "uuid" NOT NULL
 );
-ALTER TABLE "public"."organizers" OWNER TO "postgres";
-CREATE TABLE IF NOT EXISTS "public"."profiles" (
-    "id" "uuid" NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT ("now"() AT TIME ZONE 'utc'::"text") NOT NULL,
-    "firstname" "text" NOT NULL,
-    "lastname" "text" NOT NULL,
-    "avatar_url" "text",
-    "website" "text",
-    "bio" "text"
-);
-ALTER TABLE "public"."profiles" OWNER TO "postgres";
-CREATE TABLE IF NOT EXISTS "public"."public_profiles" (
-    "id" "uuid" NOT NULL
-);
-ALTER TABLE "public"."public_profiles" OWNER TO "postgres";
+
 CREATE TABLE IF NOT EXISTS "public"."timezone_preferences" (
     "id" "uuid" NOT NULL,
     "timezone_db" "text" NOT NULL,
     "timezone_name" "text" NOT NULL,
     "use_24h_clock" boolean DEFAULT false NOT NULL
 );
-ALTER TABLE "public"."timezone_preferences" OWNER TO "postgres";
-ALTER TABLE ONLY "public"."accepted_presentations"
-    ADD CONSTRAINT "accepted_presentations_pkey" PRIMARY KEY ("id");
+
 ALTER TABLE ONLY "public"."agenda_favourites"
     ADD CONSTRAINT "agenda_favourites_pkey" PRIMARY KEY ("user_id", "presentation_id");
 ALTER TABLE ONLY "public"."container_groups"
@@ -385,19 +380,9 @@ ALTER TABLE ONLY "public"."mentoring"
     ADD CONSTRAINT "mentoring_pkey" PRIMARY KEY ("email");
 ALTER TABLE ONLY "public"."organizers"
     ADD CONSTRAINT "organizers_pkey" PRIMARY KEY ("id");
-ALTER TABLE ONLY "public"."presentation_presenters"
-    ADD CONSTRAINT "presentation_presenters_pkey" PRIMARY KEY ("presentation_id", "presenter_id");
-ALTER TABLE ONLY "public"."presentation_submissions"
-    ADD CONSTRAINT "presentation_submissions_pkey" PRIMARY KEY ("id");
-ALTER TABLE ONLY "public"."profiles"
-    ADD CONSTRAINT "profiles_pkey" PRIMARY KEY ("id");
-ALTER TABLE ONLY "public"."public_profiles"
-    ADD CONSTRAINT "public_profiles_pkey" PRIMARY KEY ("id");
 ALTER TABLE ONLY "public"."timezone_preferences"
     ADD CONSTRAINT "timezone_preferences_pkey" PRIMARY KEY ("id");
 CREATE OR REPLACE TRIGGER "update_profile_updated_at" BEFORE UPDATE ON "public"."profiles" FOR EACH ROW EXECUTE FUNCTION "public"."update_updated_at"();
-ALTER TABLE ONLY "public"."accepted_presentations"
-    ADD CONSTRAINT "accepted_presentations_id_fkey" FOREIGN KEY ("id") REFERENCES "public"."presentation_submissions"("id");
 ALTER TABLE ONLY "public"."agenda_favourites"
     ADD CONSTRAINT "agenda_favourites_presentation_id_fkey" FOREIGN KEY ("presentation_id") REFERENCES "public"."presentation_submissions"("id");
 ALTER TABLE ONLY "public"."agenda_favourites"
@@ -414,16 +399,6 @@ ALTER TABLE ONLY "public"."log_viewers"
     ADD CONSTRAINT "log_viewers_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id");
 ALTER TABLE ONLY "public"."organizers"
     ADD CONSTRAINT "organizers_id_fkey" FOREIGN KEY ("id") REFERENCES "auth"."users"("id");
-ALTER TABLE ONLY "public"."presentation_presenters"
-    ADD CONSTRAINT "presentation_presenters_presentation_id_fkey" FOREIGN KEY ("presentation_id") REFERENCES "public"."presentation_submissions"("id") ON DELETE CASCADE;
-ALTER TABLE ONLY "public"."presentation_presenters"
-    ADD CONSTRAINT "presentation_presenters_presenter_id_fkey" FOREIGN KEY ("presenter_id") REFERENCES "public"."profiles"("id");
-ALTER TABLE ONLY "public"."presentation_submissions"
-    ADD CONSTRAINT "presentation_submissions_submitter_id_fkey" FOREIGN KEY ("submitter_id") REFERENCES "public"."profiles"("id");
-ALTER TABLE ONLY "public"."profiles"
-    ADD CONSTRAINT "profiles_id_fkey" FOREIGN KEY ("id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
-ALTER TABLE ONLY "public"."public_profiles"
-    ADD CONSTRAINT "public_profiles_id_fkey" FOREIGN KEY ("id") REFERENCES "public"."profiles"("id");
 ALTER TABLE ONLY "public"."timezone_preferences"
     ADD CONSTRAINT "timezone_preferences_id_fkey" FOREIGN KEY ("id") REFERENCES "auth"."users"("id");
 CREATE POLICY "Accepted presenters profiles are viewable" ON "public"."profiles" FOR SELECT USING (("id" IN ( SELECT "pp"."presenter_id"
@@ -480,148 +455,8 @@ ALTER TABLE "public"."log_viewers" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."mentoring" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."organizers" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."presentation_presenters" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "public"."presentation_submissions" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "public"."profiles" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "public"."public_profiles" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."timezone_preferences" ENABLE ROW LEVEL SECURITY;
-REVOKE USAGE ON SCHEMA "public" FROM PUBLIC;
-GRANT ALL ON SCHEMA "public" TO PUBLIC;
-GRANT USAGE ON SCHEMA "public" TO "anon";
-GRANT USAGE ON SCHEMA "public" TO "authenticated";
-GRANT USAGE ON SCHEMA "public" TO "service_role";
-GRANT ALL ON FUNCTION "public"."get_all_presentations"() TO "anon";
-GRANT ALL ON FUNCTION "public"."get_all_presentations"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."get_all_presentations"() TO "service_role";
-GRANT ALL ON FUNCTION "public"."get_email_by_id"("user_id" "uuid") TO "anon";
-GRANT ALL ON FUNCTION "public"."get_email_by_id"("user_id" "uuid") TO "authenticated";
-GRANT ALL ON FUNCTION "public"."get_email_by_id"("user_id" "uuid") TO "service_role";
-GRANT ALL ON FUNCTION "public"."get_my_submissions"() TO "anon";
-GRANT ALL ON FUNCTION "public"."get_my_submissions"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."get_my_submissions"() TO "service_role";
-GRANT ALL ON FUNCTION "public"."get_presentation_ids"() TO "anon";
-GRANT ALL ON FUNCTION "public"."get_presentation_ids"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."get_presentation_ids"() TO "service_role";
-GRANT ALL ON FUNCTION "public"."get_presentation_ids"("p_id" "uuid") TO "anon";
-GRANT ALL ON FUNCTION "public"."get_presentation_ids"("p_id" "uuid") TO "authenticated";
-GRANT ALL ON FUNCTION "public"."get_presentation_ids"("p_id" "uuid") TO "service_role";
-GRANT ALL ON FUNCTION "public"."get_reviewable_submissions"("target_year" "public"."summit_year") TO "anon";
-GRANT ALL ON FUNCTION "public"."get_reviewable_submissions"("target_year" "public"."summit_year") TO "authenticated";
-GRANT ALL ON FUNCTION "public"."get_reviewable_submissions"("target_year" "public"."summit_year") TO "service_role";
-GRANT ALL ON FUNCTION "public"."handle_new_user"() TO "anon";
-GRANT ALL ON FUNCTION "public"."handle_new_user"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."handle_new_user"() TO "service_role";
-GRANT ALL ON TABLE "public"."presentation_presenters" TO "anon";
-GRANT ALL ON TABLE "public"."presentation_presenters" TO "authenticated";
-GRANT ALL ON TABLE "public"."presentation_presenters" TO "service_role";
-GRANT ALL ON FUNCTION "public"."is_ok"("public"."presentation_presenters") TO "anon";
-GRANT ALL ON FUNCTION "public"."is_ok"("public"."presentation_presenters") TO "authenticated";
-GRANT ALL ON FUNCTION "public"."is_ok"("public"."presentation_presenters") TO "service_role";
-GRANT ALL ON TABLE "public"."presentation_submissions" TO "anon";
-GRANT ALL ON TABLE "public"."presentation_submissions" TO "authenticated";
-GRANT ALL ON TABLE "public"."presentation_submissions" TO "service_role";
-GRANT ALL ON FUNCTION "public"."is_ok"("public"."presentation_submissions") TO "anon";
-GRANT ALL ON FUNCTION "public"."is_ok"("public"."presentation_submissions") TO "authenticated";
-GRANT ALL ON FUNCTION "public"."is_ok"("public"."presentation_submissions") TO "service_role";
-GRANT ALL ON TABLE "public"."email_lookup" TO "anon";
-GRANT ALL ON TABLE "public"."email_lookup" TO "authenticated";
-GRANT ALL ON TABLE "public"."email_lookup" TO "service_role";
-GRANT ALL ON FUNCTION "public"."presenter_email_lookup"("public"."presentation_presenters") TO "anon";
-GRANT ALL ON FUNCTION "public"."presenter_email_lookup"("public"."presentation_presenters") TO "authenticated";
-GRANT ALL ON FUNCTION "public"."presenter_email_lookup"("public"."presentation_presenters") TO "service_role";
-GRANT ALL ON FUNCTION "public"."store_email"() TO "anon";
-GRANT ALL ON FUNCTION "public"."store_email"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."store_email"() TO "service_role";
-GRANT ALL ON FUNCTION "public"."update_updated_at"() TO "anon";
-GRANT ALL ON FUNCTION "public"."update_updated_at"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."update_updated_at"() TO "service_role";
-GRANT ALL ON TABLE "public"."accepted_presentations" TO "anon";
-GRANT ALL ON TABLE "public"."accepted_presentations" TO "authenticated";
-GRANT ALL ON TABLE "public"."accepted_presentations" TO "service_role";
-GRANT ALL ON TABLE "public"."agenda_favourites" TO "anon";
-GRANT ALL ON TABLE "public"."agenda_favourites" TO "authenticated";
-GRANT ALL ON TABLE "public"."agenda_favourites" TO "service_role";
-GRANT ALL ON TABLE "public"."all_presentations" TO "anon";
-GRANT ALL ON TABLE "public"."all_presentations" TO "authenticated";
-GRANT ALL ON TABLE "public"."all_presentations" TO "service_role";
-GRANT ALL ON TABLE "public"."container_groups" TO "anon";
-GRANT ALL ON TABLE "public"."container_groups" TO "authenticated";
-GRANT ALL ON TABLE "public"."container_groups" TO "service_role";
-GRANT ALL ON TABLE "public"."log" TO "anon";
-GRANT ALL ON TABLE "public"."log" TO "authenticated";
-GRANT ALL ON TABLE "public"."log" TO "service_role";
-GRANT ALL ON SEQUENCE "public"."log_id_seq" TO "anon";
-GRANT ALL ON SEQUENCE "public"."log_id_seq" TO "authenticated";
-GRANT ALL ON SEQUENCE "public"."log_id_seq" TO "service_role";
-GRANT ALL ON TABLE "public"."log_viewers" TO "anon";
-GRANT ALL ON TABLE "public"."log_viewers" TO "authenticated";
-GRANT ALL ON TABLE "public"."log_viewers" TO "service_role";
-GRANT ALL ON TABLE "public"."mentoring" TO "anon";
-GRANT ALL ON TABLE "public"."mentoring" TO "authenticated";
-GRANT ALL ON TABLE "public"."mentoring" TO "service_role";
-GRANT ALL ON TABLE "public"."my_submissions" TO "anon";
-GRANT ALL ON TABLE "public"."my_submissions" TO "authenticated";
-GRANT ALL ON TABLE "public"."my_submissions" TO "service_role";
-GRANT ALL ON TABLE "public"."organizers" TO "anon";
-GRANT ALL ON TABLE "public"."organizers" TO "authenticated";
-GRANT ALL ON TABLE "public"."organizers" TO "service_role";
-GRANT ALL ON TABLE "public"."profiles" TO "anon";
-GRANT ALL ON TABLE "public"."profiles" TO "authenticated";
-GRANT ALL ON TABLE "public"."profiles" TO "service_role";
-GRANT ALL ON TABLE "public"."public_profiles" TO "anon";
-GRANT ALL ON TABLE "public"."public_profiles" TO "authenticated";
-GRANT ALL ON TABLE "public"."public_profiles" TO "service_role";
-GRANT ALL ON TABLE "public"."timezone_preferences" TO "anon";
-GRANT ALL ON TABLE "public"."timezone_preferences" TO "authenticated";
-GRANT ALL ON TABLE "public"."timezone_preferences" TO "service_role";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES  TO "postgres";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES  TO "anon";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES  TO "authenticated";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES  TO "service_role";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUNCTIONS  TO "postgres";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUNCTIONS  TO "anon";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUNCTIONS  TO "authenticated";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUNCTIONS  TO "service_role";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "postgres";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "anon";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "authenticated";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "service_role";
-RESET ALL;
 
-CREATE INDEX refresh_token_session_id ON auth.refresh_tokens USING btree (session_id);
-set check_function_bodies = off;
-CREATE OR REPLACE FUNCTION auth.email()
- RETURNS text
- LANGUAGE sql
- STABLE
-AS $function$
-  select 
-  	coalesce(
-		nullif(current_setting('request.jwt.claim.email', true), ''),
-		(nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'email')
-	)::text
-$function$;
-CREATE OR REPLACE FUNCTION auth.role()
- RETURNS text
- LANGUAGE sql
- STABLE
-AS $function$
-  select 
-  	coalesce(
-		nullif(current_setting('request.jwt.claim.role', true), ''),
-		(nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'role')
-	)::text
-$function$;
-CREATE OR REPLACE FUNCTION auth.uid()
- RETURNS uuid
- LANGUAGE sql
- STABLE
-AS $function$
-  select 
-  	coalesce(
-		nullif(current_setting('request.jwt.claim.sub', true), ''),
-		(nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub')
-	)::uuid
-$function$;
 CREATE TRIGGER on_auth_user_created AFTER INSERT ON auth.users FOR EACH ROW EXECUTE FUNCTION handle_new_user();
 CREATE TRIGGER on_auth_user_created_emails AFTER INSERT ON auth.users FOR EACH ROW EXECUTE FUNCTION store_email();
 set check_function_bodies = off;
@@ -684,8 +519,7 @@ alter table "public"."organizers" drop constraint "organizers_id_fkey";
 alter table "public"."timezone_preferences" drop constraint "timezone_preferences_id_fkey";
 drop view if exists "public"."all_presentations";
 drop view if exists "public"."my_submissions";
-alter type "public"."summit_year" rename to "summit_year__old_version_to_be_dropped";
-create type "public"."summit_year" as enum ('2020', '2021', '2022', '2024');
+
 create table "public"."confirmed_presentations" (
     "id" uuid not null,
     "created_at" timestamp with time zone not null default now()
@@ -712,9 +546,6 @@ create table "public"."video_links" (
     "url" text
 );
 alter table "public"."video_links" enable row level security;
-alter table "public"."accepted_presentations" alter column year type "public"."summit_year" using year::text::"public"."summit_year";
-alter table "public"."presentation_submissions" alter column year type "public"."summit_year" using year::text::"public"."summit_year";
-drop type "public"."summit_year__old_version_to_be_dropped";
 CREATE UNIQUE INDEX confirmed_presentations_pkey ON public.confirmed_presentations USING btree (id);
 CREATE UNIQUE INDEX rejected_presentations_pkey ON public.rejected_presentations USING btree (id);
 CREATE UNIQUE INDEX ticket_sequences_pkey ON public.ticket_sequences USING btree (year);
@@ -779,54 +610,6 @@ begin
   return NEW;
 end
 $function$;
-CREATE OR REPLACE FUNCTION public.get_all_presentations()
- RETURNS TABLE(presentation_id uuid, scheduled_for timestamp with time zone, year summit_year, title text, abstract text, presentation_type presentation_type, primary_presenter uuid, all_presenters uuid[], all_presenters_names text[], all_presenter_firstnames text[], all_presenter_lastnames text[])
- LANGUAGE sql
- SET search_path TO 'public'
-AS $function$
-
-select
-  ap.id as presentation_id,
-  scheduled_for,
-  ap.year,
-  p.title,
-  p.abstract,
-  p.presentation_type,
-  p.submitter_id as primary_presenter,
-  p.all_presenters,
-  p.all_presenters_names,
-  p.all_presenter_firstnames,
-  p.all_presenter_lastnames
-from
-  accepted_presentations ap
-  join (
-    select
-      ps.id,
-      ps.title,
-      ps.abstract,
-      ps.presentation_type,
-      ps.submitter_id,
-      array_agg(ppn.presenter_id) as all_presenters,
-      array_agg(coalesce(trim(coalesce(ppn.firstname, '') || ' ' || coalesce(ppn.lastname, '')), '')) as all_presenters_names,
-      array_agg(coalesce(ppn.firstname, '')) as all_presenter_firstnames,
-      array_agg(coalesce(ppn.lastname, '')) as all_presenter_lastnames
-    from
-      presentation_submissions ps
-      join (
-        select
-          pp.presentation_id,
-          pp.presenter_id,
-          prof.firstname,
-          prof.lastname
-        from
-          presentation_presenters pp
-          inner join profiles prof on pp.presenter_id = prof.id
-      ) ppn on ps.id = ppn.presentation_id
-    group by
-      ps.id
-  ) p using (id)
-  
-  $function$;
 CREATE OR REPLACE FUNCTION public.get_email_by_id(user_id uuid)
  RETURNS text
  LANGUAGE sql
@@ -835,45 +618,7 @@ CREATE OR REPLACE FUNCTION public.get_email_by_id(user_id uuid)
 AS $function$
 select email from auth.users where id=user_id
 $function$;
-CREATE OR REPLACE FUNCTION public.get_my_submissions()
- RETURNS TABLE(presentation_id uuid, title text, abstract text, learning_points text, presentation_type presentation_type, submitter_id uuid, is_submitted boolean, year summit_year, all_presenters_ids uuid[], all_firstnames text[], all_lastnames text[], all_emails text[])
- LANGUAGE sql
- SECURITY DEFINER
- SET search_path TO 'public'
-AS $function$
 
-select
-  ps.id as presentation_id,
-  ps.title,
-  ps.abstract,
-  ps.learning_points,
-  ps.presentation_type,
-  ps.submitter_id,
-  ps.is_submitted,
-  ps.year,
-  array_agg(ppn.presenter_id) as all_presenters,
-  array_agg(ppn.firstname) as all_firstnames,
-  array_agg(ppn.lastname) as all_lastnames,
-  array_agg(ppn.email) as all_emails
-from
-  presentation_submissions ps
-  
-  join (
-    select
-      pp.presentation_id,
-      pp.presenter_id,
-      prof.firstname,
-      prof.lastname,
-      get_email_by_id(pp.presenter_id) as email
-    from
-      presentation_presenters pp
-      left join profiles prof on pp.presenter_id = prof.id
-  ) ppn on ps.id = ppn.presentation_id
-  where presentation_id in (select presentation_id from presentation_presenters ppp where ppp.presenter_id = auth.uid())
-group by
-  ps.id;
-
-  $function$;
 CREATE OR REPLACE FUNCTION public.get_presentation_ids()
  RETURNS uuid[]
  LANGUAGE sql
@@ -993,18 +738,19 @@ begin
   return NEW;
 end;
 $function$;
-create or replace view "public"."all_presentations" as  SELECT get_all_presentations.presentation_id,
-    get_all_presentations.scheduled_for,
-    get_all_presentations.year,
-    get_all_presentations.title,
-    get_all_presentations.abstract,
-    get_all_presentations.presentation_type,
-    get_all_presentations.primary_presenter,
-    get_all_presentations.all_presenters,
-    get_all_presentations.all_presenters_names,
-    get_all_presentations.all_presenter_firstnames,
-    get_all_presentations.all_presenter_lastnames
-   FROM get_all_presentations() get_all_presentations(presentation_id, scheduled_for, year, title, abstract, presentation_type, primary_presenter, all_presenters, all_presenters_names, all_presenter_firstnames, all_presenter_lastnames);
+create or replace view "public"."all_presentations" as SELECT
+    gap.presentation_id,
+    gap.scheduled_for,
+    gap.year,
+    gap.title,
+    gap.abstract,
+    gap.presentation_type,
+    gap.primary_presenter,
+    gap.all_presenters,
+    gap.all_presenters_names,
+    gap.all_presenter_firstnames,
+    gap.all_presenter_lastnames
+   FROM get_all_presentations() gap(presentation_id, scheduled_for, year, title, abstract, presentation_type, primary_presenter, all_presenters, all_presenters_names, all_presenter_firstnames, all_presenter_lastnames);
 grant delete on table "public"."confirmed_presentations" to "anon";
 grant insert on table "public"."confirmed_presentations" to "anon";
 grant references on table "public"."confirmed_presentations" to "anon";
@@ -1192,62 +938,8 @@ begin
   return NEW;
 end
 $function$;
-CREATE OR REPLACE FUNCTION public.get_all_presentations()
- RETURNS TABLE(presentation_id uuid, scheduled_for timestamp with time zone, year summit_year, title text, abstract text, presentation_type presentation_type, primary_presenter uuid, all_presenters uuid[], all_presenters_names text[], all_presenter_firstnames text[], all_presenter_lastnames text[])
- LANGUAGE sql
- SET search_path TO 'public'
-AS $function$
 
-select
-  ap.id as presentation_id,
-  scheduled_for,
-  ap.year,
-  p.title,
-  p.abstract,
-  p.presentation_type,
-  p.submitter_id as primary_presenter,
-  p.all_presenters,
-  p.all_presenters_names,
-  p.all_presenter_firstnames,
-  p.all_presenter_lastnames
-from
-  accepted_presentations ap
-  join (
-    select
-      ps.id,
-      ps.title,
-      ps.abstract,
-      ps.presentation_type,
-      ps.submitter_id,
-      array_agg(ppn.presenter_id) as all_presenters,
-      array_agg(coalesce(trim(coalesce(ppn.firstname, '') || ' ' || coalesce(ppn.lastname, '')), '')) as all_presenters_names,
-      array_agg(coalesce(ppn.firstname, '')) as all_presenter_firstnames,
-      array_agg(coalesce(ppn.lastname, '')) as all_presenter_lastnames
-    from
-      presentation_submissions ps
-      join (
-        select
-          pp.presentation_id,
-          pp.presenter_id,
-          prof.firstname,
-          prof.lastname
-        from
-          presentation_presenters pp
-          inner join profiles prof on pp.presenter_id = prof.id
-      ) ppn on ps.id = ppn.presentation_id
-    group by
-      ps.id
-  ) p using (id)
-  
-  $function$;
-CREATE OR REPLACE FUNCTION public.get_email_by_id(user_id uuid)
- RETURNS text
- LANGUAGE sql
- SECURITY DEFINER
- SET search_path TO 'auth'
-AS $function$
-select email from auth.users where id=user_id
-$function$;
+
 CREATE OR REPLACE FUNCTION public.get_my_submissions()
  RETURNS TABLE(presentation_id uuid, title text, abstract text, learning_points text, presentation_type presentation_type, submitter_id uuid, is_submitted boolean, year summit_year, all_presenters_ids uuid[], all_firstnames text[], all_lastnames text[], all_emails text[])
  LANGUAGE sql
@@ -1393,5 +1085,3 @@ begin
   return NEW;
 end;
 $function$;
-
-ALTER TYPE public.summit_year ADD VALUE '2025';
