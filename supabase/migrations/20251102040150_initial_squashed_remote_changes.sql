@@ -63,58 +63,60 @@ CREATE TABLE IF NOT EXISTS public.accepted_presentations (
     scheduled_for timestamp with time zone,
     year public.summit_year NOT NULL
 );
+ALTER TABLE public.accepted_presentations ENABLE ROW LEVEL SECURITY;
 
 CREATE TABLE IF NOT EXISTS public.presentation_presenters (
     presentation_id uuid NOT NULL REFERENCES public.presentation_submissions(id) ON DELETE CASCADE,
     presenter_id uuid NOT NULL REFERENCES public.profiles(id),
     PRIMARY KEY (presentation_id, presenter_id)
 );
+ALTER TABLE public.presentation_presenters ENABLE ROW LEVEL SECURITY;
 
 CREATE OR REPLACE FUNCTION public.get_all_presentations()
- RETURNS TABLE(presentation_id uuid, scheduled_for timestamp with time zone, year summit_year, title text, abstract text, presentation_type presentation_type, primary_presenter uuid, all_presenters uuid[], all_presenters_names text[], all_presenter_firstnames text[], all_presenter_lastnames text[])
- LANGUAGE sql
- SET search_path TO 'public'
-AS $function$
-select
-  ap.id as presentation_id,
-  scheduled_for,
-  ap.year,
-  p.title,
-  p.abstract,
-  p.presentation_type,
-  p.submitter_id as primary_presenter,
-  p.all_presenters,
-  p.all_presenters_names,
-  p.all_presenter_firstnames,
-  p.all_presenter_lastnames
-from
-  accepted_presentations ap
-  join (
+  RETURNS TABLE(presentation_id uuid, scheduled_for timestamp with time zone, year summit_year, title text, abstract text, presentation_type presentation_type, primary_presenter uuid, all_presenters uuid[], all_presenters_names text[], all_presenter_firstnames text[], all_presenter_lastnames text[])
+  LANGUAGE sql
+  SET search_path TO 'public'
+  AS $function$
     select
-      ps.id,
-      ps.title,
-      ps.abstract,
-      ps.presentation_type,
-      ps.submitter_id,
-      array_agg(ppn.presenter_id) as all_presenters,
-      array_agg(coalesce(trim(coalesce(ppn.firstname, '') || ' ' || coalesce(ppn.lastname, '')), '')) as all_presenters_names,
-      array_agg(coalesce(ppn.firstname, '')) as all_presenter_firstnames,
-      array_agg(coalesce(ppn.lastname, '')) as all_presenter_lastnames
+      ap.id as presentation_id,
+      scheduled_for,
+      ap.year,
+      p.title,
+      p.abstract,
+      p.presentation_type,
+      p.submitter_id as primary_presenter,
+      p.all_presenters,
+      p.all_presenters_names,
+      p.all_presenter_firstnames,
+      p.all_presenter_lastnames
     from
-      presentation_submissions ps
-      join (
-        select
-          pp.presentation_id,
-          pp.presenter_id,
-          prof.firstname,
-          prof.lastname
-        from
-          presentation_presenters pp
-          inner join profiles prof on pp.presenter_id = prof.id
-      ) ppn on ps.id = ppn.presentation_id
-    group by
-      ps.id
-  ) p using (id)
+      accepted_presentations ap
+    join (
+      select
+        ps.id,
+        ps.title,
+        ps.abstract,
+        ps.presentation_type,
+        ps.submitter_id,
+        array_agg(ppn.presenter_id) as all_presenters,
+        array_agg(coalesce(trim(coalesce(ppn.firstname, '') || ' ' || coalesce(ppn.lastname, '')), '')) as all_presenters_names,
+        array_agg(coalesce(ppn.firstname, '')) as all_presenter_firstnames,
+        array_agg(coalesce(ppn.lastname, '')) as all_presenter_lastnames
+      from
+        presentation_submissions ps
+        join (
+          select
+            pp.presentation_id,
+            pp.presenter_id,
+            prof.firstname,
+            prof.lastname
+          from
+            presentation_presenters pp
+            inner join profiles prof on pp.presenter_id = prof.id
+        ) ppn on ps.id = ppn.presentation_id
+      group by
+        ps.id
+    ) p using (id)
   $function$;
 
 CREATE OR REPLACE FUNCTION public.get_email_by_id(user_id uuid)
@@ -131,44 +133,41 @@ REVOKE ALL ON FUNCTION public.get_email_by_id FROM authenticated;
 GRANT ALL ON FUNCTION public.get_email_by_id(user_id uuid) TO service_role;
 
 CREATE OR REPLACE FUNCTION public.get_my_submissions()
- RETURNS TABLE(presentation_id uuid, title text, abstract text, learning_points text, presentation_type presentation_type, submitter_id uuid, is_submitted boolean, year summit_year, all_presenters_ids uuid[], all_firstnames text[], all_lastnames text[], all_emails text[])
- LANGUAGE sql
- SECURITY DEFINER
- SET search_path TO 'public'
-AS $function$
-
-select
-  ps.id as presentation_id,
-  ps.title,
-  ps.abstract,
-  ps.learning_points,
-  ps.presentation_type,
-  ps.submitter_id,
-  ps.is_submitted,
-  ps.year,
-  array_agg(ppn.presenter_id) as all_presenters,
-  array_agg(ppn.firstname) as all_firstnames,
-  array_agg(ppn.lastname) as all_lastnames,
-  array_agg(ppn.email) as all_emails
-from
-  presentation_submissions ps
-  
-  join (
+  RETURNS TABLE(presentation_id uuid, title text, abstract text, learning_points text, presentation_type presentation_type, submitter_id uuid, is_submitted boolean, year summit_year, all_presenters_ids uuid[], all_firstnames text[], all_lastnames text[], all_emails text[])
+  LANGUAGE sql
+  SECURITY DEFINER
+  SET search_path TO 'public'
+  AS $function$
     select
-      pp.presentation_id,
-      pp.presenter_id,
-      prof.firstname,
-      prof.lastname,
-      get_email_by_id(pp.presenter_id) as email
+      ps.id as presentation_id,
+      ps.title,
+      ps.abstract,
+      ps.learning_points,
+      ps.presentation_type,
+      ps.submitter_id,
+      ps.is_submitted,
+      ps.year,
+      array_agg(ppn.presenter_id) as all_presenters,
+      array_agg(ppn.firstname) as all_firstnames,
+      array_agg(ppn.lastname) as all_lastnames,
+      array_agg(ppn.email) as all_emails
     from
-      presentation_presenters pp
+      presentation_submissions ps
+    join (
+      select
+        pp.presentation_id,
+        pp.presenter_id,
+        prof.firstname,
+        prof.lastname,
+        get_email_by_id(pp.presenter_id) as email
+      from
+        presentation_presenters pp
       left join profiles prof on pp.presenter_id = prof.id
-  ) ppn on ps.id = ppn.presentation_id
-  where presentation_id in (select presentation_id from presentation_presenters ppp where ppp.presenter_id = auth.uid())
-group by
-  ps.id;
-
-$function$;
+    ) ppn on ps.id = ppn.presentation_id
+    where presentation_id in (select presentation_id from presentation_presenters ppp where ppp.presenter_id = auth.uid())
+    group by
+      ps.id;
+  $function$;
 
 
 CREATE OR REPLACE FUNCTION "public"."get_presentation_ids"() RETURNS "uuid"[]
@@ -283,27 +282,11 @@ begin
 end;
 $$;
 
-
-
 CREATE TABLE IF NOT EXISTS "public"."agenda_favourites" (
     "user_id" "uuid" NOT NULL,
     "presentation_id" "uuid" NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL
 );
-
-CREATE OR REPLACE VIEW "public"."all_presentations" AS
- SELECT "gap"."presentation_id",
-    "gap"."scheduled_for",
-    "gap"."year",
-    "gap"."title",
-    "gap"."abstract",
-    "gap"."presentation_type",
-    "gap"."primary_presenter",
-    "gap"."all_presenters",
-    "gap"."all_presenters_names",
-    "gap"."all_presenter_firstnames",
-    "gap"."all_presenter_lastnames"
-   FROM "public"."get_all_presentations"() "gap"("presentation_id", "scheduled_for", "year", "title", "abstract", "presentation_type", "primary_presenter", "all_presenters", "all_presenters_names", "all_presenter_firstnames", "all_presenter_lastnames");
 
 CREATE TABLE IF NOT EXISTS "public"."container_groups" (
     "container_id" "uuid" NOT NULL,
@@ -445,8 +428,8 @@ CREATE POLICY "Users can read their own status" ON "public"."mentoring" FOR SELE
 CREATE POLICY "Users can select their own profile" ON "public"."profiles" FOR SELECT USING (("auth"."uid"() = "id"));
 CREATE POLICY "Users can update own presentation submissions." ON "public"."presentation_submissions" FOR UPDATE USING ((("auth"."uid"() = "submitter_id") AND ("is_submitted" = false)));
 CREATE POLICY "Users can update own profile." ON "public"."profiles" FOR UPDATE USING (("auth"."uid"() = "id"));
-ALTER TABLE "public"."accepted_presentations" ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "accepted_presentations are viewable" ON "public"."accepted_presentations" FOR SELECT USING (true);
+CREATE POLICY "accepted_presentations are viewable" ON public.accepted_presentations FOR SELECT USING (true);
+
 ALTER TABLE "public"."agenda_favourites" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."container_groups" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."email_lookup" ENABLE ROW LEVEL SECURITY;
@@ -454,7 +437,7 @@ ALTER TABLE "public"."log" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."log_viewers" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."mentoring" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."organizers" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "public"."presentation_presenters" ENABLE ROW LEVEL SECURITY;
+
 ALTER TABLE "public"."timezone_preferences" ENABLE ROW LEVEL SECURITY;
 
 CREATE TRIGGER on_auth_user_created AFTER INSERT ON auth.users FOR EACH ROW EXECUTE FUNCTION handle_new_user();
@@ -474,20 +457,7 @@ BEGIN
 	return split_part(_filename, '.', 2);
 END
 $function$;
-grant delete on table "storage"."s3_multipart_uploads" to "postgres";
-grant insert on table "storage"."s3_multipart_uploads" to "postgres";
-grant references on table "storage"."s3_multipart_uploads" to "postgres";
-grant select on table "storage"."s3_multipart_uploads" to "postgres";
-grant trigger on table "storage"."s3_multipart_uploads" to "postgres";
-grant truncate on table "storage"."s3_multipart_uploads" to "postgres";
-grant update on table "storage"."s3_multipart_uploads" to "postgres";
-grant delete on table "storage"."s3_multipart_uploads_parts" to "postgres";
-grant insert on table "storage"."s3_multipart_uploads_parts" to "postgres";
-grant references on table "storage"."s3_multipart_uploads_parts" to "postgres";
-grant select on table "storage"."s3_multipart_uploads_parts" to "postgres";
-grant trigger on table "storage"."s3_multipart_uploads_parts" to "postgres";
-grant truncate on table "storage"."s3_multipart_uploads_parts" to "postgres";
-grant update on table "storage"."s3_multipart_uploads_parts" to "postgres";
+
 create policy "Anyone can upload an avatar."
 on "storage"."objects"
 as permissive
@@ -738,7 +708,8 @@ begin
   return NEW;
 end;
 $function$;
-create or replace view "public"."all_presentations" as SELECT
+
+create or replace view public.all_presentations as SELECT
     gap.presentation_id,
     gap.scheduled_for,
     gap.year,
@@ -751,111 +722,7 @@ create or replace view "public"."all_presentations" as SELECT
     gap.all_presenter_firstnames,
     gap.all_presenter_lastnames
    FROM get_all_presentations() gap(presentation_id, scheduled_for, year, title, abstract, presentation_type, primary_presenter, all_presenters, all_presenters_names, all_presenter_firstnames, all_presenter_lastnames);
-grant delete on table "public"."confirmed_presentations" to "anon";
-grant insert on table "public"."confirmed_presentations" to "anon";
-grant references on table "public"."confirmed_presentations" to "anon";
-grant select on table "public"."confirmed_presentations" to "anon";
-grant trigger on table "public"."confirmed_presentations" to "anon";
-grant truncate on table "public"."confirmed_presentations" to "anon";
-grant update on table "public"."confirmed_presentations" to "anon";
-grant delete on table "public"."confirmed_presentations" to "authenticated";
-grant insert on table "public"."confirmed_presentations" to "authenticated";
-grant references on table "public"."confirmed_presentations" to "authenticated";
-grant select on table "public"."confirmed_presentations" to "authenticated";
-grant trigger on table "public"."confirmed_presentations" to "authenticated";
-grant truncate on table "public"."confirmed_presentations" to "authenticated";
-grant update on table "public"."confirmed_presentations" to "authenticated";
-grant delete on table "public"."confirmed_presentations" to "service_role";
-grant insert on table "public"."confirmed_presentations" to "service_role";
-grant references on table "public"."confirmed_presentations" to "service_role";
-grant select on table "public"."confirmed_presentations" to "service_role";
-grant trigger on table "public"."confirmed_presentations" to "service_role";
-grant truncate on table "public"."confirmed_presentations" to "service_role";
-grant update on table "public"."confirmed_presentations" to "service_role";
-grant delete on table "public"."rejected_presentations" to "anon";
-grant insert on table "public"."rejected_presentations" to "anon";
-grant references on table "public"."rejected_presentations" to "anon";
-grant select on table "public"."rejected_presentations" to "anon";
-grant trigger on table "public"."rejected_presentations" to "anon";
-grant truncate on table "public"."rejected_presentations" to "anon";
-grant update on table "public"."rejected_presentations" to "anon";
-grant delete on table "public"."rejected_presentations" to "authenticated";
-grant insert on table "public"."rejected_presentations" to "authenticated";
-grant references on table "public"."rejected_presentations" to "authenticated";
-grant select on table "public"."rejected_presentations" to "authenticated";
-grant trigger on table "public"."rejected_presentations" to "authenticated";
-grant truncate on table "public"."rejected_presentations" to "authenticated";
-grant update on table "public"."rejected_presentations" to "authenticated";
-grant delete on table "public"."rejected_presentations" to "service_role";
-grant insert on table "public"."rejected_presentations" to "service_role";
-grant references on table "public"."rejected_presentations" to "service_role";
-grant select on table "public"."rejected_presentations" to "service_role";
-grant trigger on table "public"."rejected_presentations" to "service_role";
-grant truncate on table "public"."rejected_presentations" to "service_role";
-grant update on table "public"."rejected_presentations" to "service_role";
-grant delete on table "public"."ticket_sequences" to "anon";
-grant insert on table "public"."ticket_sequences" to "anon";
-grant references on table "public"."ticket_sequences" to "anon";
-grant select on table "public"."ticket_sequences" to "anon";
-grant trigger on table "public"."ticket_sequences" to "anon";
-grant truncate on table "public"."ticket_sequences" to "anon";
-grant update on table "public"."ticket_sequences" to "anon";
-grant delete on table "public"."ticket_sequences" to "authenticated";
-grant insert on table "public"."ticket_sequences" to "authenticated";
-grant references on table "public"."ticket_sequences" to "authenticated";
-grant select on table "public"."ticket_sequences" to "authenticated";
-grant trigger on table "public"."ticket_sequences" to "authenticated";
-grant truncate on table "public"."ticket_sequences" to "authenticated";
-grant update on table "public"."ticket_sequences" to "authenticated";
-grant delete on table "public"."ticket_sequences" to "service_role";
-grant insert on table "public"."ticket_sequences" to "service_role";
-grant references on table "public"."ticket_sequences" to "service_role";
-grant select on table "public"."ticket_sequences" to "service_role";
-grant trigger on table "public"."ticket_sequences" to "service_role";
-grant truncate on table "public"."ticket_sequences" to "service_role";
-grant update on table "public"."ticket_sequences" to "service_role";
-grant delete on table "public"."tickets" to "anon";
-grant insert on table "public"."tickets" to "anon";
-grant references on table "public"."tickets" to "anon";
-grant select on table "public"."tickets" to "anon";
-grant trigger on table "public"."tickets" to "anon";
-grant truncate on table "public"."tickets" to "anon";
-grant update on table "public"."tickets" to "anon";
-grant delete on table "public"."tickets" to "authenticated";
-grant insert on table "public"."tickets" to "authenticated";
-grant references on table "public"."tickets" to "authenticated";
-grant select on table "public"."tickets" to "authenticated";
-grant trigger on table "public"."tickets" to "authenticated";
-grant truncate on table "public"."tickets" to "authenticated";
-grant update on table "public"."tickets" to "authenticated";
-grant delete on table "public"."tickets" to "service_role";
-grant insert on table "public"."tickets" to "service_role";
-grant references on table "public"."tickets" to "service_role";
-grant select on table "public"."tickets" to "service_role";
-grant trigger on table "public"."tickets" to "service_role";
-grant truncate on table "public"."tickets" to "service_role";
-grant update on table "public"."tickets" to "service_role";
-grant delete on table "public"."video_links" to "anon";
-grant insert on table "public"."video_links" to "anon";
-grant references on table "public"."video_links" to "anon";
-grant select on table "public"."video_links" to "anon";
-grant trigger on table "public"."video_links" to "anon";
-grant truncate on table "public"."video_links" to "anon";
-grant update on table "public"."video_links" to "anon";
-grant delete on table "public"."video_links" to "authenticated";
-grant insert on table "public"."video_links" to "authenticated";
-grant references on table "public"."video_links" to "authenticated";
-grant select on table "public"."video_links" to "authenticated";
-grant trigger on table "public"."video_links" to "authenticated";
-grant truncate on table "public"."video_links" to "authenticated";
-grant update on table "public"."video_links" to "authenticated";
-grant delete on table "public"."video_links" to "service_role";
-grant insert on table "public"."video_links" to "service_role";
-grant references on table "public"."video_links" to "service_role";
-grant select on table "public"."video_links" to "service_role";
-grant trigger on table "public"."video_links" to "service_role";
-grant truncate on table "public"."video_links" to "service_role";
-grant update on table "public"."video_links" to "service_role";
+
 create policy "Insert presentations if authenticated (trigger blocks others)"
 on "public"."confirmed_presentations"
 as permissive
