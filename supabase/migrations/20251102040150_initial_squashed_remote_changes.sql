@@ -1,49 +1,3 @@
-CREATE TYPE public.log_type AS ENUM (
-    'info',
-    'error',
-    'severe'
-);
-CREATE TYPE public.mentoring_type AS ENUM (
-    'mentor',
-    'mentee'
-);
-CREATE TYPE public.presentation_type AS ENUM (
-    '7x7',
-    'full length',
-    'panel',
-    '15 minutes',
-    'quiz',
-    'session-container'
-);
-CREATE TYPE public.presenter_info AS (
-	id uuid,
-	firstname text,
-	lastname text
-);
-CREATE TYPE public.summit_year AS ENUM (
-    '2020',
-    '2021',
-    '2022',
-    '2024',
-    '2025'
-);
-
-CREATE TABLE IF NOT EXISTS public.profiles (
-    id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-    updated_at timestamp with time zone DEFAULT ("now"() AT TIME ZONE 'utc'::"text") NOT NULL,
-    firstname text NOT NULL,
-    lastname text NOT NULL,
-    avatar_url text,
-    website text,
-    bio text
-);
-ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
-
-CREATE TABLE IF NOT EXISTS public.public_profiles (
-    id uuid PRIMARY KEY REFERENCES public.profiles(id) ON DELETE CASCADE
-);
-ALTER TABLE public.public_profiles ENABLE ROW LEVEL SECURITY;
-
 CREATE TABLE IF NOT EXISTS public.presentation_submissions (
     id uuid DEFAULT extensions.uuid_generate_v4() PRIMARY KEY,
     submitter_id uuid NOT NULL REFERENCES public.profiles(id),
@@ -210,16 +164,7 @@ BEGIN
   WHERE ps.year = target_year
   GROUP BY ps.id;
 END; $$;
-CREATE OR REPLACE FUNCTION "public"."handle_new_user"() RETURNS "trigger"
-    LANGUAGE "plpgsql" SECURITY DEFINER
-    SET "search_path" TO 'public'
-    AS $$
-begin
-insert into public.profiles (id, firstname, lastname)
-  values (new.id, new.raw_user_meta_data->>'firstname', new.raw_user_meta_data->>'lastname');
-  return new;
-end;
-$$;
+
 SET default_tablespace = '';
 SET default_table_access_method = "heap";
 
@@ -269,15 +214,6 @@ CREATE OR REPLACE FUNCTION public.store_email()
       return new;
     end;
   $function$;
-
-CREATE OR REPLACE FUNCTION "public"."update_updated_at"() RETURNS "trigger"
-    LANGUAGE "plpgsql"
-    AS $$
-begin
-  NEW.updated_at = (now() at time zone 'utc');
-  return NEW;
-end;
-$$;
 
 CREATE TABLE IF NOT EXISTS public.agenda_favourites (
   user_id uuid NOT NULL,
@@ -332,11 +268,6 @@ CREATE OR REPLACE VIEW "public"."my_submissions" AS
     "get_my_submissions"."all_emails"
    FROM "public"."get_my_submissions"() "get_my_submissions"("presentation_id", "title", "abstract", "learning_points", "presentation_type", "submitter_id", "is_submitted", "year", "all_presenters_ids", "all_firstnames", "all_lastnames", "all_emails");
 
-CREATE TABLE IF NOT EXISTS public.organizers (
-    id uuid PRIMARY KEY REFERENCES public.profiles(id) ON UPDATE CASCADE ON DELETE CASCADE
-);
-ALTER TABLE public.organizers ENABLE ROW LEVEL SECURITY;
-
 CREATE TABLE IF NOT EXISTS public.timezone_preferences (
     id uuid PRIMARY KEY REFERENCES profiles(id) ON UPDATE CASCADE ON DELETE CASCADE,
     timezone_db text NOT NULL,
@@ -345,7 +276,7 @@ CREATE TABLE IF NOT EXISTS public.timezone_preferences (
 );
 ALTER TABLE public.timezone_preferences ENABLE ROW LEVEL SECURITY;
 
-CREATE OR REPLACE TRIGGER "update_profile_updated_at" BEFORE UPDATE ON "public"."profiles" FOR EACH ROW EXECUTE FUNCTION "public"."update_updated_at"();
+
 ALTER TABLE ONLY "public"."agenda_favourites"
     ADD CONSTRAINT "agenda_favourites_presentation_id_fkey" FOREIGN KEY ("presentation_id") REFERENCES "public"."presentation_submissions"("id");
 ALTER TABLE ONLY "public"."agenda_favourites"
@@ -360,13 +291,11 @@ CREATE POLICY "Accepted presenters profiles are viewable" ON "public"."profiles"
 CREATE POLICY "Anyone can register if email not in profiles" ON "public"."mentoring" FOR INSERT WITH CHECK ((NOT ("email" IN ( SELECT "mentoring"."email"
    FROM "public"."profiles"))));
 CREATE POLICY "Container groups are viewable" ON "public"."container_groups" FOR SELECT USING (true);
-CREATE POLICY "Everyone can select public profiles." ON "public"."public_profiles" FOR SELECT USING (true);
 CREATE POLICY "List presenters if presentation accepted" ON "public"."presentation_presenters" FOR SELECT USING (("presentation_id" IN ( SELECT "accepted_presentations"."id"
    FROM "public"."accepted_presentations")));
 CREATE POLICY "Logged in users can register their own email" ON "public"."mentoring" FOR INSERT TO "authenticated" WITH CHECK (("email" IN ( SELECT "mentoring"."email"
    FROM "public"."profiles"
   WHERE ("profiles"."id" = "auth"."uid"()))));
-CREATE POLICY "Organizers can check their existence." ON "public"."organizers" FOR SELECT TO "authenticated" USING (("auth"."uid"() = "id"));
 CREATE POLICY "Organizers can query table" ON "public"."presentation_presenters" FOR SELECT TO "authenticated" USING (("auth"."uid"() IN ( SELECT "organizers"."id"
    FROM "public"."organizers")));
 CREATE POLICY "Organizers can select submitted presentations" ON "public"."presentation_submissions" FOR SELECT TO "authenticated" USING ((("is_submitted" = true) AND ("auth"."uid"() IN ( SELECT "organizers"."id"
@@ -378,8 +307,6 @@ CREATE POLICY "Presenters and co-presenters can select" ON "public"."presentatio
    FROM "public"."presentation_presenters" "pp"
   WHERE ("pp"."presentation_id" = "presentation_submissions"."id"))));
 CREATE POLICY "Presenters can find their own entries" ON "public"."presentation_presenters" FOR SELECT TO "authenticated" USING (("presenter_id" = "auth"."uid"()));
-CREATE POLICY "Profiles listed as public are viewable by everyone." ON "public"."profiles" FOR SELECT USING (("id" IN ( SELECT "public_profiles"."id"
-   FROM "public"."public_profiles")));
 CREATE POLICY "Select yourself" ON "public"."log_viewers" FOR SELECT TO "authenticated" USING (("user_id" = "auth"."uid"()));
 CREATE POLICY "Specified users (log_viewers) can access the logs" ON "public"."log" FOR SELECT TO "authenticated" USING (("auth"."uid"() IN ( SELECT "log_viewers"."user_id"
    FROM "public"."log_viewers")));
@@ -390,17 +317,13 @@ CREATE POLICY "Submissions are viewable if containers" ON "public"."presentation
 CREATE POLICY "User can modify their own favourites" ON "public"."agenda_favourites" TO "authenticated" USING (("user_id" = "auth"."uid"())) WITH CHECK (("user_id" = "auth"."uid"()));
 CREATE POLICY "Users can delete draft presentations" ON "public"."presentation_submissions" FOR DELETE USING ((("auth"."uid"() = "submitter_id") AND ("is_submitted" = false)));
 CREATE POLICY "Users can insert their own presentation submissions." ON "public"."presentation_submissions" FOR INSERT WITH CHECK (("auth"."uid"() = "submitter_id"));
-CREATE POLICY "Users can insert their own profile." ON "public"."profiles" FOR INSERT WITH CHECK (("auth"."uid"() = "id"));
 CREATE POLICY "Users can modify their timezone preferences" ON "public"."timezone_preferences" USING (("auth"."uid"() = "id")) WITH CHECK (("auth"."uid"() = "id"));
 CREATE POLICY "Users can read their own status" ON "public"."mentoring" FOR SELECT USING (("email" IN ( SELECT "mentoring"."email"
    FROM "public"."profiles"
   WHERE ("profiles"."id" = "auth"."uid"()))));
-CREATE POLICY "Users can select their own profile" ON "public"."profiles" FOR SELECT USING (("auth"."uid"() = "id"));
 CREATE POLICY "Users can update own presentation submissions." ON "public"."presentation_submissions" FOR UPDATE USING ((("auth"."uid"() = "submitter_id") AND ("is_submitted" = false)));
-CREATE POLICY "Users can update own profile." ON "public"."profiles" FOR UPDATE USING (("auth"."uid"() = "id"));
 CREATE POLICY "accepted_presentations are viewable" ON public.accepted_presentations FOR SELECT USING (true);
 
-CREATE TRIGGER on_auth_user_created AFTER INSERT ON auth.users FOR EACH ROW EXECUTE FUNCTION handle_new_user();
 CREATE TRIGGER on_auth_user_created_emails AFTER INSERT ON auth.users FOR EACH ROW EXECUTE FUNCTION store_email();
 set check_function_bodies = off;
 CREATE OR REPLACE FUNCTION storage.extension(name text)
@@ -578,18 +501,6 @@ BEGIN
   WHERE ps.year = target_year
   GROUP BY ps.id;
 END; $function$;
-CREATE OR REPLACE FUNCTION public.handle_new_user()
- RETURNS trigger
- LANGUAGE plpgsql
- SECURITY DEFINER
- SET search_path TO 'public'
-AS $function$
-begin
-insert into public.profiles (id, firstname, lastname)
-  values (new.id, new.raw_user_meta_data->>'firstname', new.raw_user_meta_data->>'lastname');
-  return new;
-end;
-$function$;
 CREATE OR REPLACE FUNCTION public.is_ok(presentation_presenters)
  RETURNS boolean
  LANGUAGE plpgsql
@@ -817,18 +728,7 @@ BEGIN
   WHERE ps.year = target_year
   GROUP BY ps.id;
 END; $function$;
-CREATE OR REPLACE FUNCTION public.handle_new_user()
- RETURNS trigger
- LANGUAGE plpgsql
- SECURITY DEFINER
- SET search_path TO 'public'
-AS $function$
-begin
-insert into public.profiles (id, firstname, lastname)
-  values (new.id, new.raw_user_meta_data->>'firstname', new.raw_user_meta_data->>'lastname');
-  return new;
-end;
-$function$;
+
 CREATE OR REPLACE FUNCTION public.is_ok(presentation_presenters)
  RETURNS boolean
  LANGUAGE plpgsql
