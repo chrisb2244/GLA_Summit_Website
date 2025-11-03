@@ -10,12 +10,7 @@ USING (
 WITH CHECK (
   (user_id = (SELECT auth.uid()))
 );
-ALTER POLICY "OrganizersCanQueryEmails"
-ON "public"."email_lookup"
-TO authenticated
-USING (
-  (SELECT(auth.uid()) IN (SELECT organizers.id FROM organizers))
-);
+
 ALTER POLICY "Specified users (log_viewers) can access the logs"
 ON "public"."log"
 TO authenticated

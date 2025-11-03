@@ -168,24 +168,6 @@ CREATE OR REPLACE FUNCTION "public"."is_ok"("public"."presentation_submissions")
                   AND ps.presenter_id = auth.uid());
 END;$_$;
 
-CREATE TABLE IF NOT EXISTS public.email_lookup (
-    id uuid PRIMARY KEY REFERENCES public.profiles(id) ON UPDATE CASCADE ON DELETE CASCADE,
-    email text NOT NULL
-);
-ALTER TABLE public.email_lookup ENABLE ROW LEVEL SECURITY;
-
-CREATE OR REPLACE FUNCTION public.store_email()
-  RETURNS trigger
-  LANGUAGE plpgsql
-  SECURITY DEFINER
-  SET search_path TO ''
-  AS $function$
-    begin
-    insert into public.email_lookup (id, email)
-      values (new.id, new.email);
-      return new;
-    end;
-  $function$;
 
 CREATE TABLE IF NOT EXISTS public.agenda_favourites (
   user_id uuid NOT NULL,
@@ -273,7 +255,7 @@ CREATE POLICY "Users can modify their timezone preferences" ON "public"."timezon
 CREATE POLICY "Users can read their own status" ON "public"."mentoring" FOR SELECT USING (("email" IN ( SELECT "mentoring"."email"
    FROM "public"."profiles"
   WHERE ("profiles"."id" = "auth"."uid"()))));
-CREATE TRIGGER on_auth_user_created_emails AFTER INSERT ON auth.users FOR EACH ROW EXECUTE FUNCTION store_email();
+
 set check_function_bodies = off;
 CREATE OR REPLACE FUNCTION storage.extension(name text)
  RETURNS text

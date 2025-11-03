@@ -3,16 +3,6 @@
 
 -- A subset of those previously 'fixed' are fixed again here due to parsing issues.
 
-ALTER POLICY "OrganizersCanQueryEmails"
-ON "public"."email_lookup"
-TO authenticated
-USING (
-  (
-    ( SELECT auth.uid() AS uid )
-    IN
-    ( SELECT organizers.id FROM organizers)
-  )
-);
 ALTER POLICY "Specified users (log_viewers) can access the logs"
 ON "public"."log"
 TO authenticated
