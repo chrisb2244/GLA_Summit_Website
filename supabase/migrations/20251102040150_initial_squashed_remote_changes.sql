@@ -1,31 +1,3 @@
-CREATE TABLE IF NOT EXISTS public.presentation_submissions (
-    id uuid DEFAULT extensions.uuid_generate_v4() PRIMARY KEY,
-    submitter_id uuid NOT NULL REFERENCES public.profiles(id),
-    updated_at timestamp with time zone DEFAULT ("now"() AT TIME ZONE 'utc'::"text") NOT NULL,
-    title text NOT NULL,
-    abstract text NOT NULL,
-    is_submitted boolean NOT NULL,
-    presentation_type public.presentation_type NOT NULL,
-    learning_points text,
-    year public.summit_year NOT NULL
-);
-ALTER TABLE public.presentation_submissions ENABLE ROW LEVEL SECURITY;
-
-CREATE TABLE IF NOT EXISTS public.accepted_presentations (
-    id uuid PRIMARY KEY REFERENCES public.presentation_submissions(id),
-    accepted_at timestamp with time zone DEFAULT ("now"() AT TIME ZONE 'utc'::"text") NOT NULL,
-    scheduled_for timestamp with time zone,
-    year public.summit_year NOT NULL
-);
-ALTER TABLE public.accepted_presentations ENABLE ROW LEVEL SECURITY;
-
-CREATE TABLE IF NOT EXISTS public.presentation_presenters (
-    presentation_id uuid NOT NULL REFERENCES public.presentation_submissions(id) ON DELETE CASCADE,
-    presenter_id uuid NOT NULL REFERENCES public.profiles(id),
-    PRIMARY KEY (presentation_id, presenter_id)
-);
-ALTER TABLE public.presentation_presenters ENABLE ROW LEVEL SECURITY;
-
 CREATE OR REPLACE FUNCTION public.get_all_presentations()
   RETURNS TABLE(presentation_id uuid, scheduled_for timestamp with time zone, year summit_year, title text, abstract text, presentation_type presentation_type, primary_presenter uuid, all_presenters uuid[], all_presenters_names text[], all_presenter_firstnames text[], all_presenter_lastnames text[])
   LANGUAGE sql
@@ -285,45 +257,22 @@ ALTER TABLE ONLY "public"."container_groups"
     ADD CONSTRAINT "container_groups_container_id_fkey" FOREIGN KEY ("container_id") REFERENCES "public"."presentation_submissions"("id");
 ALTER TABLE ONLY "public"."container_groups"
     ADD CONSTRAINT "container_groups_presentation_id_fkey" FOREIGN KEY ("presentation_id") REFERENCES "public"."presentation_submissions"("id");
-CREATE POLICY "Accepted presenters profiles are viewable" ON "public"."profiles" FOR SELECT USING (("id" IN ( SELECT "pp"."presenter_id"
-   FROM ("public"."accepted_presentations"
-     LEFT JOIN "public"."presentation_presenters" "pp" ON (("pp"."presentation_id" = "accepted_presentations"."id"))))));
 CREATE POLICY "Anyone can register if email not in profiles" ON "public"."mentoring" FOR INSERT WITH CHECK ((NOT ("email" IN ( SELECT "mentoring"."email"
    FROM "public"."profiles"))));
 CREATE POLICY "Container groups are viewable" ON "public"."container_groups" FOR SELECT USING (true);
-CREATE POLICY "List presenters if presentation accepted" ON "public"."presentation_presenters" FOR SELECT USING (("presentation_id" IN ( SELECT "accepted_presentations"."id"
-   FROM "public"."accepted_presentations")));
 CREATE POLICY "Logged in users can register their own email" ON "public"."mentoring" FOR INSERT TO "authenticated" WITH CHECK (("email" IN ( SELECT "mentoring"."email"
    FROM "public"."profiles"
   WHERE ("profiles"."id" = "auth"."uid"()))));
-CREATE POLICY "Organizers can query table" ON "public"."presentation_presenters" FOR SELECT TO "authenticated" USING (("auth"."uid"() IN ( SELECT "organizers"."id"
-   FROM "public"."organizers")));
-CREATE POLICY "Organizers can select submitted presentations" ON "public"."presentation_submissions" FOR SELECT TO "authenticated" USING ((("is_submitted" = true) AND ("auth"."uid"() IN ( SELECT "organizers"."id"
-   FROM "public"."organizers"))));
-CREATE POLICY "Organizers can view profiles of presentation submitters" ON "public"."profiles" FOR SELECT TO "authenticated" USING ((("id" IN ( SELECT "presentation_presenters"."presenter_id"
-   FROM "public"."presentation_presenters")) AND ("auth"."uid"() IN ( SELECT "organizers"."id"
-   FROM "public"."organizers"))));
-CREATE POLICY "Presenters and co-presenters can select" ON "public"."presentation_submissions" FOR SELECT USING (("auth"."uid"() IN ( SELECT "pp"."presenter_id"
-   FROM "public"."presentation_presenters" "pp"
-  WHERE ("pp"."presentation_id" = "presentation_submissions"."id"))));
-CREATE POLICY "Presenters can find their own entries" ON "public"."presentation_presenters" FOR SELECT TO "authenticated" USING (("presenter_id" = "auth"."uid"()));
 CREATE POLICY "Select yourself" ON "public"."log_viewers" FOR SELECT TO "authenticated" USING (("user_id" = "auth"."uid"()));
 CREATE POLICY "Specified users (log_viewers) can access the logs" ON "public"."log" FOR SELECT TO "authenticated" USING (("auth"."uid"() IN ( SELECT "log_viewers"."user_id"
    FROM "public"."log_viewers")));
-CREATE POLICY "Submissions are viewable if accepted" ON "public"."presentation_submissions" FOR SELECT USING (("id" IN ( SELECT "accepted_presentations"."id"
-   FROM "public"."accepted_presentations")));
 CREATE POLICY "Submissions are viewable if containers" ON "public"."presentation_submissions" FOR SELECT USING (("id" IN ( SELECT "container_groups"."container_id"
    FROM "public"."container_groups")));
 CREATE POLICY "User can modify their own favourites" ON "public"."agenda_favourites" TO "authenticated" USING (("user_id" = "auth"."uid"())) WITH CHECK (("user_id" = "auth"."uid"()));
-CREATE POLICY "Users can delete draft presentations" ON "public"."presentation_submissions" FOR DELETE USING ((("auth"."uid"() = "submitter_id") AND ("is_submitted" = false)));
-CREATE POLICY "Users can insert their own presentation submissions." ON "public"."presentation_submissions" FOR INSERT WITH CHECK (("auth"."uid"() = "submitter_id"));
 CREATE POLICY "Users can modify their timezone preferences" ON "public"."timezone_preferences" USING (("auth"."uid"() = "id")) WITH CHECK (("auth"."uid"() = "id"));
 CREATE POLICY "Users can read their own status" ON "public"."mentoring" FOR SELECT USING (("email" IN ( SELECT "mentoring"."email"
    FROM "public"."profiles"
   WHERE ("profiles"."id" = "auth"."uid"()))));
-CREATE POLICY "Users can update own presentation submissions." ON "public"."presentation_submissions" FOR UPDATE USING ((("auth"."uid"() = "submitter_id") AND ("is_submitted" = false)));
-CREATE POLICY "accepted_presentations are viewable" ON public.accepted_presentations FOR SELECT USING (true);
-
 CREATE TRIGGER on_auth_user_created_emails AFTER INSERT ON auth.users FOR EACH ROW EXECUTE FUNCTION store_email();
 set check_function_bodies = off;
 CREATE OR REPLACE FUNCTION storage.extension(name text)
@@ -374,10 +323,6 @@ create table "public"."confirmed_presentations" (
     "created_at" timestamp with time zone not null default now()
 );
 alter table "public"."confirmed_presentations" enable row level security;
-create table "public"."rejected_presentations" (
-    "id" uuid not null
-);
-alter table "public"."rejected_presentations" enable row level security;
 create table "public"."ticket_sequences" (
     "year" summit_year not null,
     "name" text
@@ -396,20 +341,16 @@ create table "public"."video_links" (
 );
 alter table "public"."video_links" enable row level security;
 CREATE UNIQUE INDEX confirmed_presentations_pkey ON public.confirmed_presentations USING btree (id);
-CREATE UNIQUE INDEX rejected_presentations_pkey ON public.rejected_presentations USING btree (id);
 CREATE UNIQUE INDEX ticket_sequences_pkey ON public.ticket_sequences USING btree (year);
 CREATE UNIQUE INDEX tickets_pkey ON public.tickets USING btree (user_id, year);
 CREATE UNIQUE INDEX tickets_year_ticket_number_key ON public.tickets USING btree (year, ticket_number);
 CREATE UNIQUE INDEX video_links_pkey ON public.video_links USING btree (presentation_id);
 alter table "public"."confirmed_presentations" add constraint "confirmed_presentations_pkey" PRIMARY KEY using index "confirmed_presentations_pkey";
-alter table "public"."rejected_presentations" add constraint "rejected_presentations_pkey" PRIMARY KEY using index "rejected_presentations_pkey";
 alter table "public"."ticket_sequences" add constraint "ticket_sequences_pkey" PRIMARY KEY using index "ticket_sequences_pkey";
 alter table "public"."tickets" add constraint "tickets_pkey" PRIMARY KEY using index "tickets_pkey";
 alter table "public"."video_links" add constraint "video_links_pkey" PRIMARY KEY using index "video_links_pkey";
 alter table "public"."confirmed_presentations" add constraint "public_confirmed_presentations_id_fkey" FOREIGN KEY (id) REFERENCES accepted_presentations(id) not valid;
 alter table "public"."confirmed_presentations" validate constraint "public_confirmed_presentations_id_fkey";
-alter table "public"."rejected_presentations" add constraint "public_rejected_presentations_id_fkey" FOREIGN KEY (id) REFERENCES presentation_submissions(id) ON UPDATE CASCADE ON DELETE CASCADE not valid;
-alter table "public"."rejected_presentations" validate constraint "public_rejected_presentations_id_fkey";
 alter table "public"."tickets" add constraint "public_tickets_user_id_fkey" FOREIGN KEY (user_id) REFERENCES profiles(id) ON UPDATE CASCADE ON DELETE CASCADE not valid;
 alter table "public"."tickets" validate constraint "public_tickets_user_id_fkey";
 alter table "public"."tickets" add constraint "public_tickets_year_fkey" FOREIGN KEY (year) REFERENCES ticket_sequences(year) not valid;
@@ -576,20 +517,6 @@ as permissive
 for select
 to authenticated
 using (true);
-create policy "Selection for insertion (submitter)"
-on "public"."presentation_submissions"
-as permissive
-for select
-to authenticated
-using ((auth.uid() = submitter_id));
-create policy "Allow selecting your own presentation"
-on "public"."rejected_presentations"
-as permissive
-for select
-to authenticated
-using ((auth.uid() IN ( SELECT pp.presenter_id
-   FROM presentation_presenters pp
-  WHERE (pp.presentation_id = rejected_presentations.id))));
 create policy "Insert own ticket"
 on "public"."tickets"
 as permissive
