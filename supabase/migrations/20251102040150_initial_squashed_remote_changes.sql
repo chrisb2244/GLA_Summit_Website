@@ -1,49 +1,3 @@
-CREATE OR REPLACE FUNCTION public.get_all_presentations()
-  RETURNS TABLE(presentation_id uuid, scheduled_for timestamp with time zone, year summit_year, title text, abstract text, presentation_type presentation_type, primary_presenter uuid, all_presenters uuid[], all_presenters_names text[], all_presenter_firstnames text[], all_presenter_lastnames text[])
-  LANGUAGE sql
-  SET search_path TO 'public'
-  AS $function$
-    select
-      ap.id as presentation_id,
-      scheduled_for,
-      ap.year,
-      p.title,
-      p.abstract,
-      p.presentation_type,
-      p.submitter_id as primary_presenter,
-      p.all_presenters,
-      p.all_presenters_names,
-      p.all_presenter_firstnames,
-      p.all_presenter_lastnames
-    from
-      accepted_presentations ap
-    join (
-      select
-        ps.id,
-        ps.title,
-        ps.abstract,
-        ps.presentation_type,
-        ps.submitter_id,
-        array_agg(ppn.presenter_id) as all_presenters,
-        array_agg(coalesce(trim(coalesce(ppn.firstname, '') || ' ' || coalesce(ppn.lastname, '')), '')) as all_presenters_names,
-        array_agg(coalesce(ppn.firstname, '')) as all_presenter_firstnames,
-        array_agg(coalesce(ppn.lastname, '')) as all_presenter_lastnames
-      from
-        presentation_submissions ps
-        join (
-          select
-            pp.presentation_id,
-            pp.presenter_id,
-            prof.firstname,
-            prof.lastname
-          from
-            presentation_presenters pp
-            inner join profiles prof on pp.presenter_id = prof.id
-        ) ppn on ps.id = ppn.presentation_id
-      group by
-        ps.id
-    ) p using (id)
-  $function$;
 
 CREATE OR REPLACE FUNCTION public.get_email_by_id(user_id uuid)
  RETURNS text
@@ -297,7 +251,6 @@ for delete
 to public
 using ((auth.uid() = owner));
 create sequence "public"."ticket_sequence_2024";
-drop view if exists "public"."all_presentations";
 drop view if exists "public"."my_submissions";
 
 create table "public"."confirmed_presentations" (
@@ -472,20 +425,6 @@ begin
   return NEW;
 end;
 $function$;
-
-create or replace view public.all_presentations as SELECT
-    gap.presentation_id,
-    gap.scheduled_for,
-    gap.year,
-    gap.title,
-    gap.abstract,
-    gap.presentation_type,
-    gap.primary_presenter,
-    gap.all_presenters,
-    gap.all_presenters_names,
-    gap.all_presenter_firstnames,
-    gap.all_presenter_lastnames
-   FROM get_all_presentations() gap(presentation_id, scheduled_for, year, title, abstract, presentation_type, primary_presenter, all_presenters, all_presenters_names, all_presenter_firstnames, all_presenter_lastnames);
 
 create policy "Insert presentations if authenticated (trigger blocks others)"
 on "public"."confirmed_presentations"
