@@ -23,12 +23,6 @@ USING (
     ( SELECT log_viewers.user_id FROM log_viewers )
   )
 );
-ALTER POLICY "Organizers can check their existence."
-ON "public"."organizers"
-TO authenticated
-USING (
-  (SELECT auth.uid() AS uid) = id
-);
 ALTER POLICY "Organizers can query table"
 ON "public"."presentation_presenters"
 TO authenticated
@@ -99,36 +93,6 @@ USING (
     AND
     (is_submitted = false)
   )
-);
-ALTER POLICY "Organizers can view profiles of presentation submitters"
-ON "public"."profiles"
-TO authenticated
-USING (
-  ((id IN (
-    SELECT presentation_presenters.presenter_id
-    FROM presentation_presenters
-    )
-  ) AND (
-    (SELECT auth.uid() AS uid) IN ( SELECT organizers.id FROM organizers)
-  ))
-);
-ALTER POLICY "Users can insert their own profile."
-ON "public"."profiles"
-TO public
-WITH CHECK (
-  ((SELECT auth.uid() AS uid) = id)
-);
-ALTER POLICY "Users can select their own profile"
-ON "public"."profiles"
-TO public
-USING (
-  ((SELECT auth.uid() AS uid) = id)
-);
-ALTER POLICY "Users can update own profile."
-ON "public"."profiles"
-TO public
-USING (
-  ((SELECT auth.uid() AS uid) = id)
 );
 ALTER POLICY "Allow selecting your own presentation"
 ON "public"."rejected_presentations"
