@@ -284,16 +284,6 @@ create or replace view "public"."my_submissions" as  SELECT get_my_submissions.p
     get_my_submissions.all_emails
    FROM get_my_submissions() get_my_submissions(presentation_id, title, abstract, learning_points, presentation_type, submitter_id, is_submitted, year, all_presenters_ids, all_firstnames, all_lastnames, all_emails);
 
-CREATE OR REPLACE FUNCTION public.update_updated_at()
- RETURNS trigger
- LANGUAGE plpgsql
-AS $function$
-begin
-  NEW.updated_at = (now() at time zone 'utc');
-  return NEW;
-end;
-$function$;
-
 create policy "Insert presentations if authenticated (trigger blocks others)"
 on "public"."confirmed_presentations"
 as permissive
@@ -410,13 +400,3 @@ AS $function$BEGIN
                   WHERE ($1).presentation_id = ps.presentation_id 
                   AND ps.presenter_id = auth.uid());
 END;$function$;
-
-CREATE OR REPLACE FUNCTION public.update_updated_at()
- RETURNS trigger
- LANGUAGE plpgsql
-AS $function$
-begin
-  NEW.updated_at = (now() at time zone 'utc');
-  return NEW;
-end;
-$function$;
