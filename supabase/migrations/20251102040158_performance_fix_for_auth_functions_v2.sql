@@ -28,24 +28,3 @@ USING (
 WITH CHECK (
   ((SELECT auth.uid() AS uid) = id)
 );
-ALTER POLICY "insert_policy"
-ON "public"."review_download_information"
-TO authenticated
-WITH CHECK (
-  ((SELECT auth.uid() AS uid) = viewer_id)
-);
-ALTER POLICY "select_policy"
-ON "public"."review_download_information"
-TO authenticated
-USING (
-  ((SELECT auth.uid() AS uid) = viewer_id)
-);
-ALTER POLICY "update_policy"
-ON "public"."review_download_information"
-TO authenticated
-USING (
-  ((SELECT auth.uid() AS uid) = viewer_id)
-)
-WITH CHECK (
-  ((SELECT auth.uid() AS uid) = viewer_id)
-);
