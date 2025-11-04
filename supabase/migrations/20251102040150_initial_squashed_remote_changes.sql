@@ -96,14 +96,6 @@ CREATE OR REPLACE FUNCTION "public"."is_ok"("public"."presentation_submissions")
 END;$_$;
 
 
-CREATE TABLE IF NOT EXISTS public.agenda_favourites (
-  user_id uuid NOT NULL,
-  presentation_id uuid NOT NULL,
-  updated_at timestamp with time zone DEFAULT "now"() NOT NULL,
-  PRIMARY KEY (user_id, presentation_id)
-);
-ALTER TABLE public.agenda_favourites ENABLE ROW LEVEL SECURITY;
-
 CREATE TABLE IF NOT EXISTS public.container_groups (
   container_id uuid NOT NULL,
   presentation_id uuid NOT NULL,
@@ -129,10 +121,6 @@ CREATE OR REPLACE VIEW "public"."my_submissions" AS
    FROM "public"."get_my_submissions"() "get_my_submissions"("presentation_id", "title", "abstract", "learning_points", "presentation_type", "submitter_id", "is_submitted", "year", "all_presenters_ids", "all_firstnames", "all_lastnames", "all_emails");
 
 
-ALTER TABLE ONLY "public"."agenda_favourites"
-    ADD CONSTRAINT "agenda_favourites_presentation_id_fkey" FOREIGN KEY ("presentation_id") REFERENCES "public"."presentation_submissions"("id");
-ALTER TABLE ONLY "public"."agenda_favourites"
-    ADD CONSTRAINT "agenda_favourites_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id");
 ALTER TABLE ONLY "public"."container_groups"
     ADD CONSTRAINT "container_groups_container_id_fkey" FOREIGN KEY ("container_id") REFERENCES "public"."presentation_submissions"("id");
 ALTER TABLE ONLY "public"."container_groups"
@@ -140,7 +128,6 @@ ALTER TABLE ONLY "public"."container_groups"
 CREATE POLICY "Container groups are viewable" ON "public"."container_groups" FOR SELECT USING (true);
 CREATE POLICY "Submissions are viewable if containers" ON "public"."presentation_submissions" FOR SELECT USING (("id" IN ( SELECT "container_groups"."container_id"
    FROM "public"."container_groups")));
-CREATE POLICY "User can modify their own favourites" ON "public"."agenda_favourites" TO "authenticated" USING (("user_id" = "auth"."uid"())) WITH CHECK (("user_id" = "auth"."uid"()));
 
 set check_function_bodies = off;
 CREATE OR REPLACE FUNCTION storage.extension(name text)
