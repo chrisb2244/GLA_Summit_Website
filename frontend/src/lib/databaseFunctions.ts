@@ -351,7 +351,7 @@ export const getPublicProfiles = async (
 
 export const getPublicPresentations = async (client: Client = supabase) => {
   const { data, error } = await client
-    .from('all_presentations')
+    .rpc('get_all_presentations')
     .select()
     .order('scheduled_for', { ascending: true });
   if (error) throw error;
@@ -362,7 +362,7 @@ export const getPublicPresentationsForPresenter = async (
   client: Client = supabase
 ) => {
   const { data, error } = await client
-    .from('all_presentations')
+    .rpc('get_all_presentations')
     .select()
     .contains('all_presenters', [presenterId])
     .order('scheduled_for', { ascending: true });
@@ -375,7 +375,7 @@ export const getPublicPresentation = async (
   client: Client = supabase
 ): Promise<AllPresentationsModel> => {
   return client
-    .from('all_presentations')
+    .rpc('get_all_presentations')
     .select()
     .eq('presentation_id', presentationId)
     .single()
