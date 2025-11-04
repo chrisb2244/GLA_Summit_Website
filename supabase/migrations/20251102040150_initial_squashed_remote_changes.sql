@@ -128,14 +128,6 @@ CREATE OR REPLACE VIEW "public"."my_submissions" AS
     "get_my_submissions"."all_emails"
    FROM "public"."get_my_submissions"() "get_my_submissions"("presentation_id", "title", "abstract", "learning_points", "presentation_type", "submitter_id", "is_submitted", "year", "all_presenters_ids", "all_firstnames", "all_lastnames", "all_emails");
 
-CREATE TABLE IF NOT EXISTS public.timezone_preferences (
-    id uuid PRIMARY KEY REFERENCES profiles(id) ON UPDATE CASCADE ON DELETE CASCADE,
-    timezone_db text NOT NULL,
-    timezone_name text NOT NULL,
-    use_24h_clock boolean DEFAULT false NOT NULL
-);
-ALTER TABLE public.timezone_preferences ENABLE ROW LEVEL SECURITY;
-
 
 ALTER TABLE ONLY "public"."agenda_favourites"
     ADD CONSTRAINT "agenda_favourites_presentation_id_fkey" FOREIGN KEY ("presentation_id") REFERENCES "public"."presentation_submissions"("id");
@@ -149,7 +141,6 @@ CREATE POLICY "Container groups are viewable" ON "public"."container_groups" FOR
 CREATE POLICY "Submissions are viewable if containers" ON "public"."presentation_submissions" FOR SELECT USING (("id" IN ( SELECT "container_groups"."container_id"
    FROM "public"."container_groups")));
 CREATE POLICY "User can modify their own favourites" ON "public"."agenda_favourites" TO "authenticated" USING (("user_id" = "auth"."uid"())) WITH CHECK (("user_id" = "auth"."uid"()));
-CREATE POLICY "Users can modify their timezone preferences" ON "public"."timezone_preferences" USING (("auth"."uid"() = "id")) WITH CHECK (("auth"."uid"() = "id"));
 
 set check_function_bodies = off;
 CREATE OR REPLACE FUNCTION storage.extension(name text)
