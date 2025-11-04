@@ -45,7 +45,7 @@ export type PresentationPresentersModel =
 
 // These types aren't used for insertion or updating, so export the Row directly
 export type AllPresentationsModel =
-  Database['public']['Views']['all_presentations']['Row'];
+  Database['public']['Functions']['get_all_presentations']['Returns'];
 export type MySubmissionsModel =
   Database['public']['Views']['my_submissions']['Row'];
 

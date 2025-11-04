@@ -22,7 +22,7 @@ const getAgendaAndHints = async () => {
 
   const supabase = createAnonServerClient();
   const { data: agenda, error } = await supabase
-    .from('all_presentations')
+    .rpc('get_all_presentations')
     .select('*')
     .eq('year', currentDisplayYear)
     .not('scheduled_for', 'is', 'null'); // required for ScheduledAgendaEntry rather than AgendaEntry

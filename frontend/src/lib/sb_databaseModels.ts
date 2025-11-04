@@ -551,22 +551,6 @@ export type Database = {
       };
     };
     Views: {
-      all_presentations: {
-        Row: {
-          abstract: string;
-          all_presenter_firstnames: string[];
-          all_presenter_lastnames: string[];
-          all_presenters: string[];
-          all_presenters_names: string[];
-          presentation_id: string;
-          presentation_type: Database['public']['Enums']['presentation_type'];
-          primary_presenter: string;
-          scheduled_for: string | null;
-          title: string;
-          year: Database['public']['Enums']['summit_year'];
-        };
-        Relationships: [];
-      };
       my_submissions: {
         Row: {
           abstract: string;

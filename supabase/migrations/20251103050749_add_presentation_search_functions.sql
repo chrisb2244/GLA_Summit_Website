@@ -61,29 +61,28 @@ CREATE OR REPLACE FUNCTION public.get_all_presentations()
   $function$;
 
 -- Add a view that wraps the function.
--- This makes filtering in queries easier.
-CREATE OR REPLACE VIEW public.all_presentations AS SELECT
-    gap.presentation_id,
-    gap.scheduled_for,
-    gap.year,
-    gap.title,
-    gap.abstract,
-    gap.presentation_type,
-    gap.primary_presenter,
-    gap.all_presenters,
-    gap.all_presenters_names,
-    gap.all_presenter_firstnames,
-    gap.all_presenter_lastnames
-   FROM get_all_presentations() gap(
-    presentation_id,
-    scheduled_for,
-    year,
-    title,
-    abstract,
-    presentation_type,
-    primary_presenter,
-    all_presenters,
-    all_presenters_names,
-    all_presenter_firstnames,
-    all_presenter_lastnames
-  );
+-- CREATE OR REPLACE VIEW public.all_presentations AS SELECT
+--     gap.presentation_id,
+--     gap.scheduled_for,
+--     gap.year,
+--     gap.title,
+--     gap.abstract,
+--     gap.presentation_type,
+--     gap.primary_presenter,
+--     gap.all_presenters,
+--     gap.all_presenters_names,
+--     gap.all_presenter_firstnames,
+--     gap.all_presenter_lastnames
+--    FROM get_all_presentations() gap(
+--     presentation_id,
+--     scheduled_for,
+--     year,
+--     title,
+--     abstract,
+--     presentation_type,
+--     primary_presenter,
+--     all_presenters,
+--     all_presenters_names,
+--     all_presenter_firstnames,
+--     all_presenter_lastnames
+--   );
