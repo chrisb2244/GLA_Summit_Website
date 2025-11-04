@@ -23,12 +23,3 @@ TO authenticated
 USING (
   (SELECT(auth.uid()) = user_id)
 );
-ALTER POLICY "Users can modify their timezone preferences"
-ON "public"."timezone_preferences"
-TO public
-USING (
-  (SELECT(auth.uid()) = id)
-)
-WITH CHECK (
-  (SELECT(auth.uid()) = id)
-);

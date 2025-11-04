@@ -10,12 +10,3 @@ TO authenticated
 USING (
   ((SELECT auth.uid() AS uid) = user_id)
 );
-ALTER POLICY "Users can modify their timezone preferences"
-ON "public"."timezone_preferences"
-TO public
-USING (
-  ((SELECT auth.uid() AS uid) = id)
-)
-WITH CHECK (
-  ((SELECT auth.uid() AS uid) = id)
-);
