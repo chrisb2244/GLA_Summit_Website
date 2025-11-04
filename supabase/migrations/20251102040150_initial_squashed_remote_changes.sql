@@ -111,14 +111,7 @@ CREATE TABLE IF NOT EXISTS public.container_groups (
 );
 ALTER TABLE public.container_groups ENABLE ROW LEVEL SECURITY;
 
-CREATE TABLE IF NOT EXISTS public.mentoring (
-    email text PRIMARY KEY,
-    firstname text NOT NULL,
-    lastname text NOT NULL,
-    entry_type public.mentoring_type NOT NULL,
-    created_at timestamp with time zone DEFAULT "now"() NOT NULL
-);
-ALTER TABLE public.mentoring ENABLE ROW LEVEL SECURITY;
+
 
 CREATE OR REPLACE VIEW "public"."my_submissions" AS
  SELECT "get_my_submissions"."presentation_id",
@@ -152,19 +145,11 @@ ALTER TABLE ONLY "public"."container_groups"
     ADD CONSTRAINT "container_groups_container_id_fkey" FOREIGN KEY ("container_id") REFERENCES "public"."presentation_submissions"("id");
 ALTER TABLE ONLY "public"."container_groups"
     ADD CONSTRAINT "container_groups_presentation_id_fkey" FOREIGN KEY ("presentation_id") REFERENCES "public"."presentation_submissions"("id");
-CREATE POLICY "Anyone can register if email not in profiles" ON "public"."mentoring" FOR INSERT WITH CHECK ((NOT ("email" IN ( SELECT "mentoring"."email"
-   FROM "public"."profiles"))));
 CREATE POLICY "Container groups are viewable" ON "public"."container_groups" FOR SELECT USING (true);
-CREATE POLICY "Logged in users can register their own email" ON "public"."mentoring" FOR INSERT TO "authenticated" WITH CHECK (("email" IN ( SELECT "mentoring"."email"
-   FROM "public"."profiles"
-  WHERE ("profiles"."id" = "auth"."uid"()))));
 CREATE POLICY "Submissions are viewable if containers" ON "public"."presentation_submissions" FOR SELECT USING (("id" IN ( SELECT "container_groups"."container_id"
    FROM "public"."container_groups")));
 CREATE POLICY "User can modify their own favourites" ON "public"."agenda_favourites" TO "authenticated" USING (("user_id" = "auth"."uid"())) WITH CHECK (("user_id" = "auth"."uid"()));
 CREATE POLICY "Users can modify their timezone preferences" ON "public"."timezone_preferences" USING (("auth"."uid"() = "id")) WITH CHECK (("auth"."uid"() = "id"));
-CREATE POLICY "Users can read their own status" ON "public"."mentoring" FOR SELECT USING (("email" IN ( SELECT "mentoring"."email"
-   FROM "public"."profiles"
-  WHERE ("profiles"."id" = "auth"."uid"()))));
 
 set check_function_bodies = off;
 CREATE OR REPLACE FUNCTION storage.extension(name text)
