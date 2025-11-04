@@ -11,24 +11,6 @@ WITH CHECK (
   (user_id = (SELECT auth.uid()))
 );
 
-ALTER POLICY "Logged in users can register their own email"
-ON "public"."mentoring"
-TO authenticated
-WITH CHECK (
-  (email IN (
-    SELECT mentoring.email
-    FROM profiles
-    WHERE (profiles.id = (SELECT(auth.uid())))
-  ))
-);
-ALTER POLICY "Users can read their own status"
-ON "public"."mentoring"
-TO public
-USING ((email IN (
-    SELECT mentoring.email
-    FROM profiles
-    WHERE (profiles.id = (SELECT(auth.uid())))
-)));
 ALTER POLICY "Insert own ticket"
 ON "public"."tickets"
 TO authenticated
