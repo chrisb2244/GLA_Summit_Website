@@ -10,16 +10,3 @@ USING (
 WITH CHECK (
   (user_id = (SELECT auth.uid()))
 );
-
-ALTER POLICY "Insert own ticket"
-ON "public"."tickets"
-TO authenticated
-WITH CHECK (
-  (user_id = (SELECT auth.uid()))
-);
-ALTER POLICY "Select own ticket"
-ON "public"."tickets"
-TO authenticated
-USING (
-  (SELECT(auth.uid()) = user_id)
-);

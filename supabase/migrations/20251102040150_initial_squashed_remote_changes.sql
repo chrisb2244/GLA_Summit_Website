@@ -182,7 +182,7 @@ as permissive
 for delete
 to public
 using ((auth.uid() = owner));
-create sequence "public"."ticket_sequence_2024";
+
 drop view if exists "public"."my_submissions";
 
 create table "public"."confirmed_presentations" (
@@ -190,51 +190,24 @@ create table "public"."confirmed_presentations" (
     "created_at" timestamp with time zone not null default now()
 );
 alter table "public"."confirmed_presentations" enable row level security;
-create table "public"."ticket_sequences" (
-    "year" summit_year not null,
-    "name" text
-);
-alter table "public"."ticket_sequences" enable row level security;
-create table "public"."tickets" (
-    "user_id" uuid not null,
-    "ticket_number" numeric not null,
-    "year" summit_year not null,
-    "created_at" timestamp with time zone not null default now()
-);
-alter table "public"."tickets" enable row level security;
+
 create table "public"."video_links" (
     "presentation_id" uuid not null,
     "url" text
 );
 alter table "public"."video_links" enable row level security;
 CREATE UNIQUE INDEX confirmed_presentations_pkey ON public.confirmed_presentations USING btree (id);
-CREATE UNIQUE INDEX ticket_sequences_pkey ON public.ticket_sequences USING btree (year);
-CREATE UNIQUE INDEX tickets_pkey ON public.tickets USING btree (user_id, year);
-CREATE UNIQUE INDEX tickets_year_ticket_number_key ON public.tickets USING btree (year, ticket_number);
+
 CREATE UNIQUE INDEX video_links_pkey ON public.video_links USING btree (presentation_id);
 alter table "public"."confirmed_presentations" add constraint "confirmed_presentations_pkey" PRIMARY KEY using index "confirmed_presentations_pkey";
-alter table "public"."ticket_sequences" add constraint "ticket_sequences_pkey" PRIMARY KEY using index "ticket_sequences_pkey";
-alter table "public"."tickets" add constraint "tickets_pkey" PRIMARY KEY using index "tickets_pkey";
+
 alter table "public"."video_links" add constraint "video_links_pkey" PRIMARY KEY using index "video_links_pkey";
 alter table "public"."confirmed_presentations" add constraint "public_confirmed_presentations_id_fkey" FOREIGN KEY (id) REFERENCES accepted_presentations(id) not valid;
 alter table "public"."confirmed_presentations" validate constraint "public_confirmed_presentations_id_fkey";
-alter table "public"."tickets" add constraint "public_tickets_user_id_fkey" FOREIGN KEY (user_id) REFERENCES profiles(id) ON UPDATE CASCADE ON DELETE CASCADE not valid;
-alter table "public"."tickets" validate constraint "public_tickets_user_id_fkey";
-alter table "public"."tickets" add constraint "public_tickets_year_fkey" FOREIGN KEY (year) REFERENCES ticket_sequences(year) not valid;
-alter table "public"."tickets" validate constraint "public_tickets_year_fkey";
-alter table "public"."tickets" add constraint "tickets_year_ticket_number_key" UNIQUE using index "tickets_year_ticket_number_key";
 alter table "public"."video_links" add constraint "video_links_presentation_id_fkey" FOREIGN KEY (presentation_id) REFERENCES presentation_submissions(id) ON UPDATE CASCADE ON DELETE CASCADE not valid;
 alter table "public"."video_links" validate constraint "video_links_presentation_id_fkey";
 set check_function_bodies = off;
-CREATE OR REPLACE FUNCTION public.calculate_ticket_number()
- RETURNS trigger
- LANGUAGE plpgsql
-AS $function$
-begin
-  NEW.ticket_number := nextval('ticket_sequence_' || NEW.year);
-  RETURN NEW;
-end
-$function$;
+
 CREATE OR REPLACE FUNCTION public.check_confirmer_is_submitter()
  RETURNS trigger
  LANGUAGE plpgsql
@@ -247,18 +220,7 @@ begin
   end if;
 end;
 $function$;
-CREATE OR REPLACE FUNCTION public.create_ticket_sequence()
- RETURNS trigger
- LANGUAGE plpgsql
-AS $function$
-begin
-  if NEW.name is null then
-    NEW.name := ('ticket_sequence_' || NEW.year);
-  end if;
-  execute format('CREATE SEQUENCE IF NOT EXISTS %s', NEW.name);
-  return NEW;
-end
-$function$;
+
 CREATE OR REPLACE FUNCTION public.get_email_by_id(user_id uuid)
  RETURNS text
  LANGUAGE sql
@@ -344,18 +306,6 @@ as permissive
 for select
 to authenticated
 using (true);
-create policy "Insert own ticket"
-on "public"."tickets"
-as permissive
-for insert
-to authenticated
-with check ((auth.uid() = user_id));
-create policy "Select own ticket"
-on "public"."tickets"
-as permissive
-for select
-to authenticated
-using ((auth.uid() = user_id));
 create policy "Enable read access for all users"
 on "public"."video_links"
 as permissive
@@ -363,19 +313,10 @@ for select
 to public
 using (true);
 CREATE TRIGGER block_confirming_others_presentations BEFORE INSERT ON public.confirmed_presentations FOR EACH ROW EXECUTE FUNCTION check_confirmer_is_submitter();
-CREATE TRIGGER create_ticket_sequence_trigger BEFORE INSERT ON public.ticket_sequences FOR EACH ROW EXECUTE FUNCTION create_ticket_sequence();
-CREATE TRIGGER calculate_ticket_number_trigger BEFORE INSERT ON public.tickets FOR EACH ROW EXECUTE FUNCTION calculate_ticket_number();
+
 
 set check_function_bodies = off;
-CREATE OR REPLACE FUNCTION public.calculate_ticket_number()
- RETURNS trigger
- LANGUAGE plpgsql
-AS $function$
-begin
-  NEW.ticket_number := nextval('ticket_sequence_' || NEW.year);
-  RETURN NEW;
-end
-$function$;
+
 CREATE OR REPLACE FUNCTION public.check_confirmer_is_submitter()
  RETURNS trigger
  LANGUAGE plpgsql
@@ -387,18 +328,6 @@ begin
     return null;
   end if;
 end;
-$function$;
-CREATE OR REPLACE FUNCTION public.create_ticket_sequence()
- RETURNS trigger
- LANGUAGE plpgsql
-AS $function$
-begin
-  if NEW.name is null then
-    NEW.name := ('ticket_sequence_' || NEW.year);
-  end if;
-  execute format('CREATE SEQUENCE IF NOT EXISTS %s', NEW.name);
-  return NEW;
-end
 $function$;
 
 

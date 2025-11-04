@@ -398,7 +398,6 @@ INSERT INTO "public"."tickets" ("user_id", "ticket_number", "year", "created_at"
 	('8a52cd4e-a250-4dba-b799-f38b6e34c75f', 1, '2024', '2024-03-01 08:00:00.007923+00'),
 	('c16e01cb-c802-4fa9-b48a-f91bb787a264', 2, '2024', '2024-03-05 03:25:42.758397+00');
 
-
 --
 -- Data for Name: video_links; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -447,8 +446,11 @@ SELECT pg_catalog.setval('"public"."log_id_seq"', 777, true);
 --
 -- Name: ticket_sequence_2024; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
-
-SELECT pg_catalog.setval('"public"."ticket_sequence_2024"', 1061, true);
+-- use a transaction in a do block to allow the sequence creation to take effect correctly.
+DO $$
+BEGIN
+PERFORM pg_catalog.setval('"public"."ticket_sequence_2024"', 1061, true);
+END $$;
 
 --
 -- PostgreSQL database dump complete
