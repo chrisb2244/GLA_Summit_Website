@@ -11,21 +11,6 @@ WITH CHECK (
   (user_id = (SELECT auth.uid()))
 );
 
-ALTER POLICY "Specified users (log_viewers) can access the logs"
-ON "public"."log"
-TO authenticated
-USING (
-  (SELECT(auth.uid()) IN (
-    SELECT log_viewers.user_id
-    FROM log_viewers
-  ))
-);
-ALTER POLICY "Select yourself"
-ON "public"."log_viewers"
-TO authenticated
-USING (
-  (user_id = (SELECT(auth.uid())))
-);
 ALTER POLICY "Logged in users can register their own email"
 ON "public"."mentoring"
 TO authenticated
