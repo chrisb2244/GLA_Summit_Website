@@ -1,8 +1,10 @@
 import { Database } from './sb_databaseModels';
 
 export type PresentationType = Database['public']['Enums']['presentation_type'];
+export type AllMyPresentationSubmissionType =
+  Database['public']['Functions']['get_my_submissions']['Returns'];
 export type MyPresentationSubmissionType =
-  Database['public']['Views']['my_submissions']['Row'];
+  AllMyPresentationSubmissionType extends Array<infer U> ? U : never;
 
 export type SummitYear = Database['public']['Enums']['summit_year'];
 
@@ -46,8 +48,9 @@ export type PresentationPresentersModel =
 // These types aren't used for insertion or updating, so export the Row directly
 export type AllPresentationsModel =
   Database['public']['Functions']['get_all_presentations']['Returns'];
-export type MySubmissionsModel =
-  Database['public']['Views']['my_submissions']['Row'];
+export type PresentationModel = AllPresentationsModel extends Array<infer U>
+  ? U
+  : never;
 
 export type PresentationSubmissionsModel = {
   id: string;

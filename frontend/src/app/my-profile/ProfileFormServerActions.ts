@@ -32,6 +32,15 @@ export const updateProfileAction = async (
       data: previousState.data
     };
   }
+  if (typeof id !== 'string') {
+    return {
+      errors: {
+        id: 'ID must be a string'
+      },
+      success: false,
+      data: previousState.data
+    };
+  }
 
   const v: ProfileDataUpdate = {};
   Array.from(formData.entries()).forEach(([name, value]) => {

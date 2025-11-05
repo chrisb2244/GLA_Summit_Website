@@ -94,7 +94,7 @@ const PresentationsForYearPage: NextPage<PageProps> = async (props) => {
       // Not returned by getPublicPresentations.
       const supabaseLoggedIn = await createServerClient();
       const { data, error } = await supabaseLoggedIn
-        .from('my_submissions')
+        .rpc('get_my_submissions')
         .select('*')
         .eq('presentation_id', pId)
         .maybeSingle();
