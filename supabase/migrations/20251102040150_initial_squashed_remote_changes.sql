@@ -155,19 +155,6 @@ using ((auth.uid() = owner));
 
 drop view if exists "public"."my_submissions";
 
-
-
-create table "public"."video_links" (
-    "presentation_id" uuid not null,
-    "url" text
-);
-alter table "public"."video_links" enable row level security;
-
-CREATE UNIQUE INDEX video_links_pkey ON public.video_links USING btree (presentation_id);
-
-alter table "public"."video_links" add constraint "video_links_pkey" PRIMARY KEY using index "video_links_pkey";
-alter table "public"."video_links" add constraint "video_links_presentation_id_fkey" FOREIGN KEY (presentation_id) REFERENCES presentation_submissions(id) ON UPDATE CASCADE ON DELETE CASCADE not valid;
-alter table "public"."video_links" validate constraint "video_links_presentation_id_fkey";
 set check_function_bodies = off;
 
 
@@ -233,14 +220,6 @@ create or replace view "public"."my_submissions" as  SELECT get_my_submissions.p
     get_my_submissions.all_lastnames,
     get_my_submissions.all_emails
    FROM get_my_submissions() get_my_submissions(presentation_id, title, abstract, learning_points, presentation_type, submitter_id, is_submitted, year, all_presenters_ids, all_firstnames, all_lastnames, all_emails);
-
-create policy "Enable read access for all users"
-on "public"."video_links"
-as permissive
-for select
-to public
-using (true);
-
 
 set check_function_bodies = off;
 
