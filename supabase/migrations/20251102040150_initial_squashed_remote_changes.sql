@@ -95,16 +95,6 @@ CREATE OR REPLACE FUNCTION "public"."is_ok"("public"."presentation_submissions")
                   AND ps.presenter_id = auth.uid());
 END;$_$;
 
-
-CREATE TABLE IF NOT EXISTS public.container_groups (
-  container_id uuid NOT NULL,
-  presentation_id uuid NOT NULL,
-  PRIMARY KEY (container_id, presentation_id)
-);
-ALTER TABLE public.container_groups ENABLE ROW LEVEL SECURITY;
-
-
-
 CREATE OR REPLACE VIEW "public"."my_submissions" AS
  SELECT "get_my_submissions"."presentation_id",
     "get_my_submissions"."title",
@@ -121,13 +111,6 @@ CREATE OR REPLACE VIEW "public"."my_submissions" AS
    FROM "public"."get_my_submissions"() "get_my_submissions"("presentation_id", "title", "abstract", "learning_points", "presentation_type", "submitter_id", "is_submitted", "year", "all_presenters_ids", "all_firstnames", "all_lastnames", "all_emails");
 
 
-ALTER TABLE ONLY "public"."container_groups"
-    ADD CONSTRAINT "container_groups_container_id_fkey" FOREIGN KEY ("container_id") REFERENCES "public"."presentation_submissions"("id");
-ALTER TABLE ONLY "public"."container_groups"
-    ADD CONSTRAINT "container_groups_presentation_id_fkey" FOREIGN KEY ("presentation_id") REFERENCES "public"."presentation_submissions"("id");
-CREATE POLICY "Container groups are viewable" ON "public"."container_groups" FOR SELECT USING (true);
-CREATE POLICY "Submissions are viewable if containers" ON "public"."presentation_submissions" FOR SELECT USING (("id" IN ( SELECT "container_groups"."container_id"
-   FROM "public"."container_groups")));
 
 set check_function_bodies = off;
 CREATE OR REPLACE FUNCTION storage.extension(name text)
