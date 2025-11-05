@@ -172,41 +172,21 @@ using ((auth.uid() = owner));
 
 drop view if exists "public"."my_submissions";
 
-create table "public"."confirmed_presentations" (
-    "id" uuid not null,
-    "created_at" timestamp with time zone not null default now()
-);
-alter table "public"."confirmed_presentations" enable row level security;
+
 
 create table "public"."video_links" (
     "presentation_id" uuid not null,
     "url" text
 );
 alter table "public"."video_links" enable row level security;
-CREATE UNIQUE INDEX confirmed_presentations_pkey ON public.confirmed_presentations USING btree (id);
 
 CREATE UNIQUE INDEX video_links_pkey ON public.video_links USING btree (presentation_id);
-alter table "public"."confirmed_presentations" add constraint "confirmed_presentations_pkey" PRIMARY KEY using index "confirmed_presentations_pkey";
 
 alter table "public"."video_links" add constraint "video_links_pkey" PRIMARY KEY using index "video_links_pkey";
-alter table "public"."confirmed_presentations" add constraint "public_confirmed_presentations_id_fkey" FOREIGN KEY (id) REFERENCES accepted_presentations(id) not valid;
-alter table "public"."confirmed_presentations" validate constraint "public_confirmed_presentations_id_fkey";
 alter table "public"."video_links" add constraint "video_links_presentation_id_fkey" FOREIGN KEY (presentation_id) REFERENCES presentation_submissions(id) ON UPDATE CASCADE ON DELETE CASCADE not valid;
 alter table "public"."video_links" validate constraint "video_links_presentation_id_fkey";
 set check_function_bodies = off;
 
-CREATE OR REPLACE FUNCTION public.check_confirmer_is_submitter()
- RETURNS trigger
- LANGUAGE plpgsql
-AS $function$
-begin
-  IF ((SELECT submitter_id from presentation_submissions where id = new.id) = auth.uid()) then
-    return new;
-  else
-    return null;
-  end if;
-end;
-$function$;
 
 CREATE OR REPLACE FUNCTION public.get_email_by_id(user_id uuid)
  RETURNS text
@@ -271,42 +251,15 @@ create or replace view "public"."my_submissions" as  SELECT get_my_submissions.p
     get_my_submissions.all_emails
    FROM get_my_submissions() get_my_submissions(presentation_id, title, abstract, learning_points, presentation_type, submitter_id, is_submitted, year, all_presenters_ids, all_firstnames, all_lastnames, all_emails);
 
-create policy "Insert presentations if authenticated (trigger blocks others)"
-on "public"."confirmed_presentations"
-as permissive
-for insert
-to authenticated
-with check (true);
-create policy "authenticated users can select"
-on "public"."confirmed_presentations"
-as permissive
-for select
-to authenticated
-using (true);
 create policy "Enable read access for all users"
 on "public"."video_links"
 as permissive
 for select
 to public
 using (true);
-CREATE TRIGGER block_confirming_others_presentations BEFORE INSERT ON public.confirmed_presentations FOR EACH ROW EXECUTE FUNCTION check_confirmer_is_submitter();
 
 
 set check_function_bodies = off;
-
-CREATE OR REPLACE FUNCTION public.check_confirmer_is_submitter()
- RETURNS trigger
- LANGUAGE plpgsql
-AS $function$
-begin
-  IF ((SELECT submitter_id from presentation_submissions where id = new.id) = auth.uid()) then
-    return new;
-  else
-    return null;
-  end if;
-end;
-$function$;
-
 
 CREATE OR REPLACE FUNCTION public.get_my_submissions()
  RETURNS TABLE(presentation_id uuid, title text, abstract text, learning_points text, presentation_type presentation_type, submitter_id uuid, is_submitted boolean, year summit_year, all_presenters_ids uuid[], all_firstnames text[], all_lastnames text[], all_emails text[])
