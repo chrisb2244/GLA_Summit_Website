@@ -18,7 +18,7 @@
     "jszip": "^3.10.1",
     "mailgun.js": "^10.2.1",
     "next": "^15.6.0-canary.58",
-    "nodemailer": "^6.7.3",
+    "nodemailer": "^7.0.11",
     "react": "19.0.0-rc-de68d2f4-20241204",
     "react-dom": "19.0.0-rc-de68d2f4-20241204",
     "react-hook-form": "^7.53.0",
