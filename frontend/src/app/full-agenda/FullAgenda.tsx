@@ -83,6 +83,11 @@ export const FullAgenda = (props: {
   }, [user]);
 
   useEffect(() => {
+    // Don't subscribe to changes if user is not signed in
+    if (!user) {
+      return;
+    }
+    
     myLog('adding subscription');
     const subscription = supabase
       .channel('public:agenda_favourites')
@@ -102,7 +107,7 @@ export const FullAgenda = (props: {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [user]);
 
   const showFavourites = false;
   const favouriteIds = showFavourites ? userFavIds : undefined;
