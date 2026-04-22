@@ -3,6 +3,9 @@ import type { NextConfig } from 'next';
 const config: NextConfig = {
   reactStrictMode: true,
   cacheComponents: true,
+  turbopack: {
+    root: __dirname
+  },
   images: {
     remotePatterns: [
       {
