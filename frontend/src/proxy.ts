@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { updateSession } from './lib/supabase/middlewareUpdater';
 
 // Second arg is "event: NextFetchEvent"
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   if (process.env.NEXT_PUBLIC_MAINTENANCE_MODE === 'true') {
     return NextResponse.redirect('/');
   }
