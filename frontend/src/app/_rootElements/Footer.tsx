@@ -1,8 +1,12 @@
 import { SocialMediaIcons } from './SocialMediaIcons';
 import { JSX } from 'react';
 import Link from 'next/link';
+import { cacheLife } from 'next/cache';
 
-export const Footer: React.FC<React.PropsWithChildren<unknown>> = () => {
+export const Footer = () => {
+  'use cache';
+  cacheLife('weeks');
+
   const thisYear = new Date().getFullYear();
 
   return (
