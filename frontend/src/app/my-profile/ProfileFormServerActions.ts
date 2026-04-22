@@ -1,8 +1,9 @@
 'use server';
 
 import { ProfileModel } from '@/lib/databaseModels';
+import { cacheTagForPerson, CACHE_TAGS } from '@/lib/supabase/cacheTags';
 import { createServerActionClient } from '@/lib/supabaseServer';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 type ProfileData = ProfileModel['Row'];
 type ProfileDataUpdate = ProfileModel['Update'];
@@ -69,6 +70,8 @@ export const updateProfileAction = async (
     };
   }
 
+  revalidateTag(CACHE_TAGS.people, 'max');
+  revalidateTag(cacheTagForPerson(id), 'max');
   revalidatePath('/my-profile');
   return {
     errors: undefined,
