@@ -1,8 +1,12 @@
 import nextCoreWebVitals from 'eslint-config-next/core-web-vitals';
+import nextTypeScript from 'eslint-config-next/typescript';
+import prettier from 'eslint-config-prettier';
 import testingLibrary from 'eslint-plugin-testing-library';
 
 const eslintConfig = [
   ...nextCoreWebVitals,
+  ...nextTypeScript,
+  prettier,
   {
     rules: {
       'jsx-quotes': ['error', 'prefer-single']
@@ -17,10 +21,9 @@ const eslintConfig = [
   },
   {
     files: ['__tests__/**/*.{ts,tsx,js,jsx}'],
-    plugins: {
-      'testing-library': testingLibrary
-    },
+    ...testingLibrary.configs['flat/react'],
     rules: {
+      ...testingLibrary.configs['flat/react'].rules,
       '@typescript-eslint/no-empty-function': 'off',
       'testing-library/no-debugging-utils': 'warn',
       'testing-library/no-dom-import': 'off'
