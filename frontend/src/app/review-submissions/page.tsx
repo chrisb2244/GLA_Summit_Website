@@ -4,7 +4,6 @@ import {
 } from './SubmittedPresentationReviewCard';
 import { createServerClient } from '@/lib/supabaseServer';
 import { submissionsForYear } from '@/app/configConstants';
-import { dateToDateArray } from '@/lib/utils';
 import { DownloadButton } from './DownloadButton';
 import { Suspense } from 'react';
 
@@ -22,7 +21,7 @@ const ReviewSubmissionsPageContent = async () => {
     target_year: submissionsForYear
   });
 
-  const { data: downloadInfo, error: downloadInfoError } = await supabase
+  const { data: downloadInfo } = await supabase
     .from('review_download_information')
     .select('*');
 

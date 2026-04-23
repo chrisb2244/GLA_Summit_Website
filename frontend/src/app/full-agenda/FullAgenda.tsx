@@ -93,7 +93,7 @@ export const FullAgenda = (props: {
         .then((favourites) => {
           setUserFavs({ eventType: 'INITIALIZE', data: favourites });
         });
-    } catch (err) {
+    } catch {
       return;
     }
   }, [user]);

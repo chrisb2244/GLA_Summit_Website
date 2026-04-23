@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { SponsorBar } from './_rootElements/SponsorBar';
 import { SubmitPresentationButton } from './_homepage/SubmitPresentationButton';
-import { Button } from '@/Components/Form/Button';
+// import { Button } from '@/Components/Form/Button';
 import { CAN_SUBMIT_PRESENTATION } from './configConstants';
 // import { Countdown } from './_rootElements/Countdown'
 
@@ -31,11 +31,11 @@ export default async function Page() {
   //   </>
   // )
 
-  const generalEventButton = (
-    <a href='https://events.ringcentral.com/events/gla-summit-2025'>
-      <Button fullWidth>Go to the Event!</Button>
-    </a>
-  );
+  // const generalEventButton = (
+  //   <a href='https://events.ringcentral.com/events/gla-summit-2025'>
+  //     <Button fullWidth>Go to the Event!</Button>
+  //   </a>
+  // );
 
   // const websiteUpdateNotice = (
   //   <>

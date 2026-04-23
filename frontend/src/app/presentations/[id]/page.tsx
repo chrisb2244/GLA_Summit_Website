@@ -37,7 +37,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   try {
     const title = (await getPublicPresentation(id)).title;
     return { title };
-  } catch (error) {
+  } catch {
     return {};
   }
 }

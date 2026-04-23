@@ -1,7 +1,8 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
+// import { test, expect } from '@playwright/test';
 
 test('A login popup appears when browsing to submit-presentation without being logged in', async ({
-  page
+  // page
 }) => {
   test.skip();
   // await page.goto('/submit-presentation');

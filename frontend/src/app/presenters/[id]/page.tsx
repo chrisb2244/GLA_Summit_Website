@@ -32,7 +32,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
     const { firstName, lastName } = await getPerson(id);
 
     return { title: `${firstName} ${lastName}` };
-  } catch (error) {
+  } catch {
     return {};
   }
 }

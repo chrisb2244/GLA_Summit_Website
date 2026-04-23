@@ -1,4 +1,3 @@
-import { PersonDisplayProps } from '@/Components/PersonDisplay';
 import {
   PostgrestError,
   User as SB_User,

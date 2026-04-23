@@ -47,7 +47,7 @@ const getInbucketVerificationMsg = async (
         }
       });
     })
-    .catch((e) => {
+    .catch(() => {
       return new Promise((resolve) => {
         setTimeout(() => {
           resolve(getInbucketVerificationMsg(email, timeout - 500, sentWithin));
