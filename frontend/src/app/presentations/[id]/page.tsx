@@ -17,6 +17,7 @@ import { getPanelLink } from '@/app/panels/panelLinks';
 import { getPeople } from '@/lib/supabase/public';
 import { getPeople_Authed } from '@/lib/supabase/authorized';
 import type { NextParams, satisfy } from '@/lib/NextTypes';
+import { cacheLife } from 'next/cache';
 
 type PageProps = {
   params: satisfy<
@@ -27,8 +28,6 @@ type PageProps = {
   >;
 };
 
-export const revalidate = 600;
-
 export async function generateStaticParams(): Promise<{ id: string }[]> {
   return getPresentationIds();
 }
@@ -36,8 +35,7 @@ export async function generateStaticParams(): Promise<{ id: string }[]> {
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const { id } = await props.params;
   try {
-    const supabase = createAnonServerClient();
-    const title = (await getPublicPresentation(id, supabase)).title;
+    const title = (await getPublicPresentation(id)).title;
     return { title };
   } catch (error) {
     return {};
@@ -45,6 +43,9 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 }
 
 const PresentationsForYearPage: NextPage<PageProps> = async (props) => {
+  'use cache';
+  cacheLife({ stale: 300, revalidate: 600, expire: 86400 });
+
   const pId = (await props.params).id;
   if (typeof pId !== 'string') {
     return null;

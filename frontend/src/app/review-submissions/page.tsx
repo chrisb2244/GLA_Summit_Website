@@ -6,8 +6,17 @@ import { createServerClient } from '@/lib/supabaseServer';
 import { submissionsForYear } from '@/app/configConstants';
 import { dateToDateArray } from '@/lib/utils';
 import { DownloadButton } from './DownloadButton';
+import { Suspense } from 'react';
 
-const ReviewSubmissionsPage = async () => {
+const ReviewSubmissionsPage = () => {
+  return (
+    <Suspense fallback={<p>Loading review submissions...</p>}>
+      <ReviewSubmissionsPageContent />
+    </Suspense>
+  );
+};
+
+const ReviewSubmissionsPageContent = async () => {
   const supabase = await createServerClient();
   const { data, error } = await supabase.rpc('get_reviewable_submissions', {
     target_year: submissionsForYear

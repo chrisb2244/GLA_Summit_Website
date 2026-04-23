@@ -2,8 +2,17 @@ import { redirect } from 'next/navigation';
 import LogsPage from './LogsPage';
 import { createServerClient } from '@/lib/supabaseServer';
 import { getUser } from '@/lib/supabase/userFunctions';
+import { Suspense } from 'react';
 
-const SvrLogsPage = async () => {
+const SvrLogsPage = () => {
+  return (
+    <Suspense fallback={<p>Loading logs...</p>}>
+      <SvrLogsPageContent />
+    </Suspense>
+  );
+};
+
+const SvrLogsPageContent = async () => {
   const user = await getUser();
 
   const supabase = await createServerClient();

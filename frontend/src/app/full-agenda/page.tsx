@@ -6,10 +6,13 @@ import type {
 import type { ContainerHint } from '@/Components/Agenda/AgendaCalculations';
 import { currentDisplayYear } from '@/app/configConstants';
 import { createAnonServerClient } from '@/lib/supabaseClient';
-
-export const revalidate = 300;
+import { Suspense } from 'react';
+import { cacheLife } from 'next/cache';
 
 const getAgendaAndHints = async () => {
+  'use cache';
+  cacheLife({ stale: 300, revalidate: 300, expire: 86400 });
+
   const returnVal = (
     agenda: AgendaEntry[] | null,
     containerHints?: ContainerHint[]
@@ -83,10 +86,12 @@ const SvrFullAgenda = async () => {
         </div>
       </div>
       <div className={`mb-[5vh] px-4 `}>
-        <FullAgenda
-          fullAgenda={agendaAndHints.fullAgenda}
-          containerHints={agendaAndHints.containerHints ?? []}
-        />
+        <Suspense fallback={<p>Loading agenda...</p>}>
+          <FullAgenda
+            fullAgenda={agendaAndHints.fullAgenda}
+            containerHints={agendaAndHints.containerHints ?? []}
+          />
+        </Suspense>
       </div>
     </>
   );

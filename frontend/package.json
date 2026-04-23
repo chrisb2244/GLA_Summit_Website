@@ -32,8 +32,8 @@
   "scripts": {
     "start": "next start",
     "build": "next build",
-    "dev": "next dev --turbo",
-    "dev_fakeEmail": "USE_MOCK_EMAIL=true next dev --turbo",
+    "dev_full": "next dev --turbo",
+    "dev": "USE_MOCK_EMAIL=true next dev --turbo",
     "playwright": "playwright test",
     "test": "vitest",
     "lint": "eslint ."

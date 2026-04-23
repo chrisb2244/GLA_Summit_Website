@@ -4,6 +4,7 @@ import { getPublicPresentationsForPresenter } from '@/lib/databaseFunctions';
 import { splitByYear } from '@/lib/presentationArrayFunctions';
 import { getAcceptedPresenterIds, getPerson } from '@/lib/supabase/public';
 import { createAnonServerClient } from '@/lib/supabaseClient';
+import { cacheLife } from 'next/cache';
 import { Metadata, NextPage } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -17,8 +18,6 @@ type PageProps = {
   >;
 };
 
-export const revalidate = 600;
-
 export async function generateStaticParams(): Promise<{ id: string }[]> {
   return (await getAcceptedPresenterIds()).map((id) => {
     return {
@@ -30,7 +29,6 @@ export async function generateStaticParams(): Promise<{ id: string }[]> {
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const { id } = await props.params;
   try {
-    const supabase = createAnonServerClient();
     const { firstName, lastName } = await getPerson(id);
 
     return { title: `${firstName} ${lastName}` };
@@ -40,6 +38,9 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 }
 
 const PresentersPage: NextPage<PageProps> = async (props) => {
+  'use cache';
+  cacheLife({ stale: 300, revalidate: 600, expire: 86400 });
+
   const presenterId = (await props.params).id;
   if (typeof presenterId !== 'string') {
     notFound();

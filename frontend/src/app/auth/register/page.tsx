@@ -1,13 +1,27 @@
 import { redirect } from 'next/navigation';
+import { Suspense } from 'react';
 import { RegistrationForm } from '../RegistrationForm';
 import { getUser } from '@/lib/supabase/userFunctions';
 import { NextSearchParams } from '@/lib/NextTypes';
 
-const RegistrationPage = async ({
+const RegistrationPage = ({
   searchParams
 }: {
   searchParams: NextSearchParams;
 }) => {
+  return (
+    <Suspense fallback={<RegistrationForm />}>
+      <RegistrationPageContent searchParams={searchParams} />
+    </Suspense>
+  );
+};
+
+const RegistrationPageContent = async ({
+  searchParams
+}: {
+  searchParams: NextSearchParams;
+}) => {
+
   const redirectToParam = (await searchParams)?.redirectTo;
   const redirectTo =
     typeof redirectToParam === 'string'
