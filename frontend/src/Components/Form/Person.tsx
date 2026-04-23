@@ -85,8 +85,7 @@ export function Person<FV extends FieldValues>(props: PersonTypeProps<FV>) {
       {headElem}
       <div className={`flex flex-col ${splitSize}:flex-row`}>
         <FormField
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
+          // @ts-expect-error register path is assembled dynamically for nested forms
           registerReturn={register(`${path}firstName`, {
             required: 'Required',
             maxLength: 80
@@ -95,8 +94,7 @@ export function Person<FV extends FieldValues>(props: PersonTypeProps<FV>) {
           {...fieldProps('firstName')}
         />
         <FormField
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
+          // @ts-expect-error register path is assembled dynamically for nested forms
           registerReturn={register(`${path}lastName`, {
             required: 'Required',
             maxLength: 100
@@ -107,8 +105,7 @@ export function Person<FV extends FieldValues>(props: PersonTypeProps<FV>) {
       </div>
       <div>
         <FormField
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
+          // @ts-expect-error register path is assembled dynamically for nested forms
           registerReturn={register(`${path}email`, {
             required: 'Required',
             pattern: {
