@@ -64,17 +64,19 @@ export const PersonDisplay: React.FC<
     descriptionElem = props.description;
   }
 
-  const TitleComponent = ({ children }: { children?: ReactNode }) => {
-    if (typeof pageLink !== 'undefined') {
-      return (
-        <NextLink href={pageLink} className='link'>
-          {children}
-        </NextLink>
-      );
-    } else {
-      return <>{children}</>;
-    }
-  };
+  const titleContent = (
+    <>
+      {props.firstName} {props.lastName}
+    </>
+  );
+  const title =
+    typeof pageLink !== 'undefined' ? (
+      <NextLink href={pageLink} className='link'>
+        {titleContent}
+      </NextLink>
+    ) : (
+      titleContent
+    );
 
   const imgDispCName = isDefaultImage ? 'max-sm:hidden' : '';
 
@@ -84,11 +86,7 @@ export const PersonDisplay: React.FC<
         className={`flex flex-col ${md_direction} my-2 content-center justify-around`}
       >
         <div className={`my-auto flex-grow items-center`}>
-          <h3 className='my-0'>
-            <TitleComponent>
-              {props.firstName} {props.lastName}
-            </TitleComponent>
-          </h3>
+          <h3 className='my-0'>{title}</h3>
           <div className='space-y-4 whitespace-pre-wrap text-justify'>
             {descriptionElem}
           </div>
