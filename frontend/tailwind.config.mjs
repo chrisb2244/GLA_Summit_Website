@@ -1,5 +1,8 @@
+import typography from '@tailwindcss/typography';
+import headlessui from '@headlessui/tailwindcss';
+
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+const config = {
   content: [
     './src/app/**/*.{js,ts,jsx,tsx}',
     './src/pages/**/*.{js,ts,jsx,tsx}',
@@ -25,19 +28,8 @@ module.exports = {
         'primaryc.light': '#795fc7'
       },
       fontSize: {
-        // xs: {
-        //   'h1s': '3.92857rem'
-        // },
-        // sm: {
-        //   'h1s': '5.3556rem'
-        // },
-        // md: {
-        //   'h1s': '6.2125rem'
-        // },
-        // lg: {
         h1s: ['6.8552rem', '1.167'],
         h4s: ['2.4291rem', '1.235']
-        // },
       },
       keyframes: {
         wiggle: {
@@ -55,8 +47,7 @@ module.exports = {
       }
     }
   },
-  plugins: [
-    require('@tailwindcss/typography'),
-    require('@headlessui/tailwindcss')
-  ]
+  plugins: [typography, headlessui]
 };
+
+export default config;
