@@ -3,7 +3,7 @@ import { JSX } from 'react';
 import Link from 'next/link';
 import { cacheLife } from 'next/cache';
 
-export const Footer = () => {
+export const Footer = async () => {
   'use cache';
   cacheLife('weeks');
 
