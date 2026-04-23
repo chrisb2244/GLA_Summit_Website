@@ -7,7 +7,7 @@ import {
   mdiTicket
 } from '@mdi/js';
 import { Icon } from '@mdi/react';
-import { JSX, PropsWithChildren, Suspense, useEffect, useState } from 'react';
+import { JSX, Suspense, useEffect, useState } from 'react';
 import NextLink from 'next/link';
 import {
   downloadIconAvatarAndGenerateIfNeeded,

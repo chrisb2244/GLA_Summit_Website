@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState, JSX } from 'react';
+import { useCallback } from 'react';
 
 type TimeValue = string | null | { start: string; end: string };
 type DateDisplay = {
@@ -57,14 +57,11 @@ export const TimestampSpan = (props: TimestampSpanProps) => {
   const utcSpan = (
     <span suppressHydrationWarning>{format(utcValue, 'UTC')}</span>
   );
-  const [localTimeElem, setLocalTimeElem] = useState<JSX.Element>(utcSpan);
-  useEffect(() => {
-    const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
-    const localElem = (
-      <span suppressHydrationWarning>{format(utcValue, timeZone)}</span>
-    );
-    setLocalTimeElem(localElem);
-  }, [format, utcValue]);
+
+  const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
+  const localTimeElem = (
+    <span suppressHydrationWarning>{format(utcValue, timeZone)}</span>
+  );
 
   return (
     <span className='prose-sm flex flex-col italic'>

@@ -7,7 +7,6 @@ import {
   useRef,
   useState
 } from 'react';
-import { FakeScrollbar } from '../Utilities/FakeScrollbar';
 import { ContainerHint } from './AgendaCalculations';
 import { AgendaPresentations } from './AgendaPresentations';
 import { TimeMarkers } from './TimeMarkers';

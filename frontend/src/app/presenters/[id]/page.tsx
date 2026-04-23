@@ -48,46 +48,49 @@ const PresentersPage: NextPage<PageProps> = async (props) => {
 
   const supabase = createAnonServerClient();
 
+  let presenter;
+  let presenterPresentations;
+
   try {
-    const presenter = await getPerson(presenterId);
-    const presenterPresentations = await getPublicPresentationsForPresenter(
+    presenter = await getPerson(presenterId);
+    presenterPresentations = await getPublicPresentationsForPresenter(
       presenterId,
       supabase
     );
-
-    const presentationsByYear = splitByYear(presenterPresentations);
-    const presentationElements = presentationsByYear.map(
-      ([year, presentationsInYear]) => {
-        return (
-          <div key={year} className='mt-4 md:mt-0'>
-            <h4 className='text-xl'>{year}</h4>
-            <div className='flex flex-col'>
-              {presentationsInYear.map((p) => {
-                return (
-                  <Link
-                    href={`/presentations/${p.presentation_id}`}
-                    className='link ml-2 text-lg'
-                    key={p.presentation_id}
-                  >
-                    {p.title}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        );
-      }
-    );
-
-    return (
-      <div className='prose my-4 max-w-none'>
-        <PersonDisplay {...presenter} stripContainer />
-        {presentationElements}
-      </div>
-    );
-  } catch (e) {
+  } catch {
     notFound();
   }
+
+  const presentationsByYear = splitByYear(presenterPresentations);
+  const presentationElements = presentationsByYear.map(
+    ([year, presentationsInYear]) => {
+      return (
+        <div key={year} className='mt-4 md:mt-0'>
+          <h4 className='text-xl'>{year}</h4>
+          <div className='flex flex-col'>
+            {presentationsInYear.map((p) => {
+              return (
+                <Link
+                  href={`/presentations/${p.presentation_id}`}
+                  className='link ml-2 text-lg'
+                  key={p.presentation_id}
+                >
+                  {p.title}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+  );
+
+  return (
+    <div className='prose my-4 max-w-none'>
+      <PersonDisplay {...presenter} stripContainer />
+      {presentationElements}
+    </div>
+  );
 };
 
 export default PresentersPage;

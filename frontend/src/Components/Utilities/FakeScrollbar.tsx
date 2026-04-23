@@ -1,10 +1,8 @@
 import {
-  createRef,
   MouseEventHandler,
   useCallback,
   useEffect,
   useLayoutEffect,
-  useMemo,
   useReducer,
   useRef
 } from 'react';
@@ -26,29 +24,13 @@ type TrackBounds = {
 type State = {
   trackBounds: TrackBounds | null;
   isDragging: boolean;
-  startFractionalPosition: number;
   fractionalPosition: number;
-  lastPageY: number;
-  smoothScroll: boolean;
-  barStyle?: Record<string, unknown>;
   mouse?: MyMouseEvent;
 };
 
 type Action =
   | {
-      type: 'toggleSmoothScroll';
-      payload?: boolean;
-    }
-  | {
-      type: 'bar-grab';
-      pageY: number;
-    }
-  | {
-      type: 'barProps';
-      payload: {
-        top: number;
-        height: number;
-      };
+      type: 'drag-start';
     }
   | {
       type: 'trackBounds';
@@ -74,17 +56,15 @@ type Action =
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
-    case 'bar-grab':
+    case 'drag-start':
       return {
         ...state,
-        startFractionalPosition: state.fractionalPosition,
-        lastPageY: action.pageY
+        isDragging: true
       };
     case 'drag':
       return {
         ...state,
         isDragging: true
-        // lastPageY: action.pageY || state.lastPageY
       };
     case 'drag-release':
       return {
@@ -95,10 +75,6 @@ const reducer = (state: State, action: Action): State => {
     case 'scrollTo':
       return {
         ...state,
-        barStyle: {
-          ...state.barStyle,
-          top: action.top
-        },
         fractionalPosition: action.to
       };
 
@@ -117,59 +93,32 @@ const reducer = (state: State, action: Action): State => {
         ...state,
         trackBounds: action.payload
       };
-    case 'barProps':
-      return {
-        ...state,
-        barStyle: {
-          height: `${action.payload.height}`,
-          top: `${action.payload.top}%`,
-          overflow: 'auto'
-        }
-      };
-    case 'toggleSmoothScroll':
-      return {
-        ...state,
-        smoothScroll: action.payload ?? !state.smoothScroll
-      };
   }
 };
 
 export const FakeScrollbar = (props: ScrollbarProps) => {
+  const barHeight = 32;
+  const barHalfHeight = barHeight / 2;
   const initPos = props.initialPosition ?? 0;
   const initialState: State = {
     trackBounds: null,
     isDragging: false,
     fractionalPosition: initPos,
-    startFractionalPosition: initPos,
-    lastPageY: 0,
-    smoothScroll: false,
-    barStyle: {
-      height: 32,
-      top: 0
-    },
     mouse: undefined
   };
-  // For debouncing?
-  const raf = useMemo(() => {
-    if (typeof window !== 'undefined') {
-      return window.requestAnimationFrame;
-    }
-    return (cb: () => void) => window.setTimeout(cb, 1000 / 60);
-  }, []);
 
   const [state, dispatch] = useReducer(reducer, initialState);
-  const refs = useMemo(
-    () => ({
-      track: createRef<HTMLDivElement>()
-    }),
-    []
-  );
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const resizeListenerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const resizeListener = useRef<NodeJS.Timeout | undefined>(undefined);
+  const requestFrame = useCallback((callback: () => void) => {
+    if (typeof window !== 'undefined') {
+      window.requestAnimationFrame(callback);
+      return;
+    }
 
-  const fullBarBoundingBox = refs.track.current?.getBoundingClientRect();
-  const availableHeight = fullBarBoundingBox?.height ?? 0;
-  const sTop = fullBarBoundingBox?.top ?? 0;
+    window.setTimeout(callback, 1000 / 60);
+  }, []);
 
   // Forwards debounced mouse events
   const onMouseEvent = useCallback(
@@ -177,46 +126,13 @@ export const FakeScrollbar = (props: ScrollbarProps) => {
       if (e.type === 'mouseup') {
         dispatch({ type: 'mouseEvent', event: e });
       } else {
-        raf(() => dispatch({ type: 'mouseEvent', event: e }));
+        requestFrame(() => dispatch({ type: 'mouseEvent', event: e }));
       }
     },
-    [dispatch, raf]
+    [requestFrame]
   );
 
-  const onScrollResize = useCallback(() => {
-    setBarGeometry();
-    // debounce - get track bounds
-    clearTimeout(resizeListener.current);
-    resizeListener.current = setTimeout(getTrackBounds, 200);
-  }, [availableHeight]);
-
-  useLayoutEffect(() => {
-    onScrollResize();
-    window.addEventListener('resize', onScrollResize);
-    return () => {
-      window.removeEventListener('resize', onScrollResize);
-      toggleDragEvents(false);
-    };
-  }, [onScrollResize]);
-
-  useEffect(() => {
-    if (typeof state.mouse === 'undefined') {
-      return;
-    }
-    const { type } = state.mouse;
-    if (type == 'mousemove') {
-      onDrag(state.mouse);
-    } else if (type == 'mouseup') {
-      onStopDrag();
-    }
-  }, [state.mouse]);
-
-  const { onScroll } = props;
-  useEffect(() => {
-    onScroll(state.fractionalPosition);
-  }, [onScroll, state.fractionalPosition]);
-
-  const toggleDragEvents = (toggle = true) => {
+  const toggleDragEvents = useCallback((toggle = true) => {
     try {
       if (toggle) {
         document.addEventListener('mousemove', onMouseEvent);
@@ -228,55 +144,18 @@ export const FakeScrollbar = (props: ScrollbarProps) => {
     } catch (e) {
       console.error(e);
     }
-  };
-
-  // click-holding the bar and moving it
-  const onDrag = (ev: MyMouseEvent) => {
-    const { trackBounds } = state;
-    if (trackBounds === null || typeof availableHeight === 'undefined') {
-      return;
-    }
-    const newFracHeight = (ev.clientY - sTop) / availableHeight;
-
-    raf(() => {
-      const isDragWithinTrackBounds =
-        ev.pageY >= trackBounds.top + 16 && ev.pageY <= trackBounds.bottom - 16;
-      if (isDragWithinTrackBounds) {
-        const to = (newFracHeight * availableHeight) / (availableHeight - 16);
-        dispatch({
-          type: 'scrollTo',
-          to,
-          pageY: ev.clientY,
-          top: newFracHeight * availableHeight - 16
-        });
-      } else {
-        dispatch({ type: 'drag', pageY: ev.clientY });
-      }
-    });
-  };
-
-  const onStopDrag = () => {
-    toggleDragEvents(false);
-    setTimeout(dispatch, 0, { type: 'drag-release' });
-  };
-
-  const onBarGrab = (ev: MyMouseEvent) => {
-    dispatch({ type: 'bar-grab', pageY: ev.pageY });
-    toggleDragEvents(true);
-  };
+  }, [onMouseEvent]);
 
   const getTrackBounds = useCallback(() => {
-    if (refs.track.current === null) {
-      return;
+    const track = trackRef.current;
+    if (track === null) {
+      return null;
     }
-    // DOMRects aren't normal objects and can't be expanded as ...bounds
-    const { top, bottom, height } = refs.track.current.getBoundingClientRect();
-    const { paddingTop, paddingBottom } = window.getComputedStyle(
-      refs.track.current,
-      null
-    );
 
-    const boundsExp: TrackBounds = {
+    const { top, bottom, height } = track.getBoundingClientRect();
+    const { paddingTop, paddingBottom } = window.getComputedStyle(track, null);
+
+    const bounds: TrackBounds = {
       top,
       bottom,
       height,
@@ -284,52 +163,132 @@ export const FakeScrollbar = (props: ScrollbarProps) => {
       bottomPad: parseInt(paddingBottom, 10)
     };
 
-    dispatch({ type: 'trackBounds', payload: boundsExp });
-    return boundsExp;
-  }, [refs.track]);
+    dispatch({ type: 'trackBounds', payload: bounds });
+    return bounds;
+  }, []);
 
-  // Move the 'scroll' element
-  const setBarGeometry = () => {
-    raf(() => {
-      dispatch({
-        type: 'barProps',
-        payload: {
-          height: 32,
-          top:
-            Math.min(
-              state.fractionalPosition,
-              (availableHeight - 32) / availableHeight
-            ) * 100
-        }
-      });
+  const onScrollResize = useCallback(() => {
+    getTrackBounds();
+    if (resizeListenerRef.current !== null) {
+      clearTimeout(resizeListenerRef.current);
+    }
+    resizeListenerRef.current = setTimeout(getTrackBounds, 200);
+  }, [getTrackBounds]);
+
+  // click-holding the bar and moving it
+  const onDrag = useCallback((ev: MyMouseEvent) => {
+    const { trackBounds } = state;
+    if (trackBounds === null || trackBounds.height <= 0) {
+      return;
+    }
+    const availableHeight = trackBounds.height;
+    const newFracHeight = (ev.clientY - trackBounds.top) / availableHeight;
+
+    requestFrame(() => {
+      const isDragWithinTrackBounds =
+        ev.pageY >= trackBounds.top + barHalfHeight &&
+        ev.pageY <= trackBounds.bottom - barHalfHeight;
+      if (isDragWithinTrackBounds) {
+        const to = Math.min(
+          1,
+          Math.max(
+            0,
+            (newFracHeight * availableHeight) /
+              (availableHeight - barHalfHeight)
+          )
+        );
+        dispatch({
+          type: 'scrollTo',
+          to,
+          pageY: ev.clientY,
+          top: newFracHeight * availableHeight - barHalfHeight
+        });
+      } else {
+        dispatch({ type: 'drag', pageY: ev.clientY });
+      }
     });
-  };
+  }, [barHalfHeight, requestFrame, state]);
 
-  const onTrackClick: MouseEventHandler<HTMLDivElement> = (ev) => {
-    if (state.isDragging) {
+  const onStopDrag = useCallback(() => {
+    toggleDragEvents(false);
+    setTimeout(dispatch, 0, { type: 'drag-release' });
+  }, [toggleDragEvents]);
+
+  const onBarGrab = useCallback((ev: MyMouseEvent) => {
+    dispatch({ type: 'drag-start' });
+    dispatch({ type: 'mouseEvent', event: ev });
+    toggleDragEvents(true);
+  }, [toggleDragEvents]);
+
+  useLayoutEffect(() => {
+    onScrollResize();
+    window.addEventListener('resize', onScrollResize);
+    return () => {
+      window.removeEventListener('resize', onScrollResize);
+      toggleDragEvents(false);
+      if (resizeListenerRef.current !== null) {
+        clearTimeout(resizeListenerRef.current);
+      }
+    };
+  }, [onScrollResize, toggleDragEvents]);
+
+  useEffect(() => {
+    if (typeof state.mouse === 'undefined') {
+      return;
+    }
+    const { type } = state.mouse;
+    if (type === 'mousemove' || type === 'mousedown') {
+      onDrag(state.mouse);
+    } else if (type === 'mouseup') {
+      onStopDrag();
+    }
+  }, [onDrag, onStopDrag, state.mouse]);
+
+  const { onScroll } = props;
+  useEffect(() => {
+    onScroll(state.fractionalPosition);
+  }, [onScroll, state.fractionalPosition]);
+
+  const availableHeight = state.trackBounds?.height ?? 0;
+  const sTop = state.trackBounds?.top ?? 0;
+  const barTop =
+    availableHeight > 0
+      ? Math.min(state.fractionalPosition, (availableHeight - barHeight) / availableHeight) *
+        100
+      : 0;
+
+  const onTrackClick: MouseEventHandler<HTMLDivElement> = useCallback((ev) => {
+    if (state.isDragging || availableHeight <= 0) {
       return;
     }
 
     const newFracHeight = (ev.clientY - sTop) / availableHeight;
-    const to = (newFracHeight * availableHeight) / (availableHeight - 16);
+    const to = Math.min(
+      1,
+      Math.max(0, (newFracHeight * availableHeight) / (availableHeight - barHalfHeight))
+    );
     dispatch({
       type: 'scrollTo',
       to,
       pageY: ev.clientY,
-      top: newFracHeight * availableHeight - 16
+      top: newFracHeight * availableHeight - barHalfHeight
     });
-  };
+  }, [availableHeight, barHalfHeight, sTop, state.isDragging]);
 
   return (
     <div
       className='relative h-full w-4'
-      ref={refs.track}
+      ref={trackRef}
       onClick={onTrackClick}
     >
       <div
         className='absolute mx-auto h-8 w-4/5 bg-gray-400'
         onMouseDown={onBarGrab}
-        style={state.barStyle}
+        style={{
+          height: `${barHeight}`,
+          top: `${barTop}%`,
+          overflow: 'auto'
+        }}
       />
     </div>
   );

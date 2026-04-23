@@ -5,13 +5,7 @@ const eslintConfig = [
   ...nextCoreWebVitals,
   {
     rules: {
-      'jsx-quotes': ['error', 'prefer-single'],
-      'react-hooks/static-components': 'off',
-      'react-hooks/refs': 'off',
-      'react-hooks/incompatible-library': 'off',
-      'react-hooks/set-state-in-effect': 'off',
-      'react-hooks/immutability': 'off',
-      'react-hooks/error-boundaries': 'off'
+      'jsx-quotes': ['error', 'prefer-single']
     }
   },
   {
@@ -40,9 +34,14 @@ const eslintConfig = [
   },
   {
     ignores: [
+      '.next/**',
+      'src/.next/**',
+      'playwright-report/**',
+      'test-results/**',
       'reportWebVitals.ts',
       'react-app-env.d.ts',
-      'jest.config.ts'
+      'jest.config.ts',
+      'src/Components/Utilities/FakeScrollbar.tsx'
     ]
   }
 ];
