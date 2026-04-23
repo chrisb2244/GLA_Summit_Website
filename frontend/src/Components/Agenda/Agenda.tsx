@@ -39,7 +39,7 @@ export const Agenda = (props: AgendaProps) => {
   // const [advanceTime, toggleAdvanceTime] = useState(false)
   const advanceTime = true;
   const timePeriod = 1000 * 30; // update every 30s
-  const [timeoutRef, setTimeoutRef] = useState<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const startCount = props.startDate.getTime();
   const endCount = startCount + totalDuration;
@@ -53,23 +53,23 @@ export const Agenda = (props: AgendaProps) => {
 
   useEffect(() => {
     if (advanceTime) {
-      setTimeoutRef(
-        setInterval(() => {
-          startTransition(() => {
-            refreshTime();
-          });
-        }, timePeriod)
-      );
-    } else if (timeoutRef !== null) {
-      clearInterval(timeoutRef);
+      intervalRef.current = setInterval(() => {
+        startTransition(() => {
+          refreshTime();
+        });
+      }, timePeriod);
+    } else if (intervalRef.current !== null) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
     }
+
     return () => {
-      if (timeoutRef !== null) {
-        clearInterval(timeoutRef);
+      if (intervalRef.current !== null) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
       }
     };
-    /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [advanceTime]); // Don't include 'timeoutRef'
+  }, [advanceTime]);
 
   const [timeOffset, setScrollTimeOffset] = useState(0);
   const [agendaArea, setAgendaArea] = useState<DOMRect | undefined>(undefined);
