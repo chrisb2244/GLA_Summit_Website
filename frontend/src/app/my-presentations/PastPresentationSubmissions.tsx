@@ -6,6 +6,7 @@ import type {
 import { getMyPresentations } from '@/lib/databaseFunctions';
 import NextLink from 'next/link';
 import { formatTextToPs } from '@/lib/utils';
+import { DraftPresentationCard } from './DraftPresentationCard';
 
 export const PastPresentationSubmissions = async () => {
   const supabase = await createServerClient();
@@ -29,34 +30,36 @@ export const PastPresentationSubmissions = async () => {
     ).data ?? []
   ).map((v) => v.id);
 
-  const { submittedPresentations } = myPresentations.reduce(
-    ({ submittedPresentations, draftPresentations }, elem) => {
-      const accepted = formatAccepted(
-        elem.presentation_id,
-        acceptedList,
-        rejectedList
-      );
-      if (elem.is_submitted) {
-        return {
-          submittedPresentations: [
-            ...submittedPresentations,
-            { ...elem, accepted }
-          ],
-          draftPresentations
-        };
-      } else {
-        return {
-          submittedPresentations,
-          draftPresentations: [...draftPresentations, { ...elem, accepted }]
-        };
+  const { submittedPresentations, draftPresentations } =
+    myPresentations.reduce(
+      ({ submittedPresentations, draftPresentations }, elem) => {
+        const accepted = formatAccepted(
+          elem.presentation_id,
+          acceptedList,
+          rejectedList
+        );
+        if (elem.is_submitted) {
+          return {
+            submittedPresentations: [
+              ...submittedPresentations,
+              { ...elem, accepted }
+            ],
+            draftPresentations
+          };
+        } else {
+          return {
+            submittedPresentations,
+            draftPresentations: [...draftPresentations, { ...elem, accepted }]
+          };
+        }
+      },
+      {
+        submittedPresentations:
+          new Array<MyPresentationSubmissionTypeWithAccepted>(),
+        draftPresentations:
+          new Array<MyPresentationSubmissionTypeWithAccepted>()
       }
-    },
-    {
-      submittedPresentations:
-        new Array<MyPresentationSubmissionTypeWithAccepted>(),
-      draftPresentations: new Array<MyPresentationSubmissionTypeWithAccepted>()
-    }
-  );
+    );
 
   const presentationsByYear = submittedPresentations.reduce(
     (existingSet, newElem) => {
@@ -72,6 +75,19 @@ export const PastPresentationSubmissions = async () => {
     const bN = Number.parseInt(b);
     return aN === bN ? 0 : aN > bN ? -1 : 1;
   });
+
+  const draftSection =
+    draftPresentations.length > 0 ? (
+      <div className='flex flex-col space-y-1'>
+        {draftPresentations.map((d) => (
+          <DraftPresentationCard key={d.presentation_id} draft={d} />
+        ))}
+      </div>
+    ) : (
+      <div>
+        <p>You have no active draft submissions.</p>
+      </div>
+    );
 
   const pastPresentationSubmissions =
     years.length > 0 ? (
@@ -92,7 +108,18 @@ export const PastPresentationSubmissions = async () => {
       </div>
     );
 
-  return pastPresentationSubmissions;
+  return (
+    <>
+      <div>
+        <h3>Draft Submissions</h3>
+        {draftSection}
+      </div>
+      <div className='mt-4'>
+        <h3>Submitted Presentations</h3>
+        {pastPresentationSubmissions}
+      </div>
+    </>
+  );
 };
 
 export const PastPresentationSubmissionsFallback = () => {

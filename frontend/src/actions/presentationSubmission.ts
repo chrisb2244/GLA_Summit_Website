@@ -20,6 +20,12 @@ type ReturnType =
   | {
       success: false;
       error: { message: string };
+    }
+  | {
+      success: false;
+      isDuplicate: true;
+      existingId: string;
+      existingTitle: string;
     };
 
 export const submitNewPresentation = async (
@@ -35,6 +41,8 @@ export const submitNewPresentation = async (
       learningPoints,
       otherPresenters,
       presentationType,
+      speakerAgreement,
+      skipDuplicateCheck,
       submitter
     } = parsedData.data;
     const supabaseAdmin = createAdminClient();
@@ -50,6 +58,37 @@ export const submitNewPresentation = async (
         }
       };
     }
+
+    // Enforce speaker agreement server-side
+    if (!speakerAgreement) {
+      return {
+        success: false,
+        error: { message: 'You must agree to the speaker agreement to submit.' }
+      };
+    }
+
+    // Duplicate detection: check for an existing submission with the same title
+    // for this submitter and year unless the user has explicitly bypassed the check.
+    if (!skipDuplicateCheck) {
+      const { data: existingWithTitle } = await supabase
+        .from('presentation_submissions')
+        .select('id, title')
+        .eq('submitter_id', submitter_id)
+        .eq('year', submissionsForYear)
+        .ilike('title', title.trim())
+        .limit(1)
+        .maybeSingle();
+
+      if (existingWithTitle) {
+        return {
+          success: false,
+          isDuplicate: true,
+          existingId: existingWithTitle.id,
+          existingTitle: existingWithTitle.title
+        };
+      }
+    }
+
     const { data: insertedData, error: insertionError } = await supabase
       .from('presentation_submissions')
       .insert({
@@ -240,4 +279,31 @@ export const submitNewPresentation = async (
       error: { message: errString }
     };
   }
+};
+
+type DeleteReturnType =
+  | { success: true }
+  | { success: false; error: { message: string } };
+
+/**
+ * Deletes a draft presentation owned by the current user.
+ * RLS enforces ownership (submitter_id = auth.uid()) and draft-only deletion
+ * (is_submitted = false), so no explicit ownership check is needed here.
+ */
+export const deleteDraftPresentation = async (
+  presentationId: string
+): Promise<DeleteReturnType> => {
+  const supabase = await createServerActionClient();
+
+  const { error } = await supabase
+    .from('presentation_submissions')
+    .delete()
+    .eq('id', presentationId);
+
+  if (error) {
+    return { success: false, error: { message: error.message } };
+  }
+
+  revalidatePath('/my-presentations');
+  return { success: true };
 };

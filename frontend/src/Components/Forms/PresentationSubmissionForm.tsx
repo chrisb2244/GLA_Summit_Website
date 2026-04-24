@@ -3,12 +3,16 @@
 import { Button } from '../Form/Button';
 import { SubmitButton } from '../Form/SubmitButton';
 import { EmailProps, Person, PersonProps } from '../Form/Person';
-// import { Checkbox } from '../Form/Checkbox';
+import { Checkbox } from '../Form/Checkbox';
+import { CharacterCount } from '../Form/CharacterCount';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { submitNewPresentation } from '@/actions/presentationSubmission';
 import { FormField, TextArea } from '../Form/FormField';
 import type { PresentationType } from '@/lib/databaseModels';
 import { Select } from '../Form/Select';
+import { CAN_SUBMIT_DRAFT } from '@/app/configConstants';
+import NextLink from 'next/link';
+import { useState } from 'react';
 
 type PresentationSubmissionFormProps = {
   submitter: PersonProps;
@@ -18,17 +22,30 @@ export type SubmissionFormData = {
   submitter: PersonProps;
   otherPresenters: EmailProps[];
   isFinal: boolean;
+  speakerAgreement: boolean;
   title: string;
   abstract: string;
   learningPoints: string;
   presentationType: PresentationType;
 };
 
+const TITLE_MAX = 150;
+const ABSTRACT_MAX = 5000;
+const ABSTRACT_MIN = 100;
+const LEARNING_POINTS_MIN = 50;
+
 export const PresentationSubmissionForm = (
   props: PresentationSubmissionFormProps
 ) => {
-  // const readyLabel =
-  //   'I am ready to submit this presentation (leave unchecked to save a draft)';
+  const readyLabel =
+    'I am ready to submit this presentation (leave unchecked to save a draft)';
+
+  const [duplicateWarning, setDuplicateWarning] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
+  const [bypassDuplicateCheck, setBypassDuplicateCheck] = useState(false);
+  const [submissionSuccess, setSubmissionSuccess] = useState(false);
 
   const {
     register,
@@ -43,6 +60,7 @@ export const PresentationSubmissionForm = (
     defaultValues: {
       submitter: props.submitter,
       isFinal: true,
+      speakerAgreement: false,
       title: '',
       abstract: '',
       learningPoints: '',
@@ -61,13 +79,44 @@ export const PresentationSubmissionForm = (
   });
 
   const isFinal = watch('isFinal');
+  const titleValue = watch('title');
+  const abstractValue = watch('abstract');
+  const learningPointsValue = watch('learningPoints');
   const staticSubmitText = isFinal ? 'Submit Presentation' : 'Save Draft';
   const pendingSubmitText = isFinal ? 'Submitting now...' : 'Saving now...';
 
-  // handle locking the form (default values, readOnly / FormFieldIndicator?)
   const lockProps = {
     readOnly: false
   };
+
+  if (submissionSuccess) {
+    return (
+      <div className='my-4 rounded-md border border-green-400 bg-green-50 p-4'>
+        <p className='font-semibold text-green-800'>
+          {isFinal
+            ? 'Presentation submitted successfully!'
+            : 'Draft saved successfully!'}
+        </p>
+        <p className='mt-1 text-green-700'>
+          Don&apos;t forget to update your bio and profile photo at{' '}
+          <NextLink href='/my-profile' className='underline'>
+            My Profile
+          </NextLink>{' '}
+          — these will be shown in the conference programme.
+        </p>
+        <Button
+          type='button'
+          onClick={() => {
+            setSubmissionSuccess(false);
+            setDuplicateWarning(null);
+            setBypassDuplicateCheck(false);
+          }}
+        >
+          Submit another presentation
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className='prose'>
@@ -80,14 +129,51 @@ export const PresentationSubmissionForm = (
         Only you, the presentation submitter, will be able to edit the
         presentation.
       </p>
+
+      {duplicateWarning && (
+        <div
+          className='my-3 rounded-md border border-yellow-400 bg-yellow-50 p-3'
+          role='alert'
+        >
+          <p className='font-semibold text-yellow-800'>Possible duplicate</p>
+          <p className='text-yellow-700'>
+            You already have a submission titled &ldquo;{duplicateWarning.title}
+            &rdquo;.{' '}
+            <NextLink
+              href={`/presentations/${duplicateWarning.id}`}
+              className='underline'
+            >
+              View existing submission
+            </NextLink>
+            .
+          </p>
+          <p className='text-yellow-700'>
+            If this is a different presentation, click{' '}
+            <strong>Submit Anyway</strong> to proceed.
+          </p>
+        </div>
+      )}
+
       <form
         action={async (data: FormData) => {
           const formValid = await trigger();
           if (formValid) {
+            if (bypassDuplicateCheck) {
+              data.append('skipDuplicateCheck', 'true');
+            }
             const result = await submitNewPresentation(data);
             if (result.success) {
               resetForm();
-            } else {
+              setDuplicateWarning(null);
+              setBypassDuplicateCheck(false);
+              setSubmissionSuccess(true);
+            } else if ('isDuplicate' in result && result.isDuplicate) {
+              setDuplicateWarning({
+                id: result.existingId,
+                title: result.existingTitle
+              });
+              setBypassDuplicateCheck(true);
+            } else if ('error' in result) {
               console.error(result.error);
             }
           } else {
@@ -162,23 +248,30 @@ export const PresentationSubmissionForm = (
           </div>
           <div className='py-8'>
             <FormField
-              registerReturn={register('title', { required: 'Required' })}
+              registerReturn={register('title', {
+                required: 'Required',
+                maxLength: {
+                  value: TITLE_MAX,
+                  message: `Title must be ${TITLE_MAX} characters or fewer`
+                }
+              })}
               fullWidth
               placeholder='Presentation Title'
               fieldError={errors.title}
               label='Title'
               {...lockProps}
             />
+            <CharacterCount current={titleValue.length} max={TITLE_MAX} />
             <TextArea
               registerReturn={register('abstract', {
                 required: 'Required',
                 minLength: {
-                  value: 100,
-                  message: 'This field has a minimum length of 100 characters'
+                  value: ABSTRACT_MIN,
+                  message: `This field has a minimum length of ${ABSTRACT_MIN} characters`
                 },
                 maxLength: {
-                  value: 5000,
-                  message: 'This field has a maximum length of 5000 characters'
+                  value: ABSTRACT_MAX,
+                  message: `This field has a maximum length of ${ABSTRACT_MAX} characters`
                 }
               })}
               fieldError={errors.abstract}
@@ -188,12 +281,17 @@ export const PresentationSubmissionForm = (
               label='Abstract'
               {...lockProps}
             />
+            <CharacterCount
+              current={abstractValue.length}
+              max={ABSTRACT_MAX}
+              min={ABSTRACT_MIN}
+            />
             <TextArea
               registerReturn={register('learningPoints', {
                 required: 'Required',
                 minLength: {
-                  value: 50,
-                  message: 'This field has a minimum length of 50 characters'
+                  value: LEARNING_POINTS_MIN,
+                  message: `This field has a minimum length of ${LEARNING_POINTS_MIN} characters`
                 }
               })}
               fieldError={errors.learningPoints}
@@ -202,6 +300,10 @@ export const PresentationSubmissionForm = (
               rows={3}
               label='Learning Points'
               {...lockProps}
+            />
+            <CharacterCount
+              current={learningPointsValue.length}
+              min={LEARNING_POINTS_MIN}
             />
             <Select
               fullWidth
@@ -223,10 +325,31 @@ export const PresentationSubmissionForm = (
             />
           </div>
           <div className='flex flex-col space-y-1'>
-            <input type='hidden' name='isFinal' value='on' />
-            {/* <Checkbox label={readyLabel} {...register('isFinal')} /> */}
+            {CAN_SUBMIT_DRAFT ? (
+              <Checkbox
+                label={readyLabel}
+                {...register('isFinal')}
+                defaultChecked
+              />
+            ) : (
+              <input type='hidden' name='isFinal' value='on' />
+            )}
+            <div className='mt-2 rounded border border-gray-300 bg-white p-3'>
+              <Checkbox
+                label='I agree to the GLA Summit speaker agreement, consent to my session being recorded, and consent to my name, bio, and (if provided) photograph being published on the conference website.'
+                {...register('speakerAgreement', {
+                  required:
+                    'You must agree to the speaker agreement to submit.'
+                })}
+              />
+              {errors.speakerAgreement && (
+                <p className='mt-1 text-sm text-red-700' role='alert'>
+                  {errors.speakerAgreement.message}
+                </p>
+              )}
+            </div>
             <SubmitButton
-              staticText={staticSubmitText}
+              staticText={duplicateWarning ? 'Submit Anyway' : staticSubmitText}
               pendingText={pendingSubmitText}
             />
           </div>

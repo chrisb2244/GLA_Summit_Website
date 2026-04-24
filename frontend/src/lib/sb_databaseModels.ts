@@ -580,6 +580,7 @@ export type Database = {
           presentation_type: Database['public']['Enums']['presentation_type'];
           submitter_id: string;
           title: string;
+          updated_at: string;
           year: Database['public']['Enums']['summit_year'];
         };
         Relationships: [];

@@ -11,6 +11,7 @@ import {
   PastPresentationSubmissions,
   PastPresentationSubmissionsFallback
 } from './PastPresentationSubmissions';
+import NextLink from 'next/link';
 
 export const metadata: Metadata = {
   robots: {
@@ -24,37 +25,22 @@ const MyPresentationsPage = async () => {
   const supabase = await createServerClient();
   const getSubmitter = async (
     user: User | null
-  ): Promise<PersonProps | null> => {
+  ): Promise<{ submitter: PersonProps | null; profileIncomplete: boolean }> => {
     if (user === null || typeof user.email === 'undefined') {
-      return null;
+      return { submitter: null, profileIncomplete: false };
     }
-    const { firstname, lastname } = await getProfileInfo(user, supabase);
+    const profile = await getProfileInfo(user, supabase).catch(() => null);
+    if (!profile) {
+      return { submitter: null, profileIncomplete: false };
+    }
+    const { firstname, lastname, bio, avatar_url } = profile;
     return {
-      email: user.email,
-      firstName: firstname,
-      lastName: lastname
+      submitter: { email: user.email, firstName: firstname, lastName: lastname },
+      profileIncomplete: !bio || !avatar_url
     };
   };
 
-  const submitter = await getSubmitter(user);
-
-  // const activeDrafts = draftPresentations.filter(
-  //   (p) => p.year === submissionsForYear
-  // );
-  // const draftEntries =
-  //   activeDrafts.length === 0 ? (
-  //     <div>
-  //       <p>You have no active draft submissions</p>
-  //     </div>
-  //   ) : (
-  //     activeDrafts.map((p) => {
-  //       return (
-  //         <div key={p.presentation_id}>
-  //           <h4>{p.title}</h4>
-  //         </div>
-  //       );
-  //     })
-  //   );
+  const { submitter, profileIncomplete } = await getSubmitter(user);
 
   const submissionElements = CAN_SUBMIT_PRESENTATION ? (
     submitter && (
@@ -69,8 +55,6 @@ const MyPresentationsPage = async () => {
             and consider copy-pasting from a text editor to avoid frustration!
           </p>
         </div>
-        {/* <p>The presentation submission page is currently being reworked!</p>
-        <p>We look forwards to being able to accept submissions soon.</p> */}
         <h3>Submit a new Presentation</h3>
         <PresentationSubmissionForm submitter={submitter} />
       </div>
@@ -83,19 +67,23 @@ const MyPresentationsPage = async () => {
 
   return (
     <div className='prose mx-auto flex max-w-none flex-col'>
+      {profileIncomplete && (
+        <div className='mb-4 rounded-md border border-blue-300 bg-blue-50 p-3'>
+          <p className='font-semibold text-blue-800'>Profile incomplete</p>
+          <p className='text-blue-700'>
+            Your{' '}
+            <NextLink href='/my-profile' className='underline'>
+              profile
+            </NextLink>{' '}
+            is missing a bio or photo. These will be shown in the conference
+            programme — please update them before the event.
+          </p>
+        </div>
+      )}
       {submissionElements}
-
-      {/* <div>
-        <h3>Draft Submissions</h3>
-        {draftEntries}
-      </div> */}
-
-      <div>
-        <h3>Submitted Presentations</h3>
-        <Suspense fallback={<PastPresentationSubmissionsFallback />}>
-          {<PastPresentationSubmissions />}
-        </Suspense>
-      </div>
+      <Suspense fallback={<PastPresentationSubmissionsFallback />}>
+        {<PastPresentationSubmissions />}
+      </Suspense>
     </div>
   );
 };
