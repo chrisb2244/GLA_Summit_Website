@@ -47,7 +47,7 @@ export const DraftPresentationCard = ({
           </span>
           <span className='text-sm italic text-gray-500 md:ml-auto'>
             Last saved:{' '}
-            {draft.updated_at ? formatDate(draft.updated_at) : 'unknown'}
+            {draft.updated_at ? formatDate(draft.updated_at) : 'Unknown'}
           </span>
           <button
             type='button'

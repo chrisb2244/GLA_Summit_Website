@@ -34,7 +34,7 @@ select
   ps.is_submitted,
   ps.year,
   ps.updated_at,
-  array_agg(ppn.presenter_id) as all_presenters,
+  array_agg(ppn.presenter_id) as all_presenters_ids,
   array_agg(ppn.firstname) as all_firstnames,
   array_agg(ppn.lastname) as all_lastnames,
   array_agg(ppn.email) as all_emails

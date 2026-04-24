@@ -15,6 +15,8 @@ export const CharacterCount = ({ current, max, min }: CharacterCountProps) => {
 
   const label = typeof max !== 'undefined' ? `${current} / ${max}` : `${current}`;
 
+  // A small negative top margin closes the visual gap between the field and the
+  // counter. The value matches the mb-5 wrapper in FormFieldSrv's wrapperStyles.
   return (
     <span
       className={`block text-right text-xs ${colorClass} -mt-4 mb-1`}
