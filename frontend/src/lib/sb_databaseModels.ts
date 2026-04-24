@@ -301,6 +301,7 @@ export type Database = {
       presentation_submissions: {
         Row: {
           abstract: string;
+          consent_given_at: string | null;
           id: string;
           is_submitted: boolean;
           learning_points: string | null;
@@ -312,6 +313,7 @@ export type Database = {
         };
         Insert: {
           abstract: string;
+          consent_given_at?: string | null;
           id?: string;
           is_submitted: boolean;
           learning_points?: string | null;
@@ -323,6 +325,7 @@ export type Database = {
         };
         Update: {
           abstract?: string;
+          consent_given_at?: string | null;
           id?: string;
           is_submitted?: boolean;
           learning_points?: string | null;

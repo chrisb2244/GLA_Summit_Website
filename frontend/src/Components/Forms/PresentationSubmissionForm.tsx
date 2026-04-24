@@ -2,15 +2,13 @@
 
 import { Button } from '../Form/Button';
 import { SubmitButton } from '../Form/SubmitButton';
-import { EmailProps, Person, PersonProps } from '../Form/Person';
+import { PersonProps } from '../Form/Person';
 import { Checkbox } from '../Form/Checkbox';
-import { CharacterCount } from '../Form/CharacterCount';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { submitNewPresentation } from '@/actions/presentationSubmission';
-import { FormField, TextArea } from '../Form/FormField';
-import type { PresentationType } from '@/lib/databaseModels';
-import { Select } from '../Form/Select';
 import { CAN_SUBMIT_DRAFT } from '@/app/configConstants';
+import { PresentationFormFields } from './PresentationFormFields';
+import { PresentationBaseFormData } from './PresentationFormShared';
 import NextLink from 'next/link';
 import { useState } from 'react';
 
@@ -18,21 +16,7 @@ type PresentationSubmissionFormProps = {
   submitter: PersonProps;
 };
 
-export type SubmissionFormData = {
-  submitter: PersonProps;
-  otherPresenters: EmailProps[];
-  isFinal: boolean;
-  speakerAgreement: boolean;
-  title: string;
-  abstract: string;
-  learningPoints: string;
-  presentationType: PresentationType;
-};
-
-const TITLE_MAX = 150;
-const ABSTRACT_MAX = 5000;
-const ABSTRACT_MIN = 100;
-const LEARNING_POINTS_MIN = 50;
+export type SubmissionFormData = PresentationBaseFormData;
 
 export const PresentationSubmissionForm = (
   props: PresentationSubmissionFormProps
@@ -79,15 +63,8 @@ export const PresentationSubmissionForm = (
   });
 
   const isFinal = watch('isFinal');
-  const titleValue = watch('title');
-  const abstractValue = watch('abstract');
-  const learningPointsValue = watch('learningPoints');
   const staticSubmitText = isFinal ? 'Submit Presentation' : 'Save Draft';
   const pendingSubmitText = isFinal ? 'Submitting now...' : 'Saving now...';
-
-  const lockProps = {
-    readOnly: false
-  };
 
   if (submissionSuccess) {
     return (
@@ -140,7 +117,7 @@ export const PresentationSubmissionForm = (
             You already have a submission titled &ldquo;{duplicateWarning.title}
             &rdquo;.{' '}
             <NextLink
-              href={`/presentations/${duplicateWarning.id}`}
+              href={`/my-presentations`}
               className='underline'
             >
               View existing submission
@@ -189,141 +166,16 @@ export const PresentationSubmissionForm = (
         }}
       >
         <div className='border border-gray-200 bg-gray-100 p-2 shadow-lg'>
-          <Person<SubmissionFormData>
-            heading='Submitter'
-            defaultValue={props.submitter}
-            locked
-            errors={errors.submitter}
-            path={'submitter'}
+          <PresentationFormFields
             register={register}
+            errors={errors}
+            control={control}
+            watch={watch}
+            submitter={props.submitter}
+            otherPresenterFields={otherPresenterFields}
+            addPresenter={addPresenter}
+            removePresenter={removePresenter}
           />
-          {otherPresenterFields.map((field, idx) => {
-            return (
-              <div className='pb-2' key={field.id}>
-                <div className='flex flex-col items-start justify-between sm:flex-row'>
-                  <div className='flex w-full flex-grow'>
-                    <div className='flex flex-1'>
-                      <div className='flex flex-1'>
-                        <FormField
-                          registerReturn={register(
-                            `otherPresenters.${idx}.email`,
-                            {
-                              required: 'Required',
-                              pattern: {
-                                value: /^\S+@\S+\.\S+$/i,
-                                message:
-                                  "This email doesn't match the expected pattern"
-                              }
-                            }
-                          )}
-                          fieldError={errors.otherPresenters?.[idx]?.email}
-                          fullWidth
-                          label='Co-presenter Email'
-                          defaultValue=''
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    className={`ml-auto flex w-1/2 text-center sm:ml-0 sm:w-auto sm:flex-grow-0 sm:p-2`}
-                  >
-                    <Button onClick={() => removePresenter(idx)} fullWidth>
-                      Remove
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-          <div className='mx-auto -mb-6 mt-1 w-1/2'>
-            <Button
-              type='button'
-              onClick={() => {
-                addPresenter({ email: '' });
-              }}
-              fullWidth
-            >
-              Add co-presenter
-            </Button>
-          </div>
-          <div className='py-8'>
-            <FormField
-              registerReturn={register('title', {
-                required: 'Required',
-                maxLength: {
-                  value: TITLE_MAX,
-                  message: `Title must be ${TITLE_MAX} characters or fewer`
-                }
-              })}
-              fullWidth
-              placeholder='Presentation Title'
-              fieldError={errors.title}
-              label='Title'
-              {...lockProps}
-            />
-            <CharacterCount current={titleValue.length} max={TITLE_MAX} />
-            <TextArea
-              registerReturn={register('abstract', {
-                required: 'Required',
-                minLength: {
-                  value: ABSTRACT_MIN,
-                  message: `This field has a minimum length of ${ABSTRACT_MIN} characters`
-                },
-                maxLength: {
-                  value: ABSTRACT_MAX,
-                  message: `This field has a maximum length of ${ABSTRACT_MAX} characters`
-                }
-              })}
-              fieldError={errors.abstract}
-              placeholder='Presentation Abstract - What are you going to talk about?'
-              fullWidth
-              rows={5}
-              label='Abstract'
-              {...lockProps}
-            />
-            <CharacterCount
-              current={abstractValue.length}
-              max={ABSTRACT_MAX}
-              min={ABSTRACT_MIN}
-            />
-            <TextArea
-              registerReturn={register('learningPoints', {
-                required: 'Required',
-                minLength: {
-                  value: LEARNING_POINTS_MIN,
-                  message: `This field has a minimum length of ${LEARNING_POINTS_MIN} characters`
-                }
-              })}
-              fieldError={errors.learningPoints}
-              placeholder='What are the most important things attendees would learn from your presentation?'
-              fullWidth
-              rows={3}
-              label='Learning Points'
-              {...lockProps}
-            />
-            <CharacterCount
-              current={learningPointsValue.length}
-              min={LEARNING_POINTS_MIN}
-            />
-            <Select
-              fullWidth
-              {...register('presentationType')}
-              options={[
-                {
-                  key: 'full length',
-                  description: 'Full Length Presentation (45 minutes)'
-                },
-                {
-                  key: '15 minutes',
-                  description: 'Short Presentation (15 minutes)'
-                },
-                {
-                  key: '7x7',
-                  description: '7x7 Presentation (7 minutes)'
-                }
-              ]}
-            />
-          </div>
           <div className='flex flex-col space-y-1'>
             {CAN_SUBMIT_DRAFT ? (
               <Checkbox
@@ -358,3 +210,4 @@ export const PresentationSubmissionForm = (
     </div>
   );
 };
+

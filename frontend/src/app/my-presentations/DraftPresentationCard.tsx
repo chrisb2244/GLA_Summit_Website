@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { deleteDraftPresentation } from '@/actions/presentationSubmission';
 import { CenteredDialog } from '@/Components/CenteredDialog';
 import type { MyPresentationSubmissionType } from '@/lib/databaseModels';
+import NextLink from 'next/link';
 
 type DraftPresentationCardProps = {
   draft: MyPresentationSubmissionType;
@@ -41,7 +42,12 @@ export const DraftPresentationCard = ({
     <>
       <div className='relative left-4 mr-6 border border-secondaryc p-2'>
         <div className='flex flex-col gap-1 md:flex-row md:items-center'>
-          <span className='font-medium'>{draft.title}</span>
+          <NextLink
+            href={`/my-presentations/${draft.presentation_id}/edit`}
+            className='font-medium underline hover:text-primary'
+          >
+            {draft.title}
+          </NextLink>
           <span className='text-sm text-gray-500 md:ml-1'>
             ({draft.presentation_type})
           </span>
@@ -49,6 +55,12 @@ export const DraftPresentationCard = ({
             Last saved:{' '}
             {draft.updated_at ? formatDate(draft.updated_at) : 'Unknown'}
           </span>
+          <NextLink
+            href={`/my-presentations/${draft.presentation_id}/edit`}
+            className='mt-1 rounded border border-blue-400 px-2 py-0.5 text-sm text-blue-600 hover:bg-blue-50 md:ml-2 md:mt-0'
+          >
+            Edit
+          </NextLink>
           <button
             type='button'
             onClick={() => setConfirmOpen(true)}

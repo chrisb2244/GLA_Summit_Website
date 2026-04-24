@@ -98,7 +98,10 @@ export const submitNewPresentation = async (
         submitter_id,
         year: submissionsForYear,
         is_submitted: isFinal,
-        presentation_type: presentationType
+        presentation_type: presentationType,
+        // Record the time the speaker agreed to the agreement.
+        // speakerAgreement has already been validated above.
+        consent_given_at: new Date().toISOString()
       })
       .select()
       .single();
@@ -303,6 +306,163 @@ export const deleteDraftPresentation = async (
   if (error) {
     return { success: false, error: { message: error.message } };
   }
+
+  revalidatePath('/my-presentations');
+  return { success: true };
+};
+
+type UpdateReturnType =
+  | { success: true }
+  | { success: false; error: { message: string } };
+
+/**
+ * Updates an existing draft presentation.
+ * The FormData must include a `presentationId` field.
+ * Co-presenter logic mirrors submitNewPresentation (add new accounts, update
+ * presentation_presenters).  The submitter is always kept in the list even if
+ * omitted from the form.
+ */
+export const updateDraftPresentation = async (
+  data: FormData
+): Promise<UpdateReturnType> => {
+  const presentationId = data.get('presentationId');
+  if (typeof presentationId !== 'string' || !presentationId) {
+    return { success: false, error: { message: 'Missing presentationId' } };
+  }
+
+  const obj = Object.fromEntries(data);
+  const parsedData = PresentationSubmissionFormSchema.safeParse(obj);
+  if (!parsedData.success) {
+    const errString = parsedData.error.format()._errors.join(', ');
+    return { success: false, error: { message: errString } };
+  }
+
+  const {
+    abstract,
+    title,
+    isFinal,
+    learningPoints,
+    otherPresenters,
+    presentationType,
+    speakerAgreement
+  } = parsedData.data;
+
+  // Require speaker agreement when submitting as final
+  if (isFinal && !speakerAgreement) {
+    return {
+      success: false,
+      error: { message: 'You must agree to the speaker agreement to submit.' }
+    };
+  }
+
+  const supabase = await createServerActionClient();
+  const supabaseAdmin = createAdminClient();
+  const user = await getUser();
+  const submitter_id = user?.id;
+
+  if (typeof submitter_id === 'undefined') {
+    return { success: false, error: { message: "Could not find the user's id" } };
+  }
+
+  // Verify the draft belongs to this user before updating
+  const { data: existingDraft, error: fetchError } = await supabase
+    .from('presentation_submissions')
+    .select('id, submitter_id, is_submitted')
+    .eq('id', presentationId)
+    .maybeSingle();
+
+  if (fetchError || !existingDraft) {
+    return {
+      success: false,
+      error: { message: fetchError?.message ?? 'Presentation not found' }
+    };
+  }
+  if (existingDraft.submitter_id !== submitter_id) {
+    return {
+      success: false,
+      error: { message: 'You do not have permission to edit this presentation' }
+    };
+  }
+  if (existingDraft.is_submitted) {
+    return {
+      success: false,
+      error: { message: 'Submitted presentations cannot be edited' }
+    };
+  }
+
+  const { error: updateError } = await supabase
+    .from('presentation_submissions')
+    .update({
+      title,
+      abstract,
+      learning_points: learningPoints,
+      is_submitted: isFinal,
+      presentation_type: presentationType,
+      // Record consent timestamp when the user ticks the agreement
+      ...(speakerAgreement ? { consent_given_at: new Date().toISOString() } : {})
+    })
+    .eq('id', presentationId);
+
+  if (updateError) {
+    return { success: false, error: { message: updateError.message } };
+  }
+
+  // Rebuild the presenters list
+  const { data: existingPresenters, error: lookupError } = await supabaseAdmin
+    .from('email_lookup')
+    .select('*')
+    .in('email', otherPresenters);
+
+  if (lookupError) {
+    return { success: false, error: { message: lookupError.message } };
+  }
+
+  const foundEmails = existingPresenters.map(({ email }) => email);
+  const newPresenterEmails = otherPresenters.filter(
+    (email) => !foundEmails.includes(email)
+  );
+
+  type NewPresenterCreationReturn =
+    | { success: true; id: string; email: string }
+    | { success: false; error: AuthError };
+
+  const newPresenterResults = await Promise.all(
+    newPresenterEmails.map(
+      async (email): Promise<NewPresenterCreationReturn> => {
+        const randomPassword = randomBytes(32).toString('hex');
+        const { data: newUser, error: creationError } =
+          await supabaseAdmin.auth.admin.generateLink({
+            type: 'signup',
+            email,
+            password: randomPassword,
+            options: { data: { firstname: '', lastname: '' } }
+          });
+        if (creationError) {
+          return { success: false as const, error: creationError };
+        }
+        return { success: true as const, id: newUser.user.id, email };
+      }
+    )
+  );
+
+  const successfulNewPresenters = newPresenterResults.filter(
+    (r) => r.success
+  ) as { success: true; id: string; email: string }[];
+
+  const idArray = [
+    submitter_id,
+    ...existingPresenters.map((p) => p.id),
+    ...successfulNewPresenters.map((p) => p.id)
+  ];
+
+  // Overwrite the presenters for this presentation entirely
+  await supabaseAdmin
+    .from('presentation_presenters')
+    .delete()
+    .eq('presentation_id', presentationId);
+  await supabaseAdmin.from('presentation_presenters').insert(
+    idArray.map((presenter_id) => ({ presenter_id, presentation_id: presentationId }))
+  );
 
   revalidatePath('/my-presentations');
   return { success: true };
