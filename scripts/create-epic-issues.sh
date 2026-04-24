@@ -373,32 +373,6 @@ EOF
   "enhancement")
 
 # ---------------------------------------------------------------------------
-# ISSUE 17 – A/V and special requirements field
-# ---------------------------------------------------------------------------
-N17=$(create_issue_once \
-  "Add A/V and special requirements field to presentation submission form" \
-  "$(cat <<'EOF'
-## Problem
-
-There is no field for presenters to indicate special technical or accessibility requirements.
-This information is needed by conference organisers for scheduling and logistics.
-
-## Tasks
-
-- [ ] Add an optional "Special Requirements" textarea to the submission form
-  - Example placeholder: *"I will be doing a live demo that requires a stable connection. I prefer not to present in the first session."*
-- [ ] Add a `special_requirements TEXT` column to `presentation_submissions`
-- [ ] Include `special_requirements` in the organizer review export (ZIP download in `review-submissions/actions.ts`)
-- [ ] Include in the submission confirmation email
-
-## Notes
-
-This field is optional — it should not block submission if left empty.
-EOF
-)" \
-  "enhancement")
-
-# ---------------------------------------------------------------------------
 # ISSUE 18 – Allow withdrawal of submitted presentations
 # ---------------------------------------------------------------------------
 N18=$(create_issue_once \
@@ -517,7 +491,6 @@ Items were identified by comparing the current Next.js App Router implementation
 - [ ] #${N12} — Send automated notification emails when presentation status changes
 - [ ] #31 — Indicate timezones / availability windows for presenters *(existing issue)*
 - [ ] #${N14} — Add duplicate submission detection and prevention
-- [ ] #${N17} — Add A/V and special requirements field to submission form
 - [ ] #${N18} — Allow submitters to withdraw a submitted presentation
 - [ ] #${N19} — Prompt submitters to complete their profile after submission
 - [ ] #${N20} — Provide a downloadable / printable submission receipt
@@ -533,7 +506,7 @@ Items were identified by comparing the current Next.js App Router implementation
 5. #${N2} (edit submitted), #${N18} (withdrawal)
 6. #${N7} (accept/decline flow), #${N8} (name resolution)
 7. #31 (timezone preferences), #${N14} (duplicate prevention)
-8. #${N19} (profile prompt), #${N17} (A/V requirements), #${N20} (receipt download)
+- [ ] #${N19} (profile prompt), #${N20} (receipt download)
 EOF
 )
 
