@@ -60,11 +60,11 @@ create_issue_once() {
     [[ -n "$lbl" ]] && label_args+=(--label "$lbl")
   done
 
-  number=$(gh issue create --repo "$REPO" \
+  url=$(gh issue create --repo "$REPO" \
     --title "$title" \
     --body "$body" \
-    "${label_args[@]}" \
-    --json number --jq '.number')
+    "${label_args[@]}")
+  number="${url##*/}"
 
   echo "Created issue #$number: $title" >&2
   echo "$number"
