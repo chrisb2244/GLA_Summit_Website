@@ -9,7 +9,10 @@ export const getPeople_Authed = async (
   ids: string[],
   client: SupabaseClient<Database>
 ) => {
-  const query = client.from('profiles').select().in('id', ids);
+  const query = client
+    .from('profiles')
+    .select('id, firstname, lastname, bio, avatar_url, updated_at')
+    .in('id', ids);
 
   const { data, error } = await query;
   if (error) {

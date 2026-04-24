@@ -34,7 +34,7 @@ const getAgendaAndHints = async () => {
 
   const { data: containerRows, error: containerError } = await supabase
     .from('container_groups')
-    .select('*');
+    .select('container_id, presentation_id');
 
   if (containerError) return returnVal(agenda);
 
@@ -49,7 +49,7 @@ const getAgendaAndHints = async () => {
 
   const { data: containers, error: containerPresError } = await supabase
     .from('presentation_submissions')
-    .select('*')
+    .select('id, title, abstract')
     .in('id', relevantContainerIds);
 
   if (containerPresError) return returnVal(agenda);

@@ -23,7 +23,7 @@ const ReviewSubmissionsPageContent = async () => {
 
   const { data: downloadInfo } = await supabase
     .from('review_download_information')
-    .select('*');
+    .select('presentation_id, last_downloaded');
 
   const submittedPresentations: PresentationReviewInfo[] = error
     ? []
