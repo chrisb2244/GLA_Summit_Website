@@ -237,28 +237,32 @@ EOF
   "enhancement")
 
 # ---------------------------------------------------------------------------
-# ISSUE 8 – Show co-presenter names at submission time
+# ISSUE 8 – Show co-presenter names after invitation is accepted
 # ---------------------------------------------------------------------------
 N8=$(create_issue_once \
-  "Display resolved co-presenter names (not just emails) in submission form" \
+  "Display resolved co-presenter names (not just emails) after invitation is accepted" \
   "$(cat <<'EOF'
 ## Problem
 
-The submission form only collects email addresses for co-presenters.
-After submission, emails are resolved to names via the `profiles` table for the confirmation email, but the submitter never sees the resolved names in the UI.
-A submitter adding someone they don't know personally cannot verify they've added the right person.
+The submission form only collects email addresses for co-presenters, and the My Presentations page only ever shows those raw email addresses.
+Once a co-presenter has accepted the invitation (see the accept/decline flow in #7) their full name from their profile is available and should be shown to the primary submitter.
+
+## Security note
+
+Name resolution **must not** happen at the point of adding a co-presenter email address (e.g. via a live lookup as the email is typed or on blur).
+Performing a lookup at that stage would allow any authenticated user to enumerate whether an arbitrary email address has a registered account, and would enable brute-force account-discovery attacks.
+Names should only be revealed once the invitee has explicitly accepted, i.e. when `presentation_presenters.status = 'accepted'`.
 
 ## Tasks
 
-- [ ] After a co-presenter email field is blurred, query `/api/resolve-presenter?email=...` to check if the email matches an existing account
-- [ ] If found: display the account's `firstname lastname` alongside the email field
-- [ ] If not found: display "New account will be created"
-- [ ] In the submitted presentations list, show full names next to each co-presenter email
+- [ ] On the My Presentations page, for each co-presenter whose `status = 'accepted'`, display their `firstname lastname` (from `profiles`) alongside their email address
+- [ ] For co-presenters with `status = 'pending'` or `'declined'`, continue to show only the email address supplied by the submitter
+- [ ] Update the submission confirmation email (sent to the primary submitter on final submission) to list co-presenters by email only — **do not** resolve names at send time
+- [ ] After a co-presenter accepts, send a notification email to the primary submitter that includes the accepted co-presenter's full name (see #9)
 
-## Notes
+## Depends On
 
-Use the existing `email_lookup` view for the lookup.
-The query should be rate-limited / debounced to avoid excessive DB calls.
+- #7 (Accept/decline flow — provides the `status` column and acceptance event)
 EOF
 )" \
   "enhancement")
@@ -298,19 +302,21 @@ The presentation submission form has no terms or consent acknowledgement.
 Most conference submission systems require presenters to acknowledge:
 - Consent to record and share the session
 - Agreement to the code of conduct
-- Consent to have their name, bio, and photo published on the website
+- Consent to have their name, bio, and (if provided) photograph published on the website
 
 ## Tasks
 
-- [ ] Add a mandatory boolean checkbox to the submission form:
-  *"I agree to the GLA Summit speaker agreement, consent to my session being recorded, and consent to my name/bio/photo being published on the conference website."*
+- [ ] Add a mandatory boolean checkbox to the submission form with wording along the lines of:
+  *"I agree to the GLA Summit speaker agreement, consent to my session being recorded, and consent to my name and bio — and my photograph if I choose to provide one — being published on the conference website."*
 - [ ] Link the label to a `/speaker-agreement` page (new page, or link to existing CoC)
 - [ ] Block form submission if the checkbox is unchecked
 - [ ] Store a `consent_given_at` timestamp on the submission row
 
 ## Notes
 
-The speaker agreement page itself is out of scope for this issue.
+- The name, bio, and photograph referenced in the consent are all supplied by the presenter themselves via the **My Profile** page (`/my-profile`), not collected during submission.
+- A profile photograph is **desired but not compulsory**: presenters who do not upload a photo will simply appear without one in the programme and on the website.
+- The speaker agreement page itself is out of scope for this issue.
 EOF
 )" \
   "enhancement")
@@ -499,7 +505,7 @@ Items were identified by comparing the current Next.js App Router implementation
 - [ ] #${N5} — Add opt-out / decline link for co-presenters in invitation email
 - [ ] #47 — Removing co-presenters doesn't work correctly *(existing issue)*
 - [ ] #${N7} — Add explicit accept/decline flow for co-presenter invitations
-- [ ] #${N8} — Display resolved co-presenter names in submission form
+- [ ] #${N8} — Display resolved co-presenter names after invitation is accepted
 - [ ] #${N9} — Notify primary submitter when a co-presenter opts out
 
 ---
