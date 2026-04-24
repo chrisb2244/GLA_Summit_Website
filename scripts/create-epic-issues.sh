@@ -353,9 +353,36 @@ EOF
   "enhancement")
 
 # ---------------------------------------------------------------------------
-# ISSUE 14 – Prevent duplicate submissions
+# ISSUE 14 – Character count indicators on text fields
 # ---------------------------------------------------------------------------
 N14=$(create_issue_once \
+  "Add character count indicators to submission form text fields" \
+  "$(cat <<'EOF'
+## Problem
+
+Text fields in the submission form (title, abstract, bio) have no visible character count or limit indicator.
+Submitters have no feedback on length expectations, which can lead to overly long or unhelpfully short entries.
+
+## Tasks
+
+- [ ] Identify all free-text fields in the submission form that have, or should have, a character limit (e.g., title, abstract/summary, presenter bio)
+- [ ] Add a live character counter below each such field (e.g., "120 / 300 characters")
+- [ ] Enforce the limit client-side (disable further input or show a warning once the limit is reached)
+- [ ] Enforce the same limit server-side in the corresponding server action / API route
+- [ ] Document the chosen limits in the form's help text so submitters know what to aim for
+
+## Notes
+
+- Limits should be decided in consultation with the organizers; reasonable defaults: title ≤ 120 chars, abstract ≤ 1 500 chars, bio ≤ 600 chars.
+- The counter should update on every keystroke without requiring a form submit.
+EOF
+)" \
+  "enhancement")
+
+# ---------------------------------------------------------------------------
+# ISSUE 17 – Prevent duplicate submissions
+# ---------------------------------------------------------------------------
+N17=$(create_issue_once \
   "Add duplicate submission detection and prevention" \
   "$(cat <<'EOF'
 ## Problem
@@ -490,7 +517,8 @@ Items were identified by comparing the current Next.js App Router implementation
 - [ ] #60 — Clearer information to presenters (submission deadline, decision date) *(existing issue)*
 - [ ] #${N12} — Send automated notification emails when presentation status changes
 - [ ] #31 — Indicate timezones / availability windows for presenters *(existing issue)*
-- [ ] #${N14} — Add duplicate submission detection and prevention
+- [ ] #${N14} — Add character count indicators to submission form text fields
+- [ ] #${N17} — Add duplicate submission detection and prevention
 - [ ] #${N18} — Allow submitters to withdraw a submitted presentation
 - [ ] #${N19} — Prompt submitters to complete their profile after submission
 - [ ] #${N20} — Provide a downloadable / printable submission receipt
@@ -505,7 +533,7 @@ Items were identified by comparing the current Next.js App Router implementation
 4. #${N10} (speaker agreement)
 5. #${N2} (edit submitted), #${N18} (withdrawal)
 6. #${N7} (accept/decline flow), #${N8} (name resolution)
-7. #31 (timezone preferences), #${N14} (duplicate prevention)
+7. #31 (timezone preferences), #${N14} (character count), #${N17} (duplicate prevention)
 - [ ] #${N19} (profile prompt), #${N20} (receipt download)
 EOF
 )
