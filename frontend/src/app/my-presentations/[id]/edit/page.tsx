@@ -30,7 +30,11 @@ const DraftEditPage = async ({ params }: { params: Promise<Params> }) => {
     .eq('is_submitted', false)
     .maybeSingle();
 
-  if (error || !draft) {
+  if (error) {
+    console.error('[DraftEditPage] Failed to fetch draft:', error.message);
+    notFound();
+  }
+  if (!draft) {
     notFound();
   }
 
