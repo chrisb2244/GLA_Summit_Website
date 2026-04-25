@@ -4,7 +4,7 @@ import {
   User as SB_User,
   SupabaseClient
 } from '@supabase/supabase-js';
-import { AllPresentationsModel, ProfileModel } from './databaseModels';
+import { PresentationModel, ProfileModel } from './databaseModels';
 import { Database } from './sb_databaseModels';
 import {
   supabase,
@@ -373,7 +373,7 @@ export const getPublicPresentationsForPresenter = async (
 export const getPublicPresentation = async (
   presentationId: string,
   client: Client = supabase
-): Promise<AllPresentationsModel> => {
+): Promise<PresentationModel> => {
   return client
     .rpc('get_all_presentations')
     .select()
@@ -387,7 +387,7 @@ export const getPublicPresentation = async (
 
 export const getMyPresentations = async (client: Client = supabase) => {
   const { data, error: errorPresData } = await client
-    .from('my_submissions')
+    .rpc('get_my_submissions')
     .select();
   if (errorPresData) {
     myLog({

@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2015",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -11,19 +15,31 @@
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@/Components/*": ["src/Components/*"],
-      "@/lib/*": ["src/lib/*"],
-      "@/EmailTemplates/*": ["src/EmailTemplates/*"],
-      "@/actions/*": ["src/actions/*"],
-      "@/app/*": ["src/app/*"],
-      "@/media/*": ["public/media/*"]
+      "@/Components/*": [
+        "src/Components/*"
+      ],
+      "@/lib/*": [
+        "src/lib/*"
+      ],
+      "@/EmailTemplates/*": [
+        "src/EmailTemplates/*"
+      ],
+      "@/actions/*": [
+        "src/actions/*"
+      ],
+      "@/app/*": [
+        "src/app/*"
+      ],
+      "@/media/*": [
+        "public/media/*"
+      ]
     },
     "incremental": true,
     "plugins": [
@@ -38,7 +54,11 @@
     "playwright",
     "next-env.d.ts",
     "playwright.config.ts",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "./tsconfig.json"]
+  "exclude": [
+    "node_modules",
+    "./tsconfig.json"
+  ]
 }

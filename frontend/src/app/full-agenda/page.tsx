@@ -1,11 +1,9 @@
 import { FullAgenda } from './FullAgenda';
-import type {
-  AgendaEntry,
-  ScheduledAgendaEntry
-} from '@/Components/Agenda/Agenda';
+import type { ScheduledAgendaEntry } from '@/Components/Agenda/Agenda';
 import type { ContainerHint } from '@/Components/Agenda/AgendaCalculations';
 import { currentDisplayYear } from '@/app/configConstants';
 import { createAnonServerClient } from '@/lib/supabaseClient';
+import type { PresentationModel as AgendaEntry } from '@/lib/databaseModels';
 
 export const revalidate = 300;
 

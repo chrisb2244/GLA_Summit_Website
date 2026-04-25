@@ -11,11 +11,10 @@ import { FakeScrollbar } from '../Utilities/FakeScrollbar';
 import { ContainerHint } from './AgendaCalculations';
 import { AgendaPresentations } from './AgendaPresentations';
 import { TimeMarkers } from './TimeMarkers';
+import type { PresentationModel } from '@/lib/databaseModels';
 
-export type AgendaEntry =
-  Database['public']['Views']['all_presentations']['Row'];
 export type ScheduledAgendaEntry = {
-  [P in keyof AgendaEntry]: NonNullable<AgendaEntry[P]>;
+  [P in keyof PresentationModel]: NonNullable<PresentationModel[P]>;
 };
 
 export type AgendaProps = {
