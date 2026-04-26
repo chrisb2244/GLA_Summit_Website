@@ -18,6 +18,7 @@ import { getPeople } from '@/lib/supabase/public';
 import { getPeople_Authed } from '@/lib/supabase/authorized';
 import type { NextParams, satisfy } from '@/lib/NextTypes';
 import { cacheLife } from 'next/cache';
+import { Suspense } from 'react';
 
 type PageProps = {
   params: satisfy<
@@ -43,10 +44,15 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   }
 }
 
-const PresentationsForYearPage: NextPage<PageProps> = async (props) => {
-  'use cache';
-  cacheLife({ stale: 300, revalidate: 600, expire: 86400 });
+const PresentationsForYearPage: NextPage<PageProps> = (props) => {
+  return (
+    <Suspense fallback={<p>Loading presentation...</p>}>
+      <PresentationsForYearPageContent {...props} />
+    </Suspense>
+  );
+};
 
+const PresentationsForYearPageContent = async (props: PageProps) => {
   const pId = (await props.params).id;
   if (pId === '__placeholder__') {
     notFound();
@@ -55,8 +61,6 @@ const PresentationsForYearPage: NextPage<PageProps> = async (props) => {
     return null;
   }
 
-  const supabase = createAnonServerClient();
-
   type PresentationReturn =
     | {
         redirect: {
@@ -64,73 +68,86 @@ const PresentationsForYearPage: NextPage<PageProps> = async (props) => {
         };
       }
     | (Presentation & { redirect?: undefined });
-  const presentation: PresentationReturn = await getPublicPresentation(
-    pId,
-    supabase
-  ).then(
-    async (data) => {
-      const presenters = (await getPeople(data.all_presenters)).map((p) => {
-        return { ...p, pageLink: `/presenters/${p.id}` };
-      });
 
-      const type = data.presentation_type;
-      if (type === 'panel') {
-        return {
-          redirect: {
-            destination: getPanelLink(data.title)
-          }
-        };
-      }
+  const getCachedPublicPresentation = async (
+    presentationId: string
+  ): Promise<PresentationReturn> => {
+    'use cache';
+    cacheLife({ stale: 300, revalidate: 600, expire: 86400 });
 
-      // Allow masking the schedule for 2025
-      const mask = false; // data.year === '2025';
-      const scheduledFor = mask ? null : data.scheduled_for;
-      const schedule = calculateSchedule(type, scheduledFor);
+    const supabase = createAnonServerClient();
+    const data = await getPublicPresentation(presentationId, supabase);
+    const presenters = (await getPeople(data.all_presenters)).map((p) => {
+      return { ...p, pageLink: `/presenters/${p.id}` };
+    });
 
+    const type = data.presentation_type;
+    if (type === 'panel') {
       return {
-        title: data.title,
-        abstract: data.abstract,
-        speakers: presenters,
-        speakerNames: data.all_presenters_names,
-        ...schedule
+        redirect: {
+          destination: getPanelLink(data.title)
+        }
       };
-    },
-    async (err) => {
-      // Not returned by getPublicPresentations.
-      const supabaseLoggedIn = await createServerClient();
-      const { data, error } = await supabaseLoggedIn
-        .rpc('get_my_submissions')
-        .eq('presentation_id', pId)
-        .select('*')
-        .maybeSingle();
-      if (error || data === null) {
-        myLog({ err, error });
-        notFound();
-      } else {
-        // Consider if this can be non-null?
-        const scheduledFor = null;
-        const allPresenterNames = data.all_firstnames.map((fName, idx) => {
-          return `${fName} ${data.all_lastnames[idx]}`;
-        });
-        return {
-          title: data.title,
-          abstract: data.abstract,
-          speakers: await getPeople_Authed(
-            data.all_presenters_ids,
-            supabaseLoggedIn
-          ),
-          speakerNames: allPresenterNames,
-          ...calculateSchedule(data.presentation_type, scheduledFor),
-          isPrivate: true
-        };
-      }
     }
-  );
+
+    // Allow masking the schedule for 2025
+    const mask = false; // data.year === '2025';
+    const scheduledFor = mask ? null : data.scheduled_for;
+    const schedule = calculateSchedule(type, scheduledFor);
+
+    return {
+      title: data.title,
+      abstract: data.abstract,
+      speakers: presenters,
+      speakerNames: data.all_presenters_names,
+      ...schedule
+    };
+  };
+
+  const getCachedVideoLink = async (
+    presentationId: string
+  ): Promise<string | null> => {
+    'use cache';
+    cacheLife({ stale: 300, revalidate: 600, expire: 86400 });
+
+    const anonClient = createAnonServerClient();
+    return getVideoLink(presentationId, anonClient);
+  };
+
+  let presentation: PresentationReturn;
+  try {
+    presentation = await getCachedPublicPresentation(pId);
+  } catch (err) {
+    // Not returned by getPublicPresentations.
+    const supabaseLoggedIn = await createServerClient();
+    const { data, error } = await supabaseLoggedIn
+      .rpc('get_my_submissions')
+      .eq('presentation_id', pId)
+      .select('*')
+      .maybeSingle();
+    if (error || data === null) {
+      myLog({ err, error });
+      notFound();
+    }
+
+    const scheduledFor = null;
+    const allPresenterNames = data.all_firstnames.map((fName, idx) => {
+      return `${fName} ${data.all_lastnames[idx]}`;
+    });
+    presentation = {
+      title: data.title,
+      abstract: data.abstract,
+      speakers: await getPeople_Authed(data.all_presenters_ids, supabaseLoggedIn),
+      speakerNames: allPresenterNames,
+      ...calculateSchedule(data.presentation_type, scheduledFor),
+      isPrivate: true
+    };
+  }
 
   if (typeof presentation.redirect != 'undefined') {
     redirect(presentation.redirect.destination);
   } else {
-    const videoLink = await getVideoLink(pId, supabase);
+    const videoLink = await getCachedVideoLink(pId);
     return (
       <PresentationDisplay
         presentationId={pId}
