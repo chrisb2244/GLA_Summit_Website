@@ -3,6 +3,7 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DraftPresentationCard } from './DraftPresentationCard';
 import type { MyPresentationSubmissionType } from '@/lib/databaseModels';
+import { deleteDraftPresentation } from '@/actions/presentationSubmission';
 
 // Mock the server action so we don't need a real Supabase connection
 vi.mock('@/actions/presentationSubmission', () => ({
@@ -67,9 +68,7 @@ describe('DraftPresentationCard', () => {
   });
 
   it('calls deleteDraftPresentation when confirmed', async () => {
-    const { deleteDraftPresentation } = await import(
-      '@/actions/presentationSubmission'
-    );
+    const mockedDelete = vi.mocked(deleteDraftPresentation);
     render(<DraftPresentationCard draft={mockDraft} />);
     await userEvent.click(screen.getByRole('button', { name: /delete draft/i }));
     await waitFor(() =>
@@ -77,7 +76,7 @@ describe('DraftPresentationCard', () => {
     );
     await userEvent.click(screen.getByRole('button', { name: /^delete$/i }));
     await waitFor(() => {
-      expect(deleteDraftPresentation).toHaveBeenCalledWith('draft-id-1');
+      expect(mockedDelete).toHaveBeenCalledWith('draft-id-1');
     });
   });
 });

@@ -3,6 +3,10 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DraftEditForm } from './DraftEditForm';
 import type { PresentationBaseFormData } from '@/Components/Forms/PresentationFormShared';
+import {
+  updateDraftPresentation,
+  deleteDraftPresentation
+} from '@/actions/presentationSubmission';
 
 // Mock server actions
 vi.mock('@/actions/presentationSubmission', () => ({
@@ -68,9 +72,7 @@ describe('DraftEditForm', () => {
   });
 
   it('calls updateDraftPresentation without isFinal on Save Draft', async () => {
-    const { updateDraftPresentation } = await import(
-      '@/actions/presentationSubmission'
-    );
+    const mockedUpdate = vi.mocked(updateDraftPresentation);
     render(
       <DraftEditForm
         presentationId='pres-id-1'
@@ -80,8 +82,8 @@ describe('DraftEditForm', () => {
     );
     await userEvent.click(screen.getByRole('button', { name: /save draft/i }));
     await waitFor(() => {
-      expect(updateDraftPresentation).toHaveBeenCalled();
-      const formData: FormData = (updateDraftPresentation as ReturnType<typeof vi.fn>).mock.calls[0][0];
+      expect(mockedUpdate).toHaveBeenCalled();
+      const formData: FormData = mockedUpdate.mock.calls[0][0];
       expect(formData.get('presentationId')).toBe('pres-id-1');
       // isFinal should be absent/empty for draft save
       expect(formData.get('isFinal')).toBeFalsy();
@@ -137,9 +139,7 @@ describe('DraftEditForm', () => {
   });
 
   it('calls deleteDraftPresentation when delete is confirmed', async () => {
-    const { deleteDraftPresentation } = await import(
-      '@/actions/presentationSubmission'
-    );
+    const mockedDelete = vi.mocked(deleteDraftPresentation);
     render(
       <DraftEditForm
         presentationId='pres-id-1'
@@ -155,15 +155,13 @@ describe('DraftEditForm', () => {
     );
     await userEvent.click(screen.getByRole('button', { name: /^delete$/i }));
     await waitFor(() => {
-      expect(deleteDraftPresentation).toHaveBeenCalledWith('pres-id-1');
+      expect(mockedDelete).toHaveBeenCalledWith('pres-id-1');
     });
   });
 
   it('shows error message when save fails', async () => {
-    const { updateDraftPresentation } = await import(
-      '@/actions/presentationSubmission'
-    );
-    (updateDraftPresentation as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+    const mockedUpdate = vi.mocked(updateDraftPresentation);
+    mockedUpdate.mockResolvedValueOnce({
       success: false,
       error: { message: 'Database error' }
     });

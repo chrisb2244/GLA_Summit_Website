@@ -22,12 +22,12 @@ const DraftEditPage = async ({ params }: { params: Promise<Params> }) => {
 
   const supabase = await createServerClient();
 
-  // Fetch the draft from the DB using the user-scoped view so RLS is enforced.
+  // Fetch the draft from the DB using the user-scoped RPC so RLS is enforced.
   const { data: draft, error } = await supabase
-    .from('my_submissions')
-    .select()
+    .rpc('get_my_submissions')
     .eq('presentation_id', id)
     .eq('is_submitted', false)
+    .select('*')
     .maybeSingle();
 
   if (error) {
