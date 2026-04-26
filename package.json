@@ -3,7 +3,7 @@
     "gen_types": "supabase gen types typescript --local > frontend/src/lib/sb_databaseModels.ts"
   },
   "devDependencies": {
-    "supabase": "^2.54.11",
+    "supabase": "^2.95.3",
     "typescript": "^5.8.3"
   }
 }
