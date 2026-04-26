@@ -29,5 +29,6 @@ CREATE TYPE public.summit_year AS ENUM (
     '2021',
     '2022',
     '2024',
-    '2025'
+    '2025',
+    '2026'
 );

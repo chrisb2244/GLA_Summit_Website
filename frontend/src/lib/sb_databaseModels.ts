@@ -594,7 +594,7 @@ export type Database = {
         | "15 minutes"
         | "quiz"
         | "session-container"
-      summit_year: "2020" | "2021" | "2022" | "2024" | "2025"
+      summit_year: "2020" | "2021" | "2022" | "2024" | "2025" | "2026"
     }
     CompositeTypes: {
       presenter_info: {
@@ -1250,7 +1250,7 @@ export const Constants = {
         "quiz",
         "session-container",
       ],
-      summit_year: ["2020", "2021", "2022", "2024", "2025"],
+      summit_year: ["2020", "2021", "2022", "2024", "2025", "2026"],
     },
   },
   storage: {
