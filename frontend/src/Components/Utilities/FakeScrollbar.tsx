@@ -117,7 +117,7 @@ export const FakeScrollbar = (props: ScrollbarProps) => {
       return;
     }
 
-    window.setTimeout(callback, 1000 / 60);
+    setTimeout(callback, 1000 / 60);
   }, []);
 
   // Forwards debounced mouse events

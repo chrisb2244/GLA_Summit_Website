@@ -28,9 +28,23 @@ const ReviewSubmissionsPageContent = async () => {
   const submittedPresentations: PresentationReviewInfo[] = error
     ? []
     : data.map((d) => {
+        const presenters = (d.presenters ?? []).map((p) => ({
+          id: p.id ?? '',
+          firstname: p.firstname ?? '',
+          lastname: p.lastname ?? ''
+        }));
+        const submitter =
+          presenters.find((p) => p.id === d.submitter_id) ?? {
+            id: d.submitter_id ?? '',
+            firstname: 'Unknown',
+            lastname: 'User'
+          };
+
         return {
           ...d,
-          submitter: d.presenters.filter((p) => p.id === d.submitter_id)[0]
+          learning_points: d.learning_points ?? '',
+          presenters,
+          submitter
         };
       });
 

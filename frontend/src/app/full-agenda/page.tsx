@@ -1,13 +1,11 @@
 import { FullAgenda } from './FullAgenda';
-import type {
-  AgendaEntry,
-  ScheduledAgendaEntry
-} from '@/Components/Agenda/Agenda';
+import type { ScheduledAgendaEntry } from '@/Components/Agenda/Agenda';
 import type { ContainerHint } from '@/Components/Agenda/AgendaCalculations';
 import { currentDisplayYear } from '@/app/configConstants';
 import { createAnonServerClient } from '@/lib/supabaseClient';
 import { Suspense } from 'react';
 import { cacheLife } from 'next/cache';
+import type { PresentationModel as AgendaEntry } from '@/lib/databaseModels';
 
 const getAgendaAndHints = async () => {
   'use cache';
@@ -25,10 +23,10 @@ const getAgendaAndHints = async () => {
 
   const supabase = createAnonServerClient();
   const { data: agenda, error } = await supabase
-    .from('all_presentations')
-    .select('*')
+    .rpc('get_all_presentations')
     .eq('year', currentDisplayYear)
-    .not('scheduled_for', 'is', 'null'); // required for ScheduledAgendaEntry rather than AgendaEntry
+    .not('scheduled_for', 'is', 'null')
+    .select('*'); // required for ScheduledAgendaEntry rather than AgendaEntry
 
   if (error) return returnVal(null);
 

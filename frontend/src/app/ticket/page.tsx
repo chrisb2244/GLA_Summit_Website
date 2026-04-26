@@ -113,6 +113,7 @@ const TicketGeneratorPageContent = async () => {
     const { data: newTicket, error } = await supabase
       .from('tickets')
       .insert({
+        ticket_number: 0,
         user_id: userId,
         year: ticketYear
       })

@@ -9,7 +9,7 @@ import {
   sortPresentationsBySchedule
 } from '@/lib/utils';
 import type { NextParams, satisfy } from '@/lib/NextTypes';
-import { isSummitYear } from '@/lib/databaseModels';
+import { isSummitYear, SummitYear } from '@/lib/databaseModels';
 import { cacheLife } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
@@ -35,10 +35,8 @@ const PresentationsForYearPageContent = async (props: PageProps) => {
     redirect('/presentation-list');
   }
   const supabase = createAnonServerClient();
-  const { data, error } = await supabase
-    .from('all_presentations')
-    .select()
-    .eq('year', year);
+  const { data, error } = await supabase.rpc('get_all_presentations').eq('year', year as SummitYear).select('*');
+
   if (error) {
     return <p>Error loading presentations</p>;
   }

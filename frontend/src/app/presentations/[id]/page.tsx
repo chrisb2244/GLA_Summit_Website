@@ -29,7 +29,8 @@ type PageProps = {
 };
 
 export async function generateStaticParams(): Promise<{ id: string }[]> {
-  return getPresentationIds();
+  const ids = await getPresentationIds();
+  return ids.length > 0 ? ids : [{ id: '__placeholder__' }];
 }
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
@@ -47,6 +48,9 @@ const PresentationsForYearPage: NextPage<PageProps> = async (props) => {
   cacheLife({ stale: 300, revalidate: 600, expire: 86400 });
 
   const pId = (await props.params).id;
+  if (pId === '__placeholder__') {
+    notFound();
+  }
   if (typeof pId !== 'string') {
     return null;
   }
@@ -95,9 +99,9 @@ const PresentationsForYearPage: NextPage<PageProps> = async (props) => {
       // Not returned by getPublicPresentations.
       const supabaseLoggedIn = await createServerClient();
       const { data, error } = await supabaseLoggedIn
-        .from('my_submissions')
-        .select('*')
+        .rpc('get_my_submissions')
         .eq('presentation_id', pId)
+        .select('*')
         .maybeSingle();
       if (error || data === null) {
         myLog({ err, error });
