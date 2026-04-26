@@ -54,7 +54,7 @@ export const signOut = async () => {
   revalidatePath('/');
 };
 
-export const verifyLogin = async (data: {
+const verifyLogin = async (data: {
   email: string;
   verificationCode: string;
 }) => {
@@ -109,7 +109,7 @@ export const verifyLoginWithRedirectFromForm = async (
   };
 };
 
-export const signIn = async (
+const signIn = async (
   email: string,
   options?: { redirectTo?: string; scopes?: string; captchaToken?: string }
 ): Promise<boolean> => {
@@ -149,10 +149,12 @@ export const signIn = async (
     });
 };
 
-export const signInFromFormWithRedirect = async (formData: FormData) => {
+export const signInFromFormWithRedirect = async (
+  formData: FormData
+): Promise<void> => {
   const email = formData.get('email');
   if (email === null || typeof email !== 'string') {
-    return false;
+    return;
   }
   filterEmails(email);
   const redirectTo = formData.get('redirectTo');
@@ -168,7 +170,7 @@ export const signInFromFormWithRedirect = async (formData: FormData) => {
   }
 };
 
-export const signUp = async (
+const signUp = async (
   newUser: PersonProps,
   redirectTo?: string
 ): Promise<boolean> => {
@@ -210,18 +212,20 @@ export const signUp = async (
   });
 };
 
-export const registerFromFormWithRedirect = async (formData: FormData) => {
+export const registerFromFormWithRedirect = async (
+  formData: FormData
+): Promise<void> => {
   const email = formData.get('email');
   if (email === null || typeof email !== 'string') {
-    return false;
+    return;
   }
   const firstName = formData.get('firstName');
   const lastName = formData.get('lastName');
   if (firstName === null || typeof firstName !== 'string') {
-    return false;
+    return;
   }
   if (lastName === null || typeof lastName !== 'string') {
-    return false;
+    return;
   }
   const newUser: PersonProps = {
     firstName,

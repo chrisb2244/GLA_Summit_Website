@@ -10,8 +10,11 @@ export const downloadSharableSubmissionContent = async (
   const supabase = await createServerClient();
   const { user } = (await supabase.auth.getUser()).data;
   const isOrganizer = user
-    ? (await supabase.from('organizers').select('*').eq('id', user.id))
-        .count !== 0
+    ? ((await supabase
+        .from('organizers')
+        .select('id', { head: true, count: 'exact' })
+        .eq('id', user.id)
+      ).count ?? 0) !== 0
     : false;
   if (!isOrganizer) {
     console.error('User is not an organizer');

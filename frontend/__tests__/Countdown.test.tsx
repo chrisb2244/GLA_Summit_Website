@@ -28,7 +28,7 @@ describe('Countdown', () => {
   it('is centered in the container', () => {
     // This test might be broken now...
 
-    render(<Countdown event_start={start} event_end={end} />).container;
+    render(<Countdown event_start={start} event_end={end} />);
     act(() => {
       jest.advanceTimersByTime(1200);
     });

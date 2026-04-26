@@ -38,7 +38,7 @@ describe('NewUserRegistration', () => {
     const email = screen.getByRole('textbox', { name: /Email/i });
     expect(email).toBeValid();
 
-    userEvent.type(email, 'blahWithNoAtSymbol');
+    await userEvent.type(email, 'blahWithNoAtSymbol');
     fireEvent.blur(email);
     await waitFor(() => expect(screen.getByRole('alert')).toBeVisible());
     await waitFor(() => expect(email).toBeInvalid());
@@ -49,7 +49,7 @@ describe('NewUserRegistration', () => {
     const email = screen.getByRole('textbox', { name: /Email/i });
     expect(email).toBeValid();
 
-    userEvent.type(email, 'my.email@provider.com');
+    await userEvent.type(email, 'my.email@provider.com');
     fireEvent.blur(email);
     await waitFor(() => expect(screen.queryByRole('alert')).toBeNull());
     await waitFor(() => expect(email).toBeValid());

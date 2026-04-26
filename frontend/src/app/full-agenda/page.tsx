@@ -1,15 +1,16 @@
 import { FullAgenda } from './FullAgenda';
-import type {
-  AgendaEntry,
-  ScheduledAgendaEntry
-} from '@/Components/Agenda/Agenda';
+import type { ScheduledAgendaEntry } from '@/Components/Agenda/Agenda';
 import type { ContainerHint } from '@/Components/Agenda/AgendaCalculations';
 import { currentDisplayYear } from '@/app/configConstants';
 import { createAnonServerClient } from '@/lib/supabaseClient';
-
-export const revalidate = 300;
+import { Suspense } from 'react';
+import { cacheLife } from 'next/cache';
+import type { PresentationModel as AgendaEntry } from '@/lib/databaseModels';
 
 const getAgendaAndHints = async () => {
+  'use cache';
+  cacheLife({ stale: 300, revalidate: 300, expire: 86400 });
+
   const returnVal = (
     agenda: AgendaEntry[] | null,
     containerHints?: ContainerHint[]
@@ -22,16 +23,16 @@ const getAgendaAndHints = async () => {
 
   const supabase = createAnonServerClient();
   const { data: agenda, error } = await supabase
-    .from('all_presentations')
-    .select('*')
+    .rpc('get_all_presentations')
     .eq('year', currentDisplayYear)
-    .not('scheduled_for', 'is', 'null'); // required for ScheduledAgendaEntry rather than AgendaEntry
+    .not('scheduled_for', 'is', 'null')
+    .select('*'); // required for ScheduledAgendaEntry rather than AgendaEntry
 
   if (error) return returnVal(null);
 
   const { data: containerRows, error: containerError } = await supabase
     .from('container_groups')
-    .select('*');
+    .select('container_id, presentation_id');
 
   if (containerError) return returnVal(agenda);
 
@@ -46,7 +47,7 @@ const getAgendaAndHints = async () => {
 
   const { data: containers, error: containerPresError } = await supabase
     .from('presentation_submissions')
-    .select('*')
+    .select('id, title, abstract')
     .in('id', relevantContainerIds);
 
   if (containerPresError) return returnVal(agenda);
@@ -83,10 +84,12 @@ const SvrFullAgenda = async () => {
         </div>
       </div>
       <div className={`mb-[5vh] px-4 `}>
-        <FullAgenda
-          fullAgenda={agendaAndHints.fullAgenda}
-          containerHints={agendaAndHints.containerHints ?? []}
-        />
+        <Suspense fallback={<p>Loading agenda...</p>}>
+          <FullAgenda
+            fullAgenda={agendaAndHints.fullAgenda}
+            containerHints={agendaAndHints.containerHints ?? []}
+          />
+        </Suspense>
       </div>
     </>
   );

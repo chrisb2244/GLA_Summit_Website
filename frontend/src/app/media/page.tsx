@@ -16,6 +16,14 @@ import { estimateAspectRatio } from '@/lib/utils';
 import { ReactNode } from 'react';
 // import { CopyableTextBox } from '@/Components/Utilities/CopyableTextBox';
 
+const SidewaysBox = (props: { children?: ReactNode }) => {
+  return (
+    <div className='flex flex-col items-center px-8 max-sm:space-y-2 sm:flex-row sm:space-x-2'>
+      {props.children}
+    </div>
+  );
+};
+
 const MediaPage = () => {
   const hostname =
     typeof window !== 'undefined'
@@ -55,14 +63,6 @@ const MediaPage = () => {
         </tr>
       );
     });
-  };
-
-  const SidewaysBox = (props: { children?: ReactNode }) => {
-    return (
-      <div className='flex flex-col items-center px-8 max-sm:space-y-2 sm:flex-row sm:space-x-2'>
-        {props.children}
-      </div>
-    );
   };
 
   const jkiDiv = (

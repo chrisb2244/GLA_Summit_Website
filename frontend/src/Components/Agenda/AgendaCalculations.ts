@@ -118,7 +118,6 @@ export const calculatePositioningInfo = (
     });
 
     usedContainerIds.forEach((containerId) => {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const container = containerHints.find(
         (ch) => ch.container_id === containerId
       )!;
@@ -203,7 +202,6 @@ export const calculatePositioningInfo = (
 
         const containedPresentations = containedPresentationIds.map(
           (containedId) =>
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             presentations.find((pres) => pres.id === containedId)!
         );
         return containedPresentations.map((containedP) =>

@@ -11,33 +11,33 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
+    "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "module": "esnext",
-    "moduleResolution": "node",
+    "module": "node16",
+    "moduleResolution": "node16",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "baseUrl": ".",
     "paths": {
       "@/Components/*": [
-        "src/Components/*"
+        "./src/Components/*"
       ],
       "@/lib/*": [
-        "src/lib/*"
+        "./src/lib/*"
       ],
       "@/EmailTemplates/*": [
-        "src/EmailTemplates/*"
+        "./src/EmailTemplates/*"
       ],
       "@/actions/*": [
-        "src/actions/*"
+        "./src/actions/*"
       ],
       "@/app/*": [
-        "src/app/*"
+        "./src/app/*"
       ],
       "@/media/*": [
-        "public/media/*"
+        "./public/media/*"
       ]
     },
     "incremental": true,
@@ -53,7 +53,8 @@
     "playwright",
     "next-env.d.ts",
     "playwright.config.ts",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

@@ -7,15 +7,13 @@ import {
   useRef,
   useState
 } from 'react';
-import { FakeScrollbar } from '../Utilities/FakeScrollbar';
 import { ContainerHint } from './AgendaCalculations';
 import { AgendaPresentations } from './AgendaPresentations';
 import { TimeMarkers } from './TimeMarkers';
+import type { PresentationModel } from '@/lib/databaseModels';
 
-export type AgendaEntry =
-  Database['public']['Views']['all_presentations']['Row'];
 export type ScheduledAgendaEntry = {
-  [P in keyof AgendaEntry]: NonNullable<AgendaEntry[P]>;
+  [P in keyof PresentationModel]: NonNullable<PresentationModel[P]>;
 };
 
 export type AgendaProps = {
@@ -39,11 +37,11 @@ export const Agenda = (props: AgendaProps) => {
   // const [advanceTime, toggleAdvanceTime] = useState(false)
   const advanceTime = true;
   const timePeriod = 1000 * 30; // update every 30s
-  const [timeoutRef, setTimeoutRef] = useState<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const startCount = props.startDate.getTime();
   const endCount = startCount + totalDuration;
-  const [timeNow, refreshTime] = useReducer(() => {
+  const [_timeNow, refreshTime] = useReducer(() => {
     const now = new Date().getTime();
     const cappedTime = Math.max(Math.min(now, endCount), startCount);
     return new Date(cappedTime);
@@ -53,25 +51,25 @@ export const Agenda = (props: AgendaProps) => {
 
   useEffect(() => {
     if (advanceTime) {
-      setTimeoutRef(
-        setInterval(() => {
-          startTransition(() => {
-            refreshTime();
-          });
-        }, timePeriod)
-      );
-    } else if (timeoutRef !== null) {
-      clearInterval(timeoutRef);
+      intervalRef.current = setInterval(() => {
+        startTransition(() => {
+          refreshTime();
+        });
+      }, timePeriod);
+    } else if (intervalRef.current !== null) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
     }
+
     return () => {
-      if (timeoutRef !== null) {
-        clearInterval(timeoutRef);
+      if (intervalRef.current !== null) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
       }
     };
-    /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [advanceTime]); // Don't include 'timeoutRef'
+  }, [advanceTime, timePeriod]);
 
-  const [timeOffset, setScrollTimeOffset] = useState(0);
+  const [_timeOffset, _setScrollTimeOffset] = useState(0); // used in commented-out FakeScrollbar/timeNowLine
   const [agendaArea, setAgendaArea] = useState<DOMRect | undefined>(undefined);
   const dataColumnRef = useRef<HTMLDivElement | null>(null);
 
@@ -99,18 +97,17 @@ export const Agenda = (props: AgendaProps) => {
     handleResize();
   }, [dataColumnRef, handleResize]);
 
-  const currentExtent = props.hoursToShow * 60 * 60 * 1000;
-  // Adjust fractionalTime for the reformatting necessary to have some overlap (i.e. a total window > 24h)
-  const uncappedFractionalTime =
-    (timeNow.getTime() - props.startDate.getTime() + currentExtent / 6) /
-    (totalDuration - (2 * currentExtent) / 3);
-  const fractionalTime = Math.min(1, Math.max(0, uncappedFractionalTime));
+  // const currentExtent = props.hoursToShow * 60 * 60 * 1000;
+  // const uncappedFractionalTime =
+  //   (timeNow.getTime() - props.startDate.getTime() + currentExtent / 6) /
+  //   (totalDuration - (2 * currentExtent) / 3);
+  // const fractionalTime = Math.min(1, Math.max(0, uncappedFractionalTime));
 
-  const pixelsPer_ms = (agendaArea?.height ?? 0) / currentExtent;
-  const millisRelOffset = currentExtent / 12;
-  const timeNowOffsetTop = pixelsPer_ms * (millisRelOffset - timeOffset);
-  const showTimeNowLine =
-    timeNowOffsetTop > 0 && timeNowOffsetTop < (agendaArea?.height ?? 0);
+  // const pixelsPer_ms = (agendaArea?.height ?? 0) / currentExtent;
+  // const millisRelOffset = currentExtent / 12;
+  // const timeNowOffsetTop = pixelsPer_ms * (millisRelOffset - _timeOffset);
+  // const showTimeNowLine =
+  //   timeNowOffsetTop > 0 && timeNowOffsetTop < (agendaArea?.height ?? 0);
 
   const dateToString = (date: Date) => {
     const formatter = new Intl.DateTimeFormat(undefined, {
@@ -124,18 +121,18 @@ export const Agenda = (props: AgendaProps) => {
     return formatter.format(date);
   };
 
-  const timeNowLine = (
-    <div
-      className='absolute box-border h-px border-2 border-dashed border-primaryc'
-      style={{
-        left: '-0.5ch',
-        width: 'calc(100% + 1.5ch)',
-        top: timeNowOffsetTop, // (agendaArea?.height ?? 0) * (1 / 12), // will need changing for scroll
-        display: showTimeNowLine ? 'block' : 'none',
-        zIndex: '5'
-      }}
-    />
-  );
+  // const timeNowLine = (
+  //   <div
+  //     className='absolute box-border h-px border-2 border-dashed border-primaryc'
+  //     style={{
+  //       left: '-0.5ch',
+  //       width: 'calc(100% + 1.5ch)',
+  //       top: timeNowOffsetTop, // (agendaArea?.height ?? 0) * (1 / 12), // will need changing for scroll
+  //       display: showTimeNowLine ? 'block' : 'none',
+  //       zIndex: '5'
+  //     }}
+  //   />
+  // );
 
   return (
     <>

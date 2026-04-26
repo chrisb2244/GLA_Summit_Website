@@ -9,25 +9,34 @@ import {
   sortPresentationsBySchedule
 } from '@/lib/utils';
 import type { NextParams, satisfy } from '@/lib/NextTypes';
-import { isSummitYear } from '@/lib/databaseModels';
+import { isSummitYear, SummitYear } from '@/lib/databaseModels';
+import { cacheLife } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { Suspense } from 'react';
 
 type PageProps = {
   params: satisfy<NextParams, Promise<{ year: string }>>;
 };
 
-export const revalidate = 600;
+const PresentationsForYearPage = (props: PageProps) => {
+  return (
+    <Suspense fallback={<p>Loading presentations...</p>}>
+      <PresentationsForYearPageContent {...props} />
+    </Suspense>
+  );
+};
 
-const PresentationsForYearPage = async (props: PageProps) => {
+const PresentationsForYearPageContent = async (props: PageProps) => {
+  'use cache';
+  cacheLife({ stale: 300, revalidate: 600, expire: 86400 });
+
   const { year } = await props.params;
   if (!isSummitYear(year)) {
     redirect('/presentation-list');
   }
   const supabase = createAnonServerClient();
-  const { data, error } = await supabase
-    .from('all_presentations')
-    .select()
-    .eq('year', year);
+  const { data, error } = await supabase.rpc('get_all_presentations').eq('year', year as SummitYear).select('*');
+
   if (error) {
     return <p>Error loading presentations</p>;
   }

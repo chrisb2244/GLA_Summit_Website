@@ -10,11 +10,13 @@ type FormData = {
   personA: PersonProps;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const submitFn = jest.fn<
   void,
   [Readonly<FormData>, BaseSyntheticEvent | undefined]
->(async (data, event) => {});
+>(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async (data, event) => {}
+);
 
 const Form = (): JSX.Element => {
   // Note the 'onBlur' mode here.

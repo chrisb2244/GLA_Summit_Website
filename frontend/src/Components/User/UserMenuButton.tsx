@@ -14,15 +14,15 @@ export async function UserMenuButton() {
     if (user === null) {
       return false;
     }
-    const { data, error } = await supabase
+    const { count, error } = await supabase
       .from('organizers')
-      .select()
+      .select('id', { head: true, count: 'exact' })
       .eq('id', user.id);
     if (error) {
       console.log({ getOrganizerError: error });
       return false;
     }
-    return data.length === 1;
+    return (count ?? 0) === 1;
   };
   const isOrganizer = await getIsOrganizer(user);
 

@@ -154,7 +154,7 @@ export const PresentationSubmissionForm = (
               console.error(result.error);
             }
           } else {
-            const firstError = Object.entries(errors).find(([_, err]) => {
+            const firstError = Object.entries(errors).find(([, err]) => {
               return err !== null && typeof err !== 'undefined';
             });
             if (typeof firstError?.[0] === 'string') {

@@ -149,6 +149,7 @@ const renderPresentationSubmission = (
   return (
     <div
       key={p.presentation_id}
+      aria-label={p.title}
       className='relative left-4 mr-6 border border-secondaryc p-2'
     >
       <div className='flex flex-col md:flex-row'>

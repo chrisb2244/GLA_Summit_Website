@@ -93,7 +93,18 @@ export async function generateMetadata({
   };
 }
 
-const TicketPage: NextPage<PageProps> = async ({ params, searchParams }) => {
+const TicketPage: NextPage<PageProps> = ({ params, searchParams }) => {
+  return (
+    <Suspense fallback={<WaitingIndicator maxLength={300} />}>
+      <TicketPageContent params={params} searchParams={searchParams} />
+    </Suspense>
+  );
+};
+
+const TicketPageContent: NextPage<PageProps> = async ({
+  params,
+  searchParams
+}) => {
   const { ticketObject: transferObjectString } = await params;
   const { share } = await searchParams;
 

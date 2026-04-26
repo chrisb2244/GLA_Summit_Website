@@ -26,16 +26,15 @@ export class PresentationSubmissionPage {
   readonly isFinalInput: Locator;
 
   constructor(page: Page) {
+    const opt = { exact: true };
     this.page = page;
-    this.titleInput = this.page.locator('label:has-text("Title")');
-    this.abstractInput = this.page.locator('label:has-text("Abstract")');
-    this.learningPointsInput = this.page.locator(
-      'label:has-text("Learning Points")'
-    );
+    this.titleInput = this.page.getByLabel('Title', opt);
+    this.abstractInput = this.page.getByLabel('Abstract', opt);
+    this.learningPointsInput = this.page.getByLabel('Learning Points', opt);
     this.presentationTypeInput = this.page.locator(
-      'label:has-text("Presentation Type") >> xpath=.. >> role=button'
+      'select[name="presentationType"]'
     );
-    this.isFinalInput = this.page.locator('role=checkbox');
+    this.isFinalInput = this.page.getByRole('checkbox');
   }
 
   async goto(url: string) {
@@ -69,17 +68,21 @@ export class PresentationSubmissionPage {
       await this.learningPointsInput.fill(data.learningPoints);
 
     if (typeof data.presentationType !== 'undefined') {
-      // Mui selects aren't actually <select> items
-      // they produce a popup listbox and a button...
-      await this.presentationTypeInput.click();
-      const regexp = new RegExp(data.presentationType);
-      await this.page.getByText(regexp).click();
+      const optionString = await this.presentationTypeInput
+        .getByText(data.presentationType)
+        .innerText();
+
+      await this.presentationTypeInput.selectOption(optionString);
     }
 
-    if (typeof data.isFinal !== 'undefined') {
-      await (data.isFinal
-        ? this.isFinalInput.check()
-        : this.isFinalInput.uncheck());
-    }
+    // if (typeof data.isFinal !== 'undefined') {
+    //   await (data.isFinal
+    //     ? this.isFinalInput.check()
+    //     : this.isFinalInput.uncheck());
+    // }
+  }
+
+  async submitForm() {
+    await this.page.locator('button:has-text("Submit Presentation")').click();
   }
 }

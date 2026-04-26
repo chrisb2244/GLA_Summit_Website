@@ -19,7 +19,15 @@ export const metadata: Metadata = {
   }
 };
 
-const MyPresentationsPage = async () => {
+const MyPresentationsPage = () => {
+  return (
+    <Suspense fallback={<p>Loading your presentations...</p>}>
+      <MyPresentationsPageContent />
+    </Suspense>
+  );
+};
+
+const MyPresentationsPageContent = async () => {
   const user = await getUser();
 
   const supabase = await createServerClient();

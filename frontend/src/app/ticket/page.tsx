@@ -5,6 +5,7 @@ import { ticketDataAndTokenToPageUrl } from './utils';
 import { createHmac } from 'node:crypto';
 import { logErrorToDb } from '@/lib/utils';
 import { getUser } from '@/lib/supabase/userFunctions';
+import { Suspense } from 'react';
 
 export type TicketData = {
   firstName: string;
@@ -20,7 +21,6 @@ export type TransferObject = {
 };
 
 const TICKET_KEY = process.env.TICKET_KEY as string;
-export const dynamic = 'force-dynamic';
 
 const getToken = (jsonString: string) => {
   const hmac = createHmac('sha256', TICKET_KEY);
@@ -29,7 +29,15 @@ const getToken = (jsonString: string) => {
   return token;
 };
 
-const TicketGeneratorPage = async () => {
+const TicketGeneratorPage = () => {
+  return (
+    <Suspense fallback={<p>Loading ticket...</p>}>
+      <TicketGeneratorPageContent />
+    </Suspense>
+  );
+};
+
+const TicketGeneratorPageContent = async () => {
   const user = await getUser();
   if (user === null) {
     redirect('/auth/login?redirectTo=/ticket', RedirectType.replace);
@@ -105,6 +113,7 @@ const TicketGeneratorPage = async () => {
     const { data: newTicket, error } = await supabase
       .from('tickets')
       .insert({
+        ticket_number: 0,
         user_id: userId,
         year: ticketYear
       })

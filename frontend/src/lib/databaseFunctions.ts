@@ -1,10 +1,9 @@
-import { PersonDisplayProps } from '@/Components/PersonDisplay';
 import {
   PostgrestError,
   User as SB_User,
   SupabaseClient
 } from '@supabase/supabase-js';
-import { AllPresentationsModel, ProfileModel } from './databaseModels';
+import { PresentationModel, ProfileModel } from './databaseModels';
 import { Database } from './sb_databaseModels';
 import {
   supabase,
@@ -351,9 +350,9 @@ export const getPublicProfiles = async (
 
 export const getPublicPresentations = async (client: Client = supabase) => {
   const { data, error } = await client
-    .from('all_presentations')
-    .select()
-    .order('scheduled_for', { ascending: true });
+    .rpc('get_all_presentations')
+    .order('scheduled_for', { ascending: true })
+    .select('*');
   if (error) throw error;
   return data;
 };
@@ -362,10 +361,10 @@ export const getPublicPresentationsForPresenter = async (
   client: Client = supabase
 ) => {
   const { data, error } = await client
-    .from('all_presentations')
-    .select()
+    .rpc('get_all_presentations')
     .contains('all_presenters', [presenterId])
-    .order('scheduled_for', { ascending: true });
+    .order('scheduled_for', { ascending: true })
+    .select('*');
   if (error) throw error;
   return data;
 };
@@ -373,11 +372,11 @@ export const getPublicPresentationsForPresenter = async (
 export const getPublicPresentation = async (
   presentationId: string,
   client: Client = supabase
-): Promise<AllPresentationsModel> => {
+): Promise<PresentationModel> => {
   return client
-    .from('all_presentations')
-    .select()
+    .rpc('get_all_presentations')
     .eq('presentation_id', presentationId)
+    .select('*')
     .single()
     .then(({ data, error }) => {
       if (error) throw error;
@@ -387,8 +386,8 @@ export const getPublicPresentation = async (
 
 export const getMyPresentations = async (client: Client = supabase) => {
   const { data, error: errorPresData } = await client
-    .from('my_submissions')
-    .select();
+    .rpc('get_my_submissions')
+    .select('*');
   if (errorPresData) {
     myLog({
       error: errorPresData,

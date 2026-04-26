@@ -3,13 +3,13 @@ import {
   ConfirmationPopup
 } from '@/Components/Utilities/ConfirmationPopup';
 
+const P = ({ children }: React.PropsWithChildren<unknown>) => {
+  return <p className='prose pb-4 text-justify'>{children}</p>;
+};
+
 export const PresentationSubmissionConfirmationPopup: React.FC<PopupProps> = (
   props
 ) => {
-  const P: React.FC<React.PropsWithChildren<unknown>> = ({ children }) => {
-    return <p className='prose pb-4 text-justify'>{props.children}</p>;
-  };
-
   return (
     <ConfirmationPopup {...props}>
       <P>

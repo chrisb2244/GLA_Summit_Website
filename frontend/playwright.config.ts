@@ -1,8 +1,13 @@
 import type { PlaywrightTestConfig } from '@playwright/test';
 import { devices } from '@playwright/test';
 import dotenv from 'dotenv';
+import path from 'path';
 
-dotenv.config({ path: './.env.local' });
+const envPath = path.join(__dirname, './.env.test');
+const envConfig = dotenv.config({ path: envPath });
+if (envConfig.error) {
+  throw envConfig.error;
+}
 
 /**
  * See https://playwright.dev/docs/test-configuration.
