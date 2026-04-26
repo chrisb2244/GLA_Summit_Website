@@ -28,7 +28,7 @@ export const YouTubeFrame: React.FC<{
       <iframe
         className='absolute left-0 top-0 h-full w-full'
         id='yt_player'
-        typeof='text/html'
+        title='YouTube video player'
         src={videoSrc}
         allowFullScreen
         referrerPolicy='strict-origin-when-cross-origin' // This is the default anyway
