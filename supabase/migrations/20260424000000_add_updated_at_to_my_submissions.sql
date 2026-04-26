@@ -16,80 +16,43 @@ CREATE OR REPLACE FUNCTION public.get_my_submissions()
    updated_at timestamptz,
    all_presenters_ids uuid[],
    all_firstnames text[],
-   all_lastnames text[],
-   all_emails text[]
+   all_lastnames text[]
  )
  LANGUAGE sql
  SECURITY DEFINER
- SET search_path TO 'public'
+ SET search_path TO ''
 AS $function$
+SELECT
+      ps.id as presentation_id,
+      ps.title,
+      ps.abstract,
+      ps.learning_points,
+      ps.presentation_type,
+      ps.submitter_id,
+      ps.is_submitted,
+      ps.year,
+      ps.updated_at,
+      array_agg(ppn.presenter_id) as all_presenters,
+      array_agg(ppn.firstname) as all_firstnames,
+      array_agg(ppn.lastname) as all_lastnames
+    FROM public.presentation_submissions ps
+    JOIN (
+      SELECT
+        pp.presentation_id,
+        pp.presenter_id,
+        prof.firstname,
+        prof.lastname
+      FROM public.presentation_presenters pp
+      LEFT JOIN public.profiles prof
+        ON pp.presenter_id = prof.id
+    ) ppn on ps.id = ppn.presentation_id
+    WHERE presentation_id IN (
+      SELECT presentation_id
+      FROM public.presentation_presenters ppp
+      WHERE ppp.presenter_id = auth.uid()
+    )
+    GROUP BY ps.id;
+  $function$;
 
-select
-  ps.id as presentation_id,
-  ps.title,
-  ps.abstract,
-  ps.learning_points,
-  ps.presentation_type,
-  ps.submitter_id,
-  ps.is_submitted,
-  ps.year,
-  ps.updated_at,
-  array_agg(ppn.presenter_id) as all_presenters_ids,
-  array_agg(ppn.firstname) as all_firstnames,
-  array_agg(ppn.lastname) as all_lastnames,
-  array_agg(ppn.email) as all_emails
-from
-  presentation_submissions ps
-
-  join (
-    select
-      pp.presentation_id,
-      pp.presenter_id,
-      prof.firstname,
-      prof.lastname,
-      get_email_by_id(pp.presenter_id) as email
-    from
-      presentation_presenters pp
-      left join profiles prof on pp.presenter_id = prof.id
-  ) ppn on ps.id = ppn.presentation_id
-  where presentation_id in (
-    select presentation_id
-    from presentation_presenters ppp
-    where ppp.presenter_id = auth.uid()
-  )
-group by
-  ps.id;
-
-$function$;
-
-drop view if exists "public"."my_submissions";
-
-create or replace view "public"."my_submissions" as
-  SELECT
-    get_my_submissions.presentation_id,
-    get_my_submissions.title,
-    get_my_submissions.abstract,
-    get_my_submissions.learning_points,
-    get_my_submissions.presentation_type,
-    get_my_submissions.submitter_id,
-    get_my_submissions.is_submitted,
-    get_my_submissions.year,
-    get_my_submissions.updated_at,
-    get_my_submissions.all_presenters_ids,
-    get_my_submissions.all_firstnames,
-    get_my_submissions.all_lastnames,
-    get_my_submissions.all_emails
-  FROM get_my_submissions() get_my_submissions(
-    presentation_id, title, abstract, learning_points,
-    presentation_type, submitter_id, is_submitted, year, updated_at,
-    all_presenters_ids, all_firstnames, all_lastnames, all_emails
-  );
-
--- Re-apply the same grants as the original view.
-GRANT ALL ON TABLE "public"."my_submissions" TO "anon";
-GRANT ALL ON TABLE "public"."my_submissions" TO "authenticated";
-GRANT ALL ON TABLE "public"."my_submissions" TO "service_role";
-
-GRANT ALL ON FUNCTION "public"."get_my_submissions"() TO "anon";
-GRANT ALL ON FUNCTION "public"."get_my_submissions"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."get_my_submissions"() TO "service_role";
+REVOKE ALL ON FUNCTION public.get_my_submissions FROM public;
+REVOKE ALL ON FUNCTION public.get_my_submissions FROM anon;

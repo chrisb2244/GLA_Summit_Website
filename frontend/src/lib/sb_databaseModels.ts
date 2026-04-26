@@ -557,11 +557,14 @@ export type Database = {
           year: Database["public"]["Enums"]["summit_year"]
         }[]
       }
+      get_editable_submission_emails: {
+        Args: { p_presentation_id: string }
+        Returns: string[]
+      }
       get_my_submissions: {
         Args: never
         Returns: {
           abstract: string
-          all_emails: string[]
           all_firstnames: string[]
           all_lastnames: string[]
           all_presenters_ids: string[]

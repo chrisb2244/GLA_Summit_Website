@@ -6,6 +6,7 @@ import { PresentationBaseFormData } from '@/Components/Forms/PresentationFormSha
 import { DraftEditForm } from '../../DraftEditForm';
 import { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
+import { Suspense } from 'react';
 
 export const metadata: Metadata = {
   robots: { index: false }
@@ -13,7 +14,15 @@ export const metadata: Metadata = {
 
 type Params = { id: string };
 
-const DraftEditPage = async ({ params }: { params: Promise<Params> }) => {
+const DraftEditPage = ({ params }: { params: Promise<Params> }) => {
+  return (
+    <Suspense fallback={<p>Loading draft...</p>}>
+      <DraftEditPageContent params={params} />
+    </Suspense>
+  );
+};
+
+const DraftEditPageContent = async ({ params }: { params: Promise<Params> }) => {
   const { id } = await params;
   const user = await getUser();
   if (!user) {
@@ -47,8 +56,24 @@ const DraftEditPage = async ({ params }: { params: Promise<Params> }) => {
     lastName: profile?.lastname ?? ''
   };
 
+  const { data: presenterEmailsData, error: presenterEmailsError } = await (
+    supabase as any
+  ).rpc('get_editable_submission_emails', {
+    p_presentation_id: id
+  });
+  if (presenterEmailsError) {
+    console.error(
+      '[DraftEditPage] Failed to fetch presenter emails:',
+      presenterEmailsError.message
+    );
+  }
+
+  const presenterEmails = Array.isArray(presenterEmailsData)
+    ? presenterEmailsData
+    : [];
+
   // Co-presenters: every presenter except the submitter
-  const coPresenterEmails = (draft.all_emails ?? []).filter(
+  const coPresenterEmails = presenterEmails.filter(
     (e: string) => e !== email
   );
 

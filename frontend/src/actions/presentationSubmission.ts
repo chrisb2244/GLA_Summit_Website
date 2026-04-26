@@ -199,9 +199,22 @@ export const submitNewPresentation = async (
     const presentationPresenterData = idArray.map((presenter_id) => {
       return { presenter_id, presentation_id };
     });
-    await supabaseAdmin
+    const { error: presentersUpsertError } = await supabaseAdmin
       .from('presentation_presenters')
       .upsert(presentationPresenterData);
+    if (presentersUpsertError) {
+      // Compensate to avoid leaving an orphan draft/submission without presenter links.
+      await supabase
+        .from('presentation_submissions')
+        .delete()
+        .eq('id', presentation_id);
+      return {
+        success: false,
+        error: {
+          message: `Failed to save presentation presenters: ${presentersUpsertError.message}`
+        }
+      };
+    }
 
     // Send emails to each user
     const dataForEmails = {
@@ -455,14 +468,41 @@ export const updateDraftPresentation = async (
     ...successfulNewPresenters.map((p) => p.id)
   ];
 
-  // Overwrite the presenters for this presentation entirely
-  await supabaseAdmin
+  // Upsert desired links first, then prune extras.
+  const desiredPresenterRows = idArray.map((presenter_id) => ({
+    presenter_id,
+    presentation_id: presentationId
+  }));
+
+  const { error: upsertPresentersError } = await supabaseAdmin
+    .from('presentation_presenters')
+    .upsert(desiredPresenterRows);
+  if (upsertPresentersError) {
+    return {
+      success: false,
+      error: {
+        message: `Failed to update presentation presenters: ${upsertPresentersError.message}`
+      }
+    };
+  }
+
+  const { error: prunePresentersError } = await supabaseAdmin
     .from('presentation_presenters')
     .delete()
-    .eq('presentation_id', presentationId);
-  await supabaseAdmin.from('presentation_presenters').insert(
-    idArray.map((presenter_id) => ({ presenter_id, presentation_id: presentationId }))
-  );
+    .eq('presentation_id', presentationId)
+    .not(
+      'presenter_id',
+      'in',
+      `(${idArray.map((id) => `'${id}'`).join(',')})`
+    );
+  if (prunePresentersError) {
+    return {
+      success: false,
+      error: {
+        message: `Failed to finalize presenter list: ${prunePresentersError.message}`
+      }
+    };
+  }
 
   revalidatePath('/my-presentations');
   return { success: true };
