@@ -30,6 +30,7 @@ export const PresentationSubmissionForm = (
   } | null>(null);
   const [bypassDuplicateCheck, setBypassDuplicateCheck] = useState(false);
   const [submissionSuccess, setSubmissionSuccess] = useState(false);
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
 
   const {
     register,
@@ -132,9 +133,12 @@ export const PresentationSubmissionForm = (
       )}
 
       <form
-        action={async (data: FormData) => {
+        onSubmit={async (event) => {
+          event.preventDefault();
+          const formElement = event.currentTarget;
           const formValid = await trigger();
           if (formValid) {
+            const data = new FormData(formElement);
             if (bypassDuplicateCheck) {
               data.append('skipDuplicateCheck', 'true');
             }
@@ -143,6 +147,7 @@ export const PresentationSubmissionForm = (
               resetForm();
               setDuplicateWarning(null);
               setBypassDuplicateCheck(false);
+              setSubmissionError(null);
               setSubmissionSuccess(true);
             } else if ('isDuplicate' in result && result.isDuplicate) {
               setDuplicateWarning({
@@ -150,8 +155,9 @@ export const PresentationSubmissionForm = (
                 title: result.existingTitle
               });
               setBypassDuplicateCheck(true);
+              setSubmissionError(null);
             } else if ('error' in result) {
-              console.error(result.error);
+              setSubmissionError(result.error.message);
             }
           } else {
             const firstError = Object.entries(errors).find(([, err]) => {
@@ -165,6 +171,11 @@ export const PresentationSubmissionForm = (
           }
         }}
       >
+        {submissionError && (
+          <p className='my-2 text-sm text-red-700' role='alert'>
+            {submissionError}
+          </p>
+        )}
         <div className='border border-gray-200 bg-gray-100 p-2 shadow-lg'>
           <PresentationFormFields
             register={register}

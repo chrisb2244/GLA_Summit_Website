@@ -282,12 +282,10 @@ export const submitNewPresentation = async (
     console.log({ successfulEmails, unsuccessfulEmails });
 
     revalidatePath('/my-presentations');
-    return new Promise((r) => {
-      const returnValue = {
-        success: true as const
-      };
-      setTimeout(() => r(returnValue), 2000);
-    });
+    revalidatePath('/submit-presentation');
+    return {
+      success: true
+    };
   } else {
     const errString = parsedData.error.format()._errors.join(', ');
     return {
