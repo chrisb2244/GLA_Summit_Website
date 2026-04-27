@@ -45,6 +45,8 @@ import { createSupabaseAdmin, getInbucketEmail, loginOnPage } from './utils';
 
     // Use an existing user who is not a presenter or organizer
     const attendeeEmail = process.env.TEST_ATTENDEE_EMAIL as string;
+    const buildTestTitle = (prefix: string) =>
+      `${prefix} ${Date.now()} ${Math.random().toString(16).slice(2, 8)}`;
 
     test(
       '/submit-presentation is accessible',
@@ -144,6 +146,210 @@ import { createSupabaseAdmin, getInbucketEmail, loginOnPage } from './utils';
         .eq('title', testTitle)
         .single();
       expect(presentations?.is_submitted).toEqual(isFinal);
+    });
+
+    test('draft save shows draft card in Draft Submissions', async ({ page }) => {
+      test.fixme(!jsEnabled, 'Requires JS-enabled client-side form state');
+
+      await page.goto('/my-presentations');
+      const formPage = new PresentationSubmissionPage(page);
+      await formPage.waitForFormLoad();
+
+      const testTitle = buildTestTitle('Draft visibility');
+      const abstract = 'Draft abstract '.repeat(12);
+      const learningPoints = 'Draft learning point '.repeat(4);
+
+      await formPage.fillFormData({
+        title: testTitle,
+        abstract,
+        learningPoints,
+        presentationType: '15 minutes',
+        isFinal: false
+      });
+      await formPage.setSpeakerAgreement(true);
+      await formPage.submitForm('Save Draft');
+
+      await expect(
+        page.getByRole('heading', { name: 'Draft Submissions', exact: true })
+      ).toBeVisible();
+      await expect(page.getByRole('link', { name: testTitle, exact: true })).toBeVisible();
+    });
+
+    test('saved draft remains visible after reload', async ({ page }) => {
+      test.fixme(!jsEnabled, 'Requires JS-enabled client-side form state');
+
+      await page.goto('/my-presentations');
+      const formPage = new PresentationSubmissionPage(page);
+      await formPage.waitForFormLoad();
+
+      const testTitle = buildTestTitle('Draft reload visibility');
+      const abstract = 'Reload abstract '.repeat(12);
+      const learningPoints = 'Reload learning point '.repeat(4);
+
+      await formPage.fillFormData({
+        title: testTitle,
+        abstract,
+        learningPoints,
+        presentationType: 'full length',
+        isFinal: false
+      });
+      await formPage.setSpeakerAgreement(true);
+      await formPage.submitForm('Save Draft');
+
+      await page.reload();
+      await expect(page.getByRole('link', { name: testTitle, exact: true })).toBeVisible();
+    });
+
+    test('saved draft stores is_submitted false in database', async ({ page }) => {
+      test.fixme(!jsEnabled, 'Requires JS-enabled client-side form state');
+
+      await page.goto('/my-presentations');
+      const formPage = new PresentationSubmissionPage(page);
+      await formPage.waitForFormLoad();
+
+      const testTitle = buildTestTitle('Draft database value');
+      const abstract = 'Database abstract '.repeat(12);
+      const learningPoints = 'Database learning point '.repeat(4);
+
+      await formPage.fillFormData({
+        title: testTitle,
+        abstract,
+        learningPoints,
+        presentationType: '7x7',
+        isFinal: false
+      });
+      await formPage.setSpeakerAgreement(true);
+      await formPage.submitForm('Save Draft');
+
+      const adminSB = createSupabaseAdmin();
+      const { data: presentations } = await adminSB
+        .from('presentation_submissions')
+        .select('is_submitted')
+        .eq('title', testTitle)
+        .single();
+
+      expect(presentations?.is_submitted).toEqual(false);
+    });
+
+    test('draft card navigates to edit route', async ({ page }) => {
+      test.fixme(!jsEnabled, 'Requires JS-enabled client-side form state');
+
+      await page.goto('/my-presentations');
+      const formPage = new PresentationSubmissionPage(page);
+      await formPage.waitForFormLoad();
+
+      const testTitle = buildTestTitle('Draft edit navigation');
+      const abstract = 'Edit route abstract '.repeat(12);
+      const learningPoints = 'Edit route learning point '.repeat(4);
+
+      await formPage.fillFormData({
+        title: testTitle,
+        abstract,
+        learningPoints,
+        presentationType: '15 minutes',
+        isFinal: false
+      });
+      await formPage.setSpeakerAgreement(true);
+      await formPage.submitForm('Save Draft');
+
+      await page.getByRole('link', { name: testTitle, exact: true }).click();
+      await expect(page).toHaveURL(/\/my-presentations\/[^/]+\/edit$/);
+    });
+
+    test('failed submit (required field) preserves entered values', async ({ page }) => {
+      test.fixme(!jsEnabled, 'Requires JS-enabled client-side form state');
+
+      await page.goto('/submit-presentation');
+      const formPage = new PresentationSubmissionPage(page);
+      await formPage.waitForFormLoad();
+
+      const abstract = 'Required validation abstract '.repeat(10);
+      const learningPoints = 'Required validation learning point '.repeat(4);
+
+      await formPage.fillFormData({
+        abstract,
+        learningPoints,
+        presentationType: '15 minutes',
+        isFinal: true
+      });
+      await formPage.setSpeakerAgreement(true);
+
+      await formPage.submitForm('Submit Presentation');
+
+      await expect(formPage.titleInput).toHaveAttribute('aria-invalid', 'true');
+      await expect(formPage.abstractInput).toHaveValue(abstract);
+      await expect(formPage.learningPointsInput).toHaveValue(learningPoints);
+    });
+
+    test('duplicate warning preserves values and enables Submit Anyway', async ({ page }) => {
+      test.fixme(!jsEnabled, 'Requires JS-enabled client-side form state');
+
+      await page.goto('/my-presentations');
+      const formPage = new PresentationSubmissionPage(page);
+      await formPage.waitForFormLoad();
+
+      const testTitle = buildTestTitle('Duplicate warning');
+      const abstract = 'Duplicate abstract '.repeat(12);
+      const learningPoints = 'Duplicate learning point '.repeat(4);
+
+      await formPage.fillFormData({
+        title: testTitle,
+        abstract,
+        learningPoints,
+        presentationType: 'full length',
+        isFinal: false
+      });
+      await formPage.setSpeakerAgreement(true);
+      await formPage.submitForm('Save Draft');
+
+      await page.getByRole('button', { name: 'Submit another presentation' }).click();
+      await formPage.waitForFormLoad();
+
+      await formPage.fillFormData({
+        title: testTitle,
+        abstract,
+        learningPoints,
+        presentationType: 'full length',
+        isFinal: true
+      });
+      await formPage.setSpeakerAgreement(true);
+      await formPage.submitForm('Submit Presentation');
+
+      await expect(formPage.duplicateWarning).toBeVisible();
+      await expect(formPage.titleInput).toHaveValue(testTitle);
+      await expect(formPage.abstractInput).toHaveValue(abstract);
+      await expect(formPage.learningPointsInput).toHaveValue(learningPoints);
+      await expect(
+        page.getByRole('button', { name: 'Submit Anyway', exact: true })
+      ).toBeVisible();
+    });
+
+    test('missing speaker agreement preserves non-failing fields', async ({ page }) => {
+      test.fixme(!jsEnabled, 'Requires JS-enabled client-side form state');
+
+      await page.goto('/submit-presentation');
+      const formPage = new PresentationSubmissionPage(page);
+      await formPage.waitForFormLoad();
+
+      const title = buildTestTitle('Missing agreement');
+      const abstract = 'Agreement abstract '.repeat(12);
+      const learningPoints = 'Agreement learning point '.repeat(4);
+
+      await formPage.fillFormData({
+        title,
+        abstract,
+        learningPoints,
+        presentationType: '15 minutes',
+        isFinal: true
+      });
+      await formPage.setSpeakerAgreement(false);
+
+      await formPage.submitForm('Submit Presentation');
+
+      await expect(page.getByText('You must agree to the speaker agreement to submit.')).toBeVisible();
+      await expect(formPage.titleInput).toHaveValue(title);
+      await expect(formPage.abstractInput).toHaveValue(abstract);
+      await expect(formPage.learningPointsInput).toHaveValue(learningPoints);
     });
 
     test('Missing title cannot submit', async ({ page }) => {
