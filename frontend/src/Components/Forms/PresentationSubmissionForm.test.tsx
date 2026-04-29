@@ -47,7 +47,7 @@ describe('PresentationSubmissionForm state retention', () => {
     await fillValidForm();
 
     await userEvent.click(
-      screen.getByRole('button', { name: 'Submit Presentation', exact: true })
+      screen.getByRole('button', { name: 'Submit Presentation' })
     );
 
     await waitFor(() => {
@@ -68,7 +68,7 @@ describe('PresentationSubmissionForm state retention', () => {
     await fillValidForm();
 
     await userEvent.click(
-      screen.getByRole('button', { name: 'Submit Presentation', exact: true })
+      screen.getByRole('button', { name: 'Submit Presentation' })
     );
 
     await waitFor(() => {
@@ -85,7 +85,7 @@ describe('PresentationSubmissionForm state retention', () => {
       (screen.getByLabelText('Learning Points') as HTMLTextAreaElement).value
     ).toBe('A reliable learning point '.repeat(4));
     expect(
-      screen.getByRole('button', { name: 'Submit Anyway', exact: true })
+      screen.getByRole('button', { name: 'Submit Anyway' })
     ).toBeTruthy();
   });
 
@@ -99,7 +99,7 @@ describe('PresentationSubmissionForm state retention', () => {
     await fillValidForm();
 
     await userEvent.click(
-      screen.getByRole('button', { name: 'Submit Presentation', exact: true })
+      screen.getByRole('button', { name: 'Submit Presentation' })
     );
 
     await waitFor(() => {
