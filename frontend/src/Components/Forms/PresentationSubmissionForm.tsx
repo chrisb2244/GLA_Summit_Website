@@ -31,6 +31,7 @@ export const PresentationSubmissionForm = (
   const [bypassDuplicateCheck, setBypassDuplicateCheck] = useState(false);
   const [submissionSuccess, setSubmissionSuccess] = useState(false);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
+  const [lastSubmissionWasFinal, setLastSubmissionWasFinal] = useState(true);
 
   const {
     register,
@@ -71,7 +72,7 @@ export const PresentationSubmissionForm = (
     return (
       <div className='my-4 rounded-md border border-green-400 bg-green-50 p-4'>
         <p className='font-semibold text-green-800'>
-          {isFinal
+          {lastSubmissionWasFinal
             ? 'Presentation submitted successfully!'
             : 'Draft saved successfully!'}
         </p>
@@ -139,11 +140,13 @@ export const PresentationSubmissionForm = (
           const formValid = await trigger();
           if (formValid) {
             const data = new FormData(formElement);
+            const submissionWasFinal = data.get('isFinal') === 'on';
             if (bypassDuplicateCheck) {
               data.append('skipDuplicateCheck', 'true');
             }
             const result = await submitNewPresentation(data);
             if (result.success) {
+              setLastSubmissionWasFinal(submissionWasFinal);
               resetForm();
               setDuplicateWarning(null);
               setBypassDuplicateCheck(false);
