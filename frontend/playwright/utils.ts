@@ -1,4 +1,5 @@
 import type { Database } from '@/lib/sb_databaseModels';
+import { submissionsForYear } from '@/app/configConstants';
 import { Page } from '@playwright/test';
 import { createClient } from '@supabase/supabase-js';
 import { InbucketAPIClient, MessageModel } from 'inbucket-js-client';
@@ -190,4 +191,96 @@ export const loginOnPage = async (page: Page, email: string) => {
   // Assert the user menu button is populated
   const userButton = page.locator('[data-testid="user-menu-button"]');
   await userButton.waitFor({ state: 'visible', timeout: 2000 });
+};
+
+type SharedPresentationSeedOptions = {
+  title: string;
+  submitterEmail: string;
+  copresenterEmail: string;
+  status: 'accepted' | 'awaiting-response';
+  isSubmitted?: boolean;
+};
+
+export const seedSharedPresentation = async (
+  options: SharedPresentationSeedOptions
+) => {
+  const admin = createSupabaseAdmin();
+  const { title, submitterEmail, copresenterEmail, status } = options;
+  const isSubmitted = options.isSubmitted ?? true;
+
+  const { data: users, error: userLookupError } = await admin
+    .from('email_lookup')
+    .select('id, email')
+    .in('email', [submitterEmail, copresenterEmail]);
+
+  if (userLookupError) {
+    throw new Error(`Failed to look up test users: ${userLookupError.message}`);
+  }
+
+  const submitter = users?.find((u) => u.email === submitterEmail);
+  const copresenter = users?.find((u) => u.email === copresenterEmail);
+  if (!submitter || !copresenter) {
+    throw new Error('Could not find submitter/copresenter test users in email_lookup');
+  }
+
+  const { data: presentation, error: presentationError } = await admin
+    .from('presentation_submissions')
+    .insert({
+      title,
+      abstract: 'Shared presentation abstract used for copresenter visibility tests.',
+      learning_points:
+        'Shared learning points used for copresenter visibility and status tests.',
+      submitter_id: submitter.id,
+      year: submissionsForYear,
+      is_submitted: isSubmitted,
+      presentation_type: 'full length'
+    })
+    .select('id')
+    .single();
+
+  if (presentationError || !presentation) {
+    throw new Error(
+      `Failed to create shared presentation: ${presentationError?.message ?? 'unknown error'}`
+    );
+  }
+
+  const presentationId = presentation.id;
+
+  const { error: presenterLinkError } = await admin
+    .from('presentation_presenters')
+    .insert([
+      { presentation_id: presentationId, presenter_id: submitter.id },
+      { presentation_id: presentationId, presenter_id: copresenter.id }
+    ]);
+
+  if (presenterLinkError) {
+    await admin.from('presentation_submissions').delete().eq('id', presentationId);
+    throw new Error(
+      `Failed to link shared presentation presenters: ${presenterLinkError.message}`
+    );
+  }
+
+  if (status === 'accepted') {
+    const { error: acceptedInsertError } = await admin
+      .from('accepted_presentations')
+      .insert({ id: presentationId });
+    if (acceptedInsertError) {
+      await admin.from('presentation_submissions').delete().eq('id', presentationId);
+      throw new Error(
+        `Failed to set accepted status for shared presentation: ${acceptedInsertError.message}`
+      );
+    }
+  }
+
+  return {
+    presentationId,
+    title,
+    submitterId: submitter.id,
+    copresenterId: copresenter.id,
+    cleanup: async () => {
+      await admin.from('accepted_presentations').delete().eq('id', presentationId);
+      await admin.from('rejected_presentations').delete().eq('id', presentationId);
+      await admin.from('presentation_submissions').delete().eq('id', presentationId);
+    }
+  };
 };
