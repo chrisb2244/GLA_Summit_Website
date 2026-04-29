@@ -1,5 +1,4 @@
 import type { Database } from '@/lib/sb_databaseModels';
-import { submissionsForYear } from '@/app/configConstants';
 import { Page } from '@playwright/test';
 import { createClient } from '@supabase/supabase-js';
 import { InbucketAPIClient, MessageModel } from 'inbucket-js-client';
@@ -195,6 +194,7 @@ export const loginOnPage = async (page: Page, email: string) => {
 
 type SharedPresentationSeedOptions = {
   title: string;
+  year: Database['public']['Enums']['summit_year'];
   submitterEmail: string;
   copresenterEmail: string;
   status: 'accepted' | 'awaiting-response';
@@ -205,7 +205,7 @@ export const seedSharedPresentation = async (
   options: SharedPresentationSeedOptions
 ) => {
   const admin = createSupabaseAdmin();
-  const { title, submitterEmail, copresenterEmail, status } = options;
+  const { title, year, submitterEmail, copresenterEmail, status } = options;
   const isSubmitted = options.isSubmitted ?? true;
 
   const { data: users, error: userLookupError } = await admin
@@ -231,7 +231,7 @@ export const seedSharedPresentation = async (
       learning_points:
         'Shared learning points used for copresenter visibility and status tests.',
       submitter_id: submitter.id,
-      year: submissionsForYear,
+      year,
       is_submitted: isSubmitted,
       presentation_type: 'full length'
     })
@@ -263,7 +263,7 @@ export const seedSharedPresentation = async (
   if (status === 'accepted') {
     const { error: acceptedInsertError } = await admin
       .from('accepted_presentations')
-      .insert({ id: presentationId });
+      .insert({ id: presentationId, year });
     if (acceptedInsertError) {
       await admin.from('presentation_submissions').delete().eq('id', presentationId);
       throw new Error(

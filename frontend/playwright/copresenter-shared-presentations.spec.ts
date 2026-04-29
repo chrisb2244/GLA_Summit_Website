@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
 import { seedSharedPresentation } from './utils';
+import { submissionsForYear } from '@/app/configConstants';
 
 const submitterEmail = process.env.TEST_PRESENTER_EMAIL as string;
 const copresenterEmail = process.env.TEST_ATTENDEE_EMAIL as string;
@@ -18,6 +19,7 @@ test.describe('copresenter shared presentation visibility and status', () => {
     const title = buildSharedTitle('Shared visibility');
     const seeded = await seedSharedPresentation({
       title,
+      year: submissionsForYear,
       submitterEmail,
       copresenterEmail,
       status: 'awaiting-response'
@@ -35,6 +37,7 @@ test.describe('copresenter shared presentation visibility and status', () => {
     const title = buildSharedTitle('Shared accepted status');
     const seeded = await seedSharedPresentation({
       title,
+      year: submissionsForYear,
       submitterEmail,
       copresenterEmail,
       status: 'accepted'
@@ -50,10 +53,11 @@ test.describe('copresenter shared presentation visibility and status', () => {
     }
   });
 
-  test('copresenter sees awaiting response status for shared presentation', async ({ page }) => {
+  test('copresenter sees under consideration status for shared presentation', async ({ page }) => {
     const title = buildSharedTitle('Shared awaiting status');
     const seeded = await seedSharedPresentation({
       title,
+      year: submissionsForYear,
       submitterEmail,
       copresenterEmail,
       status: 'awaiting-response'
@@ -63,7 +67,9 @@ test.describe('copresenter shared presentation visibility and status', () => {
       await page.goto('/my-presentations');
       const card = page.locator(`div[aria-label="${title}"]`);
       await expect(card).toBeVisible();
-      await expect(card.getByText('Awaiting response', { exact: true })).toBeVisible();
+      await expect(
+        card.getByText('Under consideration', { exact: true })
+      ).toBeVisible();
     } finally {
       await seeded.cleanup();
     }
@@ -73,6 +79,7 @@ test.describe('copresenter shared presentation visibility and status', () => {
     const title = buildSharedTitle('Shared title parity');
     const seeded = await seedSharedPresentation({
       title,
+      year: submissionsForYear,
       submitterEmail,
       copresenterEmail,
       status: 'awaiting-response'
@@ -112,6 +119,7 @@ test.describe('copresenter shared presentation visibility and status', () => {
       const title = buildSharedTitle('Shared draft edit');
       const seeded = await seedSharedPresentation({
         title,
+        year: submissionsForYear,
         submitterEmail,
         copresenterEmail,
         status: 'awaiting-response',
