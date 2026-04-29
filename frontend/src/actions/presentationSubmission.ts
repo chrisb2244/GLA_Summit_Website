@@ -6,7 +6,6 @@ import {
 } from '@/EmailTemplates/FormSubmissionEmail';
 import { submissionsForYear } from '@/app/configConstants';
 import { sendMailApi } from '@/lib/sendMail';
-import { getUser } from '@/lib/supabase/userFunctions';
 import { createAdminClient } from '@/lib/supabaseClient';
 import { createServerActionClient } from '@/lib/supabaseServer';
 import { AuthError } from '@supabase/supabase-js';
@@ -47,7 +46,9 @@ export const submitNewPresentation = async (
     } = parsedData.data;
     const supabaseAdmin = createAdminClient();
     const supabase = await createServerActionClient();
-    const user = await getUser();
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
     const submitter_id = user?.id;
     console.log({ submitter_id });
     if (typeof submitter_id === 'undefined') {
@@ -368,7 +369,9 @@ export const updateDraftPresentation = async (
 
   const supabase = await createServerActionClient();
   const supabaseAdmin = createAdminClient();
-  const user = await getUser();
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
   const submitter_id = user?.id;
 
   if (typeof submitter_id === 'undefined') {
