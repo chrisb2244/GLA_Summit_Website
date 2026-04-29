@@ -15,6 +15,12 @@ import { revalidatePath } from 'next/cache';
 
 const COPRESENTER_LOOKUP_CLIENT_ERROR =
   'Unable to verify co-presenter accounts right now. Please try again.';
+const PRESENTATION_SAVE_CLIENT_ERROR =
+  'Unable to save the presentation right now. Please try again.';
+const DRAFT_DELETE_CLIENT_ERROR =
+  'Unable to delete the draft right now. Please try again.';
+const DRAFT_UPDATE_CLIENT_ERROR =
+  'Unable to update the draft right now. Please try again.';
 
 type ReturnType =
   | {
@@ -112,9 +118,21 @@ export const submitNewPresentation = async (
       .single();
 
     if (insertionError) {
+      await logErrorToDb(
+        `submitNewPresentation insert failed: ${JSON.stringify({
+          message: insertionError.message,
+          code: insertionError.code,
+          details: insertionError.details,
+          hint: insertionError.hint,
+          isFinal,
+          presentationType
+        })}`,
+        'error',
+        submitter_id
+      );
       return {
         success: false,
-        error: { message: insertionError.message }
+        error: { message: PRESENTATION_SAVE_CLIENT_ERROR }
       };
     }
     const presentation_id = insertedData.id;
@@ -335,7 +353,17 @@ export const deleteDraftPresentation = async (
     .eq('id', presentationId);
 
   if (error) {
-    return { success: false, error: { message: error.message } };
+    await logErrorToDb(
+      `deleteDraftPresentation delete failed: ${JSON.stringify({
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+        presentationId
+      })}`,
+      'error'
+    );
+    return { success: false, error: { message: DRAFT_DELETE_CLIENT_ERROR } };
   }
 
   revalidatePath('/my-presentations');
@@ -437,7 +465,20 @@ export const updateDraftPresentation = async (
     .eq('id', presentationId);
 
   if (updateError) {
-    return { success: false, error: { message: updateError.message } };
+    await logErrorToDb(
+      `updateDraftPresentation update failed: ${JSON.stringify({
+        message: updateError.message,
+        code: updateError.code,
+        details: updateError.details,
+        hint: updateError.hint,
+        presentationId,
+        isFinal,
+        presentationType
+      })}`,
+      'error',
+      submitter_id
+    );
+    return { success: false, error: { message: DRAFT_UPDATE_CLIENT_ERROR } };
   }
 
   // Rebuild the presenters list
