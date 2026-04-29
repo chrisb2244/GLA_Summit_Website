@@ -221,14 +221,20 @@ import { createSupabaseAdmin, getInbucketEmail, loginOnPage } from './utils';
       await formPage.setSpeakerAgreement(true);
       await formPage.submitForm('Save Draft');
 
+      // Wait for UI confirmation before reading DB to avoid racing the server action.
+      await expect(
+        page.getByRole('link', { name: testTitle, exact: true })
+      ).toBeVisible();
+
       const adminSB = createSupabaseAdmin();
-      const { data: presentations } = await adminSB
+      const { data: presentation } = await adminSB
         .from('presentation_submissions')
         .select('is_submitted')
         .eq('title', testTitle)
-        .single();
+        .maybeSingle();
 
-      expect(presentations?.is_submitted).toEqual(false);
+      expect(presentation).not.toBeNull();
+      expect(presentation?.is_submitted).toEqual(false);
     });
 
     test('draft card navigates to edit route', async ({ page }) => {
