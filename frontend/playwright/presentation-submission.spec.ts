@@ -7,7 +7,7 @@ import { createSupabaseAdmin, getInbucketEmail, loginOnPage } from './utils';
 [true, false].forEach((jsEnabled) => {
   const trailing = `with JS ${jsEnabled ? 'enabled' : 'disabled'}`;
 
-  test.describe(`logged-out tests fro presentation submission ${trailing}`, () => {
+  test.describe(`logged-out tests for presentation submission ${trailing}`, () => {
     test.use({ javaScriptEnabled: jsEnabled });
     test('Form submission unavailable if logged out', async ({ page }) => {
       await page.goto('/submit-presentation');
