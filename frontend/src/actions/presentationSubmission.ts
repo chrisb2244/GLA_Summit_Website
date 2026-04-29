@@ -8,9 +8,13 @@ import { submissionsForYear } from '@/app/configConstants';
 import { sendMailApi } from '@/lib/sendMail';
 import { createAdminClient } from '@/lib/supabaseClient';
 import { createServerActionClient } from '@/lib/supabaseServer';
+import { logErrorToDb } from '@/lib/utils';
 import { AuthError } from '@supabase/supabase-js';
 import { randomBytes } from 'crypto';
 import { revalidatePath } from 'next/cache';
+
+const COPRESENTER_LOOKUP_CLIENT_ERROR =
+  'Unable to verify co-presenter accounts right now. Please try again.';
 
 type ReturnType =
   | {
@@ -71,7 +75,7 @@ export const submitNewPresentation = async (
     // Duplicate detection: check for an existing submission with the same title
     // for this submitter and year unless the user has explicitly bypassed the check.
     if (!skipDuplicateCheck) {
-      const { data: existingWithTitle } = await supabase
+      const { data: existingWithTitle } = await supabaseAdmin
         .from('presentation_submissions')
         .select('id, title')
         .eq('submitter_id', submitter_id)
@@ -90,7 +94,7 @@ export const submitNewPresentation = async (
       }
     }
 
-    const { data: insertedData, error: insertionError } = await supabase
+    const { data: insertedData, error: insertionError } = await supabaseAdmin
       .from('presentation_submissions')
       .insert({
         title,
@@ -116,19 +120,34 @@ export const submitNewPresentation = async (
     const presentation_id = insertedData.id;
 
     // Lookup which presenters already have accounts and which are new
-    const { data: existingPresenters, error: lookupOthersError } =
-      await supabaseAdmin
+    let existingPresenters: { id: string; email: string }[] = [];
+    if (otherPresenters.length > 0) {
+      const { data, error: lookupOthersError } = await supabaseAdmin
         .from('email_lookup')
-        .select('*')
+        .select('id, email')
         .in('email', otherPresenters);
 
-    if (lookupOthersError) {
-      return {
-        success: false,
-        error: {
-          message: lookupOthersError.message
-        }
-      };
+      if (lookupOthersError) {
+        await logErrorToDb(
+          `submitNewPresentation email_lookup query failed: ${JSON.stringify({
+            message: lookupOthersError.message,
+            code: lookupOthersError.code,
+            details: lookupOthersError.details,
+            hint: lookupOthersError.hint,
+            otherPresenterCount: otherPresenters.length
+          })}`,
+          'error',
+          submitter_id
+        );
+        return {
+          success: false,
+          error: {
+            message: COPRESENTER_LOOKUP_CLIENT_ERROR
+          }
+        };
+      }
+
+      existingPresenters = data ?? [];
     }
     // Split the copresenters between existing and new accounts
     const foundEmails = existingPresenters.map(({ email }) => email);
@@ -205,7 +224,7 @@ export const submitNewPresentation = async (
       .upsert(presentationPresenterData);
     if (presentersUpsertError) {
       // Compensate to avoid leaving an orphan draft/submission without presenter links.
-      await supabase
+      await supabaseAdmin
         .from('presentation_submissions')
         .delete()
         .eq('id', presentation_id);
@@ -422,13 +441,33 @@ export const updateDraftPresentation = async (
   }
 
   // Rebuild the presenters list
-  const { data: existingPresenters, error: lookupError } = await supabaseAdmin
-    .from('email_lookup')
-    .select('*')
-    .in('email', otherPresenters);
+  let existingPresenters: { id: string; email: string }[] = [];
+  if (otherPresenters.length > 0) {
+    const { data, error: lookupError } = await supabaseAdmin
+      .from('email_lookup')
+      .select('id, email')
+      .in('email', otherPresenters);
 
-  if (lookupError) {
-    return { success: false, error: { message: lookupError.message } };
+    if (lookupError) {
+      await logErrorToDb(
+        `updateDraftPresentation email_lookup query failed: ${JSON.stringify({
+          message: lookupError.message,
+          code: lookupError.code,
+          details: lookupError.details,
+          hint: lookupError.hint,
+          otherPresenterCount: otherPresenters.length,
+          presentationId
+        })}`,
+        'error',
+        submitter_id
+      );
+      return {
+        success: false,
+        error: { message: COPRESENTER_LOOKUP_CLIENT_ERROR }
+      };
+    }
+
+    existingPresenters = data ?? [];
   }
 
   const foundEmails = existingPresenters.map(({ email }) => email);
