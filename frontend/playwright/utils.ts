@@ -10,13 +10,117 @@ const supabaseKey = process.env.SECRET_SUPABASE_SERVICE_KEY as string;
 export const createSupabaseAdmin = () =>
   createClient<Database>(supabaseUrl, supabaseKey);
 
-const inbucketUrl = 'http://localhost:54324';
+const localMailApiUrl = process.env.TEST_MAIL_API_URL ?? 'http://localhost:54324';
+
+type MailpitMessageSummary = {
+  ID: string;
+  Created: string;
+  To: Array<{ Address: string }>;
+};
+
+type MailpitMessagesResponse = {
+  messages: MailpitMessageSummary[];
+};
+
+type MailpitMessageDetail = {
+  ID: string;
+  Date: string;
+  Text: string;
+  HTML: string;
+};
+
+const getMailboxFromEmail = (email: string) => email.split('@')[0].toLowerCase();
+
+const matchesMailbox = (address: string, mailbox: string) => {
+  const localPart = getMailboxFromEmail(address);
+  return localPart === mailbox.toLowerCase();
+};
+
+const toMessageModel = (mailpitMessage: MailpitMessageDetail): MessageModel =>
+  ({
+    id: mailpitMessage.ID,
+    date: mailpitMessage.Date,
+    body: {
+      text: mailpitMessage.Text,
+      html: mailpitMessage.HTML
+    }
+  }) as MessageModel;
+
+const listMailpitMessages = async (): Promise<MailpitMessagesResponse> => {
+  const response = await fetch(`${localMailApiUrl}/api/v1/messages`);
+  if (!response.ok) {
+    throw new Error(`[mailpit] request error: ${response.status} ${await response.text()}`);
+  }
+  return response.json() as Promise<MailpitMessagesResponse>;
+};
+
+const getMailpitMessage = async (id: string): Promise<MailpitMessageDetail> => {
+  const response = await fetch(`${localMailApiUrl}/api/v1/message/${id}`);
+  if (!response.ok) {
+    throw new Error(`[mailpit] request error: ${response.status} ${await response.text()}`);
+  }
+  return response.json() as Promise<MailpitMessageDetail>;
+};
+
+const getLatestMailpitMessageForMailbox = async (
+  mailbox: string
+): Promise<MessageModel> => {
+  const messagesResponse = await listMailpitMessages();
+  const matched = (messagesResponse.messages ?? []).find((message) =>
+    (message.To ?? []).some((recipient) => matchesMailbox(recipient.Address, mailbox))
+  );
+
+  if (!matched) {
+    throw new Error(`[mailpit] no messages found for mailbox: ${mailbox}`);
+  }
+
+  const message = await getMailpitMessage(matched.ID);
+  return toMessageModel(message);
+};
+
+const countMailpitEmailsInInbox = async (mailbox: string): Promise<number> => {
+  const messagesResponse = await listMailpitMessages();
+  return (messagesResponse.messages ?? []).filter((message) =>
+    (message.To ?? []).some((recipient) => matchesMailbox(recipient.Address, mailbox))
+  ).length;
+};
+
+const getLatestInbucketMessageForMailbox = async (
+  mailbox: string
+): Promise<MessageModel> => {
+  const client = new InbucketAPIClient(localMailApiUrl);
+  const inbox = await client.mailbox(mailbox);
+  if (inbox.length === 0) {
+    throw new Error(`[inbucket] no messages found for mailbox: ${mailbox}`);
+  }
+  const lastId = inbox.length - 1;
+  return client.message(mailbox, inbox[lastId].id);
+};
+
+const getLatestMessageForMailbox = async (mailbox: string): Promise<MessageModel> => {
+  try {
+    return await getLatestMailpitMessageForMailbox(mailbox);
+  } catch (mailpitError) {
+    // Backward compatibility for environments still running Inbucket APIs.
+    return getLatestInbucketMessageForMailbox(mailbox).catch((inbucketError) => {
+      throw new Error(
+        `Failed to fetch mailbox ${mailbox} from Mailpit and Inbucket. Mailpit error: ${String(
+          mailpitError
+        )}. Inbucket error: ${String(inbucketError)}`
+      );
+    });
+  }
+};
 
 export const countEmailsInInbox = async (email: string) => {
-  const mailbox = email.split('@')[0];
-  const client = new InbucketAPIClient(inbucketUrl);
-  const inbox = await client.mailbox(mailbox);
-  return inbox.length;
+  const mailbox = getMailboxFromEmail(email);
+  try {
+    return await countMailpitEmailsInInbox(mailbox);
+  } catch {
+    const client = new InbucketAPIClient(localMailApiUrl);
+    const inbox = await client.mailbox(mailbox);
+    return inbox.length;
+  }
 };
 
 export const getInbucketEmail = async (
@@ -27,23 +131,18 @@ export const getInbucketEmail = async (
   if (timeout < 0) {
     return Promise.reject('Timeout');
   }
-
-  const client = new InbucketAPIClient(inbucketUrl);
-  return client
-    .mailbox(mailbox)
-    .then((inbox) => {
-      const lastId = inbox.length > 0 ? inbox.length - 1 : 0;
-      return client.message(mailbox, inbox[lastId].id).then((msg) => {
-        const sentTime = new Date(msg.date);
-        if (sentTime.getTime() > Date.now() - sentWithin) {
-          return msg;
-        } else {
-          console.log('Rejecting otp from : ', sentTime, msg.body.text);
-          throw new Error('Message too old');
-        }
-      });
+  return getLatestMessageForMailbox(mailbox)
+    .then((msg) => {
+      const sentTime = new Date(msg.date);
+      if (sentTime.getTime() > Date.now() - sentWithin) {
+        return msg;
+      } else {
+        console.log('Rejecting otp from : ', sentTime, msg.body.text);
+        throw new Error('Message too old');
+      }
     })
-    .catch(() => {
+    .catch((err) => {
+      console.log('Error getting email, retrying...', err);
       return new Promise((resolve) => {
         setTimeout(() => {
           resolve(getInbucketEmail(mailbox, timeout - 500, sentWithin));
@@ -57,22 +156,19 @@ export const getInbucketVerificationCode = async (
   timeout: number = 3000,
   sentWithin: number = 3000
 ) => {
-  const mailbox = email.split('@')[0];
+  const mailbox = getMailboxFromEmail(email);
   const mail = await getInbucketEmail(mailbox, timeout, sentWithin);
-  const { text, html } = mail.body;
+  const text = mail.body?.text ?? '';
+  const html = mail.body?.html ?? '';
 
-  const textMatcher = /Your One-Time-Passcode \(OTP\) token is ([0-9]{6})/i;
-  const matchGroups = text.match(textMatcher);
-  const htmlMatcher = /<p.*>([0-9]{6})<\/p>/i;
-  const htmlMatchGroups = html.match(htmlMatcher);
-
-  const textOtp = matchGroups?.[1];
-  const htmlOtp = htmlMatchGroups?.[1];
+  const otpMatcher = /(?:one[-\s]?time[-\s]?passcode\s*(?:\(otp\))?\s*token\s*is:?|\botp\b[^\d]*)([0-9]{6})/i;
+  const textOtp = text.match(otpMatcher)?.[1] ?? text.match(/\b([0-9]{6})\b/)?.[1];
+  const htmlOtp = html.match(otpMatcher)?.[1] ?? html.match(/\b([0-9]{6})\b/)?.[1];
 
   if (typeof textOtp === 'undefined') {
     return Promise.reject('No verification code found');
   }
-  if (textOtp !== htmlOtp) {
+  if (htmlOtp && textOtp !== htmlOtp) {
     return Promise.reject('Text and HTML verification codes do not match');
   }
   return textOtp;
