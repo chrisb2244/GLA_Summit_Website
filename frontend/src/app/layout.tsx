@@ -14,16 +14,16 @@ const baseUrl =
 export const metadata: Metadata = {
   title: {
     template: '%s | GLA Summit',
-    default: 'GLA Summit 2025'
+    default: 'GLA Summit 2026'
   },
   metadataBase: new URL(baseUrl),
   description: 'A global online LabVIEW conference',
   openGraph: {
-    title: 'GLA Summit 2025',
+    title: 'GLA Summit 2026',
     description: 'A global online LabVIEW conference',
     url: 'https://www.glasummit.org',
     type: 'website',
-    siteName: 'GLA Summit 2025'
+    siteName: 'GLA Summit 2026'
   }
 };
 

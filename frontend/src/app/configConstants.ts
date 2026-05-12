@@ -9,6 +9,6 @@ export const currentDisplayYear: SummitYear = '2025';
 export const submissionsForYear: SummitYear = '2026';
 export const ticketYear: SummitYear = '2026';
 
-export const startDate = new Date(Date.UTC(2025, 5, 23, 12, 0, 0));
+export const startDate = new Date(Date.UTC(2026, 7, 31, 12, 0, 0));
 export const eventUrl =
-  'https://app.events.ringcentral.com/events/gla-summit-2025/';
+  'https://app.events.ringcentral.com/events/gla-summit-2026/';
