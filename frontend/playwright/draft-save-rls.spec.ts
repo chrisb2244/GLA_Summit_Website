@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { PresentationSubmissionPage } from './models/PresentationSubmissionPage';
 import { createSupabaseAdmin, loginOnPage } from './utils';
 import { submissionsForYear } from '@/app/configConstants';
+import path from 'path';
 
 const attendeeEmail = process.env.TEST_ATTENDEE_EMAIL as string;
 
@@ -9,12 +10,15 @@ const buildTitle = () =>
   `Draft RLS regression ${Date.now()} ${Math.random().toString(16).slice(2, 8)}`;
 
 test.describe('draft save regression', () => {
+  test.use({
+    storageState: async ({}, use) =>
+      use(path.resolve(__dirname, '.auth', 'attendee.json'))
+  });
+
   test('saving a draft does not fail with presentation_submissions RLS error', async ({ page }) => {
     const admin = createSupabaseAdmin();
     const title = buildTitle();
 
-    await page.goto('/submit-presentation');
-    await loginOnPage(page, attendeeEmail);
     await page.goto('/my-presentations');
 
     const formPage = new PresentationSubmissionPage(page);
