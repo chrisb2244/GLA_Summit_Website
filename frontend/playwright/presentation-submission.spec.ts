@@ -259,7 +259,7 @@ import { createSupabaseAdmin, getInbucketEmail, loginOnPage } from './utils';
       await formPage.submitForm('Save Draft');
 
       await page.getByRole('link', { name: testTitle, exact: true }).click();
-      await expect(page).toHaveURL(/\/my-presentations\/[^/]+\/edit$/);
+      await expect(page).toHaveURL(/\/my-presentations\/edit\/[^/]+$/);
     });
 
     test('failed submit (required field) preserves entered values', async ({ page }) => {
