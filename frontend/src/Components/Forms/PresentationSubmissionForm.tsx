@@ -200,7 +200,7 @@ export const PresentationSubmissionForm = (
             ) : (
               <input type='hidden' name='isFinal' value='on' />
             )}
-            <div className='mt-2 rounded border border-gray-300 bg-white p-3'>
+            <div className='flex flex-col space-y-1 pt-4 pb-6'>
               <Checkbox
                 label='I agree to the GLA Summit speaker agreement, consent to my session being recorded, and consent to my name, bio, and (if provided) photograph being published on the conference website.'
                 {...register('speakerAgreement', {

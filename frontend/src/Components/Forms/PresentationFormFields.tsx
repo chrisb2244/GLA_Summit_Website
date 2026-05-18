@@ -101,7 +101,7 @@ export const PresentationFormFields = ({
           Add co-presenter
         </Button>
       </div>
-      <div className='py-8'>
+      <div className='pt-8 pb-4'>
         <FormField
           registerReturn={register('title', {
             required: 'Required',
