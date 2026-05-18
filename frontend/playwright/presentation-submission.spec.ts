@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { PresentationSubmissionPage } from './models/PresentationSubmissionPage';
 import { CAN_SUBMIT_PRESENTATION, submissionsForYear } from '@/app/configConstants';
 import path from 'path';
-import { createSupabaseAdmin, getInbucketEmail, loginOnPage } from './utils';
+import { createSupabaseAdmin, getLatestEmail, loginOnPage } from './utils';
 
 // Use an existing user who is not a presenter or organizer
 const attendeeEmail = process.env.TEST_ATTENDEE_EMAIL as string;
@@ -128,7 +128,7 @@ const buildTestTitle = (prefix: string) =>
 
       // Check an email is received for the submission
       const mailboxId = attendeeEmail.split('@')[0];
-      const emailMsg = await getInbucketEmail(mailboxId, 5000, 3000);
+      const emailMsg = await getLatestEmail(mailboxId);
       const {
         subject,
         body: { html }

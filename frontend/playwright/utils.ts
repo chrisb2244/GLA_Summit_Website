@@ -27,6 +27,10 @@ type MailpitMessageDetail = {
   Date: string;
   Text: string;
   HTML: string;
+  Subject: string;
+  ReturnPath: string;
+  From: { Name: string; Address: string };
+  To: Array<{ Name: string; Address: string }>;
 };
 
 const getMailboxFromEmail = (email: string) => email.split('@')[0].toLowerCase();
@@ -43,7 +47,9 @@ const toMessageModel = (mailpitMessage: MailpitMessageDetail): MessageModel =>
     body: {
       text: mailpitMessage.Text,
       html: mailpitMessage.HTML
-    }
+    },
+    subject: mailpitMessage.Subject,
+    from: mailpitMessage.From.Address,
   }) as MessageModel;
 
 const listMailpitMessages = async (): Promise<MailpitMessagesResponse> => {
@@ -123,7 +129,7 @@ export const countEmailsInInbox = async (email: string) => {
   }
 };
 
-export const getInbucketEmail = async (
+export const getLatestEmail = async (
   mailbox: string,
   timeout: number = 3000,
   sentWithin: number = 3000
@@ -137,7 +143,7 @@ export const getInbucketEmail = async (
       if (sentTime.getTime() > Date.now() - sentWithin) {
         return msg;
       } else {
-        console.log('Rejecting otp from : ', sentTime, msg.body.text);
+        console.log('Rejecting message from : ', sentTime, msg.body.text);
         throw new Error('Message too old');
       }
     })
@@ -145,7 +151,7 @@ export const getInbucketEmail = async (
       console.log('Error getting email, retrying...', err);
       return new Promise((resolve) => {
         setTimeout(() => {
-          resolve(getInbucketEmail(mailbox, timeout - 500, sentWithin));
+          resolve(getLatestEmail(mailbox, timeout - 500, sentWithin));
         }, 500);
       });
     });
@@ -157,7 +163,7 @@ export const getInbucketVerificationCode = async (
   sentWithin: number = 3000
 ) => {
   const mailbox = getMailboxFromEmail(email);
-  const mail = await getInbucketEmail(mailbox, timeout, sentWithin);
+  const mail = await getLatestEmail(mailbox, timeout, sentWithin);
   const text = mail.body?.text ?? '';
   const html = mail.body?.html ?? '';
 
