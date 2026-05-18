@@ -11,6 +11,7 @@ export type FormData = {
   presentationType: PresentationType;
   timeWindows: { windowStartTime: Date; windowEndTime: Date }[];
   isFinal: boolean;
+  speakerAgreement: boolean;
 };
 type PresentationFormData = Omit<
   FormData,
@@ -85,6 +86,9 @@ export class PresentationSubmissionPage {
 
     if (typeof data.isFinal !== 'undefined') {
       await this.setReadyToSubmit(data.isFinal);
+    }
+    if (typeof data.speakerAgreement !== 'undefined') {
+      await this.setSpeakerAgreement(data.speakerAgreement);
     }
   }
 
