@@ -258,7 +258,8 @@ import { createSupabaseAdmin, getInbucketEmail, loginOnPage } from './utils';
       await formPage.setSpeakerAgreement(true);
       await formPage.submitForm('Save Draft');
 
-      await page.getByRole('link', { name: testTitle, exact: true }).click();
+      const draftCard = page.getByRole('link', { name: testTitle, exact: true });
+      await draftCard.getByRole('link', { name: 'Edit', exact: true }).click();
       await expect(page).toHaveURL(/\/my-presentations\/edit\/[^/]+$/);
     });
 

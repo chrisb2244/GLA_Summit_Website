@@ -43,7 +43,7 @@ export const DraftPresentationCard = ({
       <div className='relative left-4 mr-6 border border-secondaryc p-2'>
         <div className='flex flex-col gap-1 md:flex-row md:items-center'>
           <NextLink
-            href={`/my-presentations/edit/${draft.presentation_id}`}
+            href={`/presentations/${draft.presentation_id}`}
             className='font-medium underline hover:text-primary'
           >
             {draft.title}

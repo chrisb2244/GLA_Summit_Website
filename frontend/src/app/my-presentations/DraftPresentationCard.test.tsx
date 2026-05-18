@@ -42,16 +42,14 @@ describe('DraftPresentationCard', () => {
     expect(screen.getByText('(full length)')).toBeDefined();
   });
 
-  it('uses the canonical /my-presentations/edit/[id] route for draft links', () => {
+  it('uses presentation and edit links for draft card actions', () => {
     render(<DraftPresentationCard draft={mockDraft} />);
     const titleLink = screen.getByRole('link', {
       name: 'My Draft Presentation'
     });
     const editLink = screen.getByRole('link', { name: 'Edit' });
 
-    expect(titleLink.getAttribute('href')).toBe(
-      '/my-presentations/edit/draft-id-1'
-    );
+    expect(titleLink.getAttribute('href')).toBe('/presentations/draft-id-1');
     expect(editLink.getAttribute('href')).toBe('/my-presentations/edit/draft-id-1');
   });
 
