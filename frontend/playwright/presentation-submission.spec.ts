@@ -260,7 +260,7 @@ const buildTestTitle = (prefix: string) =>
       await formPage.setSpeakerAgreement(true);
       await formPage.submitForm('Save Draft');
 
-      const draftCard = page.getByRole('link', { name: testTitle, exact: true });
+      const draftCard = page.getByRole('link', { name: testTitle, exact: true }).locator('..');
       await draftCard.getByRole('link', { name: 'Edit', exact: true }).click();
       await expect(page).toHaveURL(/\/my-presentations\/edit\/[^/]+$/);
     });
