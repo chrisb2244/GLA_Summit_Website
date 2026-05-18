@@ -95,13 +95,15 @@ const buildTestTitle = (prefix: string) =>
       const abstract = 'Blah blah '.repeat(20);
       const learningPoints = 'Other text '.repeat(10);
       const isFinal = true;
+      const speakerAgreement = true;
 
       await formPage.fillFormData({
         title: testTitle,
         abstract,
         learningPoints,
         presentationType: '15 minutes',
-        isFinal
+        isFinal,
+        speakerAgreement
       });
 
       await expect(formPage.titleInput).toHaveValue(testTitle);
@@ -109,9 +111,9 @@ const buildTestTitle = (prefix: string) =>
 
       await formPage.submitForm();
 
-      // Should blank out on successful submission
-      // Can't use the toBeEmpty here
-      await expect(formPage.titleInput).toHaveValue('');
+      // Should hide the form on successful submission
+      await expect(formPage.titleInput).toBeHidden();
+      await expect(formPage.page.getByText("Presentation submitted successfully!")).toBeVisible();
 
       const submittedPresentationsDiv = page.locator(
         'div:has-text("Submitted Presentations")'
