@@ -1,3 +1,4 @@
+import { generateAvatarIcon } from '@/actions/generateAvatarIcon';
 import {
   PostgrestError,
   User as SB_User,
@@ -216,10 +217,7 @@ export const uploadAvatar = async (
   }
 
   // Generate a smaller webp version of the image for the user icon.
-  await fetch('/api/handleAvatarUpdate', {
-    method: 'POST',
-    body: JSON.stringify({ userId, remoteFilePath })
-  });
+  await requestAvatarIconGeneration(userId, remoteFilePath);
 
   // Delete the old avatar
   if (originalProfileURL != null) {
@@ -228,54 +226,54 @@ export const uploadAvatar = async (
   return true;
 };
 
+const requestAvatarIconGeneration = (userId: string, remoteFilePath: string) => {
+  return fetch('/api/handleAvatarUpdate', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ userId, remoteFilePath })
+  });
+};
+
+const downloadAvatarFromStorage = async (
+  client: SupabaseClient,
+  remotePath: string
+) => {
+  const { data, error } = await client.storage.from('avatars').download(remotePath);
+  if (error) return error;
+  return data;
+};
+
 export const downloadIconAvatarAndGenerateIfNeeded = async (
-  userId: string,
   fullSizeImageUrl: string,
-  client: SupabaseClient
+  client: SupabaseClient,
+  userId?: string
 ) => {
   const iconUrl = fullUrlToIconUrl(fullSizeImageUrl);
-  const iconBlob = await client.storage
-    .from('avatars')
-    .download(iconUrl)
-    .then(async ({ data, error }) => {
-      if (error) {
-        // Failed to get the icon-sized image, so try to generate it.
-        const body = {
-          userId,
-          remoteFilePath: fullSizeImageUrl
-        };
-        const newIconUrl = await fetch('/api/handleAvatarUpdate', {
-          method: 'POST',
-          body: JSON.stringify(body)
-        })
-          .then((res) => res.json())
-          .then((value) => {
-            if (value.error) {
-              console.log(value.error);
-              return null;
-            }
-            return value.iconUrl as string;
-          });
-        if (newIconUrl == null) {
-          return null;
-        } else {
-          // Try to download the newly generated icon-sized image.
-          return client.storage
-            .from('avatars')
-            .download(newIconUrl)
-            .then(({ data, error }) => {
-              if (error) {
-                return error;
-              }
-              return data;
-            });
-        }
-      } else {
-        // Found the icon-sized image, so return it.
-        return data;
-      }
-    });
-  return iconBlob;
+  const iconData = await downloadAvatarFromStorage(client, iconUrl);
+  if (!(iconData instanceof Error)) {
+    return iconData;
+  }
+
+  // Icon not found — generate it now (blocking) so we always return the
+  // smaller icon and avoid serving the full-size image unnecessarily.
+  let generatedIconUrl: string | null = null;
+  if (typeof window !== 'undefined' && typeof userId === 'string') {
+    // Client context: generate via the authenticated API route.
+    generatedIconUrl = await requestAvatarIconGeneration(userId, fullSizeImageUrl)
+      .then((res) => res.json())
+      .then((body) => (typeof body.iconUrl === 'string' ? body.iconUrl : null))
+      .catch(() => null);
+  } else if (typeof window === 'undefined') {
+    // Server context: call the server action directly, tied to request lifetime.
+    generatedIconUrl = await generateAvatarIcon(fullSizeImageUrl).catch(() => null);
+  }
+
+  if (generatedIconUrl == null) {
+    return null;
+  }
+  return downloadAvatarFromStorage(client, generatedIconUrl);
 };
 
 export const downloadAvatar = async (userId: string) => {

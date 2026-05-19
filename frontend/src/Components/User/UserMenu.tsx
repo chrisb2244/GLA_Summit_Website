@@ -52,7 +52,7 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
     if (typeof url === 'undefined' || url === null) {
       return;
     }
-    downloadIconAvatarAndGenerateIfNeeded(props.user.id, url, supabase).then(
+    downloadIconAvatarAndGenerateIfNeeded(url, supabase, props.user.id).then(
       (value) => {
         if (value instanceof Blob) {
           setAvatarSrc(URL.createObjectURL(value));
