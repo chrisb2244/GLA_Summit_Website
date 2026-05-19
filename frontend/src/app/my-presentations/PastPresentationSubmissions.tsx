@@ -36,36 +36,34 @@ export const PastPresentationSubmissions = async () => {
         ).map((v) => v.id)
       : [];
 
-  const { submittedPresentations, draftPresentations } =
-    myPresentations.reduce(
-      ({ submittedPresentations, draftPresentations }, elem) => {
-        const accepted = formatAccepted(
-          elem.presentation_id,
-          acceptedList,
-          rejectedList
-        );
-        if (elem.is_submitted) {
-          return {
-            submittedPresentations: [
-              ...submittedPresentations,
-              { ...elem, accepted }
-            ],
-            draftPresentations
-          };
-        } else {
-          return {
-            submittedPresentations,
-            draftPresentations: [...draftPresentations, { ...elem, accepted }]
-          };
-        }
-      },
-      {
-        submittedPresentations:
-          new Array<MyPresentationSubmissionTypeWithAccepted>(),
-        draftPresentations:
-          new Array<MyPresentationSubmissionTypeWithAccepted>()
+  const { submittedPresentations, draftPresentations } = myPresentations.reduce(
+    ({ submittedPresentations, draftPresentations }, elem) => {
+      const accepted = formatAccepted(
+        elem.presentation_id,
+        acceptedList,
+        rejectedList
+      );
+      if (elem.is_submitted) {
+        return {
+          submittedPresentations: [
+            ...submittedPresentations,
+            { ...elem, accepted }
+          ],
+          draftPresentations
+        };
+      } else {
+        return {
+          submittedPresentations,
+          draftPresentations: [...draftPresentations, { ...elem, accepted }]
+        };
       }
-    );
+    },
+    {
+      submittedPresentations:
+        new Array<MyPresentationSubmissionTypeWithAccepted>(),
+      draftPresentations: new Array<MyPresentationSubmissionTypeWithAccepted>()
+    }
+  );
 
   const presentationsByYear = submittedPresentations.reduce(
     (existingSet, newElem) => {
