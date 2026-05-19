@@ -6,7 +6,6 @@ import { PresentationBaseFormData } from '@/Components/Forms/PresentationFormSha
 import { DraftEditForm } from '../../DraftEditForm';
 import { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
-import { Suspense } from 'react';
 
 export const metadata: Metadata = {
   robots: { index: false }
