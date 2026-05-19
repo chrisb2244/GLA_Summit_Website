@@ -57,33 +57,30 @@ type AvatarUploadDetails = {
 
 const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
+type ImageFormat = {
+  ext: string;
+  contentType: string;
+};
+
+function getImageFormat(filename: string): ImageFormat {
+  const lower = filename.toLowerCase();
+
+  if (lower.endsWith(".png")) return { ext: "png", contentType: "image/png" };
+  if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return { ext: "jpg", contentType: "image/jpeg" };
+  if (lower.endsWith(".webp")) return { ext: "webp", contentType: "image/webp" };
+
+  return { ext: "jpg", contentType: "image/jpeg" };
+}
+
 /**
  * =========================
  * Avatar URL Mapping
  * =========================
  *
- * IMPLEMENT THIS TO MATCH
- * YOUR APP'S URL FORMAT
- *
- * Example:
- *   "/storage/v1/object/public/avatars/user-1.jpg"
- *     ->
- *   {
- *     bucket: "avatars",
- *     objectPath: "user-1.jpg",
- *     contentType: "image/jpeg"
- *   }
- */
+**/
 function mapAvatarUrlToUploadDetails(avatarUrl: string): AvatarUploadDetails {
   // Expected url is like "ea1961e7-800e-4ba5-a4b8-bcfcf83b93e1_0.17697691211485256.png"
-
-  const contentType = avatarUrl.endsWith(".png")
-    ? "image/png"
-    : avatarUrl.endsWith(".jpg") || avatarUrl.endsWith(".jpeg")
-      ? "image/jpeg"
-      : avatarUrl.endsWith(".webp")
-        ? "image/webp"
-        : "application/octet-stream";
+  const { contentType } = getImageFormat(avatarUrl);
 
   return {
     bucket: BUCKET,
@@ -334,27 +331,29 @@ async function generatePlaceholderImage(avatarUrl: string): Promise<string> {
   const g = (hash >> 8) & 255;
   const b = (hash >> 16) & 255;
 
+  const { ext, contentType } = getImageFormat(avatarUrl);
+
   const outputPath = path.join(
     GENERATED_DIR,
-    `${sanitizeFileName(avatarUrl)}.jpg`,
+    `${sanitizeFileName(avatarUrl)}.${ext}`,
   );
 
-  await sharp({
+  const sharpInstance = sharp({
     create: {
       width: 128,
       height: 128,
       channels: 3,
-      background: {
-        r,
-        g,
-        b,
-      },
+      background: { r, g, b },
     },
-  })
-    .jpeg({
-      quality: 70,
-    })
-    .toFile(outputPath);
+  });
+
+  if (contentType === "image/png") {
+    await sharpInstance.png().toFile(outputPath);
+  } else if (contentType === "image/webp") {
+    await sharpInstance.webp({ quality: 70 }).toFile(outputPath);
+  } else {
+    await sharpInstance.jpeg({ quality: 70 }).toFile(outputPath);
+  }
 
   return outputPath;
 }
