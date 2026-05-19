@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { deleteDraftPresentation } from '@/actions/presentationSubmission';
 import { CenteredDialog } from '@/Components/CenteredDialog';
 import type { MyPresentationSubmissionType } from '@/lib/databaseModels';
@@ -8,16 +8,6 @@ import NextLink from 'next/link';
 
 type DraftPresentationCardProps = {
   draft: MyPresentationSubmissionType;
-};
-
-const formatDate = (isoString: string) => {
-  return new Date(isoString).toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
 };
 
 export const DraftPresentationCard = ({
@@ -44,17 +34,14 @@ export const DraftPresentationCard = ({
         <div className='flex flex-col gap-1 md:flex-row md:items-center'>
           <NextLink
             href={`/presentations/${draft.presentation_id}`}
-            className='font-medium underline hover:text-primary'
+            className='hover:text-primary font-medium underline'
           >
             {draft.title}
           </NextLink>
           <span className='text-sm text-gray-500 md:ml-1'>
             ({draft.presentation_type})
           </span>
-          <span className='text-sm italic text-gray-500 md:ml-auto'>
-            Last saved:{' '}
-            {draft.updated_at ? formatDate(draft.updated_at) : 'Unknown'}
-          </span>
+          <DraftLastSaved isoString={draft.updated_at} />
           <NextLink
             href={`/my-presentations/edit/${draft.presentation_id}`}
             className='mt-1 rounded border border-blue-400 px-2 py-0.5 text-sm text-blue-600 hover:bg-blue-50 md:ml-2 md:mt-0'
@@ -102,5 +89,55 @@ export const DraftPresentationCard = ({
         </div>
       </CenteredDialog>
     </>
+  );
+};
+
+const formatLocalDate = (isoString: string) => {
+  return new Date(isoString).toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
+
+const formatServerFallbackDate = (isoString: string) => {
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'UTC',
+    hour12: false
+  }).format(new Date(isoString));
+};
+
+const DraftLastSaved = ({ isoString }: { isoString: string | null }) => {
+  const [clientDateText, setClientDateText] = useState('');
+
+  useEffect(() => {
+    if (!isoString) {
+      return;
+    }
+    setClientDateText(`Last saved: ${formatLocalDate(isoString)}`);
+  }, [isoString]);
+
+  if (!isoString) {
+    return <span>Unknown</span>;
+  }
+
+  const fallbackText = formatServerFallbackDate(isoString);
+
+  return (
+    <span className='text-sm italic text-gray-500 md:ml-auto'>
+      <time dateTime={isoString} suppressHydrationWarning>
+        {clientDateText}
+      </time>
+      <noscript>
+        <time dateTime={isoString}>{`Last saved: ${fallbackText} UTC`}</time>
+      </noscript>
+    </span>
   );
 };
