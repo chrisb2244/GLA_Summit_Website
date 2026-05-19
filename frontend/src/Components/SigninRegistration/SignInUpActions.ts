@@ -82,6 +82,42 @@ export type VerificationState =
     }
   | null;
 
+export type LoginFormErrors = Partial<Record<'email' | 'form', string>>;
+
+export type LoginState = {
+  errors?: LoginFormErrors;
+  data: {
+    email: string;
+    redirectTo?: string;
+  };
+};
+
+const LoginSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .min(1, 'Required')
+    .email("This email doesn't match the expected pattern"),
+  redirectTo: z.string().optional()
+});
+
+const loginStateFromFormData = (formData: FormData): LoginState => {
+  const redirectTo = formData.get('redirectTo');
+
+  return {
+    data: {
+      email:
+        typeof formData.get('email') === 'string'
+          ? (formData.get('email') as string)
+          : '',
+      redirectTo:
+        typeof redirectTo === 'string' && redirectTo !== ''
+          ? redirectTo
+          : undefined
+    }
+  };
+};
+
 export type RegistrationFormErrors = Partial<
   Record<keyof PersonProps | 'form', string>
 >;
@@ -195,24 +231,47 @@ const signIn = async (
 };
 
 export const signInFromFormWithRedirect = async (
+  previousState: LoginState,
   formData: FormData
-): Promise<void> => {
-  const email = formData.get('email');
-  if (email === null || typeof email !== 'string') {
-    return;
+): Promise<LoginState> => {
+  const submittedState = loginStateFromFormData(formData);
+  const validatedFields = LoginSchema.safeParse(submittedState.data);
+
+  if (!validatedFields.success) {
+    return {
+      ...submittedState,
+      errors: {
+        email: validatedFields.error.flatten().fieldErrors.email?.[0]
+      }
+    };
   }
+
+  const { email, redirectTo } = validatedFields.data;
   filterEmails(email);
-  const redirectTo = formData.get('redirectTo');
   const params = new URLSearchParams();
   params.append('email', email);
   if (typeof redirectTo === 'string' && redirectTo !== '') {
     params.append('redirectTo', redirectTo);
   }
+
+  // ToDo: Consider if passing the redirectTo value here is appropriate
   const signInSuccessful = await signIn(email);
+  
   if (signInSuccessful) {
     const redirectUrl = `/auth/validateLogin?${params.toString()}`;
     redirect(redirectUrl, RedirectType.push);
   }
+
+  return {
+    data:
+      previousState.data.email === submittedState.data.email &&
+      previousState.data.redirectTo === submittedState.data.redirectTo
+        ? previousState.data
+        : submittedState.data,
+    errors: {
+      form: 'Could not send a login code. Please try again.'
+    }
+  };
 };
 
 const signUp = async (
