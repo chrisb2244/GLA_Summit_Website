@@ -217,6 +217,7 @@ export const PresentationSubmissionForm = (
             <SubmitButton
               staticText={duplicateWarning ? 'Submit Anyway' : staticSubmitText}
               pendingText={pendingSubmitText}
+              formAction={submitNewPresentation}
             />
           </div>
         </div>

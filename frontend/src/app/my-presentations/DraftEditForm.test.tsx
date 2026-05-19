@@ -5,12 +5,14 @@ import { DraftEditForm } from './DraftEditForm';
 import type { PresentationBaseFormData } from '@/Components/Forms/PresentationFormShared';
 import {
   updateDraftPresentation,
+  submitFinalDraftPresentation,
   deleteDraftPresentation
 } from '@/actions/presentationSubmission';
 
 // Mock server actions
 vi.mock('@/actions/presentationSubmission', () => ({
   updateDraftPresentation: vi.fn().mockResolvedValue({ success: true }),
+  submitFinalDraftPresentation: vi.fn().mockResolvedValue({ success: true }),
   deleteDraftPresentation: vi.fn().mockResolvedValue({ success: true })
 }));
 
@@ -30,7 +32,7 @@ const defaultValues: PresentationBaseFormData = {
   submitter,
   title: 'Existing Draft Title',
   abstract: 'A'.repeat(150),
-  learningPoints: 'Key things to learn',
+  learningPoints: 'Key things to learn from this session. '.repeat(3),
   presentationType: 'full length',
   isFinal: false,
   speakerAgreement: false,
@@ -101,6 +103,62 @@ describe('DraftEditForm', () => {
     await userEvent.click(screen.getByRole('button', { name: /save draft/i }));
     await waitFor(() => {
       expect(screen.getByText('Draft saved successfully!')).toBeDefined();
+    });
+  });
+
+  it('does not call updateDraftPresentation on Submit Presentation without speaker agreement', async () => {
+    const mockedUpdate = vi.mocked(updateDraftPresentation);
+    render(
+      <DraftEditForm
+        presentationId='pres-id-1'
+        submitter={submitter}
+        defaultValues={defaultValues}
+      />
+    );
+
+    await userEvent.click(
+      screen.getByRole('button', { name: /submit presentation/i })
+    );
+
+    await waitFor(() => {
+      expect(mockedUpdate).not.toHaveBeenCalled();
+    });
+  });
+
+  it('calls updateDraftPresentation with isFinal on Submit Presentation', async () => {
+    const mockedUpdate = vi.mocked(updateDraftPresentation);
+    const mockedSubmitFinal = vi.mocked(submitFinalDraftPresentation);
+    render(
+      <DraftEditForm
+        presentationId='pres-id-1'
+        submitter={submitter}
+        defaultValues={defaultValues}
+      />
+    );
+
+    const agreementCheckbox = screen.getByRole('checkbox', {
+      name: /speaker agreement/i
+    }) as HTMLInputElement;
+    await userEvent.click(agreementCheckbox);
+    expect(agreementCheckbox.checked).toBe(true);
+    await userEvent.click(
+      screen.getByRole('button', { name: /submit presentation/i })
+    );
+
+    await waitFor(() => {
+      expect(
+        mockedUpdate.mock.calls.length + mockedSubmitFinal.mock.calls.length
+      ).toBeGreaterThan(0);
+
+      const formData: FormData = mockedUpdate.mock.calls.length
+        ? mockedUpdate.mock.calls[0][0]
+        : mockedSubmitFinal.mock.calls[0][0];
+      expect(formData.get('presentationId')).toBe('pres-id-1');
+      // The JS path sets isFinal in the client; the no-JS formAction wrapper
+      // sets it on the server action side.
+      if (mockedUpdate.mock.calls.length) {
+        expect(formData.get('isFinal')).toBe('on');
+      }
     });
   });
 

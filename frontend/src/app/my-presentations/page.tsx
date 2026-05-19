@@ -6,12 +6,10 @@ import { createServerClient } from '@/lib/supabaseServer';
 import { User } from '@supabase/supabase-js';
 import { Metadata } from 'next';
 import { CAN_SUBMIT_PRESENTATION } from '../configConstants';
-import { Suspense } from 'react';
-import {
-  PastPresentationSubmissions,
-  PastPresentationSubmissionsFallback
-} from './PastPresentationSubmissions';
+import { PastPresentationSubmissions } from './PastPresentationSubmissions';
+import { PastPresentationSubmissionsFallback } from './PastPresentationSubmissions';
 import NextLink from 'next/link';
+import { Suspense } from 'react';
 
 export const metadata: Metadata = {
   robots: {
@@ -19,16 +17,11 @@ export const metadata: Metadata = {
   }
 };
 
-const MyPresentationsPage = () => {
-  return (
-    <Suspense fallback={<p>Loading your presentations...</p>}>
-      <MyPresentationsPageContent />
-    </Suspense>
-  );
-};
-
-const MyPresentationsPageContent = async () => {
+const SubmissionFormSection = async () => {
   const user = await getUser();
+  if (!user) {
+    return null;
+  }
 
   const supabase = await createServerClient();
   const getSubmitter = async (
@@ -74,7 +67,7 @@ const MyPresentationsPageContent = async () => {
   );
 
   return (
-    <div className='prose mx-auto flex max-w-none flex-col'>
+    <>
       {profileIncomplete && (
         <div className='mb-4 rounded-md border border-blue-300 bg-blue-50 p-3'>
           <p className='font-semibold text-blue-800'>Profile incomplete</p>
@@ -89,8 +82,22 @@ const MyPresentationsPageContent = async () => {
         </div>
       )}
       {submissionElements}
+    </>
+  );
+};
+
+const SubmissionFormSectionFallback = () => {
+  return <div className='flex min-h-16 animate-pulse bg-gray-200'></div>;
+};
+
+const MyPresentationsPage = () => {
+  return (
+    <div className='prose mx-auto flex max-w-none flex-col'>
+      <Suspense fallback={<SubmissionFormSectionFallback />}>
+        <SubmissionFormSection />
+      </Suspense>
       <Suspense fallback={<PastPresentationSubmissionsFallback />}>
-        {<PastPresentationSubmissions />}
+        <PastPresentationSubmissions />
       </Suspense>
     </div>
   );

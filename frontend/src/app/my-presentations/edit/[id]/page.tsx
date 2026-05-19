@@ -14,15 +14,7 @@ export const metadata: Metadata = {
 
 type Params = { id: string };
 
-const DraftEditPage = ({ params }: { params: Promise<Params> }) => {
-  return (
-    <Suspense fallback={<p>Loading draft...</p>}>
-      <DraftEditPageContent params={params} />
-    </Suspense>
-  );
-};
-
-const DraftEditPageContent = async ({ params }: { params: Promise<Params> }) => {
+const DraftEditPage = async ({ params }: { params: Promise<Params> }) => {
   const { id } = await params;
   const user = await getUser();
   if (!user) {

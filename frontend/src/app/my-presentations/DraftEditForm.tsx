@@ -7,6 +7,7 @@ import { PresentationFormFields } from '@/Components/Forms/PresentationFormField
 import { PresentationBaseFormData } from '@/Components/Forms/PresentationFormShared';
 import {
   deleteDraftPresentation,
+  submitFinalDraftPresentation,
   updateDraftPresentation
 } from '@/actions/presentationSubmission';
 import { useFieldArray, useForm } from 'react-hook-form';
@@ -61,7 +62,6 @@ export const DraftEditForm = ({
     startSaveTransition(async () => {
       setActionError(null);
       const formData = new FormData(formRef.current!);
-      formData.set('presentationId', presentationId);
       formData.delete('isFinal');
       const result = await updateDraftPresentation(formData);
       if (result.success) {
@@ -88,7 +88,6 @@ export const DraftEditForm = ({
         return;
       }
       const formData = new FormData(formRef.current!);
-      formData.set('presentationId', presentationId);
       formData.set('isFinal', 'on');
       const result = await updateDraftPresentation(formData);
       if (result.success) {
@@ -175,6 +174,7 @@ export const DraftEditForm = ({
       )}
 
       <form ref={formRef}>
+        <input type='hidden' name='presentationId' value={presentationId} />
         <div className='border border-gray-200 bg-gray-100 p-2 shadow-lg'>
           <PresentationFormFields
             register={register}
@@ -204,16 +204,26 @@ export const DraftEditForm = ({
           <div className='mt-3 flex flex-col gap-2 sm:flex-row sm:justify-between'>
             <div className='flex gap-2'>
               <Button
-                type='button'
-                onClick={handleSaveDraft}
+                type='submit'
+                formAction={updateDraftPresentation}
+                onClick={(event) => {
+                  // JS-enhanced path keeps inline status/errors; no-JS uses formAction.
+                  event.preventDefault();
+                  handleSaveDraft();
+                }}
                 disabled={isPending}
               >
                 {isPendingSave ? 'Saving...' : 'Save Draft'}
               </Button>
               {CAN_SUBMIT_PRESENTATION && (
                 <Button
-                  type='button'
-                  onClick={handleSubmitFinal}
+                  type='submit'
+                  formAction={submitFinalDraftPresentation}
+                  onClick={(event) => {
+                    // JS-enhanced path runs RHF validation before server action call.
+                    event.preventDefault();
+                    handleSubmitFinal();
+                  }}
                   disabled={isPending}
                 >
                   {isPendingSubmit ? 'Submitting...' : 'Submit Presentation'}
