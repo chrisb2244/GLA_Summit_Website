@@ -32,6 +32,18 @@ export class LoginablePage {
     await this.page.goto(url);
   }
 
+  private async waitForLoginForm() {
+    await expect(this.emailInput).toBeVisible();
+    await expect(this.firstnameInput).toBeHidden();
+    await expect(this.lastnameInput).toBeHidden();
+  }
+
+  private async waitForRegistrationForm() {
+    await expect(this.firstnameInput).toBeVisible();
+    await expect(this.lastnameInput).toBeVisible();
+    await expect(this.emailInput).toBeVisible();
+  }
+
   async openLoginOrRegisterForm(type?: 'login' | 'register') {
     // The login/register button should be visible
     await expect(this.loginOrRegisterButton).toBeVisible();
@@ -41,16 +53,18 @@ export class LoginablePage {
     await expect(this.form).toBeVisible();
 
     // If required, change the form type.
-    if (typeof type !== undefined) {
+    if (type !== undefined) {
       const isRegistrationForm = await this.firstnameInput.isVisible();
       switch (type) {
         case 'register':
           if (isRegistrationForm) {
+            await this.waitForRegistrationForm();
             return;
           } else {
             await this.form
               .locator('role=link', { hasText: /Join Now/i })
               .click();
+            await this.waitForRegistrationForm();
             return;
           }
         case 'login':
@@ -58,8 +72,10 @@ export class LoginablePage {
             await this.form
               .locator('role=link', { hasText: /Sign In/i })
               .click();
+            await this.waitForLoginForm();
             return;
           } else {
+            await this.waitForLoginForm();
             return;
           }
       }
