@@ -20,7 +20,6 @@ const mockDraft: MyPresentationSubmissionType = {
   is_submitted: false,
   year: '2025',
   updated_at: '2025-03-01T12:00:00Z',
-  all_emails: ['alice@example.com'],
   all_firstnames: ['Alice'],
   all_lastnames: ['Smith'],
   all_presenters_ids: ['user-1']
