@@ -175,8 +175,7 @@ export class LoginablePage {
   }
 
   async getAllErrors() {
-    const errors = await this.page.getByRole('alert').allTextContents();
-    return errors;
+    return await this.form.getByRole('alert').allTextContents();
   }
 
   async switchForm() {
