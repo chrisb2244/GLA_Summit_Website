@@ -13,22 +13,28 @@ export const PastPresentationSubmissions = async () => {
 
   const myPresentations = await getMyPresentations(supabase);
   const myPresentationIds = myPresentations.map((p) => p.presentation_id);
-  const acceptedList = (
-    (
-      await supabase
-        .from('accepted_presentations')
-        .select('id')
-        .in('id', myPresentationIds)
-    ).data ?? []
-  ).map((v) => v.id);
-  const rejectedList = (
-    (
-      await supabase
-        .from('rejected_presentations')
-        .select('id')
-        .in('id', myPresentationIds)
-    ).data ?? []
-  ).map((v) => v.id);
+  const acceptedList =
+    myPresentationIds.length > 0
+      ? (
+          (
+            await supabase
+              .from('accepted_presentations')
+              .select('id')
+              .in('id', myPresentationIds)
+          ).data ?? []
+        ).map((v) => v.id)
+      : [];
+  const rejectedList =
+    myPresentationIds.length > 0
+      ? (
+          (
+            await supabase
+              .from('rejected_presentations')
+              .select('id')
+              .in('id', myPresentationIds)
+          ).data ?? []
+        ).map((v) => v.id)
+      : [];
 
   const { submittedPresentations, draftPresentations } =
     myPresentations.reduce(
