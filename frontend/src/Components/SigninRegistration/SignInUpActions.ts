@@ -1,233 +1,52 @@
 'use server';
 import 'server-only'; // Poison the module for client code.
 
-import { generateSupabaseLinks } from '@/lib/generateSupabaseLinks';
 import { createServerActionClient } from '@/lib/supabaseServer';
-import { randomBytes } from 'crypto';
-import { sendMailApi } from '@/lib/sendMail';
-import { PersonProps } from '../Form/Person';
-import { UserMetadata } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
-import { SignInEmailFn } from '@/EmailTemplates/SignInEmail';
-import { RegistrationEmailFn } from '@/EmailTemplates/RegistrationEmail';
 import { RedirectType, redirect } from 'next/navigation';
-import { z } from 'zod';
+import type { PersonProps } from '../Form/Person';
+import {
+  buildValidateLoginUrl,
+  LoginSchema,
+  loginStateFromFormData,
+  RegistrationSchema,
+  registrationStateFromFormData,
+  verificationRequestFromFormData
+} from './formState';
+import { blockIfEmailIsDisallowed, blockIfProfileIsFlagged } from './validation';
+import { signIn, signUp, verifyLogin } from './authService';
+import type { LoginState, RegistrationState, VerificationState } from './formState';
 
-const filterEmails = (email: string) => {
-  if (email.match(/.*@mail\.ru/) || email.match(/.*@yandex\.ru/)) {
-    // Block signups from @mail.ru
-    redirect('/auth-blocked', RedirectType.push);
-  }
-};
-
-const filterProfileData = ({ firstName, lastName, email }: PersonProps) => {
-  filterEmails(email);
-  const flaggedMatchers = [
-    /https?:\/\/.*/,
-    /blogspot\./,
-    /ok\.me/
-  ];
-
-  // Check the name lengths are not excessive
-  if (firstName.length > 35 || lastName.length > 35) {
-    // See https://webarchive.nationalarchives.gov.uk/ukgwa/20100407204354/http://www.cabinetoffice.gov.uk/govtalk/schemasstandards/e-gif/datastandards/person_information/person_name.aspx for reference on length
-    redirect('/auth-blocked', RedirectType.push);
-  }
-  
-  flaggedMatchers.forEach((m) => {
-    if (firstName.match(m) || lastName.match(m)) {
-      redirect('/auth-blocked', RedirectType.push);
-    }
-  })
-
-  // Add more dubious text entries that may be valid in a name
-  // Add an explicit type, because an empty array otherwise triggers an "any[]" type failure linting issue.
-  const captureMatchers: string[] = [];
-  captureMatchers.forEach((m) => {
-    if (firstName.match(m) || lastName.match(m)) {
-      // Add a capture-based check or similar here
-    }
-  })
-};
+export type { LoginFormErrors, LoginState, RegistrationFormErrors, RegistrationState, VerificationState } from './formState';
 
 export const signOut = async () => {
   await (await createServerActionClient()).auth.signOut();
   revalidatePath('/');
 };
 
-const verifyLogin = async (data: {
-  email: string;
-  verificationCode: string;
-}) => {
-  const supabase = await createServerActionClient();
-  return await supabase.auth
-    .verifyOtp({
-      email: data.email,
-      token: data.verificationCode,
-      type: 'email'
-    })
-    .then((res) => {
-      return res.data.user !== null;
-    });
-};
-
-export type VerificationState =
-  | {
-      success: true;
-      message: undefined;
-    }
-  | {
-      success: false;
-      message: string;
-    }
-  | null;
-
-export type LoginFormErrors = Partial<Record<'email' | 'form', string>>;
-
-export type LoginState = {
-  errors?: LoginFormErrors;
-  data: {
-    email: string;
-    redirectTo?: string;
-  };
-};
-
-const LoginSchema = z.object({
-  email: z
-    .string()
-    .trim()
-    .min(1, 'Required')
-    .email("This email doesn't match the expected pattern"),
-  redirectTo: z.string().optional()
-});
-
-const loginStateFromFormData = (formData: FormData): LoginState => {
-  const redirectTo = formData.get('redirectTo');
-
-  return {
-    data: {
-      email:
-        typeof formData.get('email') === 'string'
-          ? (formData.get('email') as string)
-          : '',
-      redirectTo:
-        typeof redirectTo === 'string' && redirectTo !== ''
-          ? redirectTo
-          : undefined
-    }
-  };
-};
-
-export type RegistrationFormErrors = Partial<
-  Record<keyof PersonProps | 'form', string>
->;
-
-export type RegistrationState = {
-  errors?: RegistrationFormErrors;
-  data: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    redirectTo?: string;
-  };
-};
-
-const RegistrationSchema = z.object({
-  firstName: z.string().trim().min(1, 'Required').max(80),
-  lastName: z.string().trim().min(1, 'Required').max(100),
-  email: z
-    .string()
-    .trim()
-    .min(1, 'Required')
-    .email("This email doesn't match the expected pattern"),
-  redirectTo: z.string().optional()
-});
-
-const registrationStateFromFormData = (formData: FormData): RegistrationState => {
-  const redirectTo = formData.get('redirectTo');
-
-  return {
-    data: {
-      firstName:
-        typeof formData.get('firstName') === 'string'
-          ? (formData.get('firstName') as string)
-          : '',
-      lastName:
-        typeof formData.get('lastName') === 'string'
-          ? (formData.get('lastName') as string)
-          : '',
-      email: typeof formData.get('email') === 'string' ? (formData.get('email') as string) : '',
-      redirectTo: typeof redirectTo === 'string' && redirectTo !== '' ? redirectTo : undefined
-    }
-  };
-};
-
 export const verifyLoginWithRedirectFromForm = async (
   previousState: VerificationState,
   data: FormData
 ): Promise<VerificationState> => {
-  const email = data.get('email');
-  const redirectToValue = data.get('redirectTo');
-  const redirectTo =
-    typeof redirectToValue === 'string' ? redirectToValue : '/';
-  const verificationCode = data.get('verificationCode');
-  if (typeof email !== 'string' || typeof verificationCode !== 'string') {
+  void previousState; // Required by useActionState server action signature.
+
+  const request = verificationRequestFromFormData(data);
+  if (request == null) {
     return {
       success: false,
       message: 'Invalid input.'
     };
   }
-  const result = await verifyLogin({
-    email,
-    verificationCode
-  });
+
+  const result = await verifyLogin(request);
   if (result) {
-    redirect(redirectTo);
+    redirect(request.redirectTo);
   }
+
   return {
     success: false,
     message: 'Invalid verification code.'
   };
-};
-
-const signIn = async (
-  email: string,
-  options?: { redirectTo?: string; scopes?: string; captchaToken?: string }
-): Promise<boolean> => {
-  return generateSupabaseLinks({
-    type: 'magiclink',
-    email,
-    redirectTo: options?.redirectTo
-  })
-    .then(async (v) => {
-      const { properties, user } = v.data;
-      if (properties == null) {
-        console.log('Some error?');
-        console.log(v.data);
-        return false;
-      }
-      const { firstName, lastName } = parseUserMetadata(user.user_metadata);
-      const plainText = otpEmailText(firstName, lastName, properties.email_otp);
-      const mailResult = await sendMailApi({
-        subject: 'Validation Code for GLA Summit Login',
-        to: email,
-        bodyPlain: plainText, //`Your One-Time Passcode is ${v.data.properties.email_otp}`
-        body: SignInEmailFn(
-          `${firstName} ${lastName}`,
-          properties.email_otp,
-          email
-        )
-      });
-      if (mailResult.status === 200) {
-        return true;
-      } else {
-        throw new Error(mailResult.message);
-      }
-    })
-    .catch((err) => {
-      console.log(`Failed to send a sign-in link: ${err}`);
-      return false;
-    });
 };
 
 export const signInFromFormWithRedirect = async (
@@ -247,18 +66,12 @@ export const signInFromFormWithRedirect = async (
   }
 
   const { email, redirectTo } = validatedFields.data;
-  filterEmails(email);
-  const params = new URLSearchParams();
-  params.append('email', email);
-  if (typeof redirectTo === 'string' && redirectTo !== '') {
-    params.append('redirectTo', redirectTo);
-  }
+  blockIfEmailIsDisallowed(email);
 
-  // ToDo: Consider if passing the redirectTo value here is appropriate
-  const signInSuccessful = await signIn(email);
+  const signInSuccessful = await signIn(email, redirectTo);
   
   if (signInSuccessful) {
-    const redirectUrl = `/auth/validateLogin?${params.toString()}`;
+    const redirectUrl = buildValidateLoginUrl(email, redirectTo);
     redirect(redirectUrl, RedirectType.push);
   }
 
@@ -274,52 +87,12 @@ export const signInFromFormWithRedirect = async (
   };
 };
 
-const signUp = async (
-  newUser: PersonProps,
-  redirectTo?: string
-): Promise<boolean> => {
-  // Sign up
-  const password = randomBytes(32).toString('hex');
-  const email = newUser.email;
-
-  return generateSupabaseLinks({
-    type: 'signup',
-    email,
-    signUpData: {
-      password,
-      data: {
-        firstname: newUser.firstName,
-        lastname: newUser.lastName
-      }
-    },
-    redirectTo
-  }).then(({ data, error }) => {
-    // console.log({ data, error, m: 'signup' });
-    if (error) {
-      return false;
-    }
-    const subject = 'GLA Summit Website Signup';
-    const otp = data.properties.email_otp;
-    const plainText = otpEmailText(newUser.firstName, newUser.lastName, otp);
-    const html = RegistrationEmailFn(
-      `${newUser.firstName} ${newUser.lastName}`,
-      otp,
-      email
-    );
-    sendMailApi({
-      to: email,
-      subject,
-      bodyPlain: plainText,
-      body: html
-    });
-    return true;
-  });
-};
-
 export const registerFromFormWithRedirect = async (
   previousState: RegistrationState,
   formData: FormData
 ): Promise<RegistrationState> => {
+  void previousState; // Required by useActionState server action signature.
+
   const submittedState = registrationStateFromFormData(formData);
   const validatedFields = RegistrationSchema.safeParse(submittedState.data);
 
@@ -347,18 +120,12 @@ export const registerFromFormWithRedirect = async (
     lastName,
     email
   };
-  filterProfileData(newUser);
-  const params = new URLSearchParams();
-  params.append('email', email);
-  if (typeof redirectTo === 'string' && redirectTo !== '') {
-    params.append('redirectTo', redirectTo);
-  }
+  blockIfProfileIsFlagged(newUser);
   
-  // ToDo: Consider if passing the redirectTo value here is appropriate
-  const signUpSuccessful = await signUp(newUser);
+  const signUpSuccessful = await signUp(newUser, redirectTo);
   
   if (signUpSuccessful) {
-    redirect(`/auth/validateLogin?${params.toString()}`, RedirectType.push);
+    redirect(buildValidateLoginUrl(email, redirectTo), RedirectType.push);
   }
 
   return {
@@ -367,32 +134,4 @@ export const registerFromFormWithRedirect = async (
       form: 'Could not create your account. Please try again.'
     }
   };
-};
-
-const otpEmailText = (fname: string, lname: string, otp: string) => {
-  const firstline = `Dear ${fname} ${lname},\r\n`;
-  const mainline = 'Your One-Time-Passcode (OTP) token is ' + otp + '\r\n';
-  const signature = 'GLA Summit Organizers';
-  return [firstline, mainline, signature].join('\r\n');
-};
-
-const parseUserMetadata = (
-  metadata: UserMetadata
-): { firstName: string; lastName: string } => {
-  if (
-    Object.hasOwn(metadata, 'firstName') &&
-    typeof metadata.firstName === 'string' &&
-    Object.hasOwn(metadata, 'lastName') &&
-    typeof metadata.lastName === 'string'
-  ) {
-    return {
-      firstName: metadata.firstName,
-      lastName: metadata.lastName
-    };
-  } else {
-    return {
-      firstName: 'GLA Summit',
-      lastName: 'User'
-    };
-  }
 };
