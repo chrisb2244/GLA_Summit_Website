@@ -123,9 +123,15 @@ export class LoginablePage {
     lastname?: string;
     email?: string;
   }) {
-    if (values.firstname) await this.firstnameInput.fill(values.firstname);
-    if (values.lastname) await this.lastnameInput.fill(values.lastname);
-    if (values.email) await this.emailInput.fill(values.email);
+    if (values.firstname !== undefined) {
+      await this.firstnameInput.fill(values.firstname);
+    }
+    if (values.lastname !== undefined) {
+      await this.lastnameInput.fill(values.lastname);
+    }
+    if (values.email !== undefined) {
+      await this.emailInput.fill(values.email);
+    }
   }
 
   async fillInVerificationForm(code: string) {

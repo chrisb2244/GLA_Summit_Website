@@ -1,12 +1,52 @@
+"use client";
+
 import { Person, PersonProps } from '@/Components/Form/PersonSrv';
 import { SubmitButton } from '@/Components/Form/SubmitButton';
-import { registerFromFormWithRedirect } from '@/Components/SigninRegistration/SignInUpActions';
+import {
+  registerFromFormWithRedirect,
+  RegistrationState
+} from '@/Components/SigninRegistration/SignInUpActions';
+import { useFormValidation } from '@/Components/Utilities/useFormValidation';
 import Link from 'next/link';
+import { useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
+
+const FormError = (props: { message?: string }) => {
+  const { pending } = useFormStatus();
+
+  if (pending || props.message === undefined) {
+    return null;
+  }
+
+  return (
+    <p className='pt-2 text-center text-base text-red-700' role='alert'>
+      {props.message}
+    </p>
+  );
+};
 
 export const RegistrationForm = (props: { redirectTo?: string }) => {
   const loginPath = props.redirectTo
     ? `/auth/login?redirectTo=${props.redirectTo}`
     : '/auth/login';
+  const initialState: RegistrationState = {
+    errors: undefined,
+    data: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      redirectTo: props.redirectTo
+    }
+  };
+  const [state, formAction] = useActionState(
+    registerFromFormWithRedirect,
+    initialState
+  );
+  const { validationMessages, checkValidity } = useFormValidation();
+
+  const fieldError = (field: keyof PersonProps) => {
+    return validationMessages.get(field) ?? state.errors?.[field];
+  };
 
   return (
     <div
@@ -51,16 +91,39 @@ export const RegistrationForm = (props: { redirectTo?: string }) => {
           .
         </p> */}
       </div>
-      <form action={registerFromFormWithRedirect}>
-        <input type='hidden' name='redirectTo' value={props.redirectTo} />
+      <form
+        action={formAction}
+        onChange={(ev) => {
+          if (ev.target instanceof HTMLInputElement) {
+            checkValidity(ev.target);
+          }
+        }}
+        onInvalidCapture={(ev) => {
+          if (ev.target instanceof HTMLInputElement) {
+            ev.preventDefault();
+            checkValidity(ev.target);
+          }
+        }}
+      >
+        <input type='hidden' name='redirectTo' value={props.redirectTo ?? ''} />
         <div className='pb-4'>
-          <Person<PersonProps> splitSize={'md'} giveFocus />
+          <Person<PersonProps>
+            splitSize={'md'}
+            giveFocus
+            defaultValue={state.data}
+            errors={{
+              firstName: fieldError('firstName'),
+              lastName: fieldError('lastName'),
+              email: fieldError('email')
+            }}
+          />
         </div>
         <SubmitButton
           fullWidth
           staticText='Register'
           pendingText='Registering...'
         />
+        <FormError message={state.errors?.form} />
       </form>
     </div>
   );

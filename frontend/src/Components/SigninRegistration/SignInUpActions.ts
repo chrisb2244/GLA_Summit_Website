@@ -11,6 +11,7 @@ import { revalidatePath } from 'next/cache';
 import { SignInEmailFn } from '@/EmailTemplates/SignInEmail';
 import { RegistrationEmailFn } from '@/EmailTemplates/RegistrationEmail';
 import { RedirectType, redirect } from 'next/navigation';
+import { z } from 'zod';
 
 const filterEmails = (email: string) => {
   if (email.match(/.*@mail\.ru/) || email.match(/.*@yandex\.ru/)) {
@@ -80,6 +81,50 @@ export type VerificationState =
       message: string;
     }
   | null;
+
+export type RegistrationFormErrors = Partial<
+  Record<keyof PersonProps | 'form', string>
+>;
+
+export type RegistrationState = {
+  errors?: RegistrationFormErrors;
+  data: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    redirectTo?: string;
+  };
+};
+
+const RegistrationSchema = z.object({
+  firstName: z.string().trim().min(1, 'Required').max(80),
+  lastName: z.string().trim().min(1, 'Required').max(100),
+  email: z
+    .string()
+    .trim()
+    .min(1, 'Required')
+    .email("This email doesn't match the expected pattern"),
+  redirectTo: z.string().optional()
+});
+
+const registrationStateFromFormData = (formData: FormData): RegistrationState => {
+  const redirectTo = formData.get('redirectTo');
+
+  return {
+    data: {
+      firstName:
+        typeof formData.get('firstName') === 'string'
+          ? (formData.get('firstName') as string)
+          : '',
+      lastName:
+        typeof formData.get('lastName') === 'string'
+          ? (formData.get('lastName') as string)
+          : '',
+      email: typeof formData.get('email') === 'string' ? (formData.get('email') as string) : '',
+      redirectTo: typeof redirectTo === 'string' && redirectTo !== '' ? redirectTo : undefined
+    }
+  };
+};
 
 export const verifyLoginWithRedirectFromForm = async (
   previousState: VerificationState,
@@ -213,36 +258,56 @@ const signUp = async (
 };
 
 export const registerFromFormWithRedirect = async (
+  previousState: RegistrationState,
   formData: FormData
-): Promise<void> => {
-  const email = formData.get('email');
-  if (email === null || typeof email !== 'string') {
-    return;
+): Promise<RegistrationState> => {
+  const submittedState = registrationStateFromFormData(formData);
+  const validatedFields = RegistrationSchema.safeParse(submittedState.data);
+
+  if (!validatedFields.success) {
+    const fieldErrors = validatedFields.error.flatten().fieldErrors;
+    return {
+      ...submittedState,
+      errors: {
+        firstName: fieldErrors.firstName?.[0],
+        lastName: fieldErrors.lastName?.[0],
+        email: fieldErrors.email?.[0]
+      }
+    };
   }
-  const firstName = formData.get('firstName');
-  const lastName = formData.get('lastName');
-  if (firstName === null || typeof firstName !== 'string') {
-    return;
-  }
-  if (lastName === null || typeof lastName !== 'string') {
-    return;
-  }
+
+  const {
+    firstName,
+    lastName,
+    email,
+    redirectTo
+  } = validatedFields.data;
+
   const newUser: PersonProps = {
     firstName,
     lastName,
     email
   };
   filterProfileData(newUser);
-  const redirectTo = formData.get('redirectTo');
   const params = new URLSearchParams();
   params.append('email', email);
   if (typeof redirectTo === 'string' && redirectTo !== '') {
     params.append('redirectTo', redirectTo);
   }
+  
+  // ToDo: Consider if passing the redirectTo value here is appropriate
   const signUpSuccessful = await signUp(newUser);
+  
   if (signUpSuccessful) {
     redirect(`/auth/validateLogin?${params.toString()}`, RedirectType.push);
   }
+
+  return {
+    data: submittedState.data,
+    errors: {
+      form: 'Could not create your account. Please try again.'
+    }
+  };
 };
 
 const otpEmailText = (fname: string, lname: string, otp: string) => {
