@@ -23,9 +23,13 @@ const buttonStyles = cva(
 type VariantStyleProps = VariantProps<typeof buttonStyles>;
 export type ButtonProps = Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
-  'className'
+  'className' | 'formAction'
 > &
-  VariantStyleProps;
+  VariantStyleProps & {
+    formAction?:
+      | string
+      | ((formData: FormData) => void | Promise<any>);
+  };
 
 export const Button = forwardRef<
   HTMLButtonElement,
