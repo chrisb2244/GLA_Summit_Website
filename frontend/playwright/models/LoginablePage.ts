@@ -153,18 +153,24 @@ export class LoginablePage {
       let labelMatcher = undefined;
       switch (formType) {
         case 'login':
-          labelMatcher = /log ?in/i;
+          labelMatcher = /log ?in|logging ?in/i;
           break;
         case 'registration':
-          labelMatcher = /register/i;
+          labelMatcher = /register|registering/i;
           break;
         case 'verification':
-          labelMatcher = /submit/i;
+          labelMatcher = /submit|submitting/i;
           break;
       }
       const button = this.form
         .getByRole('button')
-        .filter({ hasText: labelMatcher });
+        .filter({ hasText: labelMatcher })
+        .first();
+
+      // Another concurrent submit can transition button text/state before this call.
+      if (!(await button.isVisible({ timeout: 200 }).catch(() => false))) {
+        return false;
+      }
 
       if (await button.isDisabled({ timeout: 100 })) {
         return false;
