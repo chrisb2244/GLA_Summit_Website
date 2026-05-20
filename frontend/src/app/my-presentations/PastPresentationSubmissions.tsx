@@ -6,30 +6,37 @@ import type {
 import { getMyPresentations } from '@/lib/databaseFunctions';
 import NextLink from 'next/link';
 import { formatTextToPs } from '@/lib/utils';
+import { DraftPresentationCard } from './DraftPresentationCard';
 
 export const PastPresentationSubmissions = async () => {
   const supabase = await createServerClient();
 
   const myPresentations = await getMyPresentations(supabase);
   const myPresentationIds = myPresentations.map((p) => p.presentation_id);
-  const acceptedList = (
-    (
-      await supabase
-        .from('accepted_presentations')
-        .select('id')
-        .in('id', myPresentationIds)
-    ).data ?? []
-  ).map((v) => v.id);
-  const rejectedList = (
-    (
-      await supabase
-        .from('rejected_presentations')
-        .select('id')
-        .in('id', myPresentationIds)
-    ).data ?? []
-  ).map((v) => v.id);
+  const acceptedList =
+    myPresentationIds.length > 0
+      ? (
+          (
+            await supabase
+              .from('accepted_presentations')
+              .select('id')
+              .in('id', myPresentationIds)
+          ).data ?? []
+        ).map((v) => v.id)
+      : [];
+  const rejectedList =
+    myPresentationIds.length > 0
+      ? (
+          (
+            await supabase
+              .from('rejected_presentations')
+              .select('id')
+              .in('id', myPresentationIds)
+          ).data ?? []
+        ).map((v) => v.id)
+      : [];
 
-  const { submittedPresentations } = myPresentations.reduce(
+  const { submittedPresentations, draftPresentations } = myPresentations.reduce(
     ({ submittedPresentations, draftPresentations }, elem) => {
       const accepted = formatAccepted(
         elem.presentation_id,
@@ -73,6 +80,19 @@ export const PastPresentationSubmissions = async () => {
     return aN === bN ? 0 : aN > bN ? -1 : 1;
   });
 
+  const draftSection =
+    draftPresentations.length > 0 ? (
+      <div className='flex flex-col space-y-1'>
+        {draftPresentations.map((d) => (
+          <DraftPresentationCard key={d.presentation_id} draft={d} />
+        ))}
+      </div>
+    ) : (
+      <div>
+        <p>You have no active draft submissions.</p>
+      </div>
+    );
+
   const pastPresentationSubmissions =
     years.length > 0 ? (
       <div className='flex flex-col space-y-2'>
@@ -92,7 +112,18 @@ export const PastPresentationSubmissions = async () => {
       </div>
     );
 
-  return pastPresentationSubmissions;
+  return (
+    <>
+      <div>
+        <h3>Draft Submissions</h3>
+        {draftSection}
+      </div>
+      <div className='mt-4'>
+        <h3>Submitted Presentations</h3>
+        {pastPresentationSubmissions}
+      </div>
+    </>
+  );
 };
 
 export const PastPresentationSubmissionsFallback = () => {

@@ -293,6 +293,7 @@ export type Database = {
       presentation_submissions: {
         Row: {
           abstract: string
+          consent_given_at: string | null
           id: string
           is_submitted: boolean
           learning_points: string | null
@@ -304,6 +305,7 @@ export type Database = {
         }
         Insert: {
           abstract: string
+          consent_given_at?: string | null
           id?: string
           is_submitted: boolean
           learning_points?: string | null
@@ -315,6 +317,7 @@ export type Database = {
         }
         Update: {
           abstract?: string
+          consent_given_at?: string | null
           id?: string
           is_submitted?: boolean
           learning_points?: string | null
@@ -554,6 +557,10 @@ export type Database = {
           year: Database["public"]["Enums"]["summit_year"]
         }[]
       }
+      get_editable_submission_emails: {
+        Args: { p_presentation_id: string }
+        Returns: string[]
+      }
       get_my_submissions: {
         Args: never
         Returns: {
@@ -567,6 +574,7 @@ export type Database = {
           presentation_type: Database["public"]["Enums"]["presentation_type"]
           submitter_id: string
           title: string
+          updated_at: string
           year: Database["public"]["Enums"]["summit_year"]
         }[]
       }

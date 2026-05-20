@@ -1,6 +1,5 @@
+import { generateAvatarIcon } from '@/actions/generateAvatarIcon';
 import { createRouteHandlerClient } from '@/lib/supabaseServer';
-import { fullUrlToIconUrl } from '@/lib/utils';
-import sharp from 'sharp';
 import { NextResponse } from 'next/server';
 
 type ResponseType =
@@ -11,61 +10,49 @@ type ResponseType =
       error: string;
     };
 
+type RequestBody = {
+  userId?: unknown;
+  remoteFilePath?: unknown;
+};
+
+const jsonError = (error: string, status: number) => {
+  return NextResponse.json({ error }, { status });
+};
+
+const parseBody = (body: RequestBody) => {
+  const { userId, remoteFilePath } = body;
+  if (typeof userId !== 'string' || typeof remoteFilePath !== 'string') {
+    return null;
+  }
+  return { userId, remoteFilePath };
+};
+
 export async function POST(req: Request): Promise<NextResponse<ResponseType>> {
   const supabase = await createRouteHandlerClient();
   const { data, error } = await supabase.auth.getUser();
   if (error) {
-    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+    return jsonError('unauthorized', 401);
+  }
+
+  const parsedBody = parseBody(await req.json());
+  if (parsedBody == null) {
+    return jsonError('invalid body', 400);
   }
 
   const cookieUserId = data.user.id;
-  const { userId, remoteFilePath } = await req.json();
+  const { userId, remoteFilePath } = parsedBody;
   if (cookieUserId !== userId) {
-    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
-  }
-
-  if (typeof userId !== 'string' || typeof remoteFilePath !== 'string') {
-    return NextResponse.json({ error: 'invalid body' }, { status: 400 });
+    return jsonError('unauthorized', 401);
   }
 
   try {
-    const { data: fullSizeImage, error: downloadError } = await supabase.storage
-      .from('avatars')
-      .download(remoteFilePath);
-    if (downloadError) {
-      return NextResponse.json(
-        { error: 'Could not fetch the uploaded image' },
-        { status: 404 }
-      );
+    const iconPath = await generateAvatarIcon(remoteFilePath);
+    if (iconPath == null) {
+      return jsonError('Could not generate the icon image', 500);
     }
-    const fullSizeBuffer = await fullSizeImage.arrayBuffer();
-
-    const iconSizeImage = await sharp(fullSizeBuffer)
-      .resize(128, 128)
-      .webp()
-      .toBuffer();
-    const iconPath = fullUrlToIconUrl(remoteFilePath);
-
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('avatars')
-      .upload(iconPath, iconSizeImage, {
-        contentType: 'image/webp',
-        upsert: true
-      });
-    if (uploadError) {
-      return NextResponse.json(
-        { error: 'Could not upload the icon image' },
-        { status: 500 }
-      );
-    }
-    return NextResponse.json({
-      iconUrl: uploadData.path
-    });
+    return NextResponse.json({ iconUrl: iconPath });
   } catch (e) {
     console.error(e);
-    return NextResponse.json(
-      { error: 'internal server error' },
-      { status: 500 }
-    );
+    return jsonError('internal server error', 500);
   }
 }

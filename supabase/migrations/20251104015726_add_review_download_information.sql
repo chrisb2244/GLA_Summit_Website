@@ -24,6 +24,7 @@ CREATE POLICY update_policy ON review_download_information
   USING ((SELECT auth.uid()) = viewer_id)
   WITH CHECK ((SELECT auth.uid()) = viewer_id);
 
+-- Ensure review pages only include finalized submissions.
 CREATE OR REPLACE FUNCTION public.get_reviewable_submissions(target_year public.summit_year)
   RETURNS TABLE(
     presentation_id uuid,
@@ -45,7 +46,7 @@ CREATE OR REPLACE FUNCTION public.get_reviewable_submissions(target_year public.
       END IF;
 
       RETURN QUERY
-      SELECT 
+      SELECT
         ps.id,
         ps.title,
         ps.abstract,
@@ -54,10 +55,11 @@ CREATE OR REPLACE FUNCTION public.get_reviewable_submissions(target_year public.
         ps.submitter_id,
         array_agg( row(p.id, p.firstname, p.lastname)::presenter_info ),
         ps.updated_at
-      FROM presentation_submissions ps 
+      FROM presentation_submissions ps
         JOIN presentation_presenters pp ON pp.presentation_id = ps.id
         JOIN profiles p ON p.id = pp.presenter_id
       WHERE ps.year = target_year
+        AND ps.is_submitted = true
       GROUP BY ps.id;
     END;
   $$;

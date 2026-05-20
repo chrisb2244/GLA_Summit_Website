@@ -4,14 +4,20 @@ import { useReducer } from 'react';
 
 export function useFormValidation() {
   const [validationMessages, setValidationMessages] = useReducer(
-    (messages, changedElem: HTMLInputElement | HTMLTextAreaElement) => {
+    (
+      messages: Map<string, string>,
+      changedElem: HTMLInputElement | HTMLTextAreaElement
+    ) => {
       const { validity, validationMessage, name } = changedElem;
+      const nextMessages = new Map(messages);
+
       if (validity.valid) {
-        messages.delete(name);
+        nextMessages.delete(name);
       } else {
-        messages.set(name, validationMessage);
+        nextMessages.set(name, validationMessage);
       }
-      return messages;
+
+      return nextMessages;
     },
     new Map<string, string>()
   );

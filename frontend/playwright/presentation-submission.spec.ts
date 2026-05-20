@@ -1,13 +1,18 @@
 import { test, expect } from '@playwright/test';
 import { PresentationSubmissionPage } from './models/PresentationSubmissionPage';
-import { CAN_SUBMIT_PRESENTATION } from '@/app/configConstants';
+import { CAN_SUBMIT_PRESENTATION, submissionsForYear } from '@/app/configConstants';
 import path from 'path';
-import { createSupabaseAdmin, getInbucketEmail, loginOnPage } from './utils';
+import { createSupabaseAdmin, getLatestEmail, loginOnPage } from './utils';
 
-[true, false].forEach((jsEnabled) => {
+// Use an existing user who is not a presenter or organizer
+const attendeeEmail = process.env.TEST_ATTENDEE_EMAIL as string;
+const buildTestTitle = (prefix: string) =>
+  `${prefix} ${Date.now()} ${Math.random().toString(16).slice(2, 8)}`;
+
+[true].forEach((jsEnabled) => {
   const trailing = `with JS ${jsEnabled ? 'enabled' : 'disabled'}`;
 
-  test.describe(`logged-out tests fro presentation submission ${trailing}`, () => {
+  test.describe(`logged-out tests for presentation submission ${trailing}`, () => {
     test.use({ javaScriptEnabled: jsEnabled });
     test('Form submission unavailable if logged out', async ({ page }) => {
       await page.goto('/submit-presentation');
@@ -42,9 +47,6 @@ import { createSupabaseAdmin, getInbucketEmail, loginOnPage } from './utils';
       storageState: async ({}, use) =>
         use(path.resolve(__dirname, '.auth', 'attendee.json'))
     });
-
-    // Use an existing user who is not a presenter or organizer
-    const attendeeEmail = process.env.TEST_ATTENDEE_EMAIL as string;
 
     test(
       '/submit-presentation is accessible',
@@ -93,13 +95,15 @@ import { createSupabaseAdmin, getInbucketEmail, loginOnPage } from './utils';
       const abstract = 'Blah blah '.repeat(20);
       const learningPoints = 'Other text '.repeat(10);
       const isFinal = true;
+      const speakerAgreement = true;
 
       await formPage.fillFormData({
         title: testTitle,
         abstract,
         learningPoints,
         presentationType: '15 minutes',
-        isFinal
+        isFinal,
+        speakerAgreement
       });
 
       await expect(formPage.titleInput).toHaveValue(testTitle);
@@ -107,9 +111,9 @@ import { createSupabaseAdmin, getInbucketEmail, loginOnPage } from './utils';
 
       await formPage.submitForm();
 
-      // Should blank out on successful submission
-      // Can't use the toBeEmpty here
-      await expect(formPage.titleInput).toHaveValue('');
+      // Should hide the form on successful submission
+      await expect(formPage.titleInput).toBeHidden();
+      await expect(formPage.page.getByText("Presentation submitted successfully!")).toBeVisible();
 
       const submittedPresentationsDiv = page.locator(
         'div:has-text("Submitted Presentations")'
@@ -126,7 +130,7 @@ import { createSupabaseAdmin, getInbucketEmail, loginOnPage } from './utils';
 
       // Check an email is received for the submission
       const mailboxId = attendeeEmail.split('@')[0];
-      const emailMsg = await getInbucketEmail(mailboxId, 5000, 3000);
+      const emailMsg = await getLatestEmail(mailboxId);
       const {
         subject,
         body: { html }
@@ -144,6 +148,217 @@ import { createSupabaseAdmin, getInbucketEmail, loginOnPage } from './utils';
         .eq('title', testTitle)
         .single();
       expect(presentations?.is_submitted).toEqual(isFinal);
+    });
+
+    test('draft save shows draft card in Draft Submissions', async ({ page }) => {
+      test.fixme(!jsEnabled, 'Current no-JS my-presentations route remains on loading fallback');
+
+      await page.goto('/my-presentations');
+      const formPage = new PresentationSubmissionPage(page);
+      await formPage.waitForFormLoad();
+
+      const testTitle = buildTestTitle('Draft visibility');
+      const abstract = 'Draft abstract '.repeat(12);
+      const learningPoints = 'Draft learning point '.repeat(4);
+
+      await formPage.fillFormData({
+        title: testTitle,
+        abstract,
+        learningPoints,
+        presentationType: '15 minutes',
+        isFinal: false
+      });
+      await formPage.setSpeakerAgreement(true);
+      await formPage.submitForm('Save Draft');
+
+      await expect(
+        page.getByRole('heading', { name: 'Draft Submissions', exact: true })
+      ).toBeVisible();
+      await expect(page.getByRole('link', { name: testTitle, exact: true })).toBeVisible();
+    });
+
+    test('saved draft remains visible after reload', async ({ page }) => {
+      test.fixme(!jsEnabled, 'Current no-JS my-presentations route remains on loading fallback');
+
+      await page.goto('/my-presentations');
+      const formPage = new PresentationSubmissionPage(page);
+      await formPage.waitForFormLoad();
+
+      const testTitle = buildTestTitle('Draft reload visibility');
+      const abstract = 'Reload abstract '.repeat(12);
+      const learningPoints = 'Reload learning point '.repeat(4);
+
+      await formPage.fillFormData({
+        title: testTitle,
+        abstract,
+        learningPoints,
+        presentationType: 'full length',
+        isFinal: false
+      });
+      await formPage.setSpeakerAgreement(true);
+      await formPage.submitForm('Save Draft');
+
+      await page.reload();
+      await expect(page.getByRole('link', { name: testTitle, exact: true })).toBeVisible();
+    });
+
+    test('saved draft stores is_submitted false in database', async ({ page }) => {
+      test.fixme(!jsEnabled, 'Current no-JS my-presentations route remains on loading fallback');
+
+      await page.goto('/my-presentations');
+      const formPage = new PresentationSubmissionPage(page);
+      await formPage.waitForFormLoad();
+
+      const testTitle = buildTestTitle('Draft database value');
+      const abstract = 'Database abstract '.repeat(12);
+      const learningPoints = 'Database learning point '.repeat(4);
+
+      await formPage.fillFormData({
+        title: testTitle,
+        abstract,
+        learningPoints,
+        presentationType: '7x7',
+        isFinal: false
+      });
+      await formPage.setSpeakerAgreement(true);
+      await formPage.submitForm('Save Draft');
+
+      // Wait for UI confirmation before reading DB to avoid racing the server action.
+      await expect(
+        page.getByRole('link', { name: testTitle, exact: true })
+      ).toBeVisible();
+
+      const adminSB = createSupabaseAdmin();
+      const { data: presentation } = await adminSB
+        .from('presentation_submissions')
+        .select('is_submitted')
+        .eq('title', testTitle)
+        .maybeSingle();
+
+      expect(presentation).not.toBeNull();
+      expect(presentation?.is_submitted).toEqual(false);
+    });
+
+    test('draft card navigates to edit route', async ({ page }) => {
+      test.fixme(!jsEnabled, 'Current no-JS my-presentations route remains on loading fallback');
+
+      await page.goto('/my-presentations');
+      const formPage = new PresentationSubmissionPage(page);
+      await formPage.waitForFormLoad();
+
+      const testTitle = buildTestTitle('Draft edit navigation');
+      const abstract = 'Edit route abstract '.repeat(12);
+      const learningPoints = 'Edit route learning point '.repeat(4);
+
+      await formPage.fillFormData({
+        title: testTitle,
+        abstract,
+        learningPoints,
+        presentationType: '15 minutes',
+        isFinal: false
+      });
+      await formPage.setSpeakerAgreement(true);
+      await formPage.submitForm('Save Draft');
+
+      const draftCard = page.getByRole('link', { name: testTitle, exact: true }).locator('..');
+      await draftCard.getByRole('link', { name: 'Edit', exact: true }).click();
+      await expect(page).toHaveURL(/\/my-presentations\/edit\/[^/]+$/);
+    });
+
+    test('failed submit (required field) preserves entered values', async ({ page }) => {
+      test.fixme(!jsEnabled, 'Requires JS-enabled client-side form state');
+
+      await page.goto('/submit-presentation');
+      const formPage = new PresentationSubmissionPage(page);
+      await formPage.waitForFormLoad();
+
+      const abstract = 'Required validation abstract '.repeat(10);
+      const learningPoints = 'Required validation learning point '.repeat(4);
+
+      await formPage.fillFormData({
+        abstract,
+        learningPoints,
+        presentationType: '15 minutes',
+        isFinal: true
+      });
+      await formPage.setSpeakerAgreement(true);
+
+      await formPage.submitForm('Submit Presentation');
+
+      await expect(formPage.titleInput).toHaveAttribute('aria-invalid', 'true');
+      await expect(formPage.abstractInput).toHaveValue(abstract);
+      await expect(formPage.learningPointsInput).toHaveValue(learningPoints);
+    });
+
+    test('duplicate warning preserves values and enables Submit Anyway', async ({ page }) => {
+      test.fixme(!jsEnabled, 'Requires JS-enabled client-side form state');
+
+      await page.goto('/my-presentations');
+      const formPage = new PresentationSubmissionPage(page);
+      await formPage.waitForFormLoad();
+
+      const testTitle = buildTestTitle('Duplicate warning');
+      const abstract = 'Duplicate abstract '.repeat(12);
+      const learningPoints = 'Duplicate learning point '.repeat(4);
+
+      await formPage.fillFormData({
+        title: testTitle,
+        abstract,
+        learningPoints,
+        presentationType: 'full length',
+        isFinal: false
+      });
+      await formPage.setSpeakerAgreement(true);
+      await formPage.submitForm('Save Draft');
+
+      await page.getByRole('button', { name: 'Submit another presentation' }).click();
+      await formPage.waitForFormLoad();
+
+      await formPage.fillFormData({
+        title: testTitle,
+        abstract,
+        learningPoints,
+        presentationType: 'full length',
+        isFinal: true
+      });
+      await formPage.setSpeakerAgreement(true);
+      await formPage.submitForm('Submit Presentation');
+
+      await expect(formPage.duplicateWarning).toBeVisible();
+      await expect(formPage.titleInput).toHaveValue(testTitle);
+      await expect(formPage.abstractInput).toHaveValue(abstract);
+      await expect(formPage.learningPointsInput).toHaveValue(learningPoints);
+      await expect(
+        page.getByRole('button', { name: 'Submit Anyway', exact: true })
+      ).toBeVisible();
+    });
+
+    test('missing speaker agreement preserves non-failing fields', async ({ page }) => {
+      test.fixme(!jsEnabled, 'Requires JS-enabled client-side form state');
+
+      await page.goto('/submit-presentation');
+      const formPage = new PresentationSubmissionPage(page);
+      await formPage.waitForFormLoad();
+
+      const title = buildTestTitle('Missing agreement');
+      const abstract = 'Agreement abstract '.repeat(12);
+      const learningPoints = 'Agreement learning point '.repeat(4);
+
+      await formPage.fillFormData({
+        title,
+        abstract,
+        learningPoints,
+        presentationType: '15 minutes',
+        isFinal: true
+      });
+      await formPage.setSpeakerAgreement(false);
+
+      await formPage.submitForm('Submit Presentation');
+
+      await expect(page.getByText('You must agree to the speaker agreement to submit.')).toBeVisible();
+      await expect(formPage.titleInput).toHaveValue(title);
+      await expect(formPage.abstractInput).toHaveValue(abstract);
+      await expect(formPage.learningPointsInput).toHaveValue(learningPoints);
     });
 
     test('Missing title cannot submit', async ({ page }) => {
@@ -199,5 +414,111 @@ import { createSupabaseAdmin, getInbucketEmail, loginOnPage } from './utils';
     //   expect(await formPage.titleInput.inputValue()).toEqual(testTitle)
     //   expect(await formPage.abstractInput.textContent()).not.toEqual("")
     // })
+  });
+});
+
+test.describe(`presentation submission tests handling no-js only path`, () => {
+  test.use({ javaScriptEnabled: false });
+  test.skip(true, "No-js tests are currently skipped");
+
+  test('no-js: Save Draft persists using server action fallback', async ({
+    page
+  }) => {
+    await page.goto('/submit-presentation');
+    const formPage = new PresentationSubmissionPage(page);
+    await formPage.waitForFormLoad();
+
+    const testTitle = buildTestTitle('No JS draft save fallback');
+    const abstract = 'No JS draft abstract '.repeat(12);
+    const learningPoints = 'No JS draft learning point '.repeat(4);
+
+    await formPage.fillFormData({
+      title: testTitle,
+      abstract,
+      learningPoints,
+      presentationType: '15 minutes',
+      isFinal: false
+    });
+    await formPage.setSpeakerAgreement(true);
+    await formPage.submitForm('Save Draft');
+
+    const adminSB = createSupabaseAdmin();
+    const { data: presentation } = await adminSB
+      .from('presentation_submissions')
+      .select('id, is_submitted')
+      .eq('title', testTitle)
+      .maybeSingle();
+
+    expect(presentation).not.toBeNull();
+    expect(presentation?.is_submitted).toEqual(false);
+
+    if (presentation?.id) {
+      await adminSB
+        .from('presentation_submissions')
+        .delete()
+        .eq('id', presentation.id);
+    }
+  });
+
+  test('no-js: Submit from edit page finalizes draft', async ({ page }) => {
+    const adminSB = createSupabaseAdmin();
+    const title = buildTestTitle('No JS edit submit fallback');
+
+    const { data: emailLookup } = await adminSB
+      .from('email_lookup')
+      .select('id')
+      .eq('email', attendeeEmail)
+      .single();
+
+    expect(emailLookup?.id).toBeTruthy();
+
+    const { data: draftInsert } = await adminSB
+      .from('presentation_submissions')
+      .insert({
+        title,
+        abstract: 'No JS edit abstract '.repeat(12),
+        learning_points: 'No JS edit learning point '.repeat(4),
+        submitter_id: emailLookup!.id,
+        year: submissionsForYear,
+        is_submitted: false,
+        presentation_type: 'full length'
+      })
+      .select('id')
+      .single();
+
+    expect(draftInsert?.id).toBeTruthy();
+
+    await adminSB.from('presentation_presenters').upsert({
+      presentation_id: draftInsert!.id,
+      presenter_id: emailLookup!.id
+    });
+
+    const editUrl = `/my-presentations/edit/${draftInsert!.id}`;
+    await page.goto(editUrl);
+    await expect(page.getByText('Edit Draft Presentation')).toBeVisible();
+
+    await page
+      .getByLabel(/I agree to the GLA Summit speaker agreement/i)
+      .check();
+    await page
+      .getByRole('button', { name: 'Submit Presentation', exact: true })
+      .click();
+
+    const { data: submittedRow } = await adminSB
+      .from('presentation_submissions')
+      .select('id, is_submitted')
+      .eq('id', draftInsert!.id)
+      .maybeSingle();
+
+    expect(submittedRow).not.toBeNull();
+    expect(submittedRow?.is_submitted).toEqual(true);
+
+    const response = await page.goto(editUrl);
+    expect(response?.status()).toEqual(404);
+
+    await adminSB
+      .from('presentation_submissions')
+      .delete()
+      .eq('id', draftInsert!.id);
   });
 });

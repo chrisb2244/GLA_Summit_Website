@@ -6,11 +6,10 @@ import { createServerClient } from '@/lib/supabaseServer';
 import { User } from '@supabase/supabase-js';
 import { Metadata } from 'next';
 import { CAN_SUBMIT_PRESENTATION } from '../configConstants';
+import { PastPresentationSubmissions } from './PastPresentationSubmissions';
+import { PastPresentationSubmissionsFallback } from './PastPresentationSubmissions';
+import NextLink from 'next/link';
 import { Suspense } from 'react';
-import {
-  PastPresentationSubmissions,
-  PastPresentationSubmissionsFallback
-} from './PastPresentationSubmissions';
 
 export const metadata: Metadata = {
   robots: {
@@ -18,51 +17,31 @@ export const metadata: Metadata = {
   }
 };
 
-const MyPresentationsPage = () => {
-  return (
-    <Suspense fallback={<p>Loading your presentations...</p>}>
-      <MyPresentationsPageContent />
-    </Suspense>
-  );
-};
-
-const MyPresentationsPageContent = async () => {
+const SubmissionFormSection = async () => {
   const user = await getUser();
+  if (!user) {
+    return null;
+  }
 
   const supabase = await createServerClient();
   const getSubmitter = async (
     user: User | null
-  ): Promise<PersonProps | null> => {
+  ): Promise<{ submitter: PersonProps | null; profileIncomplete: boolean }> => {
     if (user === null || typeof user.email === 'undefined') {
-      return null;
+      return { submitter: null, profileIncomplete: false };
     }
-    const { firstname, lastname } = await getProfileInfo(user, supabase);
+    const profile = await getProfileInfo(user, supabase).catch(() => null);
+    if (!profile) {
+      return { submitter: null, profileIncomplete: false };
+    }
+    const { firstname, lastname, bio, avatar_url } = profile;
     return {
-      email: user.email,
-      firstName: firstname,
-      lastName: lastname
+      submitter: { email: user.email, firstName: firstname, lastName: lastname },
+      profileIncomplete: !bio || !avatar_url
     };
   };
 
-  const submitter = await getSubmitter(user);
-
-  // const activeDrafts = draftPresentations.filter(
-  //   (p) => p.year === submissionsForYear
-  // );
-  // const draftEntries =
-  //   activeDrafts.length === 0 ? (
-  //     <div>
-  //       <p>You have no active draft submissions</p>
-  //     </div>
-  //   ) : (
-  //     activeDrafts.map((p) => {
-  //       return (
-  //         <div key={p.presentation_id}>
-  //           <h4>{p.title}</h4>
-  //         </div>
-  //       );
-  //     })
-  //   );
+  const { submitter, profileIncomplete } = await getSubmitter(user);
 
   const submissionElements = CAN_SUBMIT_PRESENTATION ? (
     submitter && (
@@ -77,8 +56,6 @@ const MyPresentationsPageContent = async () => {
             and consider copy-pasting from a text editor to avoid frustration!
           </p>
         </div>
-        {/* <p>The presentation submission page is currently being reworked!</p>
-        <p>We look forwards to being able to accept submissions soon.</p> */}
         <h3>Submit a new Presentation</h3>
         <PresentationSubmissionForm submitter={submitter} />
       </div>
@@ -90,20 +67,38 @@ const MyPresentationsPageContent = async () => {
   );
 
   return (
-    <div className='prose mx-auto flex max-w-none flex-col'>
+    <>
+      {profileIncomplete && (
+        <div className='mb-4 rounded-md border border-blue-300 bg-blue-50 p-3'>
+          <p className='font-semibold text-blue-800'>Profile incomplete</p>
+          <p className='text-blue-700'>
+            Your{' '}
+            <NextLink href='/my-profile' className='underline'>
+              profile
+            </NextLink>{' '}
+            is missing a bio or photo. These will be shown in the conference
+            programme — please update them before the event.
+          </p>
+        </div>
+      )}
       {submissionElements}
+    </>
+  );
+};
 
-      {/* <div>
-        <h3>Draft Submissions</h3>
-        {draftEntries}
-      </div> */}
+const SubmissionFormSectionFallback = () => {
+  return <div className='flex min-h-16 animate-pulse bg-gray-200'></div>;
+};
 
-      <div>
-        <h3>Submitted Presentations</h3>
-        <Suspense fallback={<PastPresentationSubmissionsFallback />}>
-          {<PastPresentationSubmissions />}
-        </Suspense>
-      </div>
+const MyPresentationsPage = () => {
+  return (
+    <div className='prose mx-auto flex max-w-none flex-col'>
+      <Suspense fallback={<SubmissionFormSectionFallback />}>
+        <SubmissionFormSection />
+      </Suspense>
+      <Suspense fallback={<PastPresentationSubmissionsFallback />}>
+        <PastPresentationSubmissions />
+      </Suspense>
     </div>
   );
 };

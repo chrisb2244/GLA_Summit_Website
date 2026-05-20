@@ -62,3 +62,5 @@ export type PresentationSubmissionsModel = {
   is_submitted: boolean;
   presentation_type: PresentationType;
 };
+
+export type ReviewableSubmissions = Database['public']['Functions']['get_reviewable_submissions']['Returns'];

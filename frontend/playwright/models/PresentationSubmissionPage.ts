@@ -11,6 +11,7 @@ export type FormData = {
   presentationType: PresentationType;
   timeWindows: { windowStartTime: Date; windowEndTime: Date }[];
   isFinal: boolean;
+  speakerAgreement: boolean;
 };
 type PresentationFormData = Omit<
   FormData,
@@ -24,6 +25,8 @@ export class PresentationSubmissionPage {
   readonly learningPointsInput: Locator;
   readonly presentationTypeInput: Locator;
   readonly isFinalInput: Locator;
+  readonly speakerAgreementInput: Locator;
+  readonly duplicateWarning: Locator;
 
   constructor(page: Page) {
     const opt = { exact: true };
@@ -34,7 +37,13 @@ export class PresentationSubmissionPage {
     this.presentationTypeInput = this.page.locator(
       'select[name="presentationType"]'
     );
-    this.isFinalInput = this.page.getByRole('checkbox');
+    this.isFinalInput = this.page.getByLabel(
+      /I am ready to submit this presentation/i
+    );
+    this.speakerAgreementInput = this.page.getByLabel(
+      /I agree to the GLA Summit speaker agreement/i
+    );
+    this.duplicateWarning = this.page.getByRole('alert');
   }
 
   async goto(url: string) {
@@ -75,14 +84,37 @@ export class PresentationSubmissionPage {
       await this.presentationTypeInput.selectOption(optionString);
     }
 
-    // if (typeof data.isFinal !== 'undefined') {
-    //   await (data.isFinal
-    //     ? this.isFinalInput.check()
-    //     : this.isFinalInput.uncheck());
-    // }
+    if (typeof data.isFinal !== 'undefined') {
+      await this.setReadyToSubmit(data.isFinal);
+    }
+    if (typeof data.speakerAgreement !== 'undefined') {
+      await this.setSpeakerAgreement(data.speakerAgreement);
+    }
   }
 
-  async submitForm() {
-    await this.page.locator('button:has-text("Submit Presentation")').click();
+  async setReadyToSubmit(isReady: boolean) {
+    await (isReady ? this.isFinalInput.check() : this.isFinalInput.uncheck());
+  }
+
+  async setSpeakerAgreement(agreed: boolean) {
+    await (agreed
+      ? this.speakerAgreementInput.check()
+      : this.speakerAgreementInput.uncheck());
+  }
+
+  async submitForm(preferredLabel?: 'Submit Presentation' | 'Save Draft' | 'Submit Anyway') {
+    const labelOrder = preferredLabel
+      ? [preferredLabel, 'Submit Anyway', 'Submit Presentation', 'Save Draft']
+      : ['Submit Anyway', 'Submit Presentation', 'Save Draft'];
+
+    for (const label of labelOrder) {
+      const button = this.page.getByRole('button', { name: label, exact: true });
+      if (await button.isVisible()) {
+        await button.click();
+        return;
+      }
+    }
+
+    throw new Error('No visible submit button found for presentation form');
   }
 }

@@ -32,6 +32,18 @@ export class LoginablePage {
     await this.page.goto(url);
   }
 
+  private async waitForLoginForm() {
+    await expect(this.emailInput).toBeVisible();
+    await expect(this.firstnameInput).toBeHidden();
+    await expect(this.lastnameInput).toBeHidden();
+  }
+
+  private async waitForRegistrationForm() {
+    await expect(this.firstnameInput).toBeVisible();
+    await expect(this.lastnameInput).toBeVisible();
+    await expect(this.emailInput).toBeVisible();
+  }
+
   async openLoginOrRegisterForm(type?: 'login' | 'register') {
     // The login/register button should be visible
     await expect(this.loginOrRegisterButton).toBeVisible();
@@ -41,16 +53,18 @@ export class LoginablePage {
     await expect(this.form).toBeVisible();
 
     // If required, change the form type.
-    if (typeof type !== undefined) {
+    if (type !== undefined) {
       const isRegistrationForm = await this.firstnameInput.isVisible();
       switch (type) {
         case 'register':
           if (isRegistrationForm) {
+            await this.waitForRegistrationForm();
             return;
           } else {
             await this.form
               .locator('role=link', { hasText: /Join Now/i })
               .click();
+            await this.waitForRegistrationForm();
             return;
           }
         case 'login':
@@ -58,8 +72,10 @@ export class LoginablePage {
             await this.form
               .locator('role=link', { hasText: /Sign In/i })
               .click();
+            await this.waitForLoginForm();
             return;
           } else {
+            await this.waitForLoginForm();
             return;
           }
       }
@@ -107,9 +123,15 @@ export class LoginablePage {
     lastname?: string;
     email?: string;
   }) {
-    if (values.firstname) await this.firstnameInput.fill(values.firstname);
-    if (values.lastname) await this.lastnameInput.fill(values.lastname);
-    if (values.email) await this.emailInput.fill(values.email);
+    if (values.firstname !== undefined) {
+      await this.firstnameInput.fill(values.firstname);
+    }
+    if (values.lastname !== undefined) {
+      await this.lastnameInput.fill(values.lastname);
+    }
+    if (values.email !== undefined) {
+      await this.emailInput.fill(values.email);
+    }
   }
 
   async fillInVerificationForm(code: string) {
@@ -131,18 +153,24 @@ export class LoginablePage {
       let labelMatcher = undefined;
       switch (formType) {
         case 'login':
-          labelMatcher = /log ?in/i;
+          labelMatcher = /log ?in|logging ?in/i;
           break;
         case 'registration':
-          labelMatcher = /register/i;
+          labelMatcher = /register|registering/i;
           break;
         case 'verification':
-          labelMatcher = /submit/i;
+          labelMatcher = /submit|submitting/i;
           break;
       }
       const button = this.form
         .getByRole('button')
-        .filter({ hasText: labelMatcher });
+        .filter({ hasText: labelMatcher })
+        .first();
+
+      // Another concurrent submit can transition button text/state before this call.
+      if (!(await button.isVisible({ timeout: 200 }).catch(() => false))) {
+        return false;
+      }
 
       if (await button.isDisabled({ timeout: 100 })) {
         return false;
@@ -153,8 +181,7 @@ export class LoginablePage {
   }
 
   async getAllErrors() {
-    const errors = await this.page.getByRole('alert').allTextContents();
-    return errors;
+    return await this.form.getByRole('alert').allTextContents();
   }
 
   async switchForm() {

@@ -15,6 +15,14 @@ const StaticPresentationFormSchema = z.object({
     .string()
     .optional()
     .transform((s) => s === 'on'),
+  speakerAgreement: z
+    .string()
+    .optional()
+    .transform((s) => s === 'on'),
+  skipDuplicateCheck: z
+    .string()
+    .optional()
+    .transform((s) => s === 'true'),
   title: z.string(),
   abstract: z.string(),
   learningPoints: z.string(),
@@ -53,6 +61,8 @@ export const PresentationSubmissionFormSchema =
         learningPoints: input.learningPoints,
         presentationType: input.presentationType,
         isFinal: input.isFinal ?? false,
+        speakerAgreement: input.speakerAgreement ?? false,
+        skipDuplicateCheck: input.skipDuplicateCheck ?? false,
         otherPresenters
       };
     }
