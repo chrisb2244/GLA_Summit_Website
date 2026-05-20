@@ -41,7 +41,7 @@ if (process.env.USE_MOCK_EMAIL === 'true') {
   /* eslint-disable-next-line @typescript-eslint/no-require-imports */
   const FormDataPackage = require('form-data') as typeof import('form-data');
 
-  const MG_API_KEY = process.env.MG_API_KEY as string;
+  const MG_API_KEY = process.env.MAILGUN_SENDING_KEY as string;
 
   const mailgun = new Mailgun(FormDataPackage);
   const mg = mailgun.client({
