@@ -3,13 +3,10 @@ import 'server-only'; // Poison the module for client code.
 
 import type {
   PresentationSubmissionFormData,
-  PresentationSubmissionFormErrors,
   PresentationSubmissionFormState
 } from './PresentationSubmissionFormSchema';
 import { PresentationSubmissionFormSchema } from './PresentationSubmissionFormSchema';
 import { createAdminClient } from '@/lib/supabaseClient';
-import { createServerActionClient } from '@/lib/supabaseServer';
-import { submissionsForYear } from '@/app/configConstants';
 import {
   PRESENTATION_SAVE_CLIENT_ERROR,
   SubmitReturnType
@@ -19,10 +16,14 @@ import { revalidatePath } from 'next/cache';
 import { sendMailApi } from '@/lib/sendMail';
 import {
   FormSubmissionEmailFn,
-  NewCopresenterEmailFn
+  NewCopresenterEmailFn,
+  RemovedCopresenterEmailFn
 } from '@/EmailTemplates/FormSubmissionEmail';
-import { resolveCopresenters } from '@/actions/copresenterHelpers';
 import { redirect } from 'next/navigation';
+import {
+  getAuthenticatedSubmitterId,
+  savePresentation
+} from './savePresentation';
 
 export const submitPresentationAction = async (
   previousState: PresentationSubmissionFormState,
@@ -78,117 +79,32 @@ const handlePresentationSubmission = async (
   presentationData: PresentationSubmissionFormData
 ): Promise<SubmitReturnType> => {
   const supabaseAdmin = createAdminClient();
-  const supabase = await createServerActionClient();
-
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
-  const submitter_id = user?.id;
-
-  if (!submitter_id) {
-    return {
-      success: false,
-      error: { message: "Could not find the user's id" }
-    };
+  const submitterResult = await getAuthenticatedSubmitterId();
+  if (!submitterResult.success) {
+    return submitterResult;
   }
+  const { submitterId } = submitterResult;
 
-  const {
-    title,
-    abstract,
-    presentationType,
-    learningPoints,
-    isFinal,
-    otherPresenters,
-    submitter,
-    speakerAgreement,
-    skipDuplicateCheck,
+  const { otherPresenters, submitter, presentationId, isFinal } =
+    presentationData;
+
+  const savedPresentationResult = await savePresentation({
+    presentationData,
+    submitterId,
+    callerName: 'submitPresentationAction',
     presentationId
-  } = presentationData;
-
-  // If presentationId is provided, it should reference an existing draft.
-  // This is true regardless of if we are saving an updated draft (isFinal: false)
-  // or submitting a presentation from a saved and possibly modified draft (isFinal: true).
-
-  if (!speakerAgreement) {
-    return {
-      success: false,
-      error: { message: 'You must agree to the speaker agreement to submit.' }
-    };
+  });
+  if (!savedPresentationResult.success) {
+    return savedPresentationResult;
   }
 
-  // Handle duplicates?
+  // If isFinal - email all presenters
+  // Otherwise, only email newPresenters to confirm they've been added as co-presenters.
+  // Don't send an email to the submitter since they may just be saving a draft and not ready for notifications to go out.
 
-  const { data: insertedData, error: insertionError } = await supabaseAdmin
-    .from('presentation_submissions')
-    .insert({
-      title,
-      abstract,
-      learning_points: learningPoints,
-      submitter_id,
-      year: submissionsForYear,
-      is_submitted: isFinal,
-      presentation_type: presentationType,
-      // Record the time the speaker agreed to the agreement.
-      // speakerAgreement has been validated above.
-      consent_given_at: new Date().toISOString()
-    })
-    .select()
-    .single();
-
-  if (insertionError) {
-    await logErrorToDb(
-      `submitNewPresentation insert failed: ${JSON.stringify({
-        message: insertionError.message,
-        code: insertionError.code,
-        details: insertionError.details,
-        hint: insertionError.hint,
-        isFinal,
-        presentationType
-      })}`,
-      'error',
-      submitter_id
-    );
-    return {
-      success: false,
-      error: { message: PRESENTATION_SAVE_CLIENT_ERROR }
-    };
-  }
-  const presentation_id = insertedData.id;
-
-  const resolved = await resolveCopresenters(
-    otherPresenters,
-    supabaseAdmin,
-    'submitNewPresentation',
-    submitter_id
-  );
-  if (!resolved.success) {
-    return resolved;
-  }
-  const { existingPresenters, newPresenters } = resolved;
-  console.log({ newPresenters, existingPresenters });
-
-  // Update presentation_presenters
-  const idArray = [
-    submitter_id,
-    ...existingPresenters.map((p) => p.id),
-    ...newPresenters.map((p) => p.id)
-  ];
-  const { error: presentersUpsertError } = await supabaseAdmin
-    .from('presentation_presenters')
-    .upsert(idArray.map((presenter_id) => ({ presenter_id, presentation_id })));
-  if (presentersUpsertError) {
-    // Compensate to avoid leaving an orphan draft/submission without presenter links.
-    await supabaseAdmin
-      .from('presentation_submissions')
-      .delete()
-      .eq('id', presentation_id);
-    return {
-      success: false,
-      error: {
-        message: `Failed to save presentation presenters: ${presentersUpsertError.message}`
-      }
-    };
-  }
+  const { existingPresenters, newPresenters, prunedPresenters } =
+    savedPresentationResult;
+  console.log({ newPresenters, existingPresenters, prunedPresenters });
 
   // Send emails to each user
   const dataForEmails = {
@@ -199,38 +115,33 @@ const handlePresentationSubmission = async (
     timeWindows: []
   };
 
+  let allEmailPromises = [];
   // Submitter
-  const submitterNameString = `${submitter.firstName} ${submitter.lastName}`;
-  const submitterEmailPromise = sendMailApi({
-    to: submitter.email,
-    subject: 'GLA Summit: Thank you for submitting a presentation',
-    ...FormSubmissionEmailFn(dataForEmails, submitterNameString)
-  });
+  if (isFinal) {
+    const submitterNameString = `${submitter.firstName} ${submitter.lastName}`;
+    const submitterEmailPromise = sendMailApi({
+      to: submitter.email,
+      subject: 'GLA Summit: Thank you for submitting a presentation',
+      ...FormSubmissionEmailFn(dataForEmails, submitterNameString)
+    });
+    allEmailPromises.push(submitterEmailPromise);
+  }
 
   // Existing co-presenters
-  const existingPresenterEmailPromises = existingPresenters.map(
-    async ({ id, email }) => {
-      // Since they exist, there should always be a profile entry via the db trigger.
-      const { data } = await supabaseAdmin
-        .from('profiles')
-        .select('firstname, lastname')
-        .eq('id', id)
-        .single();
-      let nameString = email;
-      if (data !== null) {
-        // Could be two empty strings if profile not completed after being added as a copresenter previously.
-        const candidateNameString = `${data.firstname} ${data.lastname}`;
-        if (candidateNameString.trim().length !== 0) {
-          nameString = candidateNameString;
-        }
+  if (isFinal) {
+    const existingPresenterEmailPromises = existingPresenters.map(
+      async ({ id, email }) => {
+        // Since they exist, there should always be a profile entry via the db trigger.
+        const nameString = await getNameString(id, email, supabaseAdmin);
+        return sendMailApi({
+          to: email,
+          subject: 'GLA Summit: You have been added as a co-presenter!',
+          ...FormSubmissionEmailFn(dataForEmails, nameString)
+        });
       }
-      return sendMailApi({
-        to: email,
-        subject: 'GLA Summit: You have been added as a co-presenter!',
-        ...FormSubmissionEmailFn(dataForEmails, nameString)
-      });
-    }
-  );
+    );
+    allEmailPromises.push(...existingPresenterEmailPromises);
+  }
 
   // New co-presenters
   const newPresenterEmailPromises = newPresenters.map(({ email, otpLink }) =>
@@ -240,12 +151,23 @@ const handlePresentationSubmission = async (
       ...NewCopresenterEmailFn(dataForEmails, email, otpLink)
     })
   );
+  allEmailPromises.push(...newPresenterEmailPromises);
 
-  const allEmailResults = await Promise.all([
-    submitterEmailPromise,
-    ...existingPresenterEmailPromises,
-    ...newPresenterEmailPromises
-  ]);
+  // Emails for pruned presenters if this is an existing presentation and presenters were removed
+  const prunedPresenterEmailPromises = prunedPresenters.map(
+    async ({ id, email }) => {
+      // Since they exist, there should always be a profile entry via the db trigger.
+      const nameString = await getNameString(id, email, supabaseAdmin);
+      return sendMailApi({
+        to: email,
+        subject: 'GLA Summit: You have been removed as a co-presenter',
+        ...RemovedCopresenterEmailFn(dataForEmails, nameString)
+      });
+    }
+  );
+  allEmailPromises.push(...prunedPresenterEmailPromises);
+
+  const allEmailResults = await Promise.all(allEmailPromises);
   const successfulEmails = allEmailResults.filter((r) => r.status === 200);
   const unsuccessfulEmails = allEmailResults.filter((r) => r.status !== 200);
   console.log({ successfulEmails, unsuccessfulEmails });
@@ -253,4 +175,25 @@ const handlePresentationSubmission = async (
   revalidatePath('/my-presentations');
   revalidatePath('/submit-presentation');
   return { success: true };
+};
+
+const getNameString = async (
+  id: string,
+  email: string,
+  supabaseAdmin: ReturnType<typeof createAdminClient>
+) => {
+  const { data } = await supabaseAdmin
+    .from('profiles')
+    .select('firstname, lastname')
+    .eq('id', id)
+    .single();
+  let nameString = email;
+  if (data !== null) {
+    // Could be two empty strings if profile not completed after being added as a copresenter previously.
+    const candidateNameString = `${data.firstname} ${data.lastname}`;
+    if (candidateNameString.trim().length !== 0) {
+      nameString = candidateNameString;
+    }
+  }
+  return nameString;
 };
