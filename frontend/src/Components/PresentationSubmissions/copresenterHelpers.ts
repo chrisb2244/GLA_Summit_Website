@@ -2,7 +2,7 @@ import { createAdminClient } from '@/lib/supabaseClient';
 import { logErrorToDb } from '@/lib/utils';
 import { AuthError } from '@supabase/supabase-js';
 import { randomBytes } from 'crypto';
-import { COPRESENTER_LOOKUP_CLIENT_ERROR } from './presentationActionTypes';
+import { COPRESENTER_LOOKUP_CLIENT_ERROR } from '../../actions/presentationActionTypes';
 
 export type ExistingPresenter = { id: string; email: string };
 export type NewPresenter = { id: string; email: string; otpLink: string };

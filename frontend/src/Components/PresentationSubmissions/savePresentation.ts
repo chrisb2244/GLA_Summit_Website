@@ -9,7 +9,7 @@ import {
   resolveCopresenters,
   type ExistingPresenter,
   type NewPresenter
-} from '../../actions/copresenterHelpers';
+} from './copresenterHelpers';
 import { PostgrestError } from '@supabase/supabase-js';
 
 type GetAuthenticatedSubmitterIdResult =
