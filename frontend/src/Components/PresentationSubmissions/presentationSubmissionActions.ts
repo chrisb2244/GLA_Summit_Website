@@ -25,6 +25,16 @@ import {
   savePresentation
 } from './savePresentation';
 
+/**
+ * Server action that handles presentation form submission.
+ * Validates form data, initiates presentation save, sends confirmation emails to all presenters,
+ * and redirects on success or returns form errors on failure.
+ *
+ * When presentationId is provided, this is treated as an update to an existing presentation.
+ * When presentationId is absent, this creates a new presentation. The presence of presentationId
+ * affects email sending behavior—new presentations trigger initial co-presenter invitations,
+ * while updates to existing presentations send different notifications to existing vs. newly-added presenters.
+ */
 export const submitPresentationAction = async (
   previousState: PresentationSubmissionFormState,
   formData: FormData
@@ -75,6 +85,11 @@ export const submitPresentationAction = async (
   }
 };
 
+/**
+ * Handles the core presentation submission logic.
+ * Authenticates the user, saves the presentation and associates presenters,
+ * then sends confirmation emails to the submitter and all co-presenters.
+ */
 const handlePresentationSubmission = async (
   presentationData: PresentationSubmissionFormData
 ): Promise<SubmitReturnType> => {
