@@ -29,6 +29,7 @@ export type SavePresentationResult =
       presentationId: string;
       existingPresenters: ExistingPresenter[];
       newPresenters: NewPresenter[];
+      prunedPresenters: ExistingPresenter[];
     }
   | { success: false; error: { message: string } };
 
@@ -124,6 +125,7 @@ export const savePresentation = async ({
     };
   }
 
+  let prunedPresenters: ExistingPresenter[] = [];
   if (isExistingPresentation) {
     const pruneResult = await prunePresentationPresenters(
       savedPresentationId,
@@ -139,13 +141,15 @@ export const savePresentation = async ({
         }
       };
     }
+    prunedPresenters = pruneResult.prunedPresenters;
   }
 
   return {
     success: true,
     presentationId: savedPresentationId,
     existingPresenters,
-    newPresenters
+    newPresenters,
+    prunedPresenters
   };
 };
 
@@ -272,9 +276,10 @@ const prunePresentationPresenters = async (
   presenterIds: string[],
   supabaseAdmin: ReturnType<typeof createAdminClient>
 ): Promise<
-  { success: true } | { success: false; error: { message: string } }
+  | { success: true; prunedPresenters: ExistingPresenter[] }
+  | { success: false; error: { message: string } }
 > => {
-  const { error } = await supabaseAdmin
+  const { data, error } = await supabaseAdmin
     .from('presentation_presenters')
     .delete()
     .eq('presentation_id', presentationId)
@@ -282,7 +287,8 @@ const prunePresentationPresenters = async (
       'presenter_id',
       'in',
       `(${presenterIds.map((id) => `'${id}'`).join(',')})`
-    );
+    )
+    .select('presenter_id');
 
   if (error) {
     return {
@@ -291,7 +297,27 @@ const prunePresentationPresenters = async (
     };
   }
 
-  return { success: true };
+  const prunedIds = data.map(({ presenter_id }) => presenter_id);
+  const { data: prunedPresenters, error: lookupError } = await supabaseAdmin
+    .from('email_lookup')
+    .select('id, email')
+    .in('id', prunedIds);
+
+  if (lookupError) {
+    // Log the error but still return success because the
+    // pruning itself succeeded and the email lookup is less critical.
+    logErrorToDb(
+      `Failed to lookup pruned presenter emails: ${
+        lookupError.message
+      }. Presenter IDs: ${prunedIds.join(', ')}`,
+      'error'
+    );
+  }
+
+  return {
+    success: true,
+    prunedPresenters: prunedPresenters || []
+  };
 };
 
 const logUploadError = async (error: PostgrestError, submitterId: string) => {
