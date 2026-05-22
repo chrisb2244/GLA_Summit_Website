@@ -39,8 +39,7 @@ describe('PresentationSubmissionFormSchema', () => {
   it('treats missing speakerAgreement as false', () => {
     const input = { ...baseValidInput };
     const { speakerAgreement: _, ...withoutAgreement } = input;
-    const result =
-      PresentationSubmissionFormSchema.safeParse(withoutAgreement);
+    const result = PresentationSubmissionFormSchema.safeParse(withoutAgreement);
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.speakerAgreement).toBe(false);

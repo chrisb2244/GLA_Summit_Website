@@ -1,5 +1,5 @@
 'use server';
-import { PresentationSubmissionFormSchema } from '@/Components/Forms/PresentationSubmissionFormSchema';
+import { PresentationSubmissionFormSchema } from '@/Components/PresentationSubmissions/PresentationSubmissionFormSchema';
 import { createAdminClient } from '@/lib/supabaseClient';
 import { createServerActionClient } from '@/lib/supabaseServer';
 import { logErrorToDb } from '@/lib/utils';

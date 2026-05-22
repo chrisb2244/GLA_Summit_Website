@@ -67,3 +67,18 @@ export const PresentationSubmissionFormSchema =
       };
     }
   );
+
+export type PresentationSubmissionFormData = z.infer<
+  typeof PresentationSubmissionFormSchema
+>;
+
+export type PresentationSubmissionFormErrors = Partial<
+  Record<keyof PresentationSubmissionFormData | 'form', string>
+>;
+
+export type PresentationSubmissionFormState = {
+  errors?: PresentationSubmissionFormErrors;
+  data: PresentationSubmissionFormData & {
+    redirectTo?: string;
+  };
+};
