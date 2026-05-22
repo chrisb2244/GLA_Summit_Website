@@ -10,6 +10,8 @@ import { PastPresentationSubmissions } from './PastPresentationSubmissions';
 import { PastPresentationSubmissionsFallback } from './PastPresentationSubmissions';
 import NextLink from 'next/link';
 import { Suspense } from 'react';
+import { SuccessNotification } from './SuccessNotification';
+import { NextSearchParams } from '@/lib/NextTypes';
 
 export const metadata: Metadata = {
   robots: {
@@ -90,9 +92,16 @@ const SubmissionFormSectionFallback = () => {
   return <div className='flex min-h-16 animate-pulse bg-gray-200'></div>;
 };
 
-const MyPresentationsPage = () => {
+const MyPresentationsPage = ({
+  searchParams
+}: {
+  searchParams: NextSearchParams;
+}) => {
   return (
     <div className='prose mx-auto flex max-w-none flex-col'>
+      <Suspense fallback={null}>
+        <SuccessNotification searchParams={searchParams} />
+      </Suspense>
       <Suspense fallback={<SubmissionFormSectionFallback />}>
         <SubmissionFormSection />
       </Suspense>
