@@ -24,6 +24,7 @@ import {
   getAuthenticatedSubmitterId,
   savePresentation
 } from './savePresentation';
+import z from 'zod/v4';
 
 /**
  * Server action that handles presentation form submission.
@@ -44,17 +45,11 @@ export const submitPresentationAction = async (
   );
 
   if (!parsedData.success) {
-    const errorObjects = parsedData.error.flatten();
+    const errorTree = z.treeifyError(parsedData.error);
 
     return {
       ...previousState,
-      errors: {
-        ...errorObjects.fieldErrors,
-        form:
-          errorObjects.formErrors.length > 0
-            ? errorObjects.formErrors.join(', ')
-            : undefined
-      }
+      errors: errorTree
     };
   }
 
@@ -67,7 +62,6 @@ export const submitPresentationAction = async (
     }
     redirect('/my-presentations');
   } else {
-    result;
     await logErrorToDb(
       `submitPresentationAction failed: ${JSON.stringify({
         message:
@@ -79,7 +73,7 @@ export const submitPresentationAction = async (
     return {
       ...previousState,
       errors: {
-        form: PRESENTATION_SAVE_CLIENT_ERROR
+        errors: [PRESENTATION_SAVE_CLIENT_ERROR]
       }
     };
   }

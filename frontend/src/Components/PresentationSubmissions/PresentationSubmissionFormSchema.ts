@@ -1,4 +1,5 @@
-import * as z from 'zod';
+import * as z from 'zod/v4';
+import { $ZodErrorTree } from 'zod/v4/core';
 
 export const SubmittablePresentationTypeSchema = z.enum([
   '7x7',
@@ -10,7 +11,7 @@ export const SubmittablePresentationTypeSchema = z.enum([
 const StaticPresentationFormSchema = z.object({
   'submitter.firstName': z.string(),
   'submitter.lastName': z.string(),
-  'submitter.email': z.string().email(),
+  'submitter.email': z.email(),
   isFinal: z
     .string()
     .optional()
@@ -27,56 +28,76 @@ const StaticPresentationFormSchema = z.object({
   abstract: z.string(),
   learningPoints: z.string(),
   presentationType: SubmittablePresentationTypeSchema,
-  presentationId: z.string().uuid().optional()
+  presentationId: z
+    .string()
+    .optional()
+    .transform((s) => {
+      if (typeof s === 'string' && s.length === 0) {
+        return undefined;
+      }
+      return s;
+    }),
+  redirectTo: z
+    .string()
+    .optional()
+    .transform((s) => {
+      if (typeof s === 'string' && s.length === 0) {
+        return undefined;
+      }
+      return s;
+    })
 });
 const StaticKeys = StaticPresentationFormSchema.shape;
 
 export const PresentationSubmissionFormSchema =
-  StaticPresentationFormSchema.catchall(z.string().email()).transform(
-    (input, ctx) => {
-      const otherPresenters = Object.entries(input)
-        .map(([key, value]) => {
-          if (/otherPresenters\.[0-9]+\.email/.test(key)) {
-            return value as string;
-          }
-          if (Object.keys(StaticKeys).includes(key)) {
-            return null;
-          }
-          ctx.addIssue({
-            code: 'unrecognized_keys',
-            keys: [key],
-            message: 'Unexpected key',
-            path: [key],
-            fatal: true
-          });
-        })
-        .filter((v) => v !== null) as string[];
-      return {
-        title: input.title,
-        abstract: input.abstract,
-        submitter: {
-          firstName: input['submitter.firstName'],
-          lastName: input['submitter.lastName'],
-          email: input['submitter.email']
-        },
-        learningPoints: input.learningPoints,
-        presentationType: input.presentationType,
-        isFinal: input.isFinal ?? false,
-        speakerAgreement: input.speakerAgreement ?? false,
-        skipDuplicateCheck: input.skipDuplicateCheck ?? false,
-        otherPresenters,
-        presentationId: input.presentationId
-      };
-    }
-  );
+  StaticPresentationFormSchema.catchall(z.email()).transform((input, ctx) => {
+    const otherPresenters = Object.entries(input)
+      .map(([key, value]) => {
+        if (/otherPresenters\.[0-9]+\.email/.test(key)) {
+          return value as string;
+        }
+        if (Object.keys(StaticKeys).includes(key)) {
+          return null;
+        }
+        ctx.issues.push({
+          code: 'unrecognized_keys',
+          input,
+          keys: [key],
+          message: 'Unexpected key',
+          path: [key],
+          fatal: true
+        });
+      })
+      .filter((v) => v !== null) as string[];
+    return {
+      title: input.title,
+      abstract: input.abstract,
+      submitter: {
+        firstName: input['submitter.firstName'],
+        lastName: input['submitter.lastName'],
+        email: input['submitter.email']
+      },
+      learningPoints: input.learningPoints,
+      presentationType: input.presentationType,
+      isFinal: input.isFinal ?? false,
+      speakerAgreement: input.speakerAgreement ?? false,
+      skipDuplicateCheck: input.skipDuplicateCheck ?? false,
+      otherPresenters,
+      ...(input.presentationId !== undefined
+        ? { presentationId: input.presentationId }
+        : {}),
+      ...(input.redirectTo !== undefined
+        ? { redirectTo: input.redirectTo }
+        : {})
+    };
+  });
 
 export type PresentationSubmissionFormData = z.infer<
   typeof PresentationSubmissionFormSchema
 >;
 
-export type PresentationSubmissionFormErrors = Partial<
-  Record<keyof PresentationSubmissionFormData | 'form', string>
->;
+export type PresentationSubmissionFormErrors =
+  $ZodErrorTree<PresentationSubmissionFormData>;
 
 export type PresentationSubmissionFormState = {
   errors?: PresentationSubmissionFormErrors;
