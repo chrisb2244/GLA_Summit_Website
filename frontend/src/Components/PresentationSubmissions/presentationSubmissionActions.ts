@@ -101,8 +101,13 @@ const handlePresentationSubmission = async (
     otherPresenters,
     submitter,
     speakerAgreement,
-    skipDuplicateCheck
+    skipDuplicateCheck,
+    presentationId
   } = presentationData;
+
+  // If presentationId is provided, it should reference an existing draft.
+  // This is true regardless of if we are saving an updated draft (isFinal: false)
+  // or submitting a presentation from a saved and possibly modified draft (isFinal: true).
 
   if (!speakerAgreement) {
     return {

@@ -26,7 +26,8 @@ const StaticPresentationFormSchema = z.object({
   title: z.string(),
   abstract: z.string(),
   learningPoints: z.string(),
-  presentationType: SubmittablePresentationTypeSchema
+  presentationType: SubmittablePresentationTypeSchema,
+  presentationId: z.string().uuid().optional()
 });
 const StaticKeys = StaticPresentationFormSchema.shape;
 
@@ -63,7 +64,8 @@ export const PresentationSubmissionFormSchema =
         isFinal: input.isFinal ?? false,
         speakerAgreement: input.speakerAgreement ?? false,
         skipDuplicateCheck: input.skipDuplicateCheck ?? false,
-        otherPresenters
+        otherPresenters,
+        presentationId: input.presentationId
       };
     }
   );
