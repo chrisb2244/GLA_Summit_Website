@@ -98,6 +98,7 @@ const handlePresentationSubmission = async (
     return savedPresentationResult;
   }
 
+  const isNew = !presentationId;
   // If isFinal - email all presenters
   // Otherwise, only email newPresenters to confirm they've been added as co-presenters.
   // Don't send an email to the submitter since they may just be saving a draft and not ready for notifications to go out.
@@ -128,14 +129,17 @@ const handlePresentationSubmission = async (
   }
 
   // Existing co-presenters
-  if (isFinal) {
+  if (isNew || isFinal) {
+    const subject = isNew
+      ? 'GLA Summit: You have been added as a co-presenter!'
+      : 'GLA Summit: Your presentation has been submitted!';
     const existingPresenterEmailPromises = existingPresenters.map(
       async ({ id, email }) => {
         // Since they exist, there should always be a profile entry via the db trigger.
         const nameString = await getNameString(id, email, supabaseAdmin);
         return sendMailApi({
           to: email,
-          subject: 'GLA Summit: You have been added as a co-presenter!',
+          subject,
           ...FormSubmissionEmailFn(dataForEmails, nameString)
         });
       }
@@ -144,6 +148,9 @@ const handlePresentationSubmission = async (
   }
 
   // New co-presenters
+  // This will only reach an individual once, regardless of drafts/edits/submissions.
+  // On subsequent changes, they will be included in existingPresenters group and
+  // only receive the existing presenter email when finally submitted.
   const newPresenterEmailPromises = newPresenters.map(({ email, otpLink }) =>
     sendMailApi({
       to: email,
