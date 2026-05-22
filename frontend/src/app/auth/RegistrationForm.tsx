@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { Person, PersonProps } from '@/Components/Form/PersonSrv';
 import { SubmitButton } from '@/Components/Form/SubmitButton';
@@ -8,7 +8,7 @@ import {
 } from '@/Components/SigninRegistration/SignInUpActions';
 import { useFormValidation } from '@/Components/Utilities/useFormValidation';
 import Link from 'next/link';
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 
 const FormError = (props: { message?: string }) => {
@@ -44,7 +44,12 @@ export const RegistrationForm = (props: { redirectTo?: string }) => {
   );
   const { validationMessages, checkValidity } = useFormValidation();
 
+  const [showError, setShowError] = useState(false);
+
   const fieldError = (field: keyof PersonProps) => {
+    if (!showError) {
+      return undefined;
+    }
     return validationMessages.get(field) ?? state.errors?.[field];
   };
 
@@ -102,6 +107,13 @@ export const RegistrationForm = (props: { redirectTo?: string }) => {
           if (ev.target instanceof HTMLInputElement) {
             ev.preventDefault();
             checkValidity(ev.target);
+          }
+        }}
+        onBlur={(ev) => {
+          if (ev.target instanceof HTMLInputElement) {
+            if (['firstName', 'lastName', 'email'].includes(ev.target.name)) {
+              setShowError(true);
+            }
           }
         }}
       >

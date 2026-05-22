@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { FormField } from '@/Components/Form/FormFieldSrv';
 import { SubmitButton } from '@/Components/Form/SubmitButton';
@@ -8,7 +8,7 @@ import {
 } from '@/Components/SigninRegistration/SignInUpActions';
 import { useFormValidation } from '@/Components/Utilities/useFormValidation';
 import Link from 'next/link';
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 
 const FormError = (props: { message?: string }) => {
@@ -36,12 +36,20 @@ export const LoginForm = (props: { redirectTo?: string }) => {
       redirectTo: props.redirectTo
     }
   };
-  const [state, formAction] = useActionState(signInFromFormWithRedirect, initialState);
+  const [state, formAction] = useActionState(
+    signInFromFormWithRedirect,
+    initialState
+  );
   const { validationMessages, checkValidity } = useFormValidation();
 
   const fieldError = () => {
+    if (!showError) {
+      return undefined;
+    }
     return validationMessages.get('email') ?? state.errors?.email;
   };
+
+  const [showError, setShowError] = useState(false);
 
   return (
     <div
@@ -96,6 +104,9 @@ export const LoginForm = (props: { redirectTo?: string }) => {
           fullWidth
           name='email'
           autoFocus
+          onBlur={(ev) => {
+            setShowError(true);
+          }}
         />
         <SubmitButton
           fullWidth
