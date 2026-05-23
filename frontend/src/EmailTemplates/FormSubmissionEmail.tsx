@@ -1,8 +1,15 @@
 import { EmailProps } from '@/Components/Form/Person';
-import type { SubmissionFormData } from '@/Components/Forms/PresentationSubmissionForm';
+import type { PresentationSubmissionFormData } from '@/Components/PresentationSubmissions/PresentationSubmissionFormSchema';
 import { LogoImg, UnexpectedPresentationEmail } from './emailComponents';
 import { PresentationType } from '@/lib/databaseModels';
 import { submissionsForYear } from '@/app/configConstants';
+
+type SubmissionFormData = Omit<
+  PresentationSubmissionFormData,
+  'otherPresenters'
+> & {
+  otherPresenters: EmailProps[];
+};
 
 const DearPerson = (nameString: string) => {
   if (nameString.trim().length === 0) {
