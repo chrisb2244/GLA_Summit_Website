@@ -7,8 +7,9 @@ import {
   RegistrationState
 } from '@/Components/SigninRegistration/SignInUpActions';
 import { useFormValidation } from '@/Components/Utilities/useFormValidation';
+import { useTouchedFieldErrors } from '@/Components/Utilities/useTouchedFieldErrors';
 import Link from 'next/link';
-import { useActionState, useState } from 'react';
+import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 
 const FormError = (props: { message?: string }) => {
@@ -43,17 +44,12 @@ export const RegistrationForm = (props: { redirectTo?: string }) => {
     initialState
   );
   const { validationMessages, checkValidity } = useFormValidation();
-
-  const [touchedFields, setTouchedFields] = useState<Set<keyof PersonProps>>(
-    () => new Set()
-  );
-
-  const fieldError = (field: keyof PersonProps) => {
-    if (!touchedFields.has(field)) {
-      return undefined;
+  const { getFieldError, onBlurFor } = useTouchedFieldErrors<keyof PersonProps>(
+    {
+      validationMessages,
+      fieldErrors: state.errors
     }
-    return validationMessages.get(field) ?? state.errors?.[field];
-  };
+  );
 
   return (
     <div
@@ -111,18 +107,7 @@ export const RegistrationForm = (props: { redirectTo?: string }) => {
             checkValidity(ev.target);
           }
         }}
-        onBlur={(ev) => {
-          if (ev.target instanceof HTMLInputElement) {
-            if (['firstName', 'lastName', 'email'].includes(ev.target.name)) {
-              const field = ev.target.name as keyof PersonProps;
-              setTouchedFields((previous) => {
-                const next = new Set(previous);
-                next.add(field);
-                return next;
-              });
-            }
-          }
-        }}
+        onBlur={onBlurFor(['firstName', 'lastName', 'email'])}
       >
         <input type='hidden' name='redirectTo' value={props.redirectTo ?? ''} />
         <div className='pb-4'>
@@ -131,9 +116,9 @@ export const RegistrationForm = (props: { redirectTo?: string }) => {
             giveFocus
             defaultValue={state.data}
             errors={{
-              firstName: fieldError('firstName'),
-              lastName: fieldError('lastName'),
-              email: fieldError('email')
+              firstName: getFieldError('firstName'),
+              lastName: getFieldError('lastName'),
+              email: getFieldError('email')
             }}
           />
         </div>

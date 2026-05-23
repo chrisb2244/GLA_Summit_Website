@@ -7,8 +7,9 @@ import {
   signInFromFormWithRedirect
 } from '@/Components/SigninRegistration/SignInUpActions';
 import { useFormValidation } from '@/Components/Utilities/useFormValidation';
+import { useTouchedFieldErrors } from '@/Components/Utilities/useTouchedFieldErrors';
 import Link from 'next/link';
-import { useActionState, useState } from 'react';
+import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 
 const FormError = (props: { message?: string }) => {
@@ -41,15 +42,10 @@ export const LoginForm = (props: { redirectTo?: string }) => {
     initialState
   );
   const { validationMessages, checkValidity } = useFormValidation();
-
-  const fieldError = () => {
-    if (!showError) {
-      return undefined;
-    }
-    return validationMessages.get('email') ?? state.errors?.email;
-  };
-
-  const [showError, setShowError] = useState(false);
+  const { getFieldError, onBlurFor } = useTouchedFieldErrors<'email'>({
+    validationMessages,
+    fieldErrors: state.errors
+  });
 
   return (
     <div
@@ -99,14 +95,12 @@ export const LoginForm = (props: { redirectTo?: string }) => {
           placeholder='my.email@glasummit.org'
           id='email'
           defaultValue={state.data.email}
-          error={fieldError()}
+          error={getFieldError('email')}
           required
           fullWidth
           name='email'
           autoFocus
-          onBlur={(ev) => {
-            setShowError(true);
-          }}
+          onBlur={onBlurFor(['email'])}
         />
         <SubmitButton
           fullWidth
