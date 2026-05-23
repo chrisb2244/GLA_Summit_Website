@@ -97,7 +97,6 @@ const buildTestTitle = (prefix: string) =>
       // Repeat to exceed required lengths
       const abstract = 'Blah blah '.repeat(20);
       const learningPoints = 'Other text '.repeat(10);
-      const isFinal = true;
       const speakerAgreement = true;
 
       await formPage.fillFormData({
@@ -105,7 +104,7 @@ const buildTestTitle = (prefix: string) =>
         abstract,
         learningPoints,
         presentationType: '15 minutes',
-        isFinal,
+        submitIntent: 'submit',
         speakerAgreement
       });
 
@@ -152,7 +151,7 @@ const buildTestTitle = (prefix: string) =>
         .select('*')
         .eq('title', testTitle)
         .single();
-      expect(presentations?.is_submitted).toEqual(isFinal);
+      expect(presentations?.is_submitted).toEqual(true);
     });
 
     test('draft save shows draft card in Draft Submissions', async ({
@@ -176,7 +175,7 @@ const buildTestTitle = (prefix: string) =>
         abstract,
         learningPoints,
         presentationType: '15 minutes',
-        isFinal: false
+        submitIntent: 'saveDraft'
       });
       await formPage.setSpeakerAgreement(true);
       await formPage.submitForm('Save Draft');
@@ -208,7 +207,7 @@ const buildTestTitle = (prefix: string) =>
         abstract,
         learningPoints,
         presentationType: 'full length',
-        isFinal: false
+        submitIntent: 'saveDraft'
       });
       await formPage.setSpeakerAgreement(true);
       await formPage.submitForm('Save Draft');
@@ -240,7 +239,7 @@ const buildTestTitle = (prefix: string) =>
         abstract,
         learningPoints,
         presentationType: '7x7',
-        isFinal: false
+        submitIntent: 'saveDraft'
       });
       await formPage.setSpeakerAgreement(true);
       await formPage.submitForm('Save Draft');
@@ -280,7 +279,7 @@ const buildTestTitle = (prefix: string) =>
         abstract,
         learningPoints,
         presentationType: '15 minutes',
-        isFinal: false
+        submitIntent: 'saveDraft'
       });
       await formPage.setSpeakerAgreement(true);
       await formPage.submitForm('Save Draft');
@@ -308,7 +307,7 @@ const buildTestTitle = (prefix: string) =>
         abstract,
         learningPoints,
         presentationType: '15 minutes',
-        isFinal: true
+        submitIntent: 'submit'
       });
       await formPage.setSpeakerAgreement(true);
 
@@ -337,7 +336,7 @@ const buildTestTitle = (prefix: string) =>
         abstract,
         learningPoints,
         presentationType: 'full length',
-        isFinal: false
+        submitIntent: 'saveDraft'
       });
       await formPage.setSpeakerAgreement(true);
       await formPage.submitForm('Save Draft');
@@ -352,7 +351,7 @@ const buildTestTitle = (prefix: string) =>
         abstract,
         learningPoints,
         presentationType: 'full length',
-        isFinal: true
+        submitIntent: 'submit'
       });
       await formPage.setSpeakerAgreement(true);
       await formPage.submitForm('Submit Presentation');
@@ -384,7 +383,7 @@ const buildTestTitle = (prefix: string) =>
         abstract,
         learningPoints,
         presentationType: '15 minutes',
-        isFinal: true
+        submitIntent: 'submit'
       });
       await formPage.setSpeakerAgreement(false);
 
@@ -413,7 +412,7 @@ const buildTestTitle = (prefix: string) =>
         abstract,
         learningPoints,
         presentationType: '15 minutes',
-        isFinal: true
+        submitIntent: 'submit'
       });
 
       await formPage.submitForm();

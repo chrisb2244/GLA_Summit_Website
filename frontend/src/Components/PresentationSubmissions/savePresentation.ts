@@ -59,12 +59,13 @@ export const savePresentation = async ({
   callerName,
   presentationId
 }: SavePresentationOptions): Promise<SavePresentationResult> => {
-  const { isFinal, otherPresenters, speakerAgreement } = presentationData;
+  const { otherPresenters, speakerAgreement } = presentationData;
 
   let savedPresentationId = presentationId;
 
   // If presentationId is present, this relates to an existing draft.
   const isExistingPresentation = typeof presentationId === 'string';
+  const isFinal = presentationData.submitIntent === 'submit';
 
   if (isFinal && !speakerAgreement) {
     return {
@@ -76,6 +77,7 @@ export const savePresentation = async ({
   // INSERT or UPDATE the presentation entry.
   const uploadResult = await uploadPresentation(
     presentationData,
+    isFinal,
     submitterId,
     isExistingPresentation
   );
@@ -155,6 +157,7 @@ export const savePresentation = async ({
 
 const uploadPresentation = async (
   presentationData: PresentationSubmissionFormData,
+  isFinal: boolean,
   submitterId: string,
   isExistingPresentation: boolean
 ): Promise<
@@ -167,7 +170,6 @@ const uploadPresentation = async (
     title,
     abstract,
     learningPoints,
-    isFinal,
     presentationType,
     speakerAgreement
   } = presentationData;

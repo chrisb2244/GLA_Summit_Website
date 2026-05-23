@@ -10,7 +10,7 @@ export type FormData = {
   learningPoints: string;
   presentationType: PresentationType;
   timeWindows: { windowStartTime: Date; windowEndTime: Date }[];
-  isFinal: boolean;
+  submitIntent: 'saveDraft' | 'submit';
   speakerAgreement: boolean;
 };
 type PresentationFormData = Omit<
@@ -24,7 +24,6 @@ export class PresentationSubmissionPage {
   readonly abstractInput: Locator;
   readonly learningPointsInput: Locator;
   readonly presentationTypeInput: Locator;
-  readonly isFinalInput: Locator;
   readonly speakerAgreementInput: Locator;
   readonly duplicateWarning: Locator;
 
@@ -36,9 +35,6 @@ export class PresentationSubmissionPage {
     this.learningPointsInput = this.page.getByLabel('Learning Points', opt);
     this.presentationTypeInput = this.page.locator(
       'select[name="presentationType"]'
-    );
-    this.isFinalInput = this.page.getByLabel(
-      /I am ready to submit this presentation/i
     );
     this.speakerAgreementInput = this.page.getByLabel(
       /I agree to the GLA Summit speaker agreement/i
@@ -84,16 +80,9 @@ export class PresentationSubmissionPage {
       await this.presentationTypeInput.selectOption(optionString);
     }
 
-    if (typeof data.isFinal !== 'undefined') {
-      await this.setReadyToSubmit(data.isFinal);
-    }
     if (typeof data.speakerAgreement !== 'undefined') {
       await this.setSpeakerAgreement(data.speakerAgreement);
     }
-  }
-
-  async setReadyToSubmit(isReady: boolean) {
-    await (isReady ? this.isFinalInput.check() : this.isFinalInput.uncheck());
   }
 
   async setSpeakerAgreement(agreed: boolean) {

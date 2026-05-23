@@ -1,6 +1,8 @@
 import * as z from 'zod/v4';
 import { $ZodErrorTree } from 'zod/v4/core';
 
+export const SubmitIntentSchema = z.enum(['saveDraft', 'submit']);
+
 export const SubmittablePresentationTypeSchema = z.enum([
   '7x7',
   'full length',
@@ -12,10 +14,6 @@ const StaticPresentationFormSchema = z.object({
   'submitter.firstName': z.string(),
   'submitter.lastName': z.string(),
   'submitter.email': z.email(),
-  isFinal: z
-    .string()
-    .optional()
-    .transform((s) => s === 'on'),
   speakerAgreement: z
     .string()
     .optional()
@@ -24,6 +22,7 @@ const StaticPresentationFormSchema = z.object({
     .string()
     .optional()
     .transform((s) => s === 'true'),
+  submitIntent: SubmitIntentSchema.optional(),
   title: z.string(),
   abstract: z.string(),
   learningPoints: z.string(),
@@ -79,9 +78,9 @@ export const PresentationSubmissionFormSchema =
       },
       learningPoints: input.learningPoints,
       presentationType: input.presentationType,
-      isFinal: input.isFinal ?? false,
       speakerAgreement: input.speakerAgreement ?? false,
       skipDuplicateCheck: input.skipDuplicateCheck ?? false,
+      submitIntent: input.submitIntent ?? 'submit',
       otherPresenters,
       ...(input.presentationId !== undefined
         ? { presentationId: input.presentationId }

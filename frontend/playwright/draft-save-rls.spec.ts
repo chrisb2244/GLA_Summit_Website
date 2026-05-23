@@ -33,7 +33,7 @@ test.describe('draft save regression', () => {
       abstract: 'RLS regression abstract '.repeat(12),
       learningPoints: 'RLS regression learning points '.repeat(4),
       presentationType: '15 minutes',
-      isFinal: false
+      submitIntent: 'saveDraft'
     });
     await formPage.setSpeakerAgreement(true);
 

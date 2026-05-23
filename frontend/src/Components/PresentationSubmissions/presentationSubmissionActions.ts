@@ -85,7 +85,8 @@ export const submitPresentationAction = async (
  * then sends confirmation emails to the submitter and all co-presenters.
  */
 const handlePresentationSubmission = async (
-  presentationData: PresentationSubmissionFormData
+  presentationData: PresentationSubmissionFormData,
+  isFinal: boolean
 ): Promise<SubmitReturnType> => {
   const supabaseAdmin = createAdminClient();
   const submitterResult = await getAuthenticatedSubmitterId();
@@ -94,8 +95,7 @@ const handlePresentationSubmission = async (
   }
   const { submitterId } = submitterResult;
 
-  const { otherPresenters, submitter, presentationId, isFinal } =
-    presentationData;
+  const { otherPresenters, submitter, presentationId } = presentationData;
 
   const savedPresentationResult = await savePresentation({
     presentationData,

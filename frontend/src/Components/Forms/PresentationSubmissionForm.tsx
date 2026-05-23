@@ -47,6 +47,8 @@ export const PresentationSubmissionForm = (
       submitter: props.submitter,
       isFinal: true,
       speakerAgreement: false,
+    skipDuplicateCheck: false,
+    submitIntent: 'submit',
       title: '',
       abstract: '',
       learningPoints: '',
