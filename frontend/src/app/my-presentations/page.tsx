@@ -1,5 +1,4 @@
 import { PersonProps } from '@/Components/Form/Person';
-import { PresentationSubmissionForm } from '@/Components/Forms/PresentationSubmissionForm';
 import { getProfileInfo } from '@/lib/databaseFunctions';
 import { getUser } from '@/lib/supabase/userFunctions';
 import { createServerClient } from '@/lib/supabaseServer';
@@ -12,6 +11,7 @@ import NextLink from 'next/link';
 import { Suspense } from 'react';
 import { SuccessNotification } from './SuccessNotification';
 import { NextSearchParams } from '@/lib/NextTypes';
+import { PresentationFormFields } from '@/Components/PresentationSubmissions/PresentationFormFields2';
 
 export const metadata: Metadata = {
   robots: {
@@ -52,18 +52,34 @@ const SubmissionFormSection = async () => {
   const submissionElements = CAN_SUBMIT_PRESENTATION ? (
     submitter && (
       <div className='mx-auto flex flex-col'>
-        <div className='prose rounded-md bg-orange-300 p-4 prose-p:my-2'>
-          <p>
-            <span className='font-bold'>Known issue:</span> incomplete or
-            invalid entries cause a full reset of the form.
-          </p>
-          <p>
-            Please ensure all fields are filled in correctly before submitting,
-            and consider copy-pasting from a text editor to avoid frustration!
-          </p>
-        </div>
         <h3>Submit a new Presentation</h3>
-        <PresentationSubmissionForm submitter={submitter} />
+        {/* <PresentationSubmissionForm submitter={submitter} /> */}
+        <div className='prose'>
+          <p>
+            Please enter the information below and submit your presentation.
+          </p>
+          <p>
+            Any additional presenters that you add here will be emailed inviting
+            them to create an account, if they do not have one already, and to
+            join this presentation. Only you, the presentation submitter, will
+            be able to edit the presentation.
+          </p>
+          <div className='border border-gray-200 bg-gray-100 p-2 shadow-lg'>
+            <PresentationFormFields
+              defaultValues={{
+                submitter,
+                title: '',
+                abstract: '',
+                learningPoints: '',
+                presentationType: 'full length',
+                speakerAgreement: false,
+                skipDuplicateCheck: false,
+                submitIntent: 'submit',
+                otherPresenters: []
+              }}
+            />
+          </div>
+        </div>
       </div>
     )
   ) : (

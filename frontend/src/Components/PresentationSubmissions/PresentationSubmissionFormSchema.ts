@@ -100,6 +100,14 @@ export type PresentationSubmissionFormErrors =
 
 export type PresentationSubmissionFormState = {
   errors?: PresentationSubmissionFormErrors;
+  duplicateWarning?: {
+    existingId: string;
+    existingTitle: string;
+  };
+  status?: {
+    type: 'success' | 'error';
+    message: string;
+  };
   data: PresentationSubmissionFormData & {
     redirectTo?: string;
   };

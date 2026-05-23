@@ -15,6 +15,7 @@ import {
 } from '@/actions/presentationActionTypes';
 import { logErrorToDb } from '@/lib/utils';
 import { revalidatePath } from 'next/cache';
+import { revalidateTag } from 'next/cache';
 import { sendMailApi } from '@/lib/sendMail';
 import {
   FormSubmissionEmailFn,
@@ -27,6 +28,7 @@ import {
   savePresentation
 } from './savePresentation';
 import { createServerActionClient } from '@/lib/supabaseServer';
+import { submissionsForYear } from '@/app/configConstants';
 import z from 'zod/v4';
 
 /**
@@ -43,6 +45,10 @@ export const submitPresentationAction = async (
   previousState: PresentationSubmissionFormState,
   formData: FormData
 ): Promise<PresentationSubmissionFormState> => {
+  const hydratedStateData = getStateDataFromFormData(
+    previousState.data,
+    formData
+  );
   const parsedData = PresentationSubmissionFormSchema.safeParse(
     Object.fromEntries(formData.entries())
   );
@@ -52,18 +58,61 @@ export const submitPresentationAction = async (
 
     return {
       ...previousState,
+      data: hydratedStateData,
+      duplicateWarning: undefined,
+      status: undefined,
       errors: errorTree
     };
   }
 
-  const result = await handlePresentationSubmission(parsedData.data);
+  const normalizedData: PresentationSubmissionFormData = parsedData.data;
+  const isFinalSubmission = normalizedData.submitIntent === 'submit';
+
+  if (isFinalSubmission && !normalizedData.skipDuplicateCheck) {
+    const duplicateResult = await findDuplicateSubmission(normalizedData);
+    if (duplicateResult !== null) {
+      return {
+        data: {
+          ...normalizedData,
+          skipDuplicateCheck: false
+        },
+        errors: undefined,
+        status: undefined,
+        duplicateWarning: duplicateResult
+      };
+    }
+  }
+
+  const result = await handlePresentationSubmission(
+    normalizedData,
+    isFinalSubmission
+  );
 
   if (result.success) {
-    const redirectTo = formData.get('redirectTo');
-    if (redirectTo && typeof redirectTo === 'string') {
-      redirect(redirectTo);
+    const isEditingDraft =
+      typeof normalizedData.presentationId === 'string' &&
+      normalizedData.presentationId.length > 0;
+
+    if (isFinalSubmission) {
+      redirect('/my-presentations?action=draft-submitted');
     }
-    redirect('/my-presentations');
+
+    if (!isEditingDraft) {
+      redirect('/my-presentations?action=draft-saved');
+    }
+
+    return {
+      data: {
+        ...normalizedData,
+        skipDuplicateCheck: false
+      },
+      errors: undefined,
+      duplicateWarning: undefined,
+      status: {
+        type: 'success',
+        message: 'Draft saved successfully.'
+      }
+    };
   } else {
     await logErrorToDb(
       `submitPresentationAction failed: ${JSON.stringify({
@@ -75,11 +124,138 @@ export const submitPresentationAction = async (
     );
     return {
       ...previousState,
+      data: hydratedStateData,
+      duplicateWarning: undefined,
       errors: {
         errors: [PRESENTATION_SAVE_CLIENT_ERROR]
+      },
+      status: {
+        type: 'error',
+        message: PRESENTATION_SAVE_CLIENT_ERROR
       }
     };
   }
+};
+
+const getStateDataFromFormData = (
+  fallbackData: PresentationSubmissionFormState['data'],
+  formData: FormData
+): PresentationSubmissionFormState['data'] => {
+  const getString = (key: string, fallback: string) => {
+    const value = formData.get(key);
+    return typeof value === 'string' ? value : fallback;
+  };
+
+  const otherPresenters = Array.from(formData.entries())
+    .filter(([key]) => /otherPresenters\.[0-9]+\.email/.test(key))
+    .map(([, value]) => (typeof value === 'string' ? value : ''))
+    .filter((value) => value.length > 0);
+
+  const presentationIdRaw = getString(
+    'presentationId',
+    fallbackData.presentationId ?? ''
+  );
+  const redirectToRaw = getString('redirectTo', fallbackData.redirectTo ?? '');
+  const submitIntentRaw = getString('submitIntent', fallbackData.submitIntent);
+
+  return {
+    title: getString('title', fallbackData.title),
+    abstract: getString('abstract', fallbackData.abstract),
+    learningPoints: getString('learningPoints', fallbackData.learningPoints),
+    presentationType:
+      getString('presentationType', fallbackData.presentationType) ===
+      '15 minutes'
+        ? '15 minutes'
+        : getString('presentationType', fallbackData.presentationType) === '7x7'
+        ? '7x7'
+        : getString('presentationType', fallbackData.presentationType) ===
+          'panel'
+        ? 'panel'
+        : 'full length',
+    submitter: {
+      firstName: getString(
+        'submitter.firstName',
+        fallbackData.submitter.firstName
+      ),
+      lastName: getString(
+        'submitter.lastName',
+        fallbackData.submitter.lastName
+      ),
+      email: getString('submitter.email', fallbackData.submitter.email)
+    },
+    speakerAgreement:
+      typeof formData.get('speakerAgreement') === 'string' ||
+      fallbackData.speakerAgreement,
+    skipDuplicateCheck:
+      getString(
+        'skipDuplicateCheck',
+        fallbackData.skipDuplicateCheck ? 'true' : 'false'
+      ) === 'true',
+    submitIntent: submitIntentRaw === 'saveDraft' ? 'saveDraft' : 'submit',
+    otherPresenters:
+      otherPresenters.length > 0
+        ? otherPresenters
+        : fallbackData.otherPresenters,
+    ...(presentationIdRaw.length > 0
+      ? { presentationId: presentationIdRaw }
+      : {}),
+    ...(redirectToRaw.length > 0 ? { redirectTo: redirectToRaw } : {})
+  };
+};
+
+const normalizeTitle = (title: string) =>
+  title.trim().replace(/\s+/g, ' ').toLocaleLowerCase();
+
+const findDuplicateSubmission = async (
+  presentationData: PresentationSubmissionFormData
+): Promise<{ existingId: string; existingTitle: string } | null> => {
+  const submitterResult = await getAuthenticatedSubmitterId();
+  if (!submitterResult.success) {
+    return null;
+  }
+
+  const { submitterId } = submitterResult;
+  const normalizedTitle = normalizeTitle(presentationData.title);
+  const supabaseAdmin = createAdminClient();
+
+  let query = supabaseAdmin
+    .from('presentation_submissions')
+    .select('id, title')
+    .eq('submitter_id', submitterId)
+    .eq('year', submissionsForYear);
+
+  if (presentationData.presentationId) {
+    query = query.neq('id', presentationData.presentationId);
+  }
+
+  const { data: existingRows, error } = await query;
+
+  if (error) {
+    await logErrorToDb(
+      `findDuplicateSubmission failed: ${JSON.stringify({
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint
+      })}`,
+      'error',
+      submitterId
+    );
+    return null;
+  }
+
+  const existingWithTitle = (existingRows ?? []).find(
+    ({ title }) => normalizeTitle(title) === normalizedTitle
+  );
+
+  if (!existingWithTitle) {
+    return null;
+  }
+
+  return {
+    existingId: existingWithTitle.id,
+    existingTitle: existingWithTitle.title
+  };
 };
 
 /**
@@ -193,6 +369,17 @@ const handlePresentationSubmission = async (
 
   revalidatePath('/my-presentations');
   revalidatePath('/submit-presentation');
+
+  if (presentationId) {
+    revalidatePath(`/my-presentations/edit/${presentationId}`);
+    revalidatePath(`/presentations/${presentationId}`);
+    revalidateTag(`presentation:${presentationId}`, 'max');
+    revalidateTag(`presentation-video:${presentationId}`, 'max');
+  }
+
+  return { success: true };
+};
+
 /**
  * Deletes a draft presentation owned by the current user.
  * RLS enforces ownership (submitter_id = auth.uid()) and draft-only deletion.

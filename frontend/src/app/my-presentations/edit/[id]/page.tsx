@@ -2,10 +2,10 @@ import { createServerClient } from '@/lib/supabaseServer';
 import { getUser } from '@/lib/supabase/userFunctions';
 import { getProfileInfo } from '@/lib/databaseFunctions';
 import { PersonProps } from '@/Components/Form/Person';
-import { PresentationBaseFormData } from '@/Components/Forms/PresentationFormShared';
-import { DraftEditForm } from '../../DraftEditForm';
 import { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
+import { PresentationFormFields } from '@/Components/PresentationSubmissions/PresentationFormFields2';
+import { PresentationSubmissionFormData } from '@/Components/PresentationSubmissions/PresentationSubmissionFormSchema';
 
 export const metadata: Metadata = {
   robots: { index: false }
@@ -64,29 +64,47 @@ const DraftEditPage = async ({ params }: { params: Promise<Params> }) => {
     : [];
 
   // Co-presenters: every presenter except the submitter
-  const coPresenterEmails = presenterEmails.filter(
-    (e: string) => e !== email
-  );
+  const coPresenterEmails = presenterEmails.filter((e: string) => e !== email);
 
-  const defaultValues: PresentationBaseFormData = {
+  const normalizePresentationType = () => {
+    switch (draft.presentation_type) {
+      case '7x7':
+      case 'full length':
+      case 'panel':
+      case '15 minutes':
+        return draft.presentation_type;
+      default:
+        return 'full length' as const;
+    }
+  };
+
+  const defaultValues: PresentationSubmissionFormData = {
     submitter,
     title: draft.title ?? '',
     abstract: draft.abstract ?? '',
     learningPoints: draft.learning_points ?? '',
-    presentationType: draft.presentation_type ?? 'full length',
-    isFinal: false,
+    presentationType: normalizePresentationType(),
     speakerAgreement: false,
-    otherPresenters: coPresenterEmails.map((e: string) => ({ email: e }))
+    otherPresenters: coPresenterEmails,
+    submitIntent: 'submit',
+    skipDuplicateCheck: false,
+    presentationId: id
   };
 
   return (
     <div className='prose mx-auto flex max-w-none flex-col'>
       <h2>Edit Draft Presentation</h2>
-      <DraftEditForm
-        presentationId={id}
-        submitter={submitter}
-        defaultValues={defaultValues}
-      />
+      <div className='prose'>
+        <p>Edit your draft presentation below.</p>
+        <p>
+          Adding a co-presenter will email them an invitation if they do not
+          already have an account.
+        </p>
+
+        <div className='border border-gray-200 bg-gray-100 p-2 shadow-lg'>
+          <PresentationFormFields defaultValues={defaultValues} />
+        </div>
+      </div>
     </div>
   );
 };
