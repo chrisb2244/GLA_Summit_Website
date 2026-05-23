@@ -102,13 +102,18 @@ export class PresentationSubmissionPage {
       : this.speakerAgreementInput.uncheck());
   }
 
-  async submitForm(preferredLabel?: 'Submit Presentation' | 'Save Draft' | 'Submit Anyway') {
+  async submitForm(
+    preferredLabel?: 'Submit Presentation' | 'Save Draft' | 'Submit Anyway'
+  ) {
     const labelOrder = preferredLabel
       ? [preferredLabel, 'Submit Anyway', 'Submit Presentation', 'Save Draft']
       : ['Submit Anyway', 'Submit Presentation', 'Save Draft'];
 
     for (const label of labelOrder) {
-      const button = this.page.getByRole('button', { name: label, exact: true });
+      const button = this.page.getByRole('button', {
+        name: label,
+        exact: true
+      });
       if (await button.isVisible()) {
         await button.click();
         return;

@@ -38,7 +38,11 @@ const SubmissionFormSection = async () => {
     }
     const { firstname, lastname, bio, avatar_url } = profile;
     return {
-      submitter: { email: user.email, firstName: firstname, lastName: lastname },
+      submitter: {
+        email: user.email,
+        firstName: firstname,
+        lastName: lastname
+      },
       profileIncomplete: !bio || !avatar_url
     };
   };

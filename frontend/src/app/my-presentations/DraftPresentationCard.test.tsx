@@ -49,7 +49,9 @@ describe('DraftPresentationCard', () => {
     const editLink = screen.getByRole('link', { name: 'Edit' });
 
     expect(titleLink.getAttribute('href')).toBe('/presentations/draft-id-1');
-    expect(editLink.getAttribute('href')).toBe('/my-presentations/edit/draft-id-1');
+    expect(editLink.getAttribute('href')).toBe(
+      '/my-presentations/edit/draft-id-1'
+    );
   });
 
   it('shows a Delete Draft button', () => {
@@ -59,7 +61,9 @@ describe('DraftPresentationCard', () => {
 
   it('opens confirmation dialog when Delete Draft is clicked', async () => {
     render(<DraftPresentationCard draft={mockDraft} />);
-    await userEvent.click(screen.getByRole('button', { name: /delete draft/i }));
+    await userEvent.click(
+      screen.getByRole('button', { name: /delete draft/i })
+    );
     await waitFor(() => {
       expect(screen.getByText('Delete this draft?')).toBeDefined();
     });
@@ -67,7 +71,9 @@ describe('DraftPresentationCard', () => {
 
   it('closes the dialog when Cancel is clicked', async () => {
     render(<DraftPresentationCard draft={mockDraft} />);
-    await userEvent.click(screen.getByRole('button', { name: /delete draft/i }));
+    await userEvent.click(
+      screen.getByRole('button', { name: /delete draft/i })
+    );
     await waitFor(() =>
       expect(screen.getByRole('button', { name: /cancel/i })).toBeDefined()
     );
@@ -80,7 +86,9 @@ describe('DraftPresentationCard', () => {
   it('calls deleteDraftPresentation when confirmed', async () => {
     const mockedDelete = vi.mocked(deleteDraftPresentation);
     render(<DraftPresentationCard draft={mockDraft} />);
-    await userEvent.click(screen.getByRole('button', { name: /delete draft/i }));
+    await userEvent.click(
+      screen.getByRole('button', { name: /delete draft/i })
+    );
     await waitFor(() =>
       expect(screen.getByRole('button', { name: /^delete$/i })).toBeDefined()
     );

@@ -137,7 +137,10 @@ const PresentationsForYearPageContent = async (props: PageProps) => {
     presentation = {
       title: data.title,
       abstract: data.abstract,
-      speakers: await getPeople_Authed(data.all_presenters_ids, supabaseLoggedIn),
+      speakers: await getPeople_Authed(
+        data.all_presenters_ids,
+        supabaseLoggedIn
+      ),
       speakerNames: allPresenterNames,
       ...calculateSchedule(data.presentation_type, scheduledFor),
       isPrivate: true

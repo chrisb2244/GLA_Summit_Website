@@ -1,6 +1,9 @@
 import { test, expect } from '@playwright/test';
 import { PresentationSubmissionPage } from './models/PresentationSubmissionPage';
-import { CAN_SUBMIT_PRESENTATION, submissionsForYear } from '@/app/configConstants';
+import {
+  CAN_SUBMIT_PRESENTATION,
+  submissionsForYear
+} from '@/app/configConstants';
 import path from 'path';
 import { createSupabaseAdmin, getLatestEmail, loginOnPage } from './utils';
 
@@ -113,7 +116,9 @@ const buildTestTitle = (prefix: string) =>
 
       // Should hide the form on successful submission
       await expect(formPage.titleInput).toBeHidden();
-      await expect(formPage.page.getByText("Presentation submitted successfully!")).toBeVisible();
+      await expect(
+        formPage.page.getByText('Presentation submitted successfully!')
+      ).toBeVisible();
 
       const submittedPresentationsDiv = page.locator(
         'div:has-text("Submitted Presentations")'
@@ -150,8 +155,13 @@ const buildTestTitle = (prefix: string) =>
       expect(presentations?.is_submitted).toEqual(isFinal);
     });
 
-    test('draft save shows draft card in Draft Submissions', async ({ page }) => {
-      test.fixme(!jsEnabled, 'Current no-JS my-presentations route remains on loading fallback');
+    test('draft save shows draft card in Draft Submissions', async ({
+      page
+    }) => {
+      test.fixme(
+        !jsEnabled,
+        'Current no-JS my-presentations route remains on loading fallback'
+      );
 
       await page.goto('/my-presentations');
       const formPage = new PresentationSubmissionPage(page);
@@ -174,11 +184,16 @@ const buildTestTitle = (prefix: string) =>
       await expect(
         page.getByRole('heading', { name: 'Draft Submissions', exact: true })
       ).toBeVisible();
-      await expect(page.getByRole('link', { name: testTitle, exact: true })).toBeVisible();
+      await expect(
+        page.getByRole('link', { name: testTitle, exact: true })
+      ).toBeVisible();
     });
 
     test('saved draft remains visible after reload', async ({ page }) => {
-      test.fixme(!jsEnabled, 'Current no-JS my-presentations route remains on loading fallback');
+      test.fixme(
+        !jsEnabled,
+        'Current no-JS my-presentations route remains on loading fallback'
+      );
 
       await page.goto('/my-presentations');
       const formPage = new PresentationSubmissionPage(page);
@@ -199,11 +214,18 @@ const buildTestTitle = (prefix: string) =>
       await formPage.submitForm('Save Draft');
 
       await page.reload();
-      await expect(page.getByRole('link', { name: testTitle, exact: true })).toBeVisible();
+      await expect(
+        page.getByRole('link', { name: testTitle, exact: true })
+      ).toBeVisible();
     });
 
-    test('saved draft stores is_submitted false in database', async ({ page }) => {
-      test.fixme(!jsEnabled, 'Current no-JS my-presentations route remains on loading fallback');
+    test('saved draft stores is_submitted false in database', async ({
+      page
+    }) => {
+      test.fixme(
+        !jsEnabled,
+        'Current no-JS my-presentations route remains on loading fallback'
+      );
 
       await page.goto('/my-presentations');
       const formPage = new PresentationSubmissionPage(page);
@@ -240,7 +262,10 @@ const buildTestTitle = (prefix: string) =>
     });
 
     test('draft card navigates to edit route', async ({ page }) => {
-      test.fixme(!jsEnabled, 'Current no-JS my-presentations route remains on loading fallback');
+      test.fixme(
+        !jsEnabled,
+        'Current no-JS my-presentations route remains on loading fallback'
+      );
 
       await page.goto('/my-presentations');
       const formPage = new PresentationSubmissionPage(page);
@@ -260,12 +285,16 @@ const buildTestTitle = (prefix: string) =>
       await formPage.setSpeakerAgreement(true);
       await formPage.submitForm('Save Draft');
 
-      const draftCard = page.getByRole('link', { name: testTitle, exact: true }).locator('..');
+      const draftCard = page
+        .getByRole('link', { name: testTitle, exact: true })
+        .locator('..');
       await draftCard.getByRole('link', { name: 'Edit', exact: true }).click();
       await expect(page).toHaveURL(/\/my-presentations\/edit\/[^/]+$/);
     });
 
-    test('failed submit (required field) preserves entered values', async ({ page }) => {
+    test('failed submit (required field) preserves entered values', async ({
+      page
+    }) => {
       test.fixme(!jsEnabled, 'Requires JS-enabled client-side form state');
 
       await page.goto('/submit-presentation');
@@ -290,7 +319,9 @@ const buildTestTitle = (prefix: string) =>
       await expect(formPage.learningPointsInput).toHaveValue(learningPoints);
     });
 
-    test('duplicate warning preserves values and enables Submit Anyway', async ({ page }) => {
+    test('duplicate warning preserves values and enables Submit Anyway', async ({
+      page
+    }) => {
       test.fixme(!jsEnabled, 'Requires JS-enabled client-side form state');
 
       await page.goto('/my-presentations');
@@ -311,7 +342,9 @@ const buildTestTitle = (prefix: string) =>
       await formPage.setSpeakerAgreement(true);
       await formPage.submitForm('Save Draft');
 
-      await page.getByRole('button', { name: 'Submit another presentation' }).click();
+      await page
+        .getByRole('button', { name: 'Submit another presentation' })
+        .click();
       await formPage.waitForFormLoad();
 
       await formPage.fillFormData({
@@ -333,7 +366,9 @@ const buildTestTitle = (prefix: string) =>
       ).toBeVisible();
     });
 
-    test('missing speaker agreement preserves non-failing fields', async ({ page }) => {
+    test('missing speaker agreement preserves non-failing fields', async ({
+      page
+    }) => {
       test.fixme(!jsEnabled, 'Requires JS-enabled client-side form state');
 
       await page.goto('/submit-presentation');
@@ -355,7 +390,9 @@ const buildTestTitle = (prefix: string) =>
 
       await formPage.submitForm('Submit Presentation');
 
-      await expect(page.getByText('You must agree to the speaker agreement to submit.')).toBeVisible();
+      await expect(
+        page.getByText('You must agree to the speaker agreement to submit.')
+      ).toBeVisible();
       await expect(formPage.titleInput).toHaveValue(title);
       await expect(formPage.abstractInput).toHaveValue(abstract);
       await expect(formPage.learningPointsInput).toHaveValue(learningPoints);
@@ -495,7 +532,9 @@ test.describe(`presentation submission tests handling no-js only path`, () => {
 
     const editUrl = `/my-presentations/edit/${draftInsert!.id}`;
     await page.goto(editUrl);
-    await expect(page.getByText('Edit Draft Presentation')).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: 'Edit Draft Presentation' })
+    ).toBeVisible();
 
     await page
       .getByLabel(/I agree to the GLA Summit speaker agreement/i)

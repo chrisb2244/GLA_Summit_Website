@@ -7,7 +7,9 @@ import path from 'path';
 const attendeeEmail = process.env.TEST_ATTENDEE_EMAIL as string;
 
 const buildTitle = () =>
-  `Draft RLS regression ${Date.now()} ${Math.random().toString(16).slice(2, 8)}`;
+  `Draft RLS regression ${Date.now()} ${Math.random()
+    .toString(16)
+    .slice(2, 8)}`;
 
 test.describe('draft save regression', () => {
   test.use({
@@ -15,7 +17,9 @@ test.describe('draft save regression', () => {
       use(path.resolve(__dirname, '.auth', 'attendee.json'))
   });
 
-  test('saving a draft does not fail with presentation_submissions RLS error', async ({ page }) => {
+  test('saving a draft does not fail with presentation_submissions RLS error', async ({
+    page
+  }) => {
     const admin = createSupabaseAdmin();
     const title = buildTitle();
 
@@ -36,12 +40,18 @@ test.describe('draft save regression', () => {
     await formPage.submitForm('Save Draft');
 
     await expect(
-      page.getByText(/row-level security policy for table "presentation_submissions"/i)
+      page.getByText(
+        /row-level security policy for table "presentation_submissions"/i
+      )
     ).toHaveCount(0);
     await expect(page.getByText('Draft saved successfully!')).toBeVisible();
 
-    await page.getByRole('button', { name: 'Submit another presentation' }).click();
-    await expect(page.getByRole('link', { name: title, exact: true })).toBeVisible();
+    await page
+      .getByRole('button', { name: 'Submit another presentation' })
+      .click();
+    await expect(
+      page.getByRole('link', { name: title, exact: true })
+    ).toBeVisible();
 
     const { data: emailLookup } = await admin
       .from('email_lookup')
