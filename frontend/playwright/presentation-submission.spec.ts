@@ -455,45 +455,80 @@ const buildTestTitle = (prefix: string) =>
 
 test.describe(`presentation submission tests handling no-js only path`, () => {
   test.use({ javaScriptEnabled: false });
-  test.skip(true, "No-js tests are currently skipped");
+  test.skip(!CAN_SUBMIT_PRESENTATION, 'Presentation submission closed');
+  test.fixme(
+    true,
+    'No-JS flows currently remain on loading fallback (form controls never render). Keep coverage here for re-enable once server-rendered path is fixed.'
+  );
+  test.use({
+    storageState: async ({}, use) =>
+      use(path.resolve(__dirname, '.auth', 'attendee.json'))
+  });
 
   test('no-js: Save Draft persists using server action fallback', async ({
     page
   }) => {
-    await page.goto('/submit-presentation');
+    const adminSB = createSupabaseAdmin();
+    const title = buildTestTitle('No JS draft save fallback');
+
+    const { data: emailLookup } = await adminSB
+      .from('email_lookup')
+      .select('id')
+      .eq('email', attendeeEmail)
+      .single();
+
+    expect(emailLookup?.id).toBeTruthy();
+
+    const { data: draftInsert } = await adminSB
+      .from('presentation_submissions')
+      .insert({
+        title,
+        abstract: 'No JS draft abstract '.repeat(12),
+        learning_points: 'No JS draft learning point '.repeat(4),
+        submitter_id: emailLookup!.id,
+        year: submissionsForYear,
+        is_submitted: false,
+        presentation_type: 'full length'
+      })
+      .select('id')
+      .single();
+
+    expect(draftInsert?.id).toBeTruthy();
+
+    await adminSB.from('presentation_presenters').upsert({
+      presentation_id: draftInsert!.id,
+      presenter_id: emailLookup!.id
+    });
+
+    const editUrl = `/my-presentations/edit/${draftInsert!.id}`;
+    await page.goto(editUrl);
+    await expect(
+      page.getByRole('heading', { name: 'Edit Draft Presentation' })
+    ).toBeVisible();
+
     const formPage = new PresentationSubmissionPage(page);
     await formPage.waitForFormLoad();
-
-    const testTitle = buildTestTitle('No JS draft save fallback');
-    const abstract = 'No JS draft abstract '.repeat(12);
-    const learningPoints = 'No JS draft learning point '.repeat(4);
-
-    await formPage.fillFormData({
-      title: testTitle,
-      abstract,
-      learningPoints,
-      presentationType: '15 minutes',
-      isFinal: false
-    });
-    await formPage.setSpeakerAgreement(true);
+    await formPage.learningPointsInput.fill(
+      'No JS saved learning points '.repeat(4)
+    );
     await formPage.submitForm('Save Draft');
 
-    const adminSB = createSupabaseAdmin();
-    const { data: presentation } = await adminSB
+    const { data: updatedDraft } = await adminSB
       .from('presentation_submissions')
-      .select('id, is_submitted')
-      .eq('title', testTitle)
+      .select('id, is_submitted, learning_points')
+      .eq('id', draftInsert!.id)
       .maybeSingle();
 
-    expect(presentation).not.toBeNull();
-    expect(presentation?.is_submitted).toEqual(false);
+    expect(updatedDraft).not.toBeNull();
+    expect(updatedDraft?.is_submitted).toEqual(false);
+    expect(updatedDraft?.learning_points).toContain(
+      'No JS saved learning points'
+    );
 
-    if (presentation?.id) {
-      await adminSB
-        .from('presentation_submissions')
-        .delete()
-        .eq('id', presentation.id);
-    }
+    await adminSB
+      .from('presentation_submissions')
+      .delete()
+      .eq('id', draftInsert!.id);
   });
 
   test('no-js: Submit from edit page finalizes draft', async ({ page }) => {
@@ -535,9 +570,8 @@ test.describe(`presentation submission tests handling no-js only path`, () => {
       page.getByRole('heading', { name: 'Edit Draft Presentation' })
     ).toBeVisible();
 
-    await page
-      .getByLabel(/I agree to the GLA Summit speaker agreement/i)
-      .check();
+    const formPage = new PresentationSubmissionPage(page);
+    await formPage.setSpeakerAgreement(true);
     await page
       .getByRole('button', { name: 'Submit Presentation', exact: true })
       .click();
@@ -558,5 +592,91 @@ test.describe(`presentation submission tests handling no-js only path`, () => {
       .from('presentation_submissions')
       .delete()
       .eq('id', draftInsert!.id);
+  });
+
+  test('no-js: duplicate submit from edit page requires Submit Anyway', async ({
+    page
+  }) => {
+    const adminSB = createSupabaseAdmin();
+    const title = buildTestTitle('No JS duplicate override');
+
+    const { data: emailLookup } = await adminSB
+      .from('email_lookup')
+      .select('id')
+      .eq('email', attendeeEmail)
+      .single();
+
+    expect(emailLookup?.id).toBeTruthy();
+
+    const { data: existingDraft } = await adminSB
+      .from('presentation_submissions')
+      .insert({
+        title,
+        abstract: 'No JS duplicate existing abstract '.repeat(12),
+        learning_points: 'No JS duplicate existing learning point '.repeat(4),
+        submitter_id: emailLookup!.id,
+        year: submissionsForYear,
+        is_submitted: false,
+        presentation_type: 'full length'
+      })
+      .select('id')
+      .single();
+
+    const { data: editableDraft } = await adminSB
+      .from('presentation_submissions')
+      .insert({
+        title,
+        abstract: 'No JS duplicate target abstract '.repeat(12),
+        learning_points: 'No JS duplicate target learning point '.repeat(4),
+        submitter_id: emailLookup!.id,
+        year: submissionsForYear,
+        is_submitted: false,
+        presentation_type: '15 minutes'
+      })
+      .select('id')
+      .single();
+
+    await adminSB.from('presentation_presenters').upsert([
+      {
+        presentation_id: existingDraft!.id,
+        presenter_id: emailLookup!.id
+      },
+      {
+        presentation_id: editableDraft!.id,
+        presenter_id: emailLookup!.id
+      }
+    ]);
+
+    const editUrl = `/my-presentations/edit/${editableDraft!.id}`;
+    await page.goto(editUrl);
+
+    const formPage = new PresentationSubmissionPage(page);
+    await formPage.setSpeakerAgreement(true);
+    await page
+      .getByRole('button', { name: 'Submit Presentation', exact: true })
+      .click();
+
+    await expect(page.getByText('Possible duplicate')).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Submit Anyway', exact: true })
+    ).toBeVisible();
+
+    await page
+      .getByRole('button', { name: 'Submit Anyway', exact: true })
+      .click();
+
+    const { data: submittedRow } = await adminSB
+      .from('presentation_submissions')
+      .select('id, is_submitted')
+      .eq('id', editableDraft!.id)
+      .maybeSingle();
+
+    expect(submittedRow).not.toBeNull();
+    expect(submittedRow?.is_submitted).toEqual(true);
+
+    await adminSB
+      .from('presentation_submissions')
+      .delete()
+      .in('id', [existingDraft!.id, editableDraft!.id]);
   });
 });
