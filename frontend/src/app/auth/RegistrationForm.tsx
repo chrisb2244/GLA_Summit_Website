@@ -44,10 +44,12 @@ export const RegistrationForm = (props: { redirectTo?: string }) => {
   );
   const { validationMessages, checkValidity } = useFormValidation();
 
-  const [showError, setShowError] = useState(false);
+  const [touchedFields, setTouchedFields] = useState<Set<keyof PersonProps>>(
+    () => new Set()
+  );
 
   const fieldError = (field: keyof PersonProps) => {
-    if (!showError) {
+    if (!touchedFields.has(field)) {
       return undefined;
     }
     return validationMessages.get(field) ?? state.errors?.[field];
@@ -112,7 +114,12 @@ export const RegistrationForm = (props: { redirectTo?: string }) => {
         onBlur={(ev) => {
           if (ev.target instanceof HTMLInputElement) {
             if (['firstName', 'lastName', 'email'].includes(ev.target.name)) {
-              setShowError(true);
+              const field = ev.target.name as keyof PersonProps;
+              setTouchedFields((previous) => {
+                const next = new Set(previous);
+                next.add(field);
+                return next;
+              });
             }
           }
         }}
