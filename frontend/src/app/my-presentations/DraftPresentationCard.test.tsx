@@ -3,12 +3,15 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DraftPresentationCard } from './DraftPresentationCard';
 import type { MyPresentationSubmissionType } from '@/lib/databaseModels';
-import { deleteDraftPresentation } from '@/actions/presentationSubmission';
+import { deleteDraftPresentation } from '@/Components/PresentationSubmissions/presentationSubmissionActions';
 
 // Mock the server action so we don't need a real Supabase connection
-vi.mock('@/actions/presentationSubmission', () => ({
-  deleteDraftPresentation: vi.fn().mockResolvedValue({ success: true })
-}));
+vi.mock(
+  '@/Components/PresentationSubmissions/presentationSubmissionActions',
+  () => ({
+    deleteDraftPresentation: vi.fn().mockResolvedValue({ success: true })
+  })
+);
 
 const mockDraft: MyPresentationSubmissionType = {
   presentation_id: 'draft-id-1',

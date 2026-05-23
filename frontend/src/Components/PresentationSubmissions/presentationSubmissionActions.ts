@@ -8,7 +8,9 @@ import type {
 import { PresentationSubmissionFormSchema } from './PresentationSubmissionFormSchema';
 import { createAdminClient } from '@/lib/supabaseClient';
 import {
+  DRAFT_DELETE_CLIENT_ERROR,
   PRESENTATION_SAVE_CLIENT_ERROR,
+  DeleteReturnType,
   SubmitReturnType
 } from '@/actions/presentationActionTypes';
 import { logErrorToDb } from '@/lib/utils';
@@ -24,6 +26,7 @@ import {
   getAuthenticatedSubmitterId,
   savePresentation
 } from './savePresentation';
+import { createServerActionClient } from '@/lib/supabaseServer';
 import z from 'zod/v4';
 
 /**
@@ -190,6 +193,37 @@ const handlePresentationSubmission = async (
 
   revalidatePath('/my-presentations');
   revalidatePath('/submit-presentation');
+/**
+ * Deletes a draft presentation owned by the current user.
+ * RLS enforces ownership (submitter_id = auth.uid()) and draft-only deletion.
+ */
+export const deleteDraftPresentation = async (
+  presentationId: string
+): Promise<DeleteReturnType> => {
+  const supabase = await createServerActionClient();
+
+  const { error } = await supabase
+    .from('presentation_submissions')
+    .delete()
+    .eq('id', presentationId);
+
+  if (error) {
+    await logErrorToDb(
+      `deleteDraftPresentation delete failed: ${JSON.stringify({
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+        presentationId
+      })}`,
+      'error'
+    );
+    return { success: false, error: { message: DRAFT_DELETE_CLIENT_ERROR } };
+  }
+
+  revalidatePath('/my-presentations');
+  revalidatePath(`/my-presentations/edit/${presentationId}`);
+  revalidatePath('/review-submissions');
   return { success: true };
 };
 
