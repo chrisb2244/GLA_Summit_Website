@@ -195,12 +195,16 @@ To get started with this project, follow these steps:
   ```
 - It will initially dowload various Docker images for their containers, and then start the containers.
 - When it completes, it will print a status with various lines giving URLs or endpoints.
+- If using WSL2 mirrored networking, Windows reserved port ranges can block Supabase default 5432x binds even when no process appears to be listening. In this repository we use 5532x local ports to avoid those reserved ranges.
 - Insert the 'anon key' and 'service_role key' to a .env.local file in the frontend directory (a sample can be copied from .env.local.sample), along with the 'API URL':
 
   ```sh
-  NEXT_PUBLIC_SUPABASE_URL="http://127.0.0.1:54321"
+  NEXT_PUBLIC_SUPABASE_URL="http://127.0.0.1:55321"
   NEXT_PUBLIC_SUPABASE_ANON_KEY="<anon key>"
   SECRET_SUPABASE_SERVICE_KEY="<service_role key>"
+
+  # Optional for Playwright/local email checks
+  TEST_MAIL_API_URL="http://127.0.0.1:55324"
 
   # Additionally, set the following environment variable to remove a requirement for the email server keys
   USE_MOCK_EMAIL=true
@@ -214,6 +218,44 @@ To get started with this project, follow these steps:
 
   # Add the sender line for emails
   EMAIL_FROM_MG="GLA Summit Organizers <web@glasummit.org>"
+  ```
+
+#### Troubleshooting WSL2 mirrored networking and reserved ports
+
+- Symptom when starting Supabase:
+
+  ```text
+  failed to start docker container "supabase_db_<project>": Error response from daemon:
+  failed to set up container networking: driver failed programming external connectivity ...
+  failed to bind host port for 0.0.0.0:54322:172.20.0.x:5432/tcp: address already in use in mirrored mode
+  ```
+
+- Cause:
+  Windows can reserve local TCP ranges that overlap Supabase defaults (for example 54322, 54327).
+
+- Check reserved ranges from WSL (calls Windows PowerShell):
+
+  ```powershell
+  powershell.exe -NoProfile -Command "netsh interface ipv4 show excludedportrange protocol=tcp"
+  ```
+
+- Optional checks for active listeners on a specific port:
+
+  ```powershell
+  powershell.exe -NoProfile -Command "Get-NetTCPConnection -LocalPort 54322 -State Listen | Select-Object LocalAddress,LocalPort,OwningProcess"
+  ```
+
+  ```sh
+  ss -ltnp | grep 54322 || true
+  ```
+
+- Resolution used in this repo:
+  Keep Supabase local ports outside reserved ranges by using 5532x values in supabase/config.toml.
+  Restart with:
+
+  ```sh
+  npx supabase stop
+  npx supabase start
   ```
 
 ### Running the website locally
