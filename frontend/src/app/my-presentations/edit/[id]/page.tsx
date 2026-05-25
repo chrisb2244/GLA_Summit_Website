@@ -4,7 +4,7 @@ import { getProfileInfo } from '@/lib/databaseFunctions';
 import { PersonProps } from '@/Components/Form/Person';
 import { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
-import { PresentationFormFields } from '@/Components/PresentationSubmissions/PresentationFormFields2';
+import { PresentationFormFields } from '@/Components/PresentationSubmissions/PresentationFormFields';
 import { PresentationSubmissionFormData } from '@/Components/PresentationSubmissions/PresentationSubmissionFormSchema';
 
 export const metadata: Metadata = {

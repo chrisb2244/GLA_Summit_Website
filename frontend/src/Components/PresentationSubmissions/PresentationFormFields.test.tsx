@@ -1,6 +1,6 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { PresentationFormFields } from './PresentationFormFields2';
+import { PresentationFormFields } from './PresentationFormFields';
 import type {
   PresentationSubmissionFormData,
   PresentationSubmissionFormState

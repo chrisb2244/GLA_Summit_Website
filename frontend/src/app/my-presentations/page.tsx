@@ -11,7 +11,7 @@ import NextLink from 'next/link';
 import { Suspense } from 'react';
 import { SuccessNotification } from './SuccessNotification';
 import { NextSearchParams } from '@/lib/NextTypes';
-import { PresentationFormFields } from '@/Components/PresentationSubmissions/PresentationFormFields2';
+import { PresentationFormFields } from '@/Components/PresentationSubmissions/PresentationFormFields';
 
 export const metadata: Metadata = {
   robots: {
