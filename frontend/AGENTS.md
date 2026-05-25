@@ -12,6 +12,9 @@ When running Playwright tests in this repository:
 
 - Prefer the Firefox project by default.
 - Use commands in this form: `cd frontend && npm run playwright -- --project firefox ...` (when starting from repository root), or run the same `npm run playwright -- --project firefox ...` command directly from the frontend directory.
+- Run Playwright in non-interactive mode so results stay in terminal output.
+- Always set `CI=1` and use a terminal reporter (for example `--reporter=line`) to prevent auto-opening HTML reports or browser pages.
+- Do not use `--ui`, `show-report`, or any command/flag that opens a browser window for test results.
 
 When running frontend tests or scripts:
 
