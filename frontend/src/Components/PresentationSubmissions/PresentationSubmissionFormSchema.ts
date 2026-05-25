@@ -11,6 +11,15 @@ export const SubmittablePresentationTypeSchema = z.enum([
 ]);
 
 const FormDataValueType = z.union([z.string(), z.instanceof(File)]);
+function getString<F extends string | undefined>(
+  value: string | File,
+  fallback: F = '' as F
+): string | F {
+  if (typeof value === 'string') {
+    return value;
+  }
+  return fallback;
+}
 
 export const PresentationFormParser = z
   .record(z.string(), FormDataValueType)
@@ -21,23 +30,27 @@ export const PresentationFormParser = z
       .filter((v) => typeof v === 'string' && v.length > 0) as string[];
 
     return {
-      title: input.title ?? '',
-      abstract: input.abstract ?? '',
+      title: getString(input.title, ''),
+      abstract: getString(input.abstract, ''),
       submitter: {
-        firstName: input['submitter.firstName'] ?? '',
-        lastName: input['submitter.lastName'] ?? '',
-        email: input['submitter.email'] ?? ''
+        firstName: getString(input['submitter.firstName'], ''),
+        lastName: getString(input['submitter.lastName'], ''),
+        email: getString(input['submitter.email'], '')
       },
-      learningPoints: input.learningPoints ?? '',
-      presentationType: input.presentationType,
+      learningPoints: getString(input.learningPoints, ''),
+      presentationType: getString(input.presentationType, 'full length'),
       otherPresenters,
 
       speakerAgreement: input.speakerAgreement === 'on',
       skipDuplicateCheck: input.skipDuplicateCheck === 'true',
-      submitIntent: input.submitIntent ?? 'submit',
+      submitIntent: getString(input.submitIntent, 'submit'),
 
-      ...(input.presentationId ? { presentationId: input.presentationId } : {}),
-      ...(input.redirectTo ? { redirectTo: input.redirectTo } : {})
+      ...(input.presentationId && typeof input.presentationId === 'string'
+        ? { presentationId: input.presentationId }
+        : {}),
+      ...(input.redirectTo && typeof input.redirectTo === 'string'
+        ? { redirectTo: input.redirectTo }
+        : {})
     };
   });
 
@@ -52,7 +65,7 @@ export const PresentationSubmissionValidator = z
     submitter: z.object({
       firstName: z.string().min(1, 'Submitter first name is required'),
       lastName: z.string().min(1, 'Submitter last name is required'),
-      email: z.string().email('Submitter email must be a valid email address')
+      email: z.email('Submitter email must be a valid email address')
     }),
 
     speakerAgreement: z.boolean(),
