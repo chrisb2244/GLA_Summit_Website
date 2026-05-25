@@ -13,7 +13,7 @@ const buildTitle = () =>
 
 test.describe('draft save regression', () => {
   test.use({
-    storageState: async ({ }, use) =>
+    storageState: async ({}, use) =>
       use(path.resolve(__dirname, '.auth', 'attendee.json'))
   });
 
@@ -62,9 +62,6 @@ test.describe('draft save regression', () => {
     await page.reload();
     await formPage.waitForDraftSaved(title);
 
-    await page
-      .getByRole('button', { name: 'Submit another presentation' })
-      .click();
     await expect(
       page.getByRole('link', { name: title, exact: true })
     ).toBeVisible();
