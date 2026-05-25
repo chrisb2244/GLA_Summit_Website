@@ -3,7 +3,7 @@
 import { NextSearchParams } from '@/lib/NextTypes';
 import { use, useEffect, useState } from 'react';
 
-const DISMISS_DELAY_MS = 4000;
+const DISMISS_DELAY_MS = 6000;
 
 type NotificationAction = 'draft-saved' | 'draft-submitted';
 
@@ -11,10 +11,12 @@ type SuccessNotificationProps = {
   searchParams: NextSearchParams;
 };
 
-const messageMap: Record<NotificationAction, string> = {
-  'draft-saved': 'Draft saved successfully!',
-  'draft-submitted':
-    "Presentation submitted successfully! Don't forget to update your bio and profile photo at My Profile — these will be shown in the conference programme."
+const messageMap: Record<NotificationAction, string[]> = {
+  'draft-saved': ['Draft saved successfully!'],
+  'draft-submitted': [
+    'Presentation submitted successfully!',
+    "Don't forget to update your bio and profile photo at My Profile — these will be shown in the conference programme."
+  ]
 };
 
 export function SuccessNotification({
@@ -50,11 +52,15 @@ export function SuccessNotification({
 
   return (
     <div
-      className='fixed right-4 top-4 max-w-sm rounded-md border border-green-400 bg-green-50 p-4 shadow-lg'
+      className='fixed bottom-24 left-1/2 w-2/3 max-w-screen-md -translate-x-1/2 transform rounded-md border border-green-400 bg-green-50 px-4 py-2 shadow-lg'
       role='status'
       aria-live='polite'
     >
-      <p className='text-green-800'>{messageMap[action]}</p>
+      <div className='text-center text-green-800'>
+        {messageMap[action].map((msg, index) => (
+          <p key={index}>{msg}</p>
+        ))}
+      </div>
     </div>
   );
 }
