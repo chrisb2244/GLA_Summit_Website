@@ -347,12 +347,7 @@ export const PresentationFormFields = ({
 
       <div className='mt-3 flex flex-col gap-2 sm:flex-row sm:justify-between'>
         {CAN_SUBMIT_DRAFT && (
-          <Button
-            type='submit'
-            name='submitIntent'
-            value='saveDraft'
-            className='w-full sm:w-2/5'
-          >
+          <Button type='submit' name='submitIntent' value='saveDraft'>
             Save Draft
           </Button>
         )}
@@ -360,7 +355,6 @@ export const PresentationFormFields = ({
         <SubmitButton
           name='submitIntent'
           value='submit'
-          className='w-full sm:w-3/5'
           staticText={
             state.duplicateWarning ? 'Submit Anyway' : 'Submit Presentation'
           }

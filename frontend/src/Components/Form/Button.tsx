@@ -23,22 +23,24 @@ const buttonStyles = cva(
 type VariantStyleProps = VariantProps<typeof buttonStyles>;
 export type ButtonProps = Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
-  'formAction'
+  'className' | 'formAction'
 > &
   VariantStyleProps & {
-    formAction?: string | ((formData: FormData) => void | Promise<any>);
+    formAction?:
+      | string
+      | ((formData: FormData) => void | Promise<any>);
   };
 
 export const Button = forwardRef<
   HTMLButtonElement,
   PropsWithChildren<ButtonProps>
 >((props: PropsWithChildren<ButtonProps>, ref) => {
-  const { children, fullWidth, disabled, className, ...buttonProps } = props;
+  const { children, fullWidth, disabled, ...buttonProps } = props;
   return (
     <button
       {...buttonProps}
       disabled={disabled}
-      className={`${className} ${buttonStyles({ fullWidth, disabled })}}`}
+      className={buttonStyles({ fullWidth, disabled })}
       ref={ref}
     >
       {children}
