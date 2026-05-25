@@ -288,7 +288,7 @@ const prunePresentationPresenters = async (
     .not(
       'presenter_id',
       'in',
-      `(${presenterIds.map((id) => `'${id}'`).join(',')})`
+      `(${presenterIds.map((id) => `"${id}"`).join(',')})`
     )
     .select('presenter_id');
 
