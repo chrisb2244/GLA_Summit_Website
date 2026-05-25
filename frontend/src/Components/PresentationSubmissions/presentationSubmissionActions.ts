@@ -5,7 +5,10 @@ import type {
   PresentationSubmissionFormData,
   PresentationSubmissionFormState
 } from './PresentationSubmissionFormSchema';
-import { PresentationSubmissionFormSchema } from './PresentationSubmissionFormSchema';
+import {
+  PresentationFormParser,
+  PresentationSubmissionFormSchema
+} from './PresentationSubmissionFormSchema';
 import { createAdminClient } from '@/lib/supabaseClient';
 import {
   DRAFT_DELETE_CLIENT_ERROR,
@@ -45,35 +48,35 @@ export const submitPresentationAction = async (
   previousState: PresentationSubmissionFormState,
   formData: FormData
 ): Promise<PresentationSubmissionFormState> => {
-  const hydratedStateData = getStateDataFromFormData(
-    previousState.data,
-    formData
-  );
-  const parsedData = PresentationSubmissionFormSchema.safeParse(
-    Object.fromEntries(formData.entries())
-  );
+  const raw = Object.fromEntries(formData.entries());
 
-  if (!parsedData.success) {
-    const errorTree = z.treeifyError(parsedData.error);
+  // First parse the form data with the basic parser to handle type coercion and defaults
+  const parsedData = PresentationFormParser.parse(raw);
+
+  // Then validate the parsed data with the full schema which includes business logic refinements
+  const validationResult = PresentationSubmissionFormSchema.safeParse(raw);
+
+  if (!validationResult.success) {
+    const errorTree = z.treeifyError(validationResult.error);
 
     return {
       ...previousState,
-      data: hydratedStateData,
+      data: parsedData, // Use the parsed data with coercions/defaults applied, even if validation failed
       duplicateWarning: undefined,
       status: undefined,
       errors: errorTree
     };
   }
 
-  const normalizedData: PresentationSubmissionFormData = parsedData.data;
-  const isFinalSubmission = normalizedData.submitIntent === 'submit';
+  const validatedData = validationResult.data;
+  const isFinalSubmission = validatedData.submitIntent === 'submit';
 
-  if (isFinalSubmission && !normalizedData.skipDuplicateCheck) {
-    const duplicateResult = await findDuplicateSubmission(normalizedData);
+  if (isFinalSubmission && !validatedData.skipDuplicateCheck) {
+    const duplicateResult = await findDuplicateSubmission(validatedData);
     if (duplicateResult !== null) {
       return {
         data: {
-          ...normalizedData,
+          ...validatedData,
           skipDuplicateCheck: false
         },
         errors: undefined,
@@ -84,14 +87,14 @@ export const submitPresentationAction = async (
   }
 
   const result = await handlePresentationSubmission(
-    normalizedData,
+    validatedData,
     isFinalSubmission
   );
 
   if (result.success) {
     const isEditingDraft =
-      typeof normalizedData.presentationId === 'string' &&
-      normalizedData.presentationId.length > 0;
+      typeof validatedData.presentationId === 'string' &&
+      validatedData.presentationId.length > 0;
 
     if (isFinalSubmission) {
       redirect('/my-presentations?action=draft-submitted');
@@ -103,7 +106,7 @@ export const submitPresentationAction = async (
 
     return {
       data: {
-        ...normalizedData,
+        ...validatedData,
         skipDuplicateCheck: false
       },
       errors: undefined,
@@ -124,7 +127,7 @@ export const submitPresentationAction = async (
     );
     return {
       ...previousState,
-      data: hydratedStateData,
+      data: validatedData,
       duplicateWarning: undefined,
       errors: {
         errors: [PRESENTATION_SAVE_CLIENT_ERROR]
@@ -135,72 +138,6 @@ export const submitPresentationAction = async (
       }
     };
   }
-};
-
-const getStateDataFromFormData = (
-  fallbackData: PresentationSubmissionFormState['data'],
-  formData: FormData
-): PresentationSubmissionFormState['data'] => {
-  const getString = (key: string, fallback: string) => {
-    const value = formData.get(key);
-    return typeof value === 'string' ? value : fallback;
-  };
-
-  const otherPresenters = Array.from(formData.entries())
-    .filter(([key]) => /otherPresenters\.[0-9]+\.email/.test(key))
-    .map(([, value]) => (typeof value === 'string' ? value : ''))
-    .filter((value) => value.length > 0);
-
-  const presentationIdRaw = getString(
-    'presentationId',
-    fallbackData.presentationId ?? ''
-  );
-  const redirectToRaw = getString('redirectTo', fallbackData.redirectTo ?? '');
-  const submitIntentRaw = getString('submitIntent', fallbackData.submitIntent);
-
-  return {
-    title: getString('title', fallbackData.title),
-    abstract: getString('abstract', fallbackData.abstract),
-    learningPoints: getString('learningPoints', fallbackData.learningPoints),
-    presentationType:
-      getString('presentationType', fallbackData.presentationType) ===
-      '15 minutes'
-        ? '15 minutes'
-        : getString('presentationType', fallbackData.presentationType) === '7x7'
-        ? '7x7'
-        : getString('presentationType', fallbackData.presentationType) ===
-          'panel'
-        ? 'panel'
-        : 'full length',
-    submitter: {
-      firstName: getString(
-        'submitter.firstName',
-        fallbackData.submitter.firstName
-      ),
-      lastName: getString(
-        'submitter.lastName',
-        fallbackData.submitter.lastName
-      ),
-      email: getString('submitter.email', fallbackData.submitter.email)
-    },
-    speakerAgreement:
-      typeof formData.get('speakerAgreement') === 'string' ||
-      fallbackData.speakerAgreement,
-    skipDuplicateCheck:
-      getString(
-        'skipDuplicateCheck',
-        fallbackData.skipDuplicateCheck ? 'true' : 'false'
-      ) === 'true',
-    submitIntent: submitIntentRaw === 'saveDraft' ? 'saveDraft' : 'submit',
-    otherPresenters:
-      otherPresenters.length > 0
-        ? otherPresenters
-        : fallbackData.otherPresenters,
-    ...(presentationIdRaw.length > 0
-      ? { presentationId: presentationIdRaw }
-      : {}),
-    ...(redirectToRaw.length > 0 ? { redirectTo: redirectToRaw } : {})
-  };
 };
 
 const normalizeTitle = (title: string) =>
