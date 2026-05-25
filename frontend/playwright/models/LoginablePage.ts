@@ -51,7 +51,9 @@ export class LoginablePage {
 
     if (type === 'register') {
       if (!(await this.registrationForm().isVisible())) {
-        await this.loginForm().getByRole('link', { name: /Join Now/i }).click();
+        await this.loginForm()
+          .getByRole('link', { name: /Join Now/i })
+          .click();
       }
       await this.waitForRegistrationForm();
       return;
@@ -120,10 +122,10 @@ export class LoginablePage {
     const activeForm = (await this.isVerificationForm())
       ? this.verificationForm()
       : (await this.isRegistrationForm())
-        ? this.registrationForm()
-        : (await this.loginForm().isVisible())
-          ? this.loginForm()
-          : this.page.locator('form').first();
+      ? this.registrationForm()
+      : (await this.loginForm().isVisible())
+      ? this.loginForm()
+      : this.page.locator('form').first();
 
     if (method === 'enter key') {
       await activeForm.press('Enter');
@@ -133,10 +135,10 @@ export class LoginablePage {
     const formType = (await this.isVerificationForm())
       ? 'verification'
       : (await this.isLoginForm())
-        ? 'login'
-        : (await this.isRegistrationForm())
-          ? 'registration'
-          : undefined;
+      ? 'login'
+      : (await this.isRegistrationForm())
+      ? 'registration'
+      : undefined;
     let labelMatcher = undefined;
     switch (formType) {
       case 'login':
@@ -161,8 +163,10 @@ export class LoginablePage {
     if (await button.isDisabled({ timeout: 100 })) {
       return false;
     }
-    await button.click();
-    return true;
+    return await button
+      .click({ noWaitAfter: true, timeout: 1000 })
+      .then(() => true)
+      .catch(() => false);
   }
 
   async getAllErrors() {

@@ -178,11 +178,15 @@ test.describe('User Authentication Tests', () => {
     await loginablePage.fillInLoginForm(user.email);
 
     // Click submit multiple times
-    await Promise.all([
+    const attempts = [
       loginablePage.submitForm('button click'),
       loginablePage.submitForm('enter key'),
       loginablePage.submitForm()
-    ]).then(() => new Promise((r) => setTimeout(r, 500)));
+    ];
+
+    await Promise.allSettled(attempts);
+
+    await page.waitForTimeout(500); // Wait for any potential emails to be sent
 
     const numEmailsInBucket = await countEmailsInInbox(user.email);
     expect(numEmailsInBucket).toBe(1);
@@ -226,7 +230,9 @@ test.describe('User Authentication Tests', () => {
     await loginablePage.openLoginOrRegisterForm('register');
     expect(await loginablePage.isRegistrationForm()).toBeTruthy();
 
-    const registrationForm = page.getByRole('form', { name: 'Registration Form' });
+    const registrationForm = page.getByRole('form', {
+      name: 'Registration Form'
+    });
     await registrationForm.getByLabel('First Name').fill('');
     await registrationForm.getByLabel('Last Name').fill('');
     await registrationForm.getByLabel('Email').fill('notavalidemail.com');
