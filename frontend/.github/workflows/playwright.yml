@@ -1,27 +1,28 @@
+# Playwright e2e requires local Supabase (55321/55324), frontend/.env.test,
+# and a running Next dev server. Run locally per frontend/AGENTS.md.
+# This workflow is disabled until CI infrastructure matches that setup.
+
 name: Playwright Tests
+
 on:
-  push:
-    branches: [main, master]
-  pull_request:
-    branches: [main, master]
+  workflow_dispatch:
+
 jobs:
   test:
+    if: false
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '14.x'
+          node-version: '20.x'
       - name: Install dependencies
+        working-directory: frontend
         run: npm ci
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+        working-directory: frontend
+        run: npx playwright install --with-deps firefox
       - name: Run Playwright tests
-        run: npx playwright test
-      - uses: actions/upload-artifact@v2
-        if: always()
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 30
+        working-directory: frontend
+        run: npx playwright test --project firefox
