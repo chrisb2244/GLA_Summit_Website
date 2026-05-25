@@ -29,7 +29,10 @@ const buildTestTitle = (prefix: string) =>
       await expect(page.getByText('You need to be logged in')).toBeVisible();
 
       const email = process.env.TEST_ATTENDEE_EMAIL as string;
-      await loginOnPage(page, email);
+      await loginOnPage(page, email, {
+        expectedPath: /\/my-presentations(?:\?.*)?$/,
+        redirectTimeoutMs: 5000
+      });
 
       if (CAN_SUBMIT_PRESENTATION) {
         await expect(
