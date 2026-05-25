@@ -13,7 +13,7 @@ const buildTitle = () =>
 
 test.describe('draft save regression', () => {
   test.use({
-    storageState: async ({}, use) =>
+    storageState: async ({ }, use) =>
       use(path.resolve(__dirname, '.auth', 'attendee.json'))
   });
 
@@ -44,7 +44,23 @@ test.describe('draft save regression', () => {
         /row-level security policy for table "presentation_submissions"/i
       )
     ).toHaveCount(0);
-    await expect(page.getByText('Draft saved successfully!')).toBeVisible();
+
+    await expect
+      .poll(
+        async () => {
+          const { data } = await admin
+            .from('presentation_submissions')
+            .select('id, is_submitted')
+            .eq('title', title)
+            .maybeSingle();
+          return data?.id ?? null;
+        },
+        { timeout: 20000 }
+      )
+      .not.toBeNull();
+
+    await page.reload();
+    await formPage.waitForDraftSaved(title);
 
     await page
       .getByRole('button', { name: 'Submit another presentation' })

@@ -196,7 +196,7 @@ export const loginOnPage = async (
   await loginablePage
     .submitForm()
     // Delay to allow the email to be sent - old emails exist for existing accounts
-    .then(() => new Promise((resolve) => setTimeout(resolve, 500)));
+    .then(() => new Promise((resolve) => setTimeout(resolve, 300)));
 
   const otp = await getInbucketVerificationCode(email, 5000, 5000);
   await loginablePage.fillInVerificationForm(otp);
@@ -221,6 +221,28 @@ type SharedPresentationSeedOptions = {
   copresenterEmail: string;
   status: 'accepted' | 'awaiting-response';
   isSubmitted?: boolean;
+};
+
+export const deletePresentationByTitle = async (
+  title: string,
+  submitterEmail: string
+) => {
+  const admin = createSupabaseAdmin();
+  const { data: emailLookup } = await admin
+    .from('email_lookup')
+    .select('id')
+    .eq('email', submitterEmail)
+    .maybeSingle();
+
+  if (!emailLookup?.id) {
+    return;
+  }
+
+  await admin
+    .from('presentation_submissions')
+    .delete()
+    .eq('submitter_id', emailLookup.id)
+    .eq('title', title);
 };
 
 export const seedSharedPresentation = async (

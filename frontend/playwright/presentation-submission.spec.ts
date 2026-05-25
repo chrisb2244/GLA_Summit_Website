@@ -5,7 +5,12 @@ import {
   submissionsForYear
 } from '@/app/configConstants';
 import path from 'path';
-import { createSupabaseAdmin, getLatestEmail, loginOnPage } from './utils';
+import {
+  createSupabaseAdmin,
+  deletePresentationByTitle,
+  getLatestEmail,
+  loginOnPage
+} from './utils';
 
 // Use an existing user who is not a presenter or organizer
 const attendeeEmail = process.env.TEST_ATTENDEE_EMAIL as string;
@@ -72,16 +77,14 @@ const buildTestTitle = (prefix: string) =>
 
       const formPage = new PresentationSubmissionPage(page);
 
-      // Wait for the login dialog to disappear (have saved session state)
       await formPage.waitForFormLoad();
 
       expect(await formPage.hasVisibleForm()).toBeTruthy();
 
-      // Using the test attendee user, we expect
-      const submitterEmailInput = page.locator('label:has-text("Email")');
-      expect(await submitterEmailInput.isVisible()).toBeTruthy();
-      expect(await submitterEmailInput.isEditable()).toBeFalsy();
-      expect(await submitterEmailInput.inputValue()).toEqual(attendeeEmail);
+      const submitterEmailInput = formPage.submitterEmailInput();
+      await expect(submitterEmailInput).toBeVisible();
+      await expect(submitterEmailInput).toHaveAttribute('readonly', '');
+      await expect(submitterEmailInput).toHaveValue(attendeeEmail);
     });
 
     test('Form fill testing', async ({ page }) => {
@@ -91,7 +94,6 @@ const buildTestTitle = (prefix: string) =>
 
       const formPage = new PresentationSubmissionPage(page);
 
-      // Wait for the login dialog to disappear (have saved session state)
       await formPage.waitForFormLoad();
 
       expect(await formPage.hasVisibleForm()).toBeTruthy();
@@ -116,11 +118,7 @@ const buildTestTitle = (prefix: string) =>
 
       await formPage.submitForm();
 
-      // Should hide the form on successful submission
-      await expect(formPage.titleInput).toBeHidden();
-      await expect(
-        formPage.page.getByText('Presentation submitted successfully!')
-      ).toBeVisible();
+      await formPage.waitForSubmittedSuccess(testTitle);
 
       const submittedPresentationsDiv = page.locator(
         'div:has-text("Submitted Presentations")'
@@ -129,11 +127,11 @@ const buildTestTitle = (prefix: string) =>
         submittedPresentationsDiv.getByLabel(testTitle);
       await expect(newSubmittedPresentation).toBeVisible();
 
-      // Check it is marked as under consideration
-      const statusDiv = newSubmittedPresentation.getByText(
-        'Under Consideration'
-      );
-      await expect(statusDiv).toBeVisible();
+      await expect(
+        newSubmittedPresentation.getByText('Under consideration', {
+          exact: true
+        })
+      ).toBeVisible();
 
       // Check an email is received for the submission
       const mailboxId = attendeeEmail.split('@')[0];
@@ -155,6 +153,8 @@ const buildTestTitle = (prefix: string) =>
         .eq('title', testTitle)
         .single();
       expect(presentations?.is_submitted).toEqual(true);
+
+      await deletePresentationByTitle(testTitle, attendeeEmail);
     });
 
     test('draft save shows draft card in Draft Submissions', async ({
@@ -182,6 +182,7 @@ const buildTestTitle = (prefix: string) =>
       });
       await formPage.setSpeakerAgreement(true);
       await formPage.submitForm('Save Draft');
+      await formPage.waitForDraftSaved(testTitle);
 
       await expect(
         page.getByRole('heading', { name: 'Draft Submissions', exact: true })
@@ -214,6 +215,7 @@ const buildTestTitle = (prefix: string) =>
       });
       await formPage.setSpeakerAgreement(true);
       await formPage.submitForm('Save Draft');
+      await formPage.waitForDraftSaved(testTitle);
 
       await page.reload();
       await expect(
@@ -246,11 +248,7 @@ const buildTestTitle = (prefix: string) =>
       });
       await formPage.setSpeakerAgreement(true);
       await formPage.submitForm('Save Draft');
-
-      // Wait for UI confirmation before reading DB to avoid racing the server action.
-      await expect(
-        page.getByRole('link', { name: testTitle, exact: true })
-      ).toBeVisible();
+      await formPage.waitForDraftSaved(testTitle);
 
       const adminSB = createSupabaseAdmin();
       const { data: presentation } = await adminSB
@@ -286,6 +284,7 @@ const buildTestTitle = (prefix: string) =>
       });
       await formPage.setSpeakerAgreement(true);
       await formPage.submitForm('Save Draft');
+      await formPage.waitForDraftSaved(testTitle);
 
       const draftCard = page
         .getByRole('link', { name: testTitle, exact: true })
@@ -316,7 +315,10 @@ const buildTestTitle = (prefix: string) =>
 
       await formPage.submitForm('Submit Presentation');
 
-      await expect(formPage.titleInput).toHaveAttribute('aria-invalid', 'true');
+      const titleValidity = await formPage.titleInput.evaluate(
+        (el: HTMLInputElement) => el.validationMessage
+      );
+      expect(titleValidity.length).toBeGreaterThan(0);
       await expect(formPage.abstractInput).toHaveValue(abstract);
       await expect(formPage.learningPointsInput).toHaveValue(learningPoints);
     });
@@ -343,10 +345,8 @@ const buildTestTitle = (prefix: string) =>
       });
       await formPage.setSpeakerAgreement(true);
       await formPage.submitForm('Save Draft');
+      await formPage.waitForDraftSaved(testTitle);
 
-      await page
-        .getByRole('button', { name: 'Submit another presentation' })
-        .click();
       await formPage.waitForFormLoad();
 
       await formPage.fillFormData({
@@ -393,7 +393,9 @@ const buildTestTitle = (prefix: string) =>
       await formPage.submitForm('Submit Presentation');
 
       await expect(
-        page.getByText('You must agree to the speaker agreement to submit.')
+        page.getByText('You must agree to the speaker agreement to submit', {
+          exact: false
+        })
       ).toBeVisible();
       await expect(formPage.titleInput).toHaveValue(title);
       await expect(formPage.abstractInput).toHaveValue(abstract);
@@ -406,9 +408,7 @@ const buildTestTitle = (prefix: string) =>
       const formPage = new PresentationSubmissionPage(page);
       await formPage.waitForFormLoad();
 
-      // Need to exceed 100 chars
       const abstract = 'Blah blah '.repeat(20);
-      // Need to exceed 50 chars
       const learningPoints = 'Blah'.repeat(15);
 
       await formPage.fillFormData({
@@ -420,9 +420,10 @@ const buildTestTitle = (prefix: string) =>
 
       await formPage.submitForm();
 
-      await expect(formPage.titleInput).toHaveAttribute('aria-invalid', 'true');
-
-      // Check that the other elements are still filled
+      const titleValidity = await formPage.titleInput.evaluate(
+        (el: HTMLInputElement) => el.validationMessage
+      );
+      expect(titleValidity.length).toBeGreaterThan(0);
       await expect(formPage.abstractInput).toHaveValue(abstract);
       await expect(formPage.learningPointsInput).toHaveValue(learningPoints);
     });

@@ -4,118 +4,92 @@ import type { Locator, Page } from '@playwright/test';
 export class LoginablePage {
   readonly page: Page;
   readonly loginOrRegisterButton: Locator;
-  readonly form: Locator;
-  readonly firstnameInput: Locator;
-  readonly lastnameInput: Locator;
-  readonly emailInput: Locator;
-  readonly verificationInput: Locator;
 
   constructor(page: Page) {
     this.page = page;
     this.loginOrRegisterButton = this.page.locator('role=button', {
       hasText: /sign in/i
     });
-
-    // Email is part of both login and registration
-    this.form = this.page.locator('role=form');
-
-    this.firstnameInput = this.form.locator('label:has-text("First Name")');
-    this.lastnameInput = this.form.locator('label:has-text("Last Name")');
-    this.emailInput = this.form.locator('label:has-text("Email")');
-
-    this.verificationInput = this.form.locator(
-      'label:has-text("Verification Code")'
-    );
   }
 
   async goto(url: string) {
     await this.page.goto(url);
   }
 
+  private loginForm() {
+    return this.page.getByRole('form', { name: 'Login Form' });
+  }
+
+  private registrationForm() {
+    return this.page.getByRole('form', { name: 'Registration Form' });
+  }
+
+  private verificationForm() {
+    return this.page.getByRole('form', { name: 'Verification Code form' });
+  }
+
   private async waitForLoginForm() {
-    await expect(this.emailInput).toBeVisible();
-    await expect(this.firstnameInput).toBeHidden();
-    await expect(this.lastnameInput).toBeHidden();
+    await this.page.waitForURL(/\/auth\/login/);
+    const form = this.loginForm();
+    await expect(form.getByLabel('Email')).toBeVisible();
+    await expect(form.getByLabel('First Name')).toHaveCount(0);
+    await expect(form.getByLabel('Last Name')).toHaveCount(0);
   }
 
   private async waitForRegistrationForm() {
-    await expect(this.firstnameInput).toBeVisible();
-    await expect(this.lastnameInput).toBeVisible();
-    await expect(this.emailInput).toBeVisible();
+    await this.page.waitForURL(/\/auth\/register/);
+    const form = this.registrationForm();
+    await expect(form.getByLabel('First Name')).toBeVisible();
+    await expect(form.getByLabel('Last Name')).toBeVisible();
+    await expect(form.getByLabel('Email')).toBeVisible();
   }
 
   async openLoginOrRegisterForm(type?: 'login' | 'register') {
-    // The login/register button should be visible
     await expect(this.loginOrRegisterButton).toBeVisible();
-
-    // Click the button, expect a form to be accessible
     await this.loginOrRegisterButton.click();
-    await expect(this.form).toBeVisible();
+    await this.page.waitForURL(/\/auth\/(login|register)/);
 
-    // If required, change the form type.
-    if (type !== undefined) {
-      const isRegistrationForm = await this.firstnameInput.isVisible();
-      switch (type) {
-        case 'register':
-          if (isRegistrationForm) {
-            await this.waitForRegistrationForm();
-            return;
-          } else {
-            await this.form
-              .locator('role=link', { hasText: /Join Now/i })
-              .click();
-            await this.waitForRegistrationForm();
-            return;
-          }
-        case 'login':
-          if (isRegistrationForm) {
-            await this.form
-              .locator('role=link', { hasText: /Sign In/i })
-              .click();
-            await this.waitForLoginForm();
-            return;
-          } else {
-            await this.waitForLoginForm();
-            return;
-          }
+    if (type === 'register') {
+      if (!(await this.registrationForm().isVisible())) {
+        await this.loginForm().getByRole('link', { name: /Join Now/i }).click();
       }
+      await this.waitForRegistrationForm();
+      return;
+    }
+
+    if (type === 'login') {
+      if (await this.registrationForm().isVisible()) {
+        await this.registrationForm()
+          .getByRole('link', { name: /Sign In/i })
+          .click();
+      }
+      await this.waitForLoginForm();
     }
   }
 
   async isLoginForm(): Promise<boolean> {
-    if (this.form === null) {
-      return false;
-    }
-    return await this.form.allTextContents().then((textArray) => {
-      const containsLoginText = textArray.some((textElement) => {
-        return textElement.includes(
-          'In order to sign in, enter the email address'
-        );
-      });
-      return containsLoginText;
-    });
+    return this.page
+      .getByText('In order to sign in, enter the email address')
+      .isVisible();
   }
 
   async isRegistrationForm(): Promise<boolean> {
-    if (this.form === null) {
-      return false;
-    }
+    const form = this.registrationForm();
     return Promise.all([
-      this.firstnameInput.isVisible(),
-      this.lastnameInput.isVisible(),
-      this.emailInput.isVisible()
+      form.getByLabel('First Name').isVisible(),
+      form.getByLabel('Last Name').isVisible(),
+      form.getByLabel('Email').isVisible()
     ]).then(([a, b, c]) => a && b && c);
   }
 
   async isVerificationForm(): Promise<boolean> {
-    if (this.form === null) {
-      return false;
-    }
-    return await this.verificationInput.isVisible();
+    return this.page
+      .getByRole('textbox', { name: 'Verification Code' })
+      .isVisible();
   }
 
   async fillInLoginForm(email: string) {
-    await this.emailInput.fill(email);
+    await this.loginForm().getByLabel('Email').fill(email);
   }
 
   async fillInRegistrationForm(values: {
@@ -123,82 +97,75 @@ export class LoginablePage {
     lastname?: string;
     email?: string;
   }) {
+    const form = this.registrationForm();
     if (values.firstname !== undefined) {
-      await this.firstnameInput.fill(values.firstname);
+      await form.getByLabel('First Name').fill(values.firstname);
     }
     if (values.lastname !== undefined) {
-      await this.lastnameInput.fill(values.lastname);
+      await form.getByLabel('Last Name').fill(values.lastname);
     }
     if (values.email !== undefined) {
-      await this.emailInput.fill(values.email);
+      await form.getByLabel('Email').fill(values.email);
     }
   }
 
   async fillInVerificationForm(code: string) {
-    await this.verificationInput.fill(code);
+    await this.page.waitForURL(/\/auth\/validateLogin/);
+    await this.page
+      .getByRole('textbox', { name: 'Verification Code' })
+      .fill(code);
   }
 
   async submitForm(method?: 'enter key' | 'button click') {
+    const activeForm = (await this.isVerificationForm())
+      ? this.verificationForm()
+      : (await this.isRegistrationForm())
+        ? this.registrationForm()
+        : (await this.loginForm().isVisible())
+          ? this.loginForm()
+          : this.page.locator('form').first();
+
     if (method === 'enter key') {
-      await this.form.press('Enter');
-      return true;
-    } else {
-      const formType = (await this.isLoginForm())
-        ? 'login'
-        : (await this.isRegistrationForm())
-        ? 'registration'
-        : (await this.isVerificationForm())
-        ? 'verification'
-        : undefined;
-      let labelMatcher = undefined;
-      switch (formType) {
-        case 'login':
-          labelMatcher = /log ?in|logging ?in/i;
-          break;
-        case 'registration':
-          labelMatcher = /register|registering/i;
-          break;
-        case 'verification':
-          labelMatcher = /submit|submitting/i;
-          break;
-      }
-      const button = this.form
-        .getByRole('button')
-        .filter({ hasText: labelMatcher })
-        .first();
-
-      // Another concurrent submit can transition button text/state before this call.
-      if (!(await button.isVisible({ timeout: 200 }).catch(() => false))) {
-        return false;
-      }
-
-      if (await button.isDisabled({ timeout: 100 })) {
-        return false;
-      }
-      await button.click();
+      await activeForm.press('Enter');
       return true;
     }
+
+    const formType = (await this.isVerificationForm())
+      ? 'verification'
+      : (await this.isLoginForm())
+        ? 'login'
+        : (await this.isRegistrationForm())
+          ? 'registration'
+          : undefined;
+    let labelMatcher = undefined;
+    switch (formType) {
+      case 'login':
+        labelMatcher = /log ?in|logging ?in/i;
+        break;
+      case 'registration':
+        labelMatcher = /register|registering/i;
+        break;
+      case 'verification':
+        labelMatcher = /submit|submitting/i;
+        break;
+    }
+    const button = activeForm
+      .getByRole('button')
+      .filter({ hasText: labelMatcher })
+      .first();
+
+    if (!(await button.isVisible({ timeout: 200 }).catch(() => false))) {
+      return false;
+    }
+
+    if (await button.isDisabled({ timeout: 100 })) {
+      return false;
+    }
+    await button.click();
+    return true;
   }
 
   async getAllErrors() {
-    return await this.form.getByRole('alert').allTextContents();
-  }
-
-  async switchForm() {
-    const isLogin = await this.isLoginForm();
-    await this.form
-      .locator('role=button', {
-        hasText: (await isLogin) ? /Join Now/i : /Sign In/i
-      })
-      .click();
-    if (isLogin) {
-      // was login, now registration
-      await this.firstnameInput.waitFor({ state: 'visible' });
-    } else {
-      // was registration, now login
-      await this.form
-        .locator('text="In order to sign in,"')
-        .waitFor({ state: 'visible' });
-    }
+    return this.page.getByRole('alert').allTextContents();
   }
 }
