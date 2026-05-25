@@ -2,7 +2,7 @@
   "type": "module",
   "scripts": {
     "gen_types": "supabase gen types typescript --local > frontend/src/lib/sb_databaseModels.ts",
-    "db:seed:avatars": "node --env-file=supabase/.env.local supabase/seeds/avatar-storage.ts",
+    "db:seed:avatars": "node --env-file=frontend/.env.local --import tsx supabase/seeds/avatar-storage.ts",
     "db:reset": "supabase db reset && npm run db:seed:avatars"
   },
   "devDependencies": {
@@ -10,6 +10,7 @@
     "@types/node": "^25.9.0",
     "sharp": "^0.34.5",
     "supabase": "^2.100.1",
+    "tsx": "^4.20.6",
     "typescript": "^5.8.3"
   }
 }
