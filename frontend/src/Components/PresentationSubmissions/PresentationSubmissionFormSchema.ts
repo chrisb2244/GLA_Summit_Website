@@ -58,9 +58,17 @@ export type PresentationParsedData = z.infer<typeof PresentationFormParser>;
 
 export const PresentationSubmissionValidator = z
   .object({
-    title: z.string().min(1, 'Title is required'),
-    abstract: z.string().min(150, 'Abstract must be at least 150 characters'),
-    learningPoints: z.string().min(1, 'Learning points are required'),
+    title: z
+      .string()
+      .min(1, 'Title is required')
+      .max(150, 'Title must be at most 150 characters'),
+    abstract: z
+      .string()
+      .min(100, 'Abstract must be at least 100 characters')
+      .max(5000, 'Abstract must be at most 5000 characters'),
+    learningPoints: z
+      .string()
+      .min(50, 'Learning points must be at least 50 characters'),
     presentationType: SubmittablePresentationTypeSchema,
     submitter: z.object({
       firstName: z.string().min(1, 'Submitter first name is required'),
