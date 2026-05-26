@@ -18,9 +18,10 @@ type SubscriptionEvent =
 
 type LogsPageProps = {
   serverLogs: LogEntry[];
+  userDisplayNames: Record<string, string>;
 };
 
-const LogsPage = ({ serverLogs }: LogsPageProps) => {
+const LogsPage = ({ serverLogs, userDisplayNames }: LogsPageProps) => {
   const logEntryReducer = (
     cachedEntries: LogEntry[],
     payload: SubscriptionEvent
@@ -65,7 +66,7 @@ const LogsPage = ({ serverLogs }: LogsPageProps) => {
     };
   }, []);
 
-  return <LogViewer entries={logEntries} />;
+  return <LogViewer entries={logEntries} userDisplayNames={userDisplayNames} />;
 };
 
 export default LogsPage;
