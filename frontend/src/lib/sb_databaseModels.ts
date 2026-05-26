@@ -174,24 +174,30 @@ export type Database = {
       }
       log: {
         Row: {
+          context: Json | null
           created_at: string
           id: number
           message: string
           severity: Database["public"]["Enums"]["log_type"]
+          source: string | null
           user_id: string | null
         }
         Insert: {
+          context?: Json | null
           created_at?: string
           id?: number
           message: string
           severity: Database["public"]["Enums"]["log_type"]
+          source?: string | null
           user_id?: string | null
         }
         Update: {
+          context?: Json | null
           created_at?: string
           id?: number
           message?: string
           severity?: Database["public"]["Enums"]["log_type"]
+          source?: string | null
           user_id?: string | null
         }
         Relationships: [
