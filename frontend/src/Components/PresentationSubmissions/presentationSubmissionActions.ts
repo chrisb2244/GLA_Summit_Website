@@ -326,10 +326,11 @@ export const deleteDraftPresentation = async (
 ): Promise<DeleteReturnType> => {
   const supabase = await createServerActionClient();
 
-  const { error } = await supabase
+  const { data: deleted, error } = await supabase
     .from('presentation_submissions')
     .delete()
-    .eq('id', presentationId);
+    .eq('id', presentationId)
+    .select('id');
 
   if (error) {
     await logErrorToDb(
@@ -342,6 +343,10 @@ export const deleteDraftPresentation = async (
       })}`,
       'error'
     );
+    return { success: false, error: { message: DRAFT_DELETE_CLIENT_ERROR } };
+  }
+
+  if (!deleted || deleted.length === 0) {
     return { success: false, error: { message: DRAFT_DELETE_CLIENT_ERROR } };
   }
 
