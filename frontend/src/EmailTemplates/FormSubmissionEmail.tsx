@@ -4,6 +4,14 @@ import { LogoImg, UnexpectedPresentationEmail } from './emailComponents';
 import { PresentationType } from '@/lib/databaseModels';
 import { submissionsForYear } from '@/app/configConstants';
 
+const escapeHtml = (s: string) =>
+  s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
 type SubmissionFormData = Omit<
   PresentationSubmissionFormData,
   'otherPresenters'
@@ -15,7 +23,7 @@ const DearPerson = (nameString: string) => {
   if (nameString.trim().length === 0) {
     return '';
   }
-  return `<p style="font-size:14px;line-height:24px;margin:16px 0">Dear ${nameString},</p>`;
+  return `<p style="font-size:14px;line-height:24px;margin:16px 0">Dear ${escapeHtml(nameString)},</p>`;
 };
 
 const OtherPresenterRowsFn = (presenters: EmailProps[], tdStyle: string) => {
@@ -31,11 +39,11 @@ const OtherPresenterRowsFn = (presenters: EmailProps[], tdStyle: string) => {
   return `
       <tr>
         <td style="padding:8px 8px 8px 0;vertical-align:middle;font-size:10px;text-transform:uppercase;width:100px" rowSpan="${nRows}">Other Presenters</td>
-        <td style="${tdStyle}">${presenters[0].email}</td>
+        <td style="${tdStyle}">${escapeHtml(presenters[0].email)}</td>
       </tr>
       ${otherRows.map(({ email }) => {
         return `<tr>
-            <td style="${tdStyle}">${email}</td>
+            <td style="${tdStyle}">${escapeHtml(email)}</td>
           </tr>
           `;
       })}
@@ -77,11 +85,13 @@ export const FormSubmissionEmailFn = (
     otherPresenters,
     submitter: { firstName, lastName, email }
   } = formData;
-  const submitterName = `${firstName} ${lastName}`;
+  const submitterName = escapeHtml(`${firstName} ${lastName}`);
+  const escapedTitle = escapeHtml(title);
+  const escapedEmail = escapeHtml(email);
 
   const typeText = PresentationTypeToString(presentationType);
-  const parsedAbstract = abstract; // Consider handling line-end chars
-  const parsedLearningPoints = learningPoints; // Consider handling line-end chars
+  const parsedAbstract = escapeHtml(abstract); // Consider handling line-end chars
+  const parsedLearningPoints = escapeHtml(learningPoints); // Consider handling line-end chars
   const tdStyle = 'padding:8px 0px;vertical-align:middle;word-wrap:break-word';
   const labelStyle =
     'padding:8px 8px 8px 0;vertical-align:middle;font-size:10px;text-transform:uppercase;width:100px';
@@ -115,7 +125,7 @@ export const FormSubmissionEmailFn = (
                         <tr style="border-width:1px;border-style:solid;border-color:#aaa"></tr>
                         <tr>
                           <td style="${labelStyle}">Title</td>
-                          <td style="${tdStyle}">${title}</td>
+                          <td style="${tdStyle}">${escapedTitle}</td>
                         </tr>
                         <tr style="border-width:1px;border-style:solid;border-color:#ddd"></tr>
                         <tr>
@@ -135,7 +145,7 @@ export const FormSubmissionEmailFn = (
                         <tr style="border-width:1px;border-style:solid;border-color:#ddd"></tr>
                         <tr>
                           <td style="${labelStyle}">Submitter Email</td>
-                          <td style="${tdStyle}">${email}</td>
+                          <td style="${tdStyle}">${escapedEmail}</td>
                         </tr>
                         <tr style="border-width:1px;border-style:solid;border-color:#aaa"></tr>
                         ${OtherPresenterRowsFn(otherPresenters, tdStyle)}
@@ -172,11 +182,14 @@ export const NewCopresenterEmailFn = (
     otherPresenters,
     submitter: { firstName, lastName, email }
   } = formData;
-  const submitterName = `${firstName} ${lastName}`;
+  const submitterName = escapeHtml(`${firstName} ${lastName}`);
+  const escapedTitle = escapeHtml(title);
+  const escapedEmail = escapeHtml(email);
+  const escapedOtp = escapeHtml(otpString);
 
   const typeText = PresentationTypeToString(presentationType);
-  const parsedAbstract = abstract; // Consider handling line-end chars
-  const parsedLearningPoints = learningPoints; // Consider handling line-end chars
+  const parsedAbstract = escapeHtml(abstract); // Consider handling line-end chars
+  const parsedLearningPoints = escapeHtml(learningPoints); // Consider handling line-end chars
   const tdStyle = 'padding:8px 0px;vertical-align:middle;word-wrap:break-word';
   const labelStyle =
     'padding:8px 8px 8px 0;vertical-align:middle;font-size:10px;text-transform:uppercase;width:100px';
@@ -202,7 +215,7 @@ export const NewCopresenterEmailFn = (
                       ${DearPerson(nameString)}
                       <p style="font-size:14px;line-height:24px;margin:16px 0">You have been added as a copresenter for a presentation for GLA Summit ${submissionsForYear}!</p>
                       <p style="font-size:14px;line-height:24px;margin:16px 0">As a result of this, an account has been created for you at <a href="https://glasummit.org" target="_blank" style="color:#a25bcd;;text-decoration:underline">https://glasummit.org</a>.</p>
-                      <p style="font-size:14px;line-height:24px;margin:16px 0">You can validate this account by visiting <a href="https://glasummit.org/validateLogin" target="_blank" style="color:#a25bcd;text-decoration:underline">https://glasummit.org/validateLogin</a> and using the code ${otpString}.</p>
+                      <p style="font-size:14px;line-height:24px;margin:16px 0">You can validate this account by visiting <a href="https://glasummit.org/validateLogin" target="_blank" style="color:#a25bcd;text-decoration:underline">https://glasummit.org/validateLogin</a> and using the code ${escapedOtp}.</p>
                       <p style="font-size:14px;line-height:24px;margin:16px 0">The data that was submitted is shown below.</p>
                       <table style="border-spacing:0px;border-collapse:collapse;color:#444;width:100%;table-layout:fixed">
                         <tr>
@@ -212,7 +225,7 @@ export const NewCopresenterEmailFn = (
                         <tr style="border-width:1px;border-style:solid;border-color:#aaa"></tr>
                         <tr>
                           <td style="${labelStyle}">Title</td>
-                          <td style="${tdStyle}">${title}</td>
+                          <td style="${tdStyle}">${escapedTitle}</td>
                         </tr>
                         <tr style="border-width:1px;border-style:solid;border-color:#ddd"></tr>
                         <tr>
@@ -232,7 +245,7 @@ export const NewCopresenterEmailFn = (
                         <tr style="border-width:1px;border-style:solid;border-color:#ddd"></tr>
                         <tr>
                           <td style="${labelStyle}">Submitter Email</td>
-                          <td style="${tdStyle}">${email}</td>
+                          <td style="${tdStyle}">${escapedEmail}</td>
                         </tr>
                         <tr style="border-width:1px;border-style:solid;border-color:#aaa"></tr>
                         ${OtherPresenterRowsFn(otherPresenters, tdStyle)}
@@ -269,11 +282,13 @@ export const RemovedCopresenterEmailFn = (
     learningPoints,
     submitter: { firstName, lastName, email }
   } = formData;
-  const submitterName = `${firstName} ${lastName}`;
+  const submitterName = escapeHtml(`${firstName} ${lastName}`);
+  const escapedTitle = escapeHtml(title);
+  const escapedEmail = escapeHtml(email);
 
   const typeText = PresentationTypeToString(presentationType);
-  const parsedAbstract = abstract; // Consider handling line-end chars
-  const parsedLearningPoints = learningPoints; // Consider handling line-end chars
+  const parsedAbstract = escapeHtml(abstract); // Consider handling line-end chars
+  const parsedLearningPoints = escapeHtml(learningPoints); // Consider handling line-end chars
   const tdStyle = 'padding:8px 0px;vertical-align:middle;word-wrap:break-word';
   const labelStyle =
     'padding:8px 8px 8px 0;vertical-align:middle;font-size:10px;text-transform:uppercase;width:100px';
@@ -307,7 +322,7 @@ export const RemovedCopresenterEmailFn = (
                         <tr style="border-width:1px;border-style:solid;border-color:#aaa"></tr>
                         <tr>
                           <td style="${labelStyle}">Title</td>
-                          <td style="${tdStyle}">${title}</td>
+                          <td style="${tdStyle}">${escapedTitle}</td>
                         </tr>
                         <tr style="border-width:1px;border-style:solid;border-color:#ddd"></tr>
                         <tr>
@@ -327,7 +342,7 @@ export const RemovedCopresenterEmailFn = (
                         <tr style="border-width:1px;border-style:solid;border-color:#ddd"></tr>
                         <tr>
                           <td style="${labelStyle}">Submitter Email</td>
-                          <td style="${tdStyle}">${email}</td>
+                          <td style="${tdStyle}">${escapedEmail}</td>
                         </tr>
                       </table>
                     </td>
