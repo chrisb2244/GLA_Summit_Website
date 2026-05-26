@@ -382,12 +382,17 @@ INSERT INTO "public"."rejected_presentations" ("id") VALUES
 -- Data for Name: ticket_sequences; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
+-- Names are schema-qualified to match the format used by the fixed
+-- create_ticket_sequence() trigger (see 20260527100000_fix_ticket_sequences).
+-- Sequences are created manually here because seed runs bypass triggers.
 INSERT INTO "public"."ticket_sequences" ("year", "name") VALUES
-	('2024', 'ticket_sequence_2024'),
-	('2025', 'ticket_sequence_2025');
--- Manually added sequences - normally, this is added by a trigger but here the triggers are not used during the seed
+	('2024', 'public.ticket_sequence_2024'),
+	('2025', 'public.ticket_sequence_2025'),
+	('2026', 'public.ticket_sequence_2026')
+ON CONFLICT DO NOTHING;
 CREATE SEQUENCE IF NOT EXISTS public.ticket_sequence_2024;
 CREATE SEQUENCE IF NOT EXISTS public.ticket_sequence_2025;
+CREATE SEQUENCE IF NOT EXISTS public.ticket_sequence_2026;
 
 
 --
