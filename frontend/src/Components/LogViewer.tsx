@@ -75,7 +75,7 @@ export const LogViewer: React.FC<LogViewerProps> = ({
   };
 
   return (
-    <div>
+    <div className='w-full min-w-0'>
       <div className='sticky top-0 z-10 flex flex-wrap items-center gap-3 bg-white px-2 pb-3 pt-16'>
         <div className='flex gap-1'>
           {(['all', 'info', 'error', 'severe'] as const).map((s) => (
@@ -111,7 +111,14 @@ export const LogViewer: React.FC<LogViewerProps> = ({
         />
         <span className='ml-auto text-xs text-gray-400'>{filtered.length} entries</span>
       </div>
-      <table className='relative w-full text-sm'>
+      <table className='w-full table-fixed text-sm'>
+        <colgroup>
+          <col className='w-[8%]' />
+          <col className='w-[47%]' />
+          <col className='w-[20%]' />
+          <col className='w-[12%]' />
+          <col className='w-[13%]' />
+        </colgroup>
         <thead>
           <tr>
             {['Severity', 'Message', 'Source', 'User', 'Time'].map((h) => (
@@ -134,7 +141,7 @@ export const LogViewer: React.FC<LogViewerProps> = ({
                   <td className={`p-2 ${SEVERITY_COLOURS[e.severity]}`}>
                     {e.severity}
                   </td>
-                  <td className='p-2'>
+                  <td className='p-2 break-words'>
                     <span>{e.message}</span>
                     {hasContext && (
                       <span className='ml-1 text-xs text-gray-400'>
@@ -142,7 +149,7 @@ export const LogViewer: React.FC<LogViewerProps> = ({
                       </span>
                     )}
                   </td>
-                  <td className='p-2 font-mono text-xs text-gray-500'>{e.source ?? '—'}</td>
+                  <td className='p-2 font-mono text-xs text-gray-500 break-all'>{e.source ?? '—'}</td>
                   <td className='p-2 text-xs text-gray-500'>{resolveUser(e.user_id)}</td>
                   <td className='p-2 text-xs text-gray-400'>
                     <TimestampSpan
