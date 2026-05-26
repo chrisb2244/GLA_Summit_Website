@@ -140,15 +140,15 @@ const MediaPage = () => {
   return (
     <div className='-ml-6 mt-4 md:mx-auto md:max-w-4xl'>
       <StackedBoxes>
-        {jkiDiv}
+        {/* {jkiDiv}
         <p>
           Please feel free to use the images on this page on your social media
           or website. Links to the images can be found in the &lsquo;href&rsquo;
           attributes of the HTML samples, or by right-clicking and choosing an
           option like &ldquo;Copy image address&rdquo;.
-        </p>
+        </p> */}
         {/* niSignatureElems */}
-        <h3 className='text-3xl'>Attendees</h3>
+        {/* <h3 className='text-3xl'>Attendees</h3>
         <table className='w-min [&_td]:whitespace-nowrap [&_td]:border-none [&_td]:px-4 [&_td]:py-0'>
           <tbody>{bannerImagesAttendee}</tbody>
         </table>
@@ -168,15 +168,15 @@ const MediaPage = () => {
           alt='speaker banner'
           src={TW_Speaker}
           className='mx-auto'
-        />
+        /> */}
 
-        {/* <div className='prose max-w-2xl text-center'>
-            <p>
-              The GLA Summit Organizers are currently updating the banners for the
-              2025 event.
-            </p>
-            <p>We look forward to sharing the new banners with you soon.</p>
-          </div> */}
+        <div className='prose max-w-2xl text-center'>
+          <p>
+            The GLA Summit Organizers are currently updating the banners for the
+            2026 event.
+          </p>
+          <p>We look forward to sharing the new banners with you soon.</p>
+        </div>
       </StackedBoxes>
     </div>
   );

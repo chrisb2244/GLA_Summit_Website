@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { Person, PersonProps } from '@/Components/Form/PersonSrv';
 import { SubmitButton } from '@/Components/Form/SubmitButton';
@@ -7,6 +7,7 @@ import {
   RegistrationState
 } from '@/Components/SigninRegistration/SignInUpActions';
 import { useFormValidation } from '@/Components/Utilities/useFormValidation';
+import { useTouchedFieldErrors } from '@/Components/Utilities/useTouchedFieldErrors';
 import Link from 'next/link';
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
@@ -43,10 +44,12 @@ export const RegistrationForm = (props: { redirectTo?: string }) => {
     initialState
   );
   const { validationMessages, checkValidity } = useFormValidation();
-
-  const fieldError = (field: keyof PersonProps) => {
-    return validationMessages.get(field) ?? state.errors?.[field];
-  };
+  const { getFieldError, onBlurFor } = useTouchedFieldErrors<keyof PersonProps>(
+    {
+      validationMessages,
+      fieldErrors: state.errors
+    }
+  );
 
   return (
     <div
@@ -104,6 +107,7 @@ export const RegistrationForm = (props: { redirectTo?: string }) => {
             checkValidity(ev.target);
           }
         }}
+        onBlur={onBlurFor(['firstName', 'lastName', 'email'])}
       >
         <input type='hidden' name='redirectTo' value={props.redirectTo ?? ''} />
         <div className='pb-4'>
@@ -112,9 +116,9 @@ export const RegistrationForm = (props: { redirectTo?: string }) => {
             giveFocus
             defaultValue={state.data}
             errors={{
-              firstName: fieldError('firstName'),
-              lastName: fieldError('lastName'),
-              email: fieldError('email')
+              firstName: getFieldError('firstName'),
+              lastName: getFieldError('lastName'),
+              email: getFieldError('email')
             }}
           />
         </div>

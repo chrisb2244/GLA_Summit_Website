@@ -1,6 +1,7 @@
 import type { PlaywrightTestConfig } from '@playwright/test';
 import { devices } from '@playwright/test';
 import dotenv from 'dotenv';
+import fs from 'fs';
 import path from 'path';
 
 const envPath = path.join(__dirname, './.env.test');
@@ -48,59 +49,40 @@ const config: PlaywrightTestConfig = {
   // globalSetup: require.resolve('./playwright/global-setup.ts'),
 
   /* Configure projects for major browsers */
-  projects: [
-    { name: 'setup', testMatch: /.*\.setup\.ts/ },
+  projects: (() => {
+    const authDir = path.join(__dirname, 'playwright/.auth');
+    const authFiles = ['admin', 'organizer', 'presenter', 'attendee'].map((role) =>
+      path.join(authDir, `${role}.json`)
+    );
+    const reuseAuth =
+      process.env.PW_REUSE_AUTH === '1' &&
+      authFiles.every((file) => fs.existsSync(file));
 
-    // {
-    //   name: 'chromium',
-    //   use: {
-    //     ...devices['Desktop Chrome'],
-    //   },
-    // },
+    const setupProject = {
+      name: 'setup',
+      testMatch: /.*\.setup\.ts/,
+      use: { ...devices['Desktop Firefox'] }
+    };
 
-    {
-      name: 'firefox',
-      use: {
-        ...devices['Desktop Firefox']
-      },
-      dependencies: ['setup']
-    }
+    const deviceProjects = [
+      { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+      // Uncomment as required
+      // { name: 'mobile chrome', use: { ...devices['Pixel 5'] } },
+      // { name: 'mobile safari', use: { ...devices['iPhone 14'] } },
+      // { name: 'chromium', use: { ...devices['Desktop Chromium'] } },
+      // { name: 'webkit', use: { ...devices['Desktop Webkit'] } }
+    ].map((device) => ({
+      name: device.name,
+      use: device.use,
+      dependencies: reuseAuth ? [] : ['setup']
+    }));
 
-    // {
-    //   name: 'webkit',
-    //   use: {
-    //     ...devices['Desktop Safari'],
-    //   },
-    // },
 
-    /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: {
-    //     ...devices['Pixel 5'],
-    //   },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: {
-    //     ...devices['iPhone 12'],
-    //   },
-    // },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: {
-    //     channel: 'msedge',
-    //   },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: {
-    //     channel: 'chrome',
-    //   },
-    // },
-  ]
+    return [
+      ...(reuseAuth ? [] : [setupProject]),
+      ...deviceProjects
+    ];
+  })(),
 
   /* Folder for test artifacts such as screenshots, videos, traces, etc. */
   // outputDir: 'test-results/',

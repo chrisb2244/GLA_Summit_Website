@@ -5,7 +5,7 @@ const baseValidInput = {
   'submitter.firstName': 'Alice',
   'submitter.lastName': 'Smith',
   'submitter.email': 'alice@example.com',
-  isFinal: 'on',
+  submitIntent: 'submit',
   speakerAgreement: 'on',
   title: 'My Presentation',
   abstract: 'A'.repeat(150),
@@ -19,28 +19,37 @@ describe('PresentationSubmissionFormSchema', () => {
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.title).toBe('My Presentation');
-      expect(result.data.isFinal).toBe(true);
+      expect(result.data.submitIntent).toBe('submit');
       expect(result.data.speakerAgreement).toBe(true);
       expect(result.data.skipDuplicateCheck).toBe(false);
       expect(result.data.otherPresenters).toEqual([]);
     }
   });
 
-  it('treats missing isFinal as false (draft save)', () => {
+  it('defaults missing submitIntent to submit', () => {
     const input = { ...baseValidInput };
-    const { isFinal: _, ...withoutIsFinal } = input;
-    const result = PresentationSubmissionFormSchema.safeParse(withoutIsFinal);
+    const { submitIntent: _, ...withoutSubmitIntent } = input;
+    const result =
+      PresentationSubmissionFormSchema.safeParse(withoutSubmitIntent);
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.data.isFinal).toBe(false);
+      expect(result.data.submitIntent).toBe('submit');
+    }
+  });
+
+  it('parses submitIntent=saveDraft when present', () => {
+    const input = { ...baseValidInput, submitIntent: 'saveDraft' };
+    const result = PresentationSubmissionFormSchema.safeParse(input);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.submitIntent).toBe('saveDraft');
     }
   });
 
   it('treats missing speakerAgreement as false', () => {
     const input = { ...baseValidInput };
     const { speakerAgreement: _, ...withoutAgreement } = input;
-    const result =
-      PresentationSubmissionFormSchema.safeParse(withoutAgreement);
+    const result = PresentationSubmissionFormSchema.safeParse(withoutAgreement);
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.speakerAgreement).toBe(false);

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { FormField } from '@/Components/Form/FormFieldSrv';
 import { SubmitButton } from '@/Components/Form/SubmitButton';
@@ -7,6 +7,7 @@ import {
   signInFromFormWithRedirect
 } from '@/Components/SigninRegistration/SignInUpActions';
 import { useFormValidation } from '@/Components/Utilities/useFormValidation';
+import { useTouchedFieldErrors } from '@/Components/Utilities/useTouchedFieldErrors';
 import Link from 'next/link';
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
@@ -36,12 +37,15 @@ export const LoginForm = (props: { redirectTo?: string }) => {
       redirectTo: props.redirectTo
     }
   };
-  const [state, formAction] = useActionState(signInFromFormWithRedirect, initialState);
+  const [state, formAction] = useActionState(
+    signInFromFormWithRedirect,
+    initialState
+  );
   const { validationMessages, checkValidity } = useFormValidation();
-
-  const fieldError = () => {
-    return validationMessages.get('email') ?? state.errors?.email;
-  };
+  const { getFieldError, onBlurFor } = useTouchedFieldErrors<'email'>({
+    validationMessages,
+    fieldErrors: state.errors
+  });
 
   return (
     <div
@@ -91,11 +95,12 @@ export const LoginForm = (props: { redirectTo?: string }) => {
           placeholder='my.email@glasummit.org'
           id='email'
           defaultValue={state.data.email}
-          error={fieldError()}
+          error={getFieldError('email')}
           required
           fullWidth
           name='email'
           autoFocus
+          onBlur={onBlurFor(['email'])}
         />
         <SubmitButton
           fullWidth

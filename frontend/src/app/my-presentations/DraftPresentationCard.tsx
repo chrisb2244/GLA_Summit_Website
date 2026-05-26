@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { deleteDraftPresentation } from '@/actions/presentationSubmission';
+import { deleteDraftPresentation } from '@/Components/PresentationSubmissions/presentationSubmissionActions';
 import { CenteredDialog } from '@/Components/CenteredDialog';
 import type { MyPresentationSubmissionType } from '@/lib/databaseModels';
 import NextLink from 'next/link';

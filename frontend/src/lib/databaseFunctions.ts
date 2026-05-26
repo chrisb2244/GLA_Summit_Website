@@ -226,7 +226,10 @@ export const uploadAvatar = async (
   return true;
 };
 
-const requestAvatarIconGeneration = (userId: string, remoteFilePath: string) => {
+const requestAvatarIconGeneration = (
+  userId: string,
+  remoteFilePath: string
+) => {
   return fetch('/api/handleAvatarUpdate', {
     method: 'POST',
     headers: {
@@ -240,7 +243,9 @@ const downloadAvatarFromStorage = async (
   client: SupabaseClient,
   remotePath: string
 ) => {
-  const { data, error } = await client.storage.from('avatars').download(remotePath);
+  const { data, error } = await client.storage
+    .from('avatars')
+    .download(remotePath);
   if (error) return error;
   return data;
 };
@@ -261,13 +266,18 @@ export const downloadIconAvatarAndGenerateIfNeeded = async (
   let generatedIconUrl: string | null = null;
   if (typeof window !== 'undefined' && typeof userId === 'string') {
     // Client context: generate via the authenticated API route.
-    generatedIconUrl = await requestAvatarIconGeneration(userId, fullSizeImageUrl)
+    generatedIconUrl = await requestAvatarIconGeneration(
+      userId,
+      fullSizeImageUrl
+    )
       .then((res) => res.json())
       .then((body) => (typeof body.iconUrl === 'string' ? body.iconUrl : null))
       .catch(() => null);
   } else if (typeof window === 'undefined') {
     // Server context: call the server action directly, tied to request lifetime.
-    generatedIconUrl = await generateAvatarIcon(fullSizeImageUrl).catch(() => null);
+    generatedIconUrl = await generateAvatarIcon(fullSizeImageUrl).catch(
+      () => null
+    );
   }
 
   if (generatedIconUrl == null) {
@@ -387,23 +397,20 @@ export const getMyPresentations = async (client: Client = supabase) => {
     .rpc('get_my_submissions')
     .select('*');
   if (errorPresData) {
-    myLog({
-      error: errorPresData,
-      desc: 'Failed to fetch presentation details for this user'
-    });
-    throw errorPresData;
+    const message =
+      'message' in errorPresData && typeof errorPresData.message === 'string'
+        ? errorPresData.message.toLowerCase()
+        : '';
+    const isAbortLike =
+      message.includes('aborted') || message.includes('aborterror');
+    if (!isAbortLike) {
+      myLog({
+        error: errorPresData,
+        desc: 'Failed to fetch presentation details for this user',
+        abortLike: isAbortLike
+      });
+      throw errorPresData;
+    }
   }
   return data ?? [];
-};
-
-export const deletePresentation = async (presentationId: string) => {
-  const { error } = await supabase
-    .from('presentation_submissions')
-    .delete()
-    .eq('id', presentationId);
-  if (error) {
-    myLog({ error });
-    return false;
-  }
-  return true;
 };

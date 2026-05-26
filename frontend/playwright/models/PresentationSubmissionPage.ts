@@ -1,4 +1,4 @@
-import type { Locator, Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 import type { EmailProps, PersonProps } from '@/Components/Form/Person';
 import type { PresentationType } from '@/lib/databaseModels';
 
@@ -10,7 +10,7 @@ export type FormData = {
   learningPoints: string;
   presentationType: PresentationType;
   timeWindows: { windowStartTime: Date; windowEndTime: Date }[];
-  isFinal: boolean;
+  submitIntent: 'saveDraft' | 'submit';
   speakerAgreement: boolean;
 };
 type PresentationFormData = Omit<
@@ -24,7 +24,6 @@ export class PresentationSubmissionPage {
   readonly abstractInput: Locator;
   readonly learningPointsInput: Locator;
   readonly presentationTypeInput: Locator;
-  readonly isFinalInput: Locator;
   readonly speakerAgreementInput: Locator;
   readonly duplicateWarning: Locator;
 
@@ -36,9 +35,6 @@ export class PresentationSubmissionPage {
     this.learningPointsInput = this.page.getByLabel('Learning Points', opt);
     this.presentationTypeInput = this.page.locator(
       'select[name="presentationType"]'
-    );
-    this.isFinalInput = this.page.getByLabel(
-      /I am ready to submit this presentation/i
     );
     this.speakerAgreementInput = this.page.getByLabel(
       /I agree to the GLA Summit speaker agreement/i
@@ -65,7 +61,36 @@ export class PresentationSubmissionPage {
 
   async waitForFormLoad() {
     await this.titleInput.waitFor({ state: 'visible' });
-    // await this.presentationTypeInput.waitFor({state: 'visible'})
+    await this.page
+      .getByRole('button', { name: /Submit Presentation|Save Draft/, exact: true })
+      .first()
+      .waitFor({ state: 'visible' });
+  }
+
+  async waitForDraftSaved(title: string) {
+    await expect(
+      this.page.getByText('You have no active draft submissions')
+    ).toBeHidden({ timeout: 20000 });
+
+    await expect(
+      this.page.getByRole('link', { name: title, exact: true })
+    ).toBeVisible({ timeout: 20000 });
+  }
+
+  async waitForSubmittedSuccess(title: string) {
+    const submittedCard = this.page.locator(`div[aria-label="${title}"]`);
+    const successMessage = this.page.getByText(
+      'Presentation submitted successfully',
+      { exact: false }
+    );
+
+    await expect(submittedCard.or(successMessage).first()).toBeVisible({
+      timeout: 20000
+    });
+  }
+
+  submitterEmailInput() {
+    return this.page.locator('input[name="submitter.email"]');
   }
 
   async fillFormData(data: Partial<PresentationFormData>) {
@@ -77,23 +102,12 @@ export class PresentationSubmissionPage {
       await this.learningPointsInput.fill(data.learningPoints);
 
     if (typeof data.presentationType !== 'undefined') {
-      const optionString = await this.presentationTypeInput
-        .getByText(data.presentationType)
-        .innerText();
-
-      await this.presentationTypeInput.selectOption(optionString);
+      await this.presentationTypeInput.selectOption(data.presentationType);
     }
 
-    if (typeof data.isFinal !== 'undefined') {
-      await this.setReadyToSubmit(data.isFinal);
-    }
     if (typeof data.speakerAgreement !== 'undefined') {
       await this.setSpeakerAgreement(data.speakerAgreement);
     }
-  }
-
-  async setReadyToSubmit(isReady: boolean) {
-    await (isReady ? this.isFinalInput.check() : this.isFinalInput.uncheck());
   }
 
   async setSpeakerAgreement(agreed: boolean) {
@@ -102,13 +116,18 @@ export class PresentationSubmissionPage {
       : this.speakerAgreementInput.uncheck());
   }
 
-  async submitForm(preferredLabel?: 'Submit Presentation' | 'Save Draft' | 'Submit Anyway') {
+  async submitForm(
+    preferredLabel?: 'Submit Presentation' | 'Save Draft' | 'Submit Anyway'
+  ) {
     const labelOrder = preferredLabel
       ? [preferredLabel, 'Submit Anyway', 'Submit Presentation', 'Save Draft']
       : ['Submit Anyway', 'Submit Presentation', 'Save Draft'];
 
     for (const label of labelOrder) {
-      const button = this.page.getByRole('button', { name: label, exact: true });
+      const button = this.page.getByRole('button', {
+        name: label,
+        exact: true
+      });
       if (await button.isVisible()) {
         await button.click();
         return;

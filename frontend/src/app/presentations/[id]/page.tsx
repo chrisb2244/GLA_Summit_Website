@@ -17,7 +17,7 @@ import { getPanelLink } from '@/app/panels/panelLinks';
 import { getPeople } from '@/lib/supabase/public';
 import { getPeople_Authed } from '@/lib/supabase/authorized';
 import type { NextParams, satisfy } from '@/lib/NextTypes';
-import { cacheLife } from 'next/cache';
+import { cacheLife, cacheTag } from 'next/cache';
 import { Suspense } from 'react';
 
 type PageProps = {
@@ -74,6 +74,7 @@ const PresentationsForYearPageContent = async (props: PageProps) => {
   ): Promise<PresentationReturn> => {
     'use cache';
     cacheLife({ stale: 300, revalidate: 600, expire: 86400 });
+    cacheTag(`presentation:${presentationId}`);
 
     const supabase = createAnonServerClient();
     const data = await getPublicPresentation(presentationId, supabase);
@@ -109,6 +110,7 @@ const PresentationsForYearPageContent = async (props: PageProps) => {
   ): Promise<string | null> => {
     'use cache';
     cacheLife({ stale: 300, revalidate: 600, expire: 86400 });
+    cacheTag(`presentation-video:${presentationId}`);
 
     const anonClient = createAnonServerClient();
     return getVideoLink(presentationId, anonClient);
@@ -137,7 +139,10 @@ const PresentationsForYearPageContent = async (props: PageProps) => {
     presentation = {
       title: data.title,
       abstract: data.abstract,
-      speakers: await getPeople_Authed(data.all_presenters_ids, supabaseLoggedIn),
+      speakers: await getPeople_Authed(
+        data.all_presenters_ids,
+        supabaseLoggedIn
+      ),
       speakerNames: allPresenterNames,
       ...calculateSchedule(data.presentation_type, scheduledFor),
       isPrivate: true
