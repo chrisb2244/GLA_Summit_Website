@@ -6,7 +6,11 @@ import type { Database } from '@/lib/sb_databaseModels';
 import { ticketYear } from '@/app/configConstants';
 import { createSupabaseAdmin } from './utils';
 
-const presenterStorageState = path.resolve(__dirname, '.auth', 'presenter.json');
+const presenterStorageState = path.resolve(
+  __dirname,
+  '.auth',
+  'presenter.json'
+);
 const attendeeStorageState = path.resolve(__dirname, '.auth', 'attendee.json');
 
 const TICKET_PAGE_PATTERN = /\/ticket\/.+/;
@@ -27,16 +31,47 @@ const openTicket = async (page: Page) => {
 // for testing direct database access without going through the browser.
 const getAccessToken = (storageStatePath: string): string => {
   const state = JSON.parse(fs.readFileSync(storageStatePath, 'utf-8')) as {
-    origins?: Array<{ localStorage?: Array<{ name: string; value: string }> }>;
+    cookies?: Array<{ name: string; value: string }>;
+    origins?: Array<{
+      localStorage?: Array<{ name: string; value: string }>;
+    }>;
   };
+
+  // @supabase/ssr stores the session in a cookie as `base64-{base64url(JSON)}`.
+  // Decode that to extract the access_token JWT.
+  const extractTokenFromSessionValue = (raw: string): string => {
+    if (raw.startsWith('base64-')) {
+      const json = Buffer.from(raw.slice('base64-'.length), 'base64').toString(
+        'utf-8'
+      );
+      return (JSON.parse(json) as { access_token: string }).access_token;
+    }
+    // Fallback: plain JSON-encoded session object.
+    try {
+      return (JSON.parse(raw) as { access_token: string }).access_token;
+    } catch {
+      return raw;
+    }
+  };
+
+  for (const cookie of state.cookies ?? []) {
+    if (cookie.name.includes('auth-token')) {
+      return extractTokenFromSessionValue(cookie.value);
+    }
+  }
+
   for (const origin of state.origins ?? []) {
     for (const item of origin.localStorage ?? []) {
       if (item.name.includes('auth-token')) {
-        return (JSON.parse(item.value) as { access_token: string }).access_token;
+        return (JSON.parse(item.value) as { access_token: string })
+          .access_token;
       }
     }
   }
-  throw new Error(`No Supabase auth token found in storage state: ${storageStatePath}`);
+
+  throw new Error(
+    `No Supabase auth token found in storage state: ${storageStatePath}`
+  );
 };
 
 // Create an authenticated Supabase client that operates under RLS (uses the
@@ -47,7 +82,7 @@ const createUserClient = (accessToken: string) =>
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string,
     {
       global: { headers: { Authorization: `Bearer ${accessToken}` } },
-      auth: { persistSession: false, autoRefreshToken: false },
+      auth: { persistSession: false, autoRefreshToken: false }
     }
   );
 
@@ -56,19 +91,17 @@ const createUserClient = (accessToken: string) =>
 test.describe('attendee ticket', () => {
   test.use({ storageState: attendeeStorageState });
 
-  test(
-    'renders expected ticket image',
-    { tag: '@smoke' },
-    async ({ page }) => {
-      const { img } = await openTicket(page);
-      // First run creates the baseline; subsequent runs diff against it.
-      await expect(img).toHaveScreenshot('attendee-ticket.png', {
-        maxDiffPixelRatio: 0.02,
-      });
-    }
-  );
+  test('renders expected ticket image', { tag: '@smoke' }, async ({ page }) => {
+    const { img } = await openTicket(page);
+    // First run creates the baseline; subsequent runs diff against it.
+    await expect(img).toHaveScreenshot('attendee-ticket.png', {
+      maxDiffPixelRatio: 0.02
+    });
+  });
 
-  test("shows the owner view heading (You're all set to go!)", async ({ page }) => {
+  test("shows the owner view heading (You're all set to go!)", async ({
+    page
+  }) => {
     await openTicket(page);
     await expect(
       page.getByRole('heading', { name: "You're all set to go!" })
@@ -79,18 +112,16 @@ test.describe('attendee ticket', () => {
 test.describe('presenter ticket', () => {
   test.use({ storageState: presenterStorageState });
 
-  test(
-    'renders expected ticket image',
-    { tag: '@smoke' },
-    async ({ page }) => {
-      const { img } = await openTicket(page);
-      await expect(img).toHaveScreenshot('presenter-ticket.png', {
-        maxDiffPixelRatio: 0.02,
-      });
-    }
-  );
+  test('renders expected ticket image', { tag: '@smoke' }, async ({ page }) => {
+    const { img } = await openTicket(page);
+    await expect(img).toHaveScreenshot('presenter-ticket.png', {
+      maxDiffPixelRatio: 0.02
+    });
+  });
 
-  test("shows the owner view heading (You're all set to go!)", async ({ page }) => {
+  test("shows the owner view heading (You're all set to go!)", async ({
+    page
+  }) => {
     await openTicket(page);
     await expect(
       page.getByRole('heading', { name: "You're all set to go!" })
@@ -108,11 +139,14 @@ test.describe('presenter ticket', () => {
 test.describe('ticket sharing', () => {
   test.use({ storageState: attendeeStorageState });
 
-  test('another authenticated user sees the shared view', async ({ page, browser }) => {
+  test('another authenticated user sees the shared view', async ({
+    page,
+    browser
+  }) => {
     const { url: ticketUrl } = await openTicket(page);
 
     const presenterContext = await browser.newContext({
-      storageState: presenterStorageState,
+      storageState: presenterStorageState
     });
     try {
       const presenterPage = await presenterContext.newPage();
@@ -128,10 +162,27 @@ test.describe('ticket sharing', () => {
     }
   });
 
-  test('anonymous visitor sees the shared view', async ({ page, browser }) => {
-    const { url: ticketUrl } = await openTicket(page);
+  test('anonymous visitor sees the shared view', async ({ browser }) => {
+    // Step 1: acquire a valid ticket URL using the attendee's credentials.
+    // This context is closed before the anonymous check begins, so no session
+    // state leaks into the anonymous browser context below.
+    const attendeeContext = await browser.newContext({
+      storageState: attendeeStorageState
+    });
+    let ticketUrl: string;
+    try {
+      const attendeePage = await attendeeContext.newPage();
+      ({ url: ticketUrl } = await openTicket(attendeePage));
+    } finally {
+      await attendeeContext.close();
+    }
 
-    const anonContext = await browser.newContext();
+    // Step 2: visit the ticket URL with no session at all.
+    // browser.newContext() with no storageState creates a completely isolated
+    // context — no cookies, no localStorage, no Supabase session.
+    const anonContext = await browser.newContext({
+      storageState: undefined
+    });
     try {
       const anonPage = await anonContext.newPage();
       await anonPage.goto(ticketUrl);
@@ -163,7 +214,9 @@ test.describe('impersonation protection', () => {
   test.describe('tampered URL causes image load failure', () => {
     test.use({ storageState: attendeeStorageState });
 
-    test('modifying the userId invalidates the HMAC and shows an error', async ({ page }) => {
+    test('modifying the userId invalidates the HMAC and shows an error', async ({
+      page
+    }) => {
       const { url: ticketUrl } = await openTicket(page);
 
       // Decode the path parameter, substitute a different userId, re-encode
@@ -181,7 +234,7 @@ test.describe('impersonation protection', () => {
       await page.goto(ticketUrl.replace(encoded, tampered));
 
       await expect(
-        page.getByText('Failed to fetch ticket data', { exact: false })
+        page.getByText('Failed to fetch ticket data', { exact: false }).first()
       ).toBeVisible({ timeout: 15000 });
     });
   });
@@ -224,7 +277,7 @@ test.describe('impersonation protection', () => {
     const { error } = await attendeeClient.from('tickets').insert({
       user_id: presenterUserId,
       year: ticketYear,
-      ticket_number: 0,
+      ticket_number: 0
     });
 
     expect(error).not.toBeNull();
