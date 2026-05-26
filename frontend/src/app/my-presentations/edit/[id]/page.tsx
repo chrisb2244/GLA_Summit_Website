@@ -47,11 +47,10 @@ const DraftEditPage = async ({ params }: { params: Promise<Params> }) => {
     lastName: profile?.lastname ?? ''
   };
 
-  const { data: presenterEmailsData, error: presenterEmailsError } = await (
-    supabase as any
-  ).rpc('get_editable_submission_emails', {
-    p_presentation_id: id
-  });
+  const { data: presenterEmailsData, error: presenterEmailsError } =
+    await supabase.rpc('get_editable_submission_emails', {
+      p_presentation_id: id
+    });
   if (presenterEmailsError) {
     console.error(
       '[DraftEditPage] Failed to fetch presenter emails:',
