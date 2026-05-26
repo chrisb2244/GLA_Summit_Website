@@ -14,6 +14,7 @@ import {
 
 // Use an existing user who is not a presenter or organizer
 const attendeeEmail = process.env.TEST_ATTENDEE_EMAIL as string;
+const organizerEmail = process.env.TEST_ORGANIZER_EMAIL as string;
 const buildTestTitle = (prefix: string) =>
   `${prefix} ${Date.now()} ${Math.random().toString(16).slice(2, 8)}`;
 
@@ -153,6 +154,43 @@ const buildTestTitle = (prefix: string) =>
         .eq('title', testTitle)
         .single();
       expect(presentations?.is_submitted).toEqual(true);
+
+      await deletePresentationByTitle(testTitle, attendeeEmail);
+    });
+
+    test('organizer receives notification email on final submission', async ({
+      page
+    }) => {
+      await page.goto('/my-presentations');
+
+      const formPage = new PresentationSubmissionPage(page);
+      await formPage.waitForFormLoad();
+
+      const testTitle = buildTestTitle('Organizer notification');
+      const abstract = 'Organizer notify abstract '.repeat(10);
+      const learningPoints = 'Organizer notify learning '.repeat(4);
+
+      await formPage.fillFormData({
+        title: testTitle,
+        abstract,
+        learningPoints,
+        presentationType: '15 minutes',
+        submitIntent: 'submit',
+        speakerAgreement: true
+      });
+
+      await formPage.submitForm();
+      await formPage.waitForSubmittedSuccess(testTitle);
+
+      const organizerMailbox = organizerEmail.split('@')[0];
+      const emailMsg = await getLatestEmail(organizerMailbox);
+      const {
+        subject,
+        body: { html }
+      } = emailMsg;
+      expect(subject).toContain('New presentation submitted');
+      expect(html).toContain('review-submissions');
+      expect(html).toContain(testTitle);
 
       await deletePresentationByTitle(testTitle, attendeeEmail);
     });

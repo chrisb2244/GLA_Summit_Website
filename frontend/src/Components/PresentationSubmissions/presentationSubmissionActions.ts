@@ -23,6 +23,7 @@ import { sendMailApi } from '@/lib/sendMail';
 import {
   FormSubmissionEmailFn,
   NewCopresenterEmailFn,
+  OrganizerSubmissionNotificationEmailFn,
   RemovedCopresenterEmailFn
 } from '@/EmailTemplates/FormSubmissionEmail';
 import { redirect } from 'next/navigation';
@@ -251,6 +252,29 @@ const handlePresentationSubmission = async (
       ...FormSubmissionEmailFn(dataForEmails, submitterNameString)
     });
     allEmailPromises.push(submitterEmailPromise);
+
+    // Organizers
+    const { data: organizerRows } = await supabaseAdmin
+      .from('organizers')
+      .select('id');
+    const organizerIds = (organizerRows ?? []).map((o) => o.id);
+    const { data: organizerEmailRows } = await supabaseAdmin
+      .from('email_lookup')
+      .select('email')
+      .in('id', organizerIds);
+    const organizerEmailPromises = (organizerEmailRows ?? []).map(({ email }) =>
+      sendMailApi({
+        to: email,
+        subject: 'GLA Summit: New presentation submitted',
+        ...OrganizerSubmissionNotificationEmailFn(
+          presentationData.title,
+          presentationData.presentationType,
+          submitterNameString,
+          submitter.email
+        )
+      })
+    );
+    allEmailPromises.push(...organizerEmailPromises);
   }
 
   // Existing co-presenters
