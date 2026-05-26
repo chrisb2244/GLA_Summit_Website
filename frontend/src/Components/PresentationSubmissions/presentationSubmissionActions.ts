@@ -120,7 +120,11 @@ export const submitPresentationAction = async (
   } else {
     await logToDb('error', 'Presentation submission failed', 'submission/actions', {
       context: {
-        message: 'error' in result ? result.error.message : 'Duplicate submission'
+        message: 'error' in result ? result.error.message : 'Duplicate submission',
+        presentationId: validatedData.presentationId ?? null,
+        presentationType: validatedData.presentationType,
+        submitIntent: validatedData.submitIntent,
+        // submitter.* and otherPresenters intentionally excluded — contain email addresses
       }
     });
     return {
