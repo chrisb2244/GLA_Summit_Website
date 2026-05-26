@@ -2,6 +2,7 @@ import { Presentation } from '@/Components/PresentationSummary';
 import { PresentationType } from './databaseModels';
 import { createAdminClient } from './supabaseClient';
 import type { DateArray } from 'ics';
+import type { Json } from './sb_databaseModels';
 
 const isDev = process.env.NODE_ENV !== 'production';
 
@@ -16,11 +17,14 @@ export const logToDb = async (
   source: string,
   options?: {
     userId?: string;
-    context?: Record<string, unknown>;
+    context?: Json;
   }
 ) => {
   if (isDev) {
-    console.log(`[${severity.toUpperCase()}] ${source}: ${message}`, options?.context ?? '');
+    console.log(
+      `[${severity.toUpperCase()}] ${source}: ${message}`,
+      options?.context ?? ''
+    );
   }
   const client = createAdminClient();
   const { error } = await client.from('log').insert({
@@ -38,7 +42,6 @@ export const logToDb = async (
 export const fullUrlToIconUrl = (fullUrl: string) => {
   return `${fullUrl.split('.').slice(0, -1).join('.')}-icon.webp`;
 };
-
 
 // Timezone info - default to client local, allow storing preference in profile
 export type TimezoneInfo = {
