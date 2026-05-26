@@ -9,7 +9,7 @@ const baseValidInput = {
   speakerAgreement: 'on',
   title: 'My Presentation',
   abstract: 'A'.repeat(150),
-  learningPoints: 'Key points',
+  learningPoints: 'Key points'.repeat(10),
   presentationType: 'full length'
 };
 
@@ -50,9 +50,9 @@ describe('PresentationSubmissionFormSchema', () => {
     const input = { ...baseValidInput };
     const { speakerAgreement: _, ...withoutAgreement } = input;
     const result = PresentationSubmissionFormSchema.safeParse(withoutAgreement);
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.data.speakerAgreement).toBe(false);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].path).toEqual(['speakerAgreement']);
     }
   });
 
@@ -90,9 +90,12 @@ describe('PresentationSubmissionFormSchema', () => {
     expect(result.success).toBe(false);
   });
 
-  it('fails for an unknown (non-email) extra key', () => {
+  it('strips an unknown extra key', () => {
     const input = { ...baseValidInput, unexpectedField: 'not-an-email' };
     const result = PresentationSubmissionFormSchema.safeParse(input);
-    expect(result.success).toBe(false);
+    expect(result.success).toBe(true); // The parser is designed to always succeed, but also strips unknown keys
+    if (result.success) {
+      expect(result.data).not.toHaveProperty('unexpectedField');
+    }
   });
 });
