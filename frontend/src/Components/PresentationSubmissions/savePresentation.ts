@@ -216,7 +216,7 @@ const uploadPresentation = async (
       };
     }
 
-    const { error } = await supabase
+    const { data: updatedRow, error } = await supabase
       .from('presentation_submissions')
       .update({
         title,
@@ -228,10 +228,13 @@ const uploadPresentation = async (
           ? { consent_given_at: new Date().toISOString() }
           : {})
       })
-      .eq('id', presentationId);
+      .eq('id', presentationId)
+      .eq('submitter_id', submitterId)
+      .select('id')
+      .single();
 
-    if (error) {
-      await logUploadError(error, submitterId);
+    if (error || !updatedRow) {
+      if (error) await logUploadError(error, submitterId);
       return {
         success: false,
         error: {
