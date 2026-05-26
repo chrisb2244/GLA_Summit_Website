@@ -8,7 +8,6 @@ import type {
 } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabaseClient';
 import { ContainerHint } from '@/Components/Agenda/AgendaCalculations';
-import { myLog } from '@/lib/utils';
 import { startDate } from '../configConstants';
 
 type DB_SubscriptionEvent = RealtimePostgresChangesPayload<
@@ -104,7 +103,6 @@ export const FullAgenda = (props: {
       return;
     }
     
-    myLog('adding subscription');
     const subscription = supabase
       .channel('public:agenda_favourites')
       .on(

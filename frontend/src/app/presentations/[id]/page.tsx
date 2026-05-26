@@ -9,7 +9,7 @@ import {
 } from '@/lib/databaseFunctions';
 import { createAnonServerClient } from '@/lib/supabaseClient';
 import { createServerClient } from '@/lib/supabaseServer';
-import { calculateSchedule, myLog } from '@/lib/utils';
+import { calculateSchedule } from '@/lib/utils';
 import type { Metadata, NextPage } from 'next';
 import { notFound } from 'next/navigation';
 import { redirect } from 'next/navigation';
@@ -128,7 +128,7 @@ const PresentationsForYearPageContent = async (props: PageProps) => {
       .select('*')
       .maybeSingle();
     if (error || data === null) {
-      myLog({ err, error });
+      console.error('Presentation lookup failed', { err, error });
       notFound();
     }
 

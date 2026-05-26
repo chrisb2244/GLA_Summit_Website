@@ -1,5 +1,6 @@
 import { NextParams, satisfy } from '@/lib/NextTypes';
 import { createRouteHandlerClient } from '@/lib/supabaseServer';
+import { logToDb } from '@/lib/utils';
 
 type RouteParams = satisfy<NextParams, Promise<{ id: string }>>;
 
@@ -43,9 +44,12 @@ export async function GET(
     .insert({ id })
     .select()
     .single()
-    .then(({ data, error }) => {
-      console.log({ data, error });
+    .then(({ error }) => {
       if (error && error.code !== '23505') {
+        logToDb('error', 'Failed to confirm presentation slot', 'api/confirm-presentation', {
+          userId: user.id,
+          context: { presentationId: id, message: error.message, code: error.code }
+        });
         return 'ERROR';
       } else if (error && error.code === '23505') {
         // Duplicate

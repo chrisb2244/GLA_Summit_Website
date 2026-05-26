@@ -3,7 +3,7 @@ import { ticketYear } from '@/app/configConstants';
 import { createServerClient } from '@/lib/supabaseServer';
 import { ticketDataAndTokenToPageUrl } from './utils';
 import { createHmac } from 'node:crypto';
-import { logErrorToDb } from '@/lib/utils';
+import { logToDb } from '@/lib/utils';
 import { getUser } from '@/lib/supabase/userFunctions';
 import { Suspense } from 'react';
 
@@ -99,13 +99,10 @@ const TicketGeneratorPageContent = async () => {
       token: getToken(JSON.stringify(ticketObject))
     };
 
-    logErrorToDb(
-      `Fetched an existing ticket: ${existingTicket.ticket_number} (${
-        user.email ?? 'no email'
-      })`,
-      'info',
-      userId
-    );
+    await logToDb('info', 'Fetched existing ticket', 'ticket/fetch', {
+      userId,
+      context: { ticketNumber: existingTicket.ticket_number }
+    });
 
     redirect(ticketDataAndTokenToPageUrl(transferObject));
   } else {
@@ -120,22 +117,16 @@ const TicketGeneratorPageContent = async () => {
       .select()
       .single();
 
-    logErrorToDb(
-      `New Ticket request: ${JSON.stringify({ newTicket, error })} (${
-        user.email ?? 'no email'
-      })`,
-      'info',
-      userId
-    );
-    // console.log({ newTicket, error, time: new Date().toISOString() });
+    await logToDb('info', 'New ticket request', 'ticket/create', {
+      userId,
+      context: { ticketId: newTicket?.id ?? null }
+    });
 
     if (!newTicket) {
-      console.error('Failed to create a new ticket');
-      logErrorToDb(
-        `Failed to create a new ticket: ${error?.message}, (${error?.details}) (${error?.code})`,
-        'error',
-        userId
-      );
+      await logToDb('error', 'Failed to create new ticket', 'ticket/create', {
+        userId,
+        context: { message: error?.message, code: error?.code, details: error?.details }
+      });
       return (
         <div className='prose mx-auto mt-4 text-center'>
           <p>Failed to create a new ticket</p>
@@ -173,11 +164,10 @@ const TicketGeneratorPageContent = async () => {
       userId: user.id
     };
 
-    logErrorToDb(
-      `Created a new ticket: ${newTicket.ticket_number}`,
-      'info',
-      userId
-    );
+    await logToDb('info', 'Created new ticket', 'ticket/create', {
+      userId,
+      context: { ticketNumber: newTicket.ticket_number }
+    });
 
     const transferObject: TransferObject = {
       data: ticketObject,

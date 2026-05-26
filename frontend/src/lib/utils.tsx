@@ -3,13 +3,35 @@ import { PresentationType } from './databaseModels';
 import { createAdminClient } from './supabaseClient';
 import type { DateArray } from 'ics';
 
-const shouldLog = process.env.NODE_ENV !== 'production';
-const dbLog = true; // process.env.NODE_ENV === 'production'
+const isDev = process.env.NODE_ENV !== 'production';
 
-/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-export const myLog = (v: any) => {
-  if (shouldLog) {
-    console.log(v);
+/**
+ * Log an event to the database. Server-side only (uses admin client).
+ * Keep `message` free of PII — use `options.context` for structured metadata,
+ * and `options.userId` to associate with a user.
+ */
+export const logToDb = async (
+  severity: 'info' | 'error' | 'severe',
+  message: string,
+  source: string,
+  options?: {
+    userId?: string;
+    context?: Record<string, unknown>;
+  }
+) => {
+  if (isDev) {
+    console.log(`[${severity.toUpperCase()}] ${source}: ${message}`, options?.context ?? '');
+  }
+  const client = createAdminClient();
+  const { error } = await client.from('log').insert({
+    severity,
+    message,
+    source,
+    user_id: options?.userId ?? null,
+    context: options?.context ?? null
+  });
+  if (error) {
+    console.error('logToDb failed:', error);
   }
 };
 
@@ -17,26 +39,6 @@ export const fullUrlToIconUrl = (fullUrl: string) => {
   return `${fullUrl.split('.').slice(0, -1).join('.')}-icon.webp`;
 };
 
-export const logErrorToDb = async (
-  v: { message: string } | string,
-  severity: 'info' | 'error' | 'severe',
-  currentUserId?: string
-) => {
-  if (dbLog) {
-    const client = createAdminClient();
-    const { error } = await client.from('log').insert({
-      severity,
-      message: typeof v === 'string' ? v : v.message,
-      user_id: currentUserId
-    });
-    if (error) {
-      console.log(error);
-      // client.from('log').insert({
-      //   s
-      // }
-    }
-  }
-};
 
 // Timezone info - default to client local, allow storing preference in profile
 export type TimezoneInfo = {

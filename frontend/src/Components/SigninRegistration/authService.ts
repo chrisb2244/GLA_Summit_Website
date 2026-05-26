@@ -7,6 +7,7 @@ import { SignInEmailFn } from '@/EmailTemplates/SignInEmail';
 import { generateSupabaseLinks } from '@/lib/generateSupabaseLinks';
 import { sendMailApi } from '@/lib/sendMail';
 import { createServerActionClient } from '@/lib/supabaseServer';
+import { logToDb } from '@/lib/utils';
 
 import type { PersonProps } from '../Form/Person';
 
@@ -34,7 +35,7 @@ export const signIn = async (email: string, redirectTo?: string): Promise<boolea
 
     const { properties, user } = response.data;
     if (properties == null) {
-      console.log('No OTP properties returned by generateSupabaseLinks');
+      await logToDb('error', 'No OTP properties returned during sign-in', 'auth/signin');
       return false;
     }
 
@@ -49,7 +50,9 @@ export const signIn = async (email: string, redirectTo?: string): Promise<boolea
 
     return mailResult.status === 200;
   } catch (err) {
-    console.log(`Failed to send a sign-in link: ${err}`);
+    await logToDb('error', 'Failed to send sign-in link', 'auth/signin', {
+      context: { message: err instanceof Error ? err.message : String(err) }
+    });
     return false;
   }
 };
