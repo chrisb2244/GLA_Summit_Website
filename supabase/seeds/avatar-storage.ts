@@ -335,7 +335,7 @@ async function generatePlaceholderImage(avatarUrl: string): Promise<string> {
 
   const outputPath = path.join(
     GENERATED_DIR,
-    `${sanitizeFileName(avatarUrl)}.${ext}`,
+    `${sanitizeFileName(path.parse(avatarUrl).name)}.${ext}`,
   );
 
   const sharpInstance = sharp({
@@ -360,6 +360,39 @@ async function generatePlaceholderImage(avatarUrl: string): Promise<string> {
 
 function sanitizeFileName(input: string): string {
   return input.replace(/[^a-zA-Z0-9-_]/g, "_");
+}
+
+/**
+ * Mirrors fullUrlToIconUrl from frontend/src/lib/utils.tsx.
+ * e.g. "abc_0.12345.png" → "abc_0.12345-icon.webp"
+ */
+function iconUrlFromAvatarUrl(avatarUrl: string): string {
+  const parts = avatarUrl.split(".");
+  return parts.slice(0, -1).join(".") + "-icon.webp";
+}
+
+async function generateAndUploadIcon(avatarUrl: string, sourcePath: string) {
+  const iconObjectPath = iconUrlFromAvatarUrl(avatarUrl);
+  const iconLocalPath = path.join(
+    GENERATED_DIR,
+    `${sanitizeFileName(path.parse(avatarUrl).name)}-icon.webp`,
+  );
+
+  await sharp(sourcePath)
+    .resize(128, 128, { fit: "cover", position: "centre" })
+    .webp({ quality: 80 })
+    .toFile(iconLocalPath);
+
+  const buffer = fs.readFileSync(iconLocalPath);
+  const { error } = await supabase.storage
+    .from(BUCKET)
+    .upload(iconObjectPath, buffer, {
+      upsert: true,
+      contentType: "image/webp",
+    });
+
+  if (error) throw error;
+  console.log(`[storage-seed] uploaded ${iconObjectPath}`);
 }
 
 /**
@@ -408,6 +441,8 @@ async function uploadAvatar(avatarUrl: string) {
   }
 
   console.log(`[storage-seed] uploaded ${details.objectPath}`);
+
+  await generateAndUploadIcon(avatarUrl, sourcePath);
 }
 
 /**

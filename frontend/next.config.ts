@@ -16,7 +16,12 @@ const config: NextConfig = {
         protocol: 'http',
         hostname: '127.0.0.1'
       }
-    ]
+    ],
+    deviceSizes: [640, 1080, 1920],
+    imageSizes: [320, 640],
+    formats: ['image/webp'],
+    minimumCacheTTL: 2678400,
+    unoptimized: process.env.NEXT_IMAGE_UNOPTIMIZED === 'true'
   },
   async redirects() {
     return [

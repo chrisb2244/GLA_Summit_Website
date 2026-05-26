@@ -203,7 +203,10 @@ export const uploadAvatar = async (
   // Upload a new file to storage
   const { error } = await supabase.storage
     .from('avatars')
-    .upload(remoteFilePath, localFile);
+    .upload(remoteFilePath, localFile, {
+      cacheControl: '31536000',
+      upsert: false
+    });
   if (error) throw error;
 
   // Set that file as the profile avatar
