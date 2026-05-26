@@ -1,5 +1,4 @@
 import { SummitYear } from '@/lib/databaseModels';
-import { myLog } from '@/lib/utils';
 
 export type PresentationPlottingInfo = {
   style: {
@@ -126,9 +125,7 @@ export const calculatePositioningInfo = (
         ({ minStartCount, maxEndCount }, current) => {
           const presentation = presentations.find((p) => p.id === current);
           if (typeof presentation === 'undefined') {
-            myLog(
-              `Unexpected unfound presentationId ${current} in containerId ${container}`
-            );
+            console.error(`Unexpected unfound presentationId ${current} in containerId ${container}`);
             return {
               minStartCount,
               maxEndCount

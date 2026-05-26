@@ -1,5 +1,6 @@
 import { generateAvatarIcon } from '@/actions/generateAvatarIcon';
 import { createRouteHandlerClient } from '@/lib/supabaseServer';
+import { logToDb } from '@/lib/utils';
 import { NextResponse } from 'next/server';
 
 type ResponseType =
@@ -52,7 +53,10 @@ export async function POST(req: Request): Promise<NextResponse<ResponseType>> {
     }
     return NextResponse.json({ iconUrl: iconPath });
   } catch (e) {
-    console.error(e);
+    await logToDb('error', 'Avatar icon generation failed', 'api/avatar-update', {
+      userId: cookieUserId,
+      context: { message: e instanceof Error ? e.message : String(e) }
+    });
     return jsonError('internal server error', 500);
   }
 }

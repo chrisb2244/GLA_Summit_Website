@@ -4,7 +4,7 @@ import { createClient as sb_createClient } from '@supabase/supabase-js';
 import type { Database } from '../sb_databaseModels';
 import { SummitYear } from '../databaseModels';
 import { cacheLife, cacheTag } from 'next/cache';
-import { logErrorToDb } from '../utils';
+import { logToDb } from '../utils';
 import { PersonDisplayProps } from '@/Components/PersonDisplay';
 import { getPeople_Authed } from './authorized';
 import { cacheTagForPerson, CACHE_TAGS } from './cacheTags';
@@ -42,7 +42,9 @@ export const getAcceptedPresenterIds = async (year?: SummitYear) => {
 
   const { data, error } = await query;
   if (error) {
-    logErrorToDb(`getAcceptedPresenterIds: ${error.message}`, 'error');
+    logToDb('error', 'Failed to fetch accepted presenter IDs', 'db/public', {
+      context: { message: error.message, code: error.code }
+    });
     throw error;
   }
 

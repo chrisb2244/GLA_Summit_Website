@@ -4,6 +4,7 @@ import { getProfileInfo } from '@/lib/databaseFunctions';
 import { PersonProps } from '@/Components/Form/Person';
 import { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
+import { logToDb } from '@/lib/utils';
 import { PresentationFormFields } from '@/Components/PresentationSubmissions/PresentationFormFields';
 import { PresentationSubmissionFormData } from '@/Components/PresentationSubmissions/PresentationSubmissionFormSchema';
 
@@ -31,7 +32,10 @@ const DraftEditPage = async ({ params }: { params: Promise<Params> }) => {
     .maybeSingle();
 
   if (error) {
-    console.error('[DraftEditPage] Failed to fetch draft:', error.message);
+    await logToDb('error', 'Failed to fetch draft', 'my-presentations/edit', {
+      userId: user.id,
+      context: { presentationId: id, message: error.message, code: error.code }
+    });
     notFound();
   }
   if (!draft) {
@@ -52,10 +56,10 @@ const DraftEditPage = async ({ params }: { params: Promise<Params> }) => {
       p_presentation_id: id
     });
   if (presenterEmailsError) {
-    console.error(
-      '[DraftEditPage] Failed to fetch presenter emails:',
-      presenterEmailsError.message
-    );
+    await logToDb('error', 'Failed to fetch presenter emails for draft edit', 'my-presentations/edit', {
+      userId: user.id,
+      context: { presentationId: id, message: presenterEmailsError.message, code: presenterEmailsError.code }
+    });
   }
 
   const presenterEmails = Array.isArray(presenterEmailsData)

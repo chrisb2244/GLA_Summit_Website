@@ -16,7 +16,7 @@ import {
   DeleteReturnType,
   SubmitReturnType
 } from '@/actions/presentationActionTypes';
-import { logErrorToDb } from '@/lib/utils';
+import { logToDb } from '@/lib/utils';
 import { revalidatePath } from 'next/cache';
 import { revalidateTag } from 'next/cache';
 import { sendMailApi } from '@/lib/sendMail';
@@ -118,14 +118,11 @@ export const submitPresentationAction = async (
       }
     };
   } else {
-    await logErrorToDb(
-      `submitPresentationAction failed: ${JSON.stringify({
-        message:
-          'error' in result ? result.error.message : 'Duplicate submission',
-        formData: Object.fromEntries(formData.entries())
-      })}`,
-      'error'
-    );
+    await logToDb('error', 'Presentation submission failed', 'submission/actions', {
+      context: {
+        message: 'error' in result ? result.error.message : 'Duplicate submission'
+      }
+    });
     return {
       ...previousState,
       data: validatedData,
@@ -169,16 +166,10 @@ const findDuplicateSubmission = async (
   const { data: existingRows, error } = await query;
 
   if (error) {
-    await logErrorToDb(
-      `findDuplicateSubmission failed: ${JSON.stringify({
-        message: error.message,
-        code: error.code,
-        details: error.details,
-        hint: error.hint
-      })}`,
-      'error',
-      submitterId
-    );
+    await logToDb('error', 'Duplicate submission check failed', 'submission/actions', {
+      userId: submitterId,
+      context: { message: error.message, code: error.code, details: error.details, hint: error.hint }
+    });
     return null;
   }
 
@@ -357,16 +348,9 @@ export const deleteDraftPresentation = async (
     .select('id');
 
   if (error) {
-    await logErrorToDb(
-      `deleteDraftPresentation delete failed: ${JSON.stringify({
-        message: error.message,
-        code: error.code,
-        details: error.details,
-        hint: error.hint,
-        presentationId
-      })}`,
-      'error'
-    );
+    await logToDb('error', 'Failed to delete draft presentation', 'submission/actions', {
+      context: { message: error.message, code: error.code, details: error.details, hint: error.hint, presentationId }
+    });
     return { success: false, error: { message: DRAFT_DELETE_CLIENT_ERROR } };
   }
 

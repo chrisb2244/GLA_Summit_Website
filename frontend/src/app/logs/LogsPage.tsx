@@ -4,7 +4,6 @@ import { useEffect, useReducer } from 'react';
 import { LogEntry, LogViewer } from '@/Components/LogViewer';
 import { Database } from '@/lib/sb_databaseModels';
 import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
-import { myLog } from '@/lib/utils';
 import { supabase } from '@/lib/supabaseClient';
 
 type DB_SubscriptionEvent = RealtimePostgresChangesPayload<
@@ -46,7 +45,6 @@ const LogsPage = ({ serverLogs }: LogsPageProps) => {
   );
 
   useEffect(() => {
-    myLog('adding subscription');
     const subscription = supabase
       .channel('public:log')
       .on(
@@ -63,7 +61,6 @@ const LogsPage = ({ serverLogs }: LogsPageProps) => {
       .subscribe();
 
     return () => {
-      myLog('unsubscribing');
       subscription.unsubscribe();
     };
   }, []);

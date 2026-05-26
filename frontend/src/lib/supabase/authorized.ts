@@ -3,7 +3,7 @@
 
 import { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '../sb_databaseModels';
-import { logErrorToDb } from '../utils';
+import { logToDb } from '../utils';
 
 export const getPeople_Authed = async (
   ids: string[],
@@ -16,15 +16,14 @@ export const getPeople_Authed = async (
 
   const { data, error } = await query;
   if (error) {
-    logErrorToDb(
-      `getPeople_Authed: ${error.message}`,
-      'error',
-      await client.auth
+    await logToDb('error', 'Failed to fetch people profiles', 'db/authorized', {
+      userId: await client.auth
         .getSession()
         .then(({ data, error }) =>
           error ? undefined : data.session?.user.id ?? undefined
-        )
-    );
+        ),
+      context: { message: error.message, code: error.code }
+    });
     throw error;
   }
 

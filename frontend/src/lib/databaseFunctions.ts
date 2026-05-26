@@ -11,7 +11,7 @@ import {
   createAdminClient,
   createAnonServerClient
 } from './supabaseClient';
-import { defaultTimezoneInfo, fullUrlToIconUrl, myLog } from './utils';
+import { defaultTimezoneInfo, fullUrlToIconUrl, logToDb } from './utils';
 import type { NewUserInformation } from './sessionTypes';
 
 export type User = SB_User;
@@ -27,7 +27,9 @@ export const checkForExistingUser = async (
     .maybeSingle()
     .then(({ data, error }) => {
       if (error) {
-        console.log({ error, m: 'Searching for email-id table entry' });
+        logToDb('error', 'Email lookup query failed', 'db/email-lookup', {
+          context: { message: error.message, code: error.code }
+        });
         throw error;
       }
       if (data) {
@@ -407,11 +409,7 @@ export const getMyPresentations = async (client: Client = supabase) => {
     const isAbortLike =
       message.includes('aborted') || message.includes('aborterror');
     if (!isAbortLike) {
-      myLog({
-        error: errorPresData,
-        desc: 'Failed to fetch presentation details for this user',
-        abortLike: isAbortLike
-      });
+      console.error('Failed to fetch presentation details for this user', { error: errorPresData });
       throw errorPresData;
     }
   }

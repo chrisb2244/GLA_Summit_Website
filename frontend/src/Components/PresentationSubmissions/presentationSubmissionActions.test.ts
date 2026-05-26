@@ -35,7 +35,7 @@ vi.mock('@/EmailTemplates/FormSubmissionEmail', () => ({
 }));
 
 vi.mock('@/lib/utils', () => ({
-  logErrorToDb: vi.fn()
+  logToDb: vi.fn()
 }));
 
 vi.mock('./savePresentation', () => ({

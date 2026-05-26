@@ -4,7 +4,7 @@ import type { PresentationSubmissionFormData } from '@/Components/PresentationSu
 import { submissionsForYear } from '@/app/configConstants';
 import { createAdminClient } from '@/lib/supabaseClient';
 import { createServerActionClient } from '@/lib/supabaseServer';
-import { logErrorToDb } from '@/lib/utils';
+import { logToDb } from '@/lib/utils';
 import {
   resolveCopresenters,
   type ExistingPresenter,
@@ -311,12 +311,9 @@ const prunePresentationPresenters = async (
   if (lookupError) {
     // Log the error but still return success because the
     // pruning itself succeeded and the email lookup is less critical.
-    logErrorToDb(
-      `Failed to lookup pruned presenter emails: ${
-        lookupError.message
-      }. Presenter IDs: ${prunedIds.join(', ')}`,
-      'error'
-    );
+    logToDb('error', 'Failed to look up pruned presenter emails', 'submission/save', {
+      context: { message: lookupError.message, code: lookupError.code, presenterCount: prunedIds.length }
+    });
   }
 
   return {
@@ -326,14 +323,8 @@ const prunePresentationPresenters = async (
 };
 
 const logUploadError = async (error: PostgrestError, submitterId: string) => {
-  await logErrorToDb(
-    `savePresentation upload failed: ${JSON.stringify({
-      message: error.message,
-      code: error.code,
-      details: error.details,
-      hint: error.hint
-    })}`,
-    'error',
-    submitterId
-  );
+  await logToDb('error', 'Presentation save failed', 'submission/save', {
+    userId: submitterId,
+    context: { message: error.message, code: error.code, details: error.details, hint: error.hint }
+  });
 };

@@ -1,5 +1,5 @@
 import { createAdminClient } from '@/lib/supabaseClient';
-import { logErrorToDb } from '@/lib/utils';
+import { logToDb } from '@/lib/utils';
 import { AuthError } from '@supabase/supabase-js';
 import { randomBytes } from 'crypto';
 import { COPRESENTER_LOOKUP_CLIENT_ERROR } from '../../actions/presentationActionTypes';
@@ -39,17 +39,17 @@ export async function resolveCopresenters(
       .in('email', otherPresenters);
 
     if (lookupError) {
-      await logErrorToDb(
-        `${callerName} email_lookup query failed: ${JSON.stringify({
+      await logToDb('error', 'Co-presenter email lookup failed', 'submission/copresenter', {
+        userId: submitter_id,
+        context: {
+          caller: callerName,
           message: lookupError.message,
           code: lookupError.code,
           details: lookupError.details,
           hint: lookupError.hint,
           otherPresenterCount: otherPresenters.length
-        })}`,
-        'error',
-        submitter_id
-      );
+        }
+      });
       return {
         success: false,
         error: { message: COPRESENTER_LOOKUP_CLIENT_ERROR }

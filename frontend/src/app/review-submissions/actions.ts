@@ -1,7 +1,7 @@
 'use server';
 
 import { createServerClient } from '@/lib/supabaseServer';
-import { joinNames } from '@/lib/utils';
+import { joinNames, logToDb } from '@/lib/utils';
 import JSZip from 'jszip';
 
 export const downloadSharableSubmissionContent = async (
@@ -17,7 +17,9 @@ export const downloadSharableSubmissionContent = async (
       ).count ?? 0) !== 0
     : false;
   if (!isOrganizer) {
-    console.error('User is not an organizer');
+    await logToDb('error', 'Unauthorized download attempt', 'review-submissions/download', {
+      userId: user?.id
+    });
     return;
   }
 
@@ -27,7 +29,10 @@ export const downloadSharableSubmissionContent = async (
     .eq('id', presentationId)
     .single();
   if (error) {
-    console.error('Error downloading presentation content:', error);
+    await logToDb('error', 'Failed to fetch presentation content for download', 'review-submissions/download', {
+      userId: user?.id,
+      context: { presentationId, message: error.message, code: error.code }
+    });
     return;
   }
 
@@ -36,7 +41,10 @@ export const downloadSharableSubmissionContent = async (
     .select('presenter_id')
     .eq('presentation_id', presentationId);
   if (presentersError) {
-    console.error('Error downloading presenters:', presentersError);
+    await logToDb('error', 'Failed to fetch presenters for download', 'review-submissions/download', {
+      userId: user?.id,
+      context: { presentationId, message: presentersError.message, code: presentersError.code }
+    });
     return;
   }
 
@@ -64,7 +72,10 @@ export const downloadSharableSubmissionContent = async (
       };
     });
   if (presentersError2) {
-    console.error('Error downloading presenters:', presentersError2);
+    await logToDb('error', 'Failed to fetch presenter profiles for download', 'review-submissions/download', {
+      userId: user?.id,
+      context: { presentationId, message: presentersError2.message, code: presentersError2.code }
+    });
     return;
   }
 
@@ -74,7 +85,10 @@ export const downloadSharableSubmissionContent = async (
     .in('id', presenterIds);
 
   if (emailsError) {
-    console.error('Error downloading presenter emails:', emailsError);
+    await logToDb('error', 'Failed to fetch presenter emails for download', 'review-submissions/download', {
+      userId: user?.id,
+      context: { presentationId, message: emailsError.message, code: emailsError.code }
+    });
     return;
   }
 
