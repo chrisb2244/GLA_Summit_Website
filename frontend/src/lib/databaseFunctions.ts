@@ -414,15 +414,3 @@ export const getMyPresentations = async (client: Client = supabase) => {
   }
   return data ?? [];
 };
-
-export const deletePresentation = async (presentationId: string) => {
-  const { error } = await supabase
-    .from('presentation_submissions')
-    .delete()
-    .eq('id', presentationId);
-  if (error) {
-    myLog({ error });
-    return false;
-  }
-  return true;
-};
