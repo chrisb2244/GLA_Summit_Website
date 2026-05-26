@@ -347,7 +347,7 @@ export const PresentationFormFields = ({
 
       <div className='mt-3 flex flex-col gap-2 sm:flex-row sm:justify-between'>
         {CAN_SUBMIT_DRAFT && (
-          <div className='w-2/5'>
+          <div className='w-full sm:w-2/5'>
             <Button
               type='submit'
               name='submitIntent'
@@ -359,7 +359,7 @@ export const PresentationFormFields = ({
           </div>
         )}
 
-        <div className={CAN_SUBMIT_DRAFT ? 'w-3/5' : 'w-full'}>
+        <div className={CAN_SUBMIT_DRAFT ? 'w-full sm:w-3/5' : 'w-full'}>
           <SubmitButton
             name='submitIntent'
             value='submit'
