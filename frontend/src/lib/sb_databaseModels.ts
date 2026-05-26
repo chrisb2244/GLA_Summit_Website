@@ -584,6 +584,21 @@ export type Database = {
           year: Database["public"]["Enums"]["summit_year"]
         }[]
       }
+      get_or_create_ticket: {
+        Args: { p_year: Database["public"]["Enums"]["summit_year"] }
+        Returns: {
+          created_at: string
+          ticket_number: number
+          user_id: string
+          year: Database["public"]["Enums"]["summit_year"]
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "tickets"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_reviewable_submissions: {
         Args: { target_year: Database["public"]["Enums"]["summit_year"] }
         Returns: {

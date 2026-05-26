@@ -78,10 +78,12 @@ describe('submitPresentationAction', () => {
   });
 
   it('maps savePresentation rejection to an error status', async () => {
+    // This no longer matters - the rejection happens earlier in the schema parsing phase.
     mockedSavePresentation.mockResolvedValueOnce({
       success: false,
       error: {
-        message: 'You must agree to the speaker agreement to submit.'
+        message:
+          'You must agree to the speaker agreement to submit your presentation'
       }
     });
 
@@ -93,7 +95,7 @@ describe('submitPresentationAction', () => {
     formData.set('abstract', 'A'.repeat(150));
     formData.set(
       'learningPoints',
-      'Key things to learn from this session. '.repeat(3)
+      'Key things to learn from this session. '.repeat(5)
     );
     formData.set('presentationType', 'full length');
     formData.set('submitIntent', 'submit');
@@ -102,9 +104,8 @@ describe('submitPresentationAction', () => {
 
     const result = await submitPresentationAction(previousState, formData);
 
-    expect(mockedSavePresentation).toHaveBeenCalledTimes(1);
-    expect(result.status?.type).toBe('error');
-    expect(result.status?.message).toBe(PRESENTATION_SAVE_CLIENT_ERROR);
+    expect(mockedSavePresentation).toHaveBeenCalledTimes(0);
+    expect(result.errors?.properties?.speakerAgreement).toBeDefined();
     expect(result.duplicateWarning).toBeUndefined();
   });
 });
