@@ -7,17 +7,17 @@ import {
   mdiTicket
 } from '@mdi/js';
 import { Icon } from '@mdi/react';
-import { JSX, Suspense, useEffect, useState } from 'react';
+import { JSX, Suspense } from 'react';
 import NextLink from 'next/link';
 import {
-  downloadIconAvatarAndGenerateIfNeeded,
+  getAvatarPublicUrl,
   type User
 } from '@/lib/databaseFunctions';
 import type { ProfileModel } from '@/lib/databaseModels';
 import { Route } from 'next';
 import { DefaultUserIcon, UserIcon } from './UserIcon';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabaseClient';
+import { fullUrlToIconUrl } from '@/lib/utils';
 
 type UserMenuProps = {
   user: User;
@@ -46,22 +46,10 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
 ) => {
   const { isOrganizer, profile, signOut } = props;
 
-  const [avatarSrc, setAvatarSrc] = useState<string | undefined>(undefined);
-  useEffect(() => {
-    const url = props.profile?.avatar_url;
-    if (typeof url === 'undefined' || url === null) {
-      return;
-    }
-    downloadIconAvatarAndGenerateIfNeeded(url, supabase, props.user.id).then(
-      (value) => {
-        if (value instanceof Blob) {
-          setAvatarSrc(URL.createObjectURL(value));
-        } else if (value instanceof Error) {
-          console.log(value);
-        }
-      }
-    );
-  }, [props.profile?.avatar_url, props.user.id]);
+  const iconPath = props.profile?.avatar_url
+    ? fullUrlToIconUrl(props.profile.avatar_url)
+    : null;
+  const avatarSrc = getAvatarPublicUrl(iconPath) ?? undefined;
 
   const email = props.user.email;
 

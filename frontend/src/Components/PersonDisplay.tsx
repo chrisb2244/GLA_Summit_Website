@@ -31,10 +31,11 @@ export const PersonDisplay: React.FC<
   let imageElem = null;
   if (typeof props.image === 'string') {
     imageElem = (
-      <img
+      <Image
+        fill
         src={props.image}
         alt={`Image of ${props.firstName} ${props.lastName}`}
-        className='relative object-contain'
+        className='object-contain'
         sizes='(max-width: 899px) 100vw, 30vw'
       />
     );
