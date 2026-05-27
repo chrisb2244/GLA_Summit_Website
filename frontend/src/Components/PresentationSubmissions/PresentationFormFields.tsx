@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useReducer, useState } from 'react';
+import { useActionState, useEffect, useReducer, useState, useSyncExternalStore } from 'react';
 import NextLink from 'next/link';
 import { Button } from '../Form/Button';
 import { FormField, TextArea } from '../Form/FormFieldSrv';
@@ -56,23 +56,14 @@ export const PresentationFormFields = ({
   const [learningPointsLength, setLearningPointsLength] = useState(
     values.learningPoints.length
   );
-  const [hydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
-    setHydrated(true);
-  }, []);
+  // False on the server, true on the client — gates CharacterCount to avoid hydration mismatch.
+  const hydrated = useSyncExternalStore(() => () => {}, () => true, () => false);
 
   const { validationMessages, checkValidity } = useFormValidation();
   const { getFieldError, onBlurFor } = useTouchedFieldErrors<string>({
     validationMessages,
     zodErrors: state.errors
   });
-
-  useEffect(() => {
-    setTitleLength(values.title.length);
-    setAbstractLength(values.abstract.length);
-    setLearningPointsLength(values.learningPoints.length);
-  }, [values.title, values.abstract, values.learningPoints]);
 
   const submitterErrs = state.errors?.properties?.submitter?.properties ?? {};
 
@@ -100,10 +91,12 @@ export const PresentationFormFields = ({
         email
       }));
     },
-    values.otherPresenters.map((email) => ({
-      id: `otherPresenter.${Math.random()}`,
-      email
-    }))
+    values.otherPresenters,
+    (initialEmails) =>
+      initialEmails.map((email, index) => ({
+        id: `otherPresenter.${index}`,
+        email
+      }))
   );
 
   useEffect(() => {
