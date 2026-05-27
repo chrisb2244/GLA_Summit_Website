@@ -44,11 +44,12 @@ export async function resolveCopresenters(
   let existingPresenters: ExistingPresenter[] = [];
 
   if (normalizedEmails.length > 0) {
-    // email_lookup, like auth.users, stores lower-cased emails
+    // Use ilike per email so the lookup is case-insensitive even if email_lookup
+    // stores addresses with original casing.
     const { data, error: lookupError } = await supabaseAdmin
       .from('email_lookup')
       .select('id, email')
-      .in('email', normalizedEmails);
+      .or(normalizedEmails.map((e) => `email.ilike.${e}`).join(','));
 
     if (lookupError) {
       await logToDb('error', 'Co-presenter email lookup failed', 'submission/copresenter', {

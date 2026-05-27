@@ -42,9 +42,9 @@ import z from 'zod/v4';
  * and redirects on success or returns form errors on failure.
  *
  * When presentationId is provided, this is treated as an update to an existing presentation.
- * When presentationId is absent, this creates a new presentation. The presence of presentationId
- * affects email sending behavior—new presentations trigger initial co-presenter invitations,
- * while updates to existing presentations send different notifications to existing vs. newly-added presenters.
+ * When presentationId is absent, this creates a new presentation.
+ * On final submission, all co-presenters receive an invite email. On draft save, only
+ * newly-added or re-invited co-presenters are notified.
  */
 export const submitPresentationAction = async (
   previousState: PresentationSubmissionFormState,
@@ -220,7 +220,6 @@ const handlePresentationSubmission = async (
     return savedPresentationResult;
   }
 
-  const isNew = !presentationId;
   // If isFinal - email all presenters
   // Otherwise, only email newPresenters to confirm they've been added as co-presenters.
   // Don't send an email to the submitter since they may just be saving a draft and not ready for notifications to go out.
@@ -237,84 +236,110 @@ const handlePresentationSubmission = async (
     timeWindows: []
   };
 
-  let allEmailPromises = [];
-  // Submitter
+  type EmailResult = { status: number; recipientId: string; role: string };
+  const emailTasks: Array<Promise<EmailResult>> = [];
+
+  // Submitter and organizers — final submission only
   if (isFinal) {
     const submitterNameString = `${submitter.firstName} ${submitter.lastName}`;
-    const submitterEmailPromise = sendMailApi({
-      to: submitter.email,
-      subject: 'GLA Summit: Thank you for submitting a presentation',
-      ...FormSubmissionEmailFn(dataForEmails, submitterNameString)
-    });
-    allEmailPromises.push(submitterEmailPromise);
+    emailTasks.push(
+      sendMailApi({
+        to: submitter.email,
+        subject: 'GLA Summit: Thank you for submitting a presentation',
+        ...FormSubmissionEmailFn(dataForEmails, submitterNameString)
+      }).then((r) => ({ ...r, recipientId: submitterId, role: 'submitter' }))
+    );
 
-    // Organizers
-    const { data: organizerRows } = await supabaseAdmin
-      .from('organizers')
-      .select('id');
+    const { data: organizerRows } = await supabaseAdmin.from('organizers').select('id');
     const organizerIds = (organizerRows ?? []).map((o) => o.id);
     const { data: organizerEmailRows } = await supabaseAdmin
       .from('email_lookup')
-      .select('email')
+      .select('id, email')
       .in('id', organizerIds);
-    const organizerEmailPromises = (organizerEmailRows ?? []).map(({ email }) =>
-      sendMailApi({
-        to: email,
-        subject: 'GLA Summit: New presentation submitted',
-        ...OrganizerSubmissionNotificationEmailFn(
-          presentationData.title,
-          presentationData.presentationType,
-          submitterNameString,
-          submitter.email
-        )
-      })
-    );
-    allEmailPromises.push(...organizerEmailPromises);
+    for (const { id, email } of organizerEmailRows ?? []) {
+      emailTasks.push(
+        sendMailApi({
+          to: email,
+          subject: 'GLA Summit: New presentation submitted',
+          ...OrganizerSubmissionNotificationEmailFn(
+            presentationData.title,
+            presentationData.presentationType,
+            submitterNameString,
+            submitter.email
+          )
+        }).then((r) => ({ ...r, recipientId: id, role: 'organizer' }))
+      );
+    }
   }
 
-  // Invite existing-account co-presenters who are newly added or re-invited
-  const inviteTargets = [...copresenterTargets.newlyInvited, ...copresenterTargets.reinvited]
-    .filter((p) => existingPresenters.some((ep) => ep.id === p.id))
-    .filter((p): p is typeof p & { inviteUrl: string } => typeof p.inviteUrl === 'string');
-  const existingInvitePromises = inviteTargets.map(
-    async ({ id, email, inviteUrl }) => {
-      const nameString = await getNameString(id, email, supabaseAdmin);
-      return sendMailApi({
-        to: email,
-        subject: 'GLA Summit: Co-presenter invitation',
-        ...CopresenterInviteEmailFn(dataForEmails, nameString, inviteUrl)
-      });
-    }
-  );
-  allEmailPromises.push(...existingInvitePromises);
+  // Invite existing-account co-presenters.
+  // On final submission, notify all of them. On draft save, only notify newly added / re-invited.
+  const existingCopresenterTargets = isFinal
+    ? existingPresenters
+    : [...copresenterTargets.newlyInvited, ...copresenterTargets.reinvited].filter((p) =>
+        existingPresenters.some((ep) => ep.id === p.id)
+      );
+  for (const p of existingCopresenterTargets.filter(
+    (p): p is typeof p & { inviteUrl: string } => typeof p.inviteUrl === 'string'
+  )) {
+    emailTasks.push(
+      (async (): Promise<EmailResult> => {
+        const nameString = await getNameString(p.id, p.email, supabaseAdmin);
+        const r = await sendMailApi({
+          to: p.email,
+          subject: 'GLA Summit: Co-presenter invitation',
+          ...CopresenterInviteEmailFn(dataForEmails, nameString, p.inviteUrl)
+        });
+        return { ...r, recipientId: p.id, role: 'copresenter' };
+      })()
+    );
+  }
 
   // Invite new-account co-presenters (always sent on first encounter)
-  const newPresenterEmailPromises = newPresenters.map(({ email, otpCode, validateLoginUrl }) =>
-    sendMailApi({
-      to: email,
-      subject: 'GLA Summit: Co-presenter invitation',
-      ...NewCopresenterEmailFn(dataForEmails, email, otpCode, validateLoginUrl)
-    })
-  );
-  allEmailPromises.push(...newPresenterEmailPromises);
-
-  // Emails for pruned presenters if this is an existing presentation and presenters were removed
-  const prunedPresenterEmailPromises = prunedPresenters.map(
-    async ({ id, email }) => {
-      const nameString = await getNameString(id, email, supabaseAdmin);
-      return sendMailApi({
+  for (const { id, email, otpCode, validateLoginUrl } of newPresenters) {
+    emailTasks.push(
+      sendMailApi({
         to: email,
-        subject: 'GLA Summit: You have been removed as a co-presenter',
-        ...RemovedCopresenterEmailFn(dataForEmails, nameString)
-      });
-    }
-  );
-  allEmailPromises.push(...prunedPresenterEmailPromises);
+        subject: 'GLA Summit: Co-presenter invitation',
+        ...NewCopresenterEmailFn(dataForEmails, email, otpCode, validateLoginUrl)
+      }).then((r) => ({ ...r, recipientId: id, role: 'new_copresenter' }))
+    );
+  }
 
-  const allEmailResults = await Promise.all(allEmailPromises);
-  const successfulEmails = allEmailResults.filter((r) => r.status === 200);
-  const unsuccessfulEmails = allEmailResults.filter((r) => r.status !== 200);
-  console.log({ successfulEmails, unsuccessfulEmails });
+  // Notify pruned presenters that they have been removed
+  for (const { id, email } of prunedPresenters) {
+    emailTasks.push(
+      (async (): Promise<EmailResult> => {
+        const nameString = await getNameString(id, email, supabaseAdmin);
+        const r = await sendMailApi({
+          to: email,
+          subject: 'GLA Summit: You have been removed as a co-presenter',
+          ...RemovedCopresenterEmailFn(dataForEmails, nameString)
+        });
+        return { ...r, recipientId: id, role: 'removed_copresenter' };
+      })()
+    );
+  }
+
+  const emailResults = await Promise.all(emailTasks);
+  const failedEmails = emailResults.filter((r) => r.status !== 200);
+  if (failedEmails.length > 0) {
+    await logToDb(
+      'error',
+      'One or more presentation emails failed to send',
+      'submission/actions',
+      {
+        context: {
+          presentationId: presentationId ?? null,
+          failures: failedEmails.map(({ recipientId, role, status }) => ({
+            recipientId,
+            role,
+            status
+          }))
+        }
+      }
+    );
+  }
 
   revalidatePath('/my-presentations');
   revalidatePath('/submit-presentation');
