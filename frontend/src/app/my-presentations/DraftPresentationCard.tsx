@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore, useState } from 'react';
 import { deleteDraftPresentation } from '@/Components/PresentationSubmissions/presentationSubmissionActions';
 import { CenteredDialog } from '@/Components/CenteredDialog';
 import type { MyPresentationSubmissionType } from '@/lib/databaseModels';
@@ -117,14 +117,14 @@ const formatServerFallbackDate = (isoString: string) => {
 };
 
 const DraftLastSaved = ({ isoString }: { isoString: string | null }) => {
-  const [clientDateText, setClientDateText] = useState('');
-
-  useEffect(() => {
-    if (!isoString) {
-      return;
-    }
-    setClientDateText(`Last saved: ${formatLocalDate(isoString)}`);
-  }, [isoString]);
+  // useSyncExternalStore gives an empty string on the server and the
+  // local-time string on the client, avoiding a hydration mismatch without
+  // needing a setState-in-effect.
+  const clientDateText = useSyncExternalStore(
+    () => () => {},
+    () => (isoString ? `Last saved: ${formatLocalDate(isoString)}` : ''),
+    () => ''
+  );
 
   if (!isoString) {
     return <span>Unknown</span>;
