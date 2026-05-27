@@ -23,6 +23,12 @@ type SavePresentationOptions = {
   presentationId?: string;
 };
 
+export type CopresenterEmailTargets = {
+  newlyInvited: ExistingPresenter[];
+  reinvited: ExistingPresenter[];
+  spamBlocked: ExistingPresenter[];
+};
+
 export type SavePresentationResult =
   | {
       success: true;
@@ -30,6 +36,7 @@ export type SavePresentationResult =
       existingPresenters: ExistingPresenter[];
       newPresenters: NewPresenter[];
       prunedPresenters: ExistingPresenter[];
+      copresenterTargets: CopresenterEmailTargets;
     }
   | { success: false; error: { message: string } };
 
@@ -91,22 +98,24 @@ export const savePresentation = async ({
     otherPresenters,
     supabaseAdmin,
     callerName,
-    submitterId
+    submitterId,
+    savedPresentationId
   );
   if (!resolved.success) {
     return resolved;
   }
 
   const { existingPresenters, newPresenters } = resolved;
-  const presenterIds = [
-    submitterId,
+  const coPresenterIds = [
     ...existingPresenters.map((presenter) => presenter.id),
     ...newPresenters.map((presenter) => presenter.id)
   ];
 
   const setPresenterResult = await setPresentationPresenters(
     savedPresentationId,
-    presenterIds,
+    submitterId,
+    coPresenterIds,
+    existingPresenters,
     supabaseAdmin
   );
   if (!setPresenterResult.success) {
@@ -127,11 +136,13 @@ export const savePresentation = async ({
     };
   }
 
+  const allPresenterIds = [submitterId, ...coPresenterIds];
+
   let prunedPresenters: ExistingPresenter[] = [];
   if (isExistingPresentation) {
     const pruneResult = await prunePresentationPresenters(
       savedPresentationId,
-      presenterIds,
+      allPresenterIds,
       supabaseAdmin
     );
 
@@ -151,7 +162,8 @@ export const savePresentation = async ({
     presentationId: savedPresentationId,
     existingPresenters,
     newPresenters,
-    prunedPresenters
+    prunedPresenters,
+    copresenterTargets: setPresenterResult.copresenterTargets
   };
 };
 
@@ -254,26 +266,105 @@ const uploadPresentation = async (
 
 const setPresentationPresenters = async (
   presentationId: string,
-  presenterIds: string[],
+  submitterId: string,
+  coPresenterIds: string[],
+  existingPresenters: ExistingPresenter[],
   supabaseAdmin: ReturnType<typeof createAdminClient>
 ): Promise<
-  { success: true } | { success: false; error: { message: string } }
+  | { success: true; copresenterTargets: CopresenterEmailTargets }
+  | { success: false; error: { message: string } }
 > => {
-  const { error } = await supabaseAdmin.from('presentation_presenters').upsert(
-    presenterIds.map((presenter_id) => ({
-      presenter_id,
-      presentation_id: presentationId
-    }))
-  );
+  // Upsert submitter as always accepted
+  const { error: submitterError } = await supabaseAdmin
+    .from('presentation_presenters')
+    .upsert({ presenter_id: submitterId, presentation_id: presentationId, status: 'accepted' });
 
-  if (error) {
+  if (submitterError) {
     return {
       success: false,
-      error: { message: `Failed to set presenters: ${error.message}` }
+      error: { message: `Failed to set submitter presenter: ${submitterError.message}` }
     };
   }
 
-  return { success: true };
+  if (coPresenterIds.length === 0) {
+    return {
+      success: true,
+      copresenterTargets: { newlyInvited: [], reinvited: [], spamBlocked: [] }
+    };
+  }
+
+  // Fetch existing rows to categorise co-presenters
+  const { data: existingRows, error: fetchError } = await supabaseAdmin
+    .from('presentation_presenters')
+    .select('presenter_id, status, declined_count')
+    .eq('presentation_id', presentationId)
+    .in('presenter_id', coPresenterIds);
+
+  if (fetchError) {
+    return {
+      success: false,
+      error: { message: `Failed to fetch existing presenters: ${fetchError.message}` }
+    };
+  }
+
+  const existingMap = new Map(
+    (existingRows ?? []).map((r) => [r.presenter_id, r])
+  );
+
+  const trulyNew = coPresenterIds.filter((id) => !existingMap.has(id));
+  const reinvitable = coPresenterIds.filter((id) => {
+    const row = existingMap.get(id);
+    return row?.status === 'declined' && row.declined_count < 2;
+  });
+  const spamBlockedIds = coPresenterIds.filter((id) => {
+    const row = existingMap.get(id);
+    return row?.status === 'declined' && row.declined_count >= 2;
+  });
+
+  // Insert new co-presenters with pending status
+  if (trulyNew.length > 0) {
+    const { error } = await supabaseAdmin.from('presentation_presenters').insert(
+      trulyNew.map((presenter_id) => ({
+        presenter_id,
+        presentation_id: presentationId,
+        status: 'pending'
+      }))
+    );
+    if (error) {
+      return {
+        success: false,
+        error: { message: `Failed to insert new presenters: ${error.message}` }
+      };
+    }
+  }
+
+  // Reset declined-but-reinvitable back to pending
+  if (reinvitable.length > 0) {
+    const { error } = await supabaseAdmin
+      .from('presentation_presenters')
+      .update({ status: 'pending' })
+      .eq('presentation_id', presentationId)
+      .in('presenter_id', reinvitable);
+    if (error) {
+      return {
+        success: false,
+        error: { message: `Failed to reinvite declined presenters: ${error.message}` }
+      };
+    }
+  }
+
+  const existingById = new Map(existingPresenters.map((p) => [p.id, p]));
+  const toPresenter = (id: string): ExistingPresenter =>
+    existingById.get(id) ?? { id, email: '', inviteUrl: '' };
+
+  return {
+    success: true,
+    copresenterTargets: {
+      newlyInvited: trulyNew.map(toPresenter),
+      reinvited: reinvitable.map(toPresenter),
+      spamBlocked: spamBlockedIds.map(toPresenter)
+    }
+  };
 };
 
 const prunePresentationPresenters = async (

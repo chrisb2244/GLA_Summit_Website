@@ -5,6 +5,7 @@ import { deleteDraftPresentation } from '@/Components/PresentationSubmissions/pr
 import { CenteredDialog } from '@/Components/CenteredDialog';
 import type { MyPresentationSubmissionType } from '@/lib/databaseModels';
 import NextLink from 'next/link';
+import { CopresenterStatusList } from './CopresenterStatusList';
 
 type DraftPresentationCardProps = {
   draft: MyPresentationSubmissionType;
@@ -61,6 +62,7 @@ export const DraftPresentationCard = ({
             {deleteError}
           </p>
         )}
+        <CopresenterStatusList presentation={draft} />
       </div>
 
       <CenteredDialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>

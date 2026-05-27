@@ -1,11 +1,13 @@
 import { createAdminClient } from '@/lib/supabaseClient';
 import { logToDb } from '@/lib/utils';
+import { buildValidateLoginUrl } from '@/Components/SigninRegistration/formState';
+import { generateInviteToken } from '@/lib/copresenterInviteToken';
 import { AuthError } from '@supabase/supabase-js';
 import { randomBytes } from 'crypto';
 import { COPRESENTER_LOOKUP_CLIENT_ERROR } from '../../actions/presentationActionTypes';
 
-export type ExistingPresenter = { id: string; email: string };
-export type NewPresenter = { id: string; email: string; otpLink: string };
+export type ExistingPresenter = { id: string; email: string; inviteUrl?: string };
+export type NewPresenter = { id: string; email: string; otpCode: string; validateLoginUrl: string };
 
 export type ResolveCopresentersResult =
   | {
@@ -28,7 +30,8 @@ export async function resolveCopresenters(
   otherPresenters: string[],
   supabaseAdmin: ReturnType<typeof createAdminClient>,
   callerName: string,
-  submitter_id: string
+  submitter_id: string,
+  presentationId: string
 ): Promise<ResolveCopresentersResult> {
   let existingPresenters: ExistingPresenter[] = [];
 
@@ -56,7 +59,10 @@ export async function resolveCopresenters(
       };
     }
 
-    existingPresenters = data ?? [];
+    existingPresenters = (data ?? []).map((p) => ({
+      ...p,
+      inviteUrl: `/copresenter-invite/${generateInviteToken(presentationId, p.id)}`
+    }));
   }
 
   const foundEmails = existingPresenters.map(({ email }) => email);
@@ -65,7 +71,7 @@ export async function resolveCopresenters(
   );
 
   type CreationResult =
-    | { success: true; id: string; email: string; otpLink: string }
+    | { success: true; id: string; email: string; otpCode: string; validateLoginUrl: string }
     | { success: false; error: AuthError };
 
   const creationResults = await Promise.all(
@@ -80,10 +86,12 @@ export async function resolveCopresenters(
         });
       if (creationError)
         return { success: false as const, error: creationError };
+      const inviteUrl = `/copresenter-invite/${generateInviteToken(presentationId, newUser.user.id)}`;
       return {
         success: true as const,
         id: newUser.user.id,
-        otpLink: newUser.properties.email_otp,
+        otpCode: newUser.properties.email_otp,
+        validateLoginUrl: buildValidateLoginUrl(email, inviteUrl),
         email
       };
     })

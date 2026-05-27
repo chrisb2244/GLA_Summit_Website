@@ -7,6 +7,7 @@ import { getMyPresentations } from '@/lib/databaseFunctions';
 import NextLink from 'next/link';
 import { formatTextToPs } from '@/lib/utils';
 import { DraftPresentationCard } from './DraftPresentationCard';
+import { CopresenterStatusList } from './CopresenterStatusList';
 
 export const PastPresentationSubmissions = async () => {
   const supabase = await createServerClient();
@@ -171,6 +172,7 @@ const renderPresentationSubmission = (
         </span>
       </div>
       <div className='[&>p]:my-1'>{formatTextToPs(p.abstract)}</div>
+      <CopresenterStatusList presentation={p} />
     </div>
   );
 };

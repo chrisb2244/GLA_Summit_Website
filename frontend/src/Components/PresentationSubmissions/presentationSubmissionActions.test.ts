@@ -31,6 +31,8 @@ vi.mock('@/lib/sendMail', () => ({
 vi.mock('@/EmailTemplates/FormSubmissionEmail', () => ({
   FormSubmissionEmailFn: vi.fn(() => ({ html: '', text: '' })),
   NewCopresenterEmailFn: vi.fn(() => ({ html: '', text: '' })),
+  CopresenterInviteEmailFn: vi.fn(() => ({ html: '', text: '' })),
+  CopresenterResponseNotificationEmailFn: vi.fn(() => ({ html: '', text: '' })),
   RemovedCopresenterEmailFn: vi.fn(() => ({ html: '', text: '' }))
 }));
 

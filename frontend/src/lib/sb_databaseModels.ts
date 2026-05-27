@@ -268,16 +268,22 @@ export type Database = {
       }
       presentation_presenters: {
         Row: {
+          declined_count: number
           presentation_id: string
           presenter_id: string
+          status: string
         }
         Insert: {
+          declined_count?: number
           presentation_id: string
           presenter_id: string
+          status?: string
         }
         Update: {
+          declined_count?: number
           presentation_id?: string
           presenter_id?: string
+          status?: string
         }
         Relationships: [
           {
@@ -573,6 +579,8 @@ export type Database = {
           abstract: string
           all_firstnames: string[]
           all_lastnames: string[]
+          all_presenter_emails: string[]
+          all_presenter_statuses: string[]
           all_presenters_ids: string[]
           is_submitted: boolean
           learning_points: string
