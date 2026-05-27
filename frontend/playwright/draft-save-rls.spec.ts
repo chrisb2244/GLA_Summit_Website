@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { PresentationSubmissionPage } from './models/PresentationSubmissionPage';
-import { createSupabaseAdmin, loginOnPage } from './utils';
+import { createSupabaseAdmin } from './utils';
 import { submissionsForYear } from '@/app/configConstants';
 import path from 'path';
 

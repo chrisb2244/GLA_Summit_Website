@@ -108,7 +108,7 @@ describe('respondToInvite', () => {
 
   it('accepts a pending invite and returns success', async () => {
     mockAuth(PRESENTER_ID);
-    const { fromMock } = makeAdminMock('pending', 0);
+    makeAdminMock('pending', 0);
     const result = await respondToInvite(makeToken(), 'accept');
     expect(result.success).toBe(true);
     expect((result as { success: true; action: string }).action).toBe('accept');

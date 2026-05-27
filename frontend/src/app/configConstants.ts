@@ -11,6 +11,8 @@ export const CAN_SUBMIT_DRAFT: boolean = true;
 // off (the verify path then fails closed). To enable: set a strong COPRESENTER_INVITE_KEY
 // (openssl rand -hex 32), then flip this to true.
 export const COPRESENTER_INVITE_WORKFLOW: boolean = false;
+// Set to true once banner images for the current year are ready to publish.
+export const MEDIA_BANNERS_AVAILABLE: boolean = false;
 export const currentDisplayYear: SummitYear = '2025';
 export const submissionsForYear: SummitYear = '2026';
 export const ticketYear: SummitYear = '2026';

@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
-import { submitInviteResponse, type RespondToInviteResult } from './actions';
+import { submitInviteResponse } from './actions';
 
 type Props = {
   token: string;

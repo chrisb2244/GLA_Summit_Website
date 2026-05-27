@@ -49,7 +49,6 @@ vi.mock('./savePresentation', () => ({
   savePresentation: vi.fn()
 }));
 
-import { PRESENTATION_SAVE_CLIENT_ERROR } from '@/actions/presentationActionTypes';
 import { submitPresentationAction } from './presentationSubmissionActions';
 import { savePresentation } from './savePresentation';
 
