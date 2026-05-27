@@ -323,24 +323,24 @@ INSERT INTO "public"."organizers" ("id") VALUES
 -- Data for Name: presentation_presenters; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO "public"."presentation_presenters" ("presentation_id", "presenter_id") VALUES
-	('01bf337a-de97-491a-bd0e-448f83e909ba', 'f9132cdb-daf3-4729-a2f4-f2f49bd190cf'),
-	('19bee03e-11bc-4685-97ec-b5839a4147ae', '0aab4c3b-1415-4871-943a-5c377c9158e9'),
-	('3c94aaa4-336d-428f-a71f-baabf12d8a1b', '2b298be5-ae99-492e-9edd-1349f1f783c4'),
-	('3c94aaa4-336d-428f-a71f-baabf12d8a1b', '06ab35dd-6fcb-49a6-a85f-0b0bf9cbcc62'),
-	('53fc93a2-3262-4e17-b9da-b35c03d34d4f', '215a93cc-4901-4338-b8c2-ccfc662f21c1'),
-	('557a400b-6e2d-477b-be96-abe40f72a4e9', '35f8287d-8b9e-47f1-bc9e-afdacad6f32a'),
-	('56f56493-1ea9-49ef-b819-016cdf2f660f', 'cd64f560-306b-4de0-80a3-469eaac6b61e'),
-	('7d0d2aad-1d1e-4608-866e-a4dd0bf62588', '4671cf60-ae64-46c0-b3a5-fc934cf1bd8a'),
-	('7d0d2aad-1d1e-4608-866e-a4dd0bf62588', 'ef21a78e-9e42-47ba-9e22-1707c3ad1e43'),
-	('80786956-4ecc-455a-91ca-3b6faeb99eb9', '22d95e65-8f2d-4735-87e8-005afc8c3323'),
-	('a25fc975-9268-4264-85a9-4d6d4735ad27', '35f03917-dd1c-4a4d-88c4-1cd3b8996d27'),
-	('a25fc975-9268-4264-85a9-4d6d4735ad27', '6b4e3fe8-74d2-4ee4-aef9-58c1a05fd2a7'),
-	('a25fc975-9268-4264-85a9-4d6d4735ad27', '38e0c6d3-8996-4073-887b-6fb7e73979b3'),
-	('c942eeb5-3288-4408-b677-1cf9b8bfd50e', '0eae4c37-4af5-4b92-ae90-615facddad49'),
-	('f9967c12-09cb-4de7-a3db-67742d969d22', '28786347-fdc5-4bb3-bbcf-166347523f78'),
-	('f9967c12-09cb-4de7-a3db-67742d969d22', '2b792f1d-5698-4d09-b507-0305831d9c18'),
-	('faf2e77a-3229-4103-91d5-e48cf151fc8c', '3a1dce05-2678-497f-bd30-584bb3a4c6c0');
+INSERT INTO "public"."presentation_presenters" ("presentation_id", "presenter_id", "status") VALUES
+	('01bf337a-de97-491a-bd0e-448f83e909ba', 'f9132cdb-daf3-4729-a2f4-f2f49bd190cf', 'accepted'),
+	('19bee03e-11bc-4685-97ec-b5839a4147ae', '0aab4c3b-1415-4871-943a-5c377c9158e9', 'accepted'),
+	('3c94aaa4-336d-428f-a71f-baabf12d8a1b', '2b298be5-ae99-492e-9edd-1349f1f783c4', 'accepted'),
+	('3c94aaa4-336d-428f-a71f-baabf12d8a1b', '06ab35dd-6fcb-49a6-a85f-0b0bf9cbcc62', 'accepted'),
+	('53fc93a2-3262-4e17-b9da-b35c03d34d4f', '215a93cc-4901-4338-b8c2-ccfc662f21c1', 'accepted'),
+	('557a400b-6e2d-477b-be96-abe40f72a4e9', '35f8287d-8b9e-47f1-bc9e-afdacad6f32a', 'accepted'),
+	('56f56493-1ea9-49ef-b819-016cdf2f660f', 'cd64f560-306b-4de0-80a3-469eaac6b61e', 'accepted'),
+	('7d0d2aad-1d1e-4608-866e-a4dd0bf62588', '4671cf60-ae64-46c0-b3a5-fc934cf1bd8a', 'accepted'),
+	('7d0d2aad-1d1e-4608-866e-a4dd0bf62588', 'ef21a78e-9e42-47ba-9e22-1707c3ad1e43', 'accepted'),
+	('80786956-4ecc-455a-91ca-3b6faeb99eb9', '22d95e65-8f2d-4735-87e8-005afc8c3323', 'accepted'),
+	('a25fc975-9268-4264-85a9-4d6d4735ad27', '35f03917-dd1c-4a4d-88c4-1cd3b8996d27', 'accepted'),
+	('a25fc975-9268-4264-85a9-4d6d4735ad27', '6b4e3fe8-74d2-4ee4-aef9-58c1a05fd2a7', 'accepted'),
+	('a25fc975-9268-4264-85a9-4d6d4735ad27', '38e0c6d3-8996-4073-887b-6fb7e73979b3', 'accepted'),
+	('c942eeb5-3288-4408-b677-1cf9b8bfd50e', '0eae4c37-4af5-4b92-ae90-615facddad49', 'accepted'),
+	('f9967c12-09cb-4de7-a3db-67742d969d22', '28786347-fdc5-4bb3-bbcf-166347523f78', 'accepted'),
+	('f9967c12-09cb-4de7-a3db-67742d969d22', '2b792f1d-5698-4d09-b507-0305831d9c18', 'accepted'),
+	('faf2e77a-3229-4103-91d5-e48cf151fc8c', '3a1dce05-2678-497f-bd30-584bb3a4c6c0', 'accepted');
 
 
 --

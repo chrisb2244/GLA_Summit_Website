@@ -33,7 +33,7 @@ export const getAcceptedPresenterIds = async (year?: SummitYear) => {
   const query = supabase
     .from('accepted_presentations')
     .select(
-      'presentation_submissions(presentation_presenters(presenter_id))'
+      'presentation_submissions(presentation_presenters(presenter_id, status))'
     );
   if (typeof year !== 'undefined') {
     query.eq('year', year);
@@ -50,9 +50,9 @@ export const getAcceptedPresenterIds = async (year?: SummitYear) => {
 
   const presenterIds = data.flatMap(({ presentation_submissions }) => {
     return (
-      presentation_submissions?.presentation_presenters.map(
-        (p) => p.presenter_id
-      ) ?? []
+      presentation_submissions?.presentation_presenters
+        .filter((p) => p.status === 'accepted')
+        .map((p) => p.presenter_id) ?? []
     );
   });
 

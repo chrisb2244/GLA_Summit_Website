@@ -4,7 +4,8 @@ import type { PresentationSubmissionFormState } from './PresentationSubmissionFo
 vi.mock('server-only', () => ({}));
 
 vi.mock('@/app/configConstants', () => ({
-  submissionsForYear: '2026'
+  submissionsForYear: '2026',
+  COPRESENTER_INVITE_WORKFLOW: false
 }));
 
 vi.mock('@/lib/supabaseClient', () => ({
@@ -31,6 +32,8 @@ vi.mock('@/lib/sendMail', () => ({
 vi.mock('@/EmailTemplates/FormSubmissionEmail', () => ({
   FormSubmissionEmailFn: vi.fn(() => ({ html: '', text: '' })),
   NewCopresenterEmailFn: vi.fn(() => ({ html: '', text: '' })),
+  CopresenterInviteEmailFn: vi.fn(() => ({ html: '', text: '' })),
+  CopresenterResponseNotificationEmailFn: vi.fn(() => ({ html: '', text: '' })),
   RemovedCopresenterEmailFn: vi.fn(() => ({ html: '', text: '' }))
 }));
 

@@ -40,7 +40,8 @@ export const LoginSchema = z.object({
     .string()
     .trim()
     .min(1, 'Required')
-    .email("This email doesn't match the expected pattern"),
+    .email("This email doesn't match the expected pattern")
+    .transform((s) => s.toLowerCase()),
   redirectTo: z.string().optional()
 });
 
@@ -51,7 +52,8 @@ export const RegistrationSchema = z.object({
     .string()
     .trim()
     .min(1, 'Required')
-    .email("This email doesn't match the expected pattern"),
+    .email("This email doesn't match the expected pattern")
+    .transform((s) => s.toLowerCase()),
   redirectTo: z.string().optional()
 });
 
