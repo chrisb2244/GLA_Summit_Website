@@ -11,6 +11,11 @@ vi.mock('@/lib/copresenterInviteToken', () => ({
   generateInviteToken: vi.fn((pid: string, uid: string) => `${pid}:${uid}`)
 }));
 
+// This suite exercises the workflow-enabled path (invite tokens minted).
+vi.mock('@/app/configConstants', () => ({
+  COPRESENTER_INVITE_WORKFLOW: true
+}));
+
 vi.mock('@/Components/SigninRegistration/formState', () => ({
   buildValidateLoginUrl: vi.fn(() => '/auth/validateLogin?email=test')
 }));

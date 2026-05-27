@@ -1,7 +1,8 @@
-import { redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import type { NextParams, satisfy } from '@/lib/NextTypes';
 import { verifyInviteToken } from '@/lib/copresenterInviteToken';
+import { COPRESENTER_INVITE_WORKFLOW } from '@/app/configConstants';
 import { createAdminClient } from '@/lib/supabaseClient';
 import { createServerClient } from '@/lib/supabaseServer';
 import { CopresenterResponseButtons } from './CopresenterResponseButtons';
@@ -9,6 +10,12 @@ import { CopresenterResponseButtons } from './CopresenterResponseButtons';
 type RouteParams = satisfy<NextParams, Promise<{ token: string }>>;
 
 const CopresenterInvitePage = ({ params }: { params: RouteParams }) => {
+  // Hard gate: the accept/decline workflow is disabled until the feature is enabled.
+  // Gating in this synchronous parent (before the Suspense boundary streams) makes the
+  // response carry a proper 404 status rather than a streamed 200.
+  if (!COPRESENTER_INVITE_WORKFLOW) {
+    notFound();
+  }
   return (
     <Suspense fallback={<div className='mx-auto max-w-lg py-12 px-4'>Loading...</div>}>
       <CopresenterInvitePageContent params={params} />

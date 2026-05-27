@@ -3,6 +3,11 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 vi.mock('server-only', () => ({}));
 vi.stubEnv('COPRESENTER_INVITE_KEY', 'test-secret-key-for-unit-tests');
 
+// This suite exercises the workflow-enabled path (the server-side gate is open).
+vi.mock('@/app/configConstants', () => ({
+  COPRESENTER_INVITE_WORKFLOW: true
+}));
+
 vi.mock('@/lib/supabaseClient', () => ({ createAdminClient: vi.fn() }));
 vi.mock('@/lib/supabaseServer', () => ({ createServerActionClient: vi.fn() }));
 vi.mock('@/lib/sendMail', () => ({ sendMailApi: vi.fn().mockResolvedValue({ status: 200 }) }));

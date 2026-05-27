@@ -2,6 +2,7 @@ import { createAdminClient } from '@/lib/supabaseClient';
 import { logToDb } from '@/lib/utils';
 import { buildValidateLoginUrl } from '@/Components/SigninRegistration/formState';
 import { generateInviteToken } from '@/lib/copresenterInviteToken';
+import { COPRESENTER_INVITE_WORKFLOW } from '@/app/configConstants';
 import { AuthError } from '@supabase/supabase-js';
 import { randomBytes } from 'crypto';
 import { COPRESENTER_LOOKUP_CLIENT_ERROR } from '../../actions/presentationActionTypes';
@@ -43,6 +44,14 @@ export async function resolveCopresenters(
   const normalizedEmails = otherPresenters.map((e) => e.toLowerCase());
   let existingPresenters: ExistingPresenter[] = [];
 
+  // Invite tokens are only minted when the accept/decline workflow is enabled.
+  // While off, co-presenters are implicitly accepted, so there is no invite link
+  // (and the token-signing key is intentionally undefined — minting would throw).
+  const buildInviteUrl = (presenterId: string): string | undefined =>
+    COPRESENTER_INVITE_WORKFLOW
+      ? `/copresenter-invite/${generateInviteToken(presentationId, presenterId)}`
+      : undefined;
+
   if (normalizedEmails.length > 0) {
     // Use ilike per email so the lookup is case-insensitive even if email_lookup
     // stores addresses with original casing.
@@ -71,7 +80,7 @@ export async function resolveCopresenters(
 
     existingPresenters = (data ?? []).map((p) => ({
       ...p,
-      inviteUrl: `/copresenter-invite/${generateInviteToken(presentationId, p.id)}`
+      inviteUrl: buildInviteUrl(p.id)
     }));
   }
 
@@ -82,7 +91,7 @@ export async function resolveCopresenters(
 
   type CreationResult =
     | { outcome: 'created'; id: string; email: string; otpCode: string; validateLoginUrl: string }
-    | { outcome: 'already_exists'; id: string; email: string; inviteUrl: string }
+    | { outcome: 'already_exists'; id: string; email: string; inviteUrl?: string }
     | { outcome: 'failed'; error: AuthError };
 
   const creationResults = await Promise.all(
@@ -110,7 +119,7 @@ export async function resolveCopresenters(
               outcome: 'already_exists' as const,
               id: existing.id,
               email: existing.email,
-              inviteUrl: `/copresenter-invite/${generateInviteToken(presentationId, existing.id)}`
+              inviteUrl: buildInviteUrl(existing.id)
             };
           }
         }
@@ -130,7 +139,7 @@ export async function resolveCopresenters(
         );
         return { outcome: 'failed' as const, error: creationError };
       }
-      const inviteUrl = `/copresenter-invite/${generateInviteToken(presentationId, newUser.user.id)}`;
+      const inviteUrl = buildInviteUrl(newUser.user.id);
       return {
         outcome: 'created' as const,
         id: newUser.user.id,

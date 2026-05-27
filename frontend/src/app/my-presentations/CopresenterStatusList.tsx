@@ -1,4 +1,5 @@
 import type { MyPresentationSubmissionType } from '@/lib/databaseModels';
+import { COPRESENTER_INVITE_WORKFLOW } from '@/app/configConstants';
 
 type Props = {
   presentation: MyPresentationSubmissionType;
@@ -66,7 +67,7 @@ export const CopresenterStatusList = ({ presentation }: Props) => {
               ) : (
                 <span className='text-gray-700'>{cp.email}</span>
               )}
-              {statusBadge(cp.status)}
+              {COPRESENTER_INVITE_WORKFLOW && statusBadge(cp.status)}
             </li>
           );
         })}

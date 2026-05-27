@@ -7,6 +7,7 @@ import { verifyInviteToken } from '@/lib/copresenterInviteToken';
 import { sendMailApi } from '@/lib/sendMail';
 import { CopresenterResponseNotificationEmailFn } from '@/EmailTemplates/FormSubmissionEmail';
 import { logToDb } from '@/lib/utils';
+import { COPRESENTER_INVITE_WORKFLOW } from '@/app/configConstants';
 
 export type RespondToInviteResult =
   | { success: true; action: 'accept' | 'decline' }
@@ -28,6 +29,12 @@ export const respondToInvite = async (
   token: string,
   action: 'accept' | 'decline'
 ): Promise<RespondToInviteResult> => {
+  // Hard gate: refuse all mutations while the accept/decline workflow is disabled.
+  // submitInviteResponse funnels through here, so this covers both server actions.
+  if (!COPRESENTER_INVITE_WORKFLOW) {
+    return { success: false, error: 'This feature is not currently available.' };
+  }
+
   const payload = verifyInviteToken(token);
   if (!payload) {
     return { success: false, error: 'This invitation link is invalid or has expired.' };

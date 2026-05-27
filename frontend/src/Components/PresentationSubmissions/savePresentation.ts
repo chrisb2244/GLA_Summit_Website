@@ -1,7 +1,10 @@
 'use server';
 
 import type { PresentationSubmissionFormData } from '@/Components/PresentationSubmissions/PresentationSubmissionFormSchema';
-import { submissionsForYear } from '@/app/configConstants';
+import {
+  submissionsForYear,
+  COPRESENTER_INVITE_WORKFLOW
+} from '@/app/configConstants';
 import { createAdminClient } from '@/lib/supabaseClient';
 import { createServerActionClient } from '@/lib/supabaseServer';
 import { logToDb } from '@/lib/utils';
@@ -321,13 +324,14 @@ const setPresentationPresenters = async (
     return row?.status === 'declined' && row.declined_count >= 2;
   });
 
-  // Insert new co-presenters with pending status
+  // Insert new co-presenters. With the invite workflow on, they start 'pending'
+  // and must accept; with it off, co-presenters are implicitly accepted.
   if (trulyNew.length > 0) {
     const { error } = await supabaseAdmin.from('presentation_presenters').insert(
       trulyNew.map((presenter_id) => ({
         presenter_id,
         presentation_id: presentationId,
-        status: 'pending'
+        status: COPRESENTER_INVITE_WORKFLOW ? 'pending' : 'accepted'
       }))
     );
     if (error) {

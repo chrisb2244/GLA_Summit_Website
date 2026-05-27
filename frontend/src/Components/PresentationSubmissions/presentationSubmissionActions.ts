@@ -33,7 +33,10 @@ import {
   savePresentation
 } from './savePresentation';
 import { createServerActionClient } from '@/lib/supabaseServer';
-import { submissionsForYear } from '@/app/configConstants';
+import {
+  submissionsForYear,
+  COPRESENTER_INVITE_WORKFLOW
+} from '@/app/configConstants';
 import z from 'zod/v4';
 
 /**
@@ -272,27 +275,53 @@ const handlePresentationSubmission = async (
     }
   }
 
-  // Invite existing-account co-presenters.
-  // On final submission, notify all of them. On draft save, only notify newly added / re-invited.
-  const existingCopresenterTargets = isFinal
-    ? existingPresenters
-    : [...copresenterTargets.newlyInvited, ...copresenterTargets.reinvited].filter((p) =>
-        existingPresenters.some((ep) => ep.id === p.id)
+  // Existing-account co-presenters.
+  if (COPRESENTER_INVITE_WORKFLOW) {
+    // Invite workflow: send accept/decline invitations.
+    // On final submission, notify all of them. On draft save, only notify newly added / re-invited.
+    const existingCopresenterTargets = isFinal
+      ? existingPresenters
+      : [...copresenterTargets.newlyInvited, ...copresenterTargets.reinvited].filter((p) =>
+          existingPresenters.some((ep) => ep.id === p.id)
+        );
+    for (const p of existingCopresenterTargets.filter(
+      (p): p is typeof p & { inviteUrl: string } => typeof p.inviteUrl === 'string'
+    )) {
+      emailTasks.push(
+        (async (): Promise<EmailResult> => {
+          const nameString = await getNameString(p.id, p.email, supabaseAdmin);
+          const r = await sendMailApi({
+            to: p.email,
+            subject: 'GLA Summit: Co-presenter invitation',
+            ...CopresenterInviteEmailFn(dataForEmails, nameString, p.inviteUrl)
+          });
+          return { ...r, recipientId: p.id, role: 'copresenter' };
+        })()
       );
-  for (const p of existingCopresenterTargets.filter(
-    (p): p is typeof p & { inviteUrl: string } => typeof p.inviteUrl === 'string'
-  )) {
-    emailTasks.push(
-      (async (): Promise<EmailResult> => {
-        const nameString = await getNameString(p.id, p.email, supabaseAdmin);
-        const r = await sendMailApi({
-          to: p.email,
-          subject: 'GLA Summit: Co-presenter invitation',
-          ...CopresenterInviteEmailFn(dataForEmails, nameString, p.inviteUrl)
-        });
-        return { ...r, recipientId: p.id, role: 'copresenter' };
-      })()
-    );
+    }
+  } else {
+    // Implicit acceptance: notify existing co-presenters that they were added (new
+    // presentation) or that the presentation was submitted (final submission).
+    // Intermediate draft edits send nothing.
+    const isNew = !presentationId;
+    if (isNew || isFinal) {
+      const subject = isNew
+        ? 'GLA Summit: You have been added as a co-presenter!'
+        : 'GLA Summit: Your presentation has been submitted!';
+      for (const { id, email } of existingPresenters) {
+        emailTasks.push(
+          (async (): Promise<EmailResult> => {
+            const nameString = await getNameString(id, email, supabaseAdmin);
+            const r = await sendMailApi({
+              to: email,
+              subject,
+              ...FormSubmissionEmailFn(dataForEmails, nameString)
+            });
+            return { ...r, recipientId: id, role: 'copresenter' };
+          })()
+        );
+      }
+    }
   }
 
   // Invite new-account co-presenters (always sent on first encounter)

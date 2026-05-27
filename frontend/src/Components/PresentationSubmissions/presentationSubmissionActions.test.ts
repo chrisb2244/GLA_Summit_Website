@@ -4,7 +4,8 @@ import type { PresentationSubmissionFormState } from './PresentationSubmissionFo
 vi.mock('server-only', () => ({}));
 
 vi.mock('@/app/configConstants', () => ({
-  submissionsForYear: '2026'
+  submissionsForYear: '2026',
+  COPRESENTER_INVITE_WORKFLOW: false
 }));
 
 vi.mock('@/lib/supabaseClient', () => ({

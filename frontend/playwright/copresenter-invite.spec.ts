@@ -1,9 +1,19 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
 import { createSupabaseAdmin, getLatestEmail } from './utils';
-import { submissionsForYear } from '@/app/configConstants';
+import { submissionsForYear, COPRESENTER_INVITE_WORKFLOW } from '@/app/configConstants';
 import { generateInviteToken } from '@/lib/copresenterInviteToken';
 import { CopresenterInvitePage } from './models/CopresenterInvitePage';
+
+// The accept/decline workflow ships inert behind COPRESENTER_INVITE_WORKFLOW.
+// While it is off, the route 404s and no invites are sent, so these end-to-end
+// expectations cannot hold. Re-enable by flipping the flag (and setting a key).
+test.beforeEach(() => {
+  test.skip(
+    !COPRESENTER_INVITE_WORKFLOW,
+    'Co-presenter accept/decline workflow is disabled (COPRESENTER_INVITE_WORKFLOW=false)'
+  );
+});
 
 // TEST_ATTENDEE_EMAIL acts as the submitter; TEST_PRESENTER_EMAIL acts as co-presenter.
 const submitterEmail = process.env.TEST_ATTENDEE_EMAIL as string;
