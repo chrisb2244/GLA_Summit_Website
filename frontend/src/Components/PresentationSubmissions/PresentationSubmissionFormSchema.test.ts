@@ -90,6 +90,34 @@ describe('PresentationSubmissionFormSchema', () => {
     expect(result.success).toBe(false);
   });
 
+  it('normalises co-presenter emails to lowercase', () => {
+    const input = {
+      ...baseValidInput,
+      'otherPresenters.0.email': 'Bob@Example.COM',
+      'otherPresenters.1.email': 'CAROL@EXAMPLE.COM'
+    };
+    const result = PresentationSubmissionFormSchema.safeParse(input);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.otherPresenters).toEqual([
+        'bob@example.com',
+        'carol@example.com'
+      ]);
+    }
+  });
+
+  it('normalises the submitter email to lowercase', () => {
+    const input = {
+      ...baseValidInput,
+      'submitter.email': 'Alice@Example.COM'
+    };
+    const result = PresentationSubmissionFormSchema.safeParse(input);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.submitter.email).toBe('alice@example.com');
+    }
+  });
+
   it('strips an unknown extra key', () => {
     const input = { ...baseValidInput, unexpectedField: 'not-an-email' };
     const result = PresentationSubmissionFormSchema.safeParse(input);

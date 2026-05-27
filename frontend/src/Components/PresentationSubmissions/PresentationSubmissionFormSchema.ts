@@ -26,7 +26,7 @@ export const PresentationFormParser = z
   .transform((input) => {
     const otherPresenters = Object.entries(input)
       .filter(([key]) => /otherPresenters\.[0-9]+\.email/.test(key))
-      .map(([_, value]) => value)
+      .map(([_, value]) => (typeof value === 'string' ? value.toLowerCase() : value))
       .filter((v) => typeof v === 'string' && v.length > 0) as string[];
 
     return {
@@ -35,7 +35,7 @@ export const PresentationFormParser = z
       submitter: {
         firstName: getString(input['submitter.firstName'], ''),
         lastName: getString(input['submitter.lastName'], ''),
-        email: getString(input['submitter.email'], '')
+        email: getString(input['submitter.email'], '').toLowerCase()
       },
       learningPoints: getString(input.learningPoints, ''),
       presentationType: getString(input.presentationType, 'full length'),
