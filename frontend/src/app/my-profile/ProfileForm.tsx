@@ -35,7 +35,7 @@ export const ProfileForm = (props: ProfileFormProps) => {
     if (state.success) {
       resetDirty();
     }
-  }, [state]);
+  }, [state, resetDirty]);
 
   const enableSubmit = isDirty && validationMessages.size === 0 && !pending;
 

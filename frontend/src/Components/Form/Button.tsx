@@ -28,7 +28,7 @@ export type ButtonProps = Omit<
   VariantStyleProps & {
     formAction?:
       | string
-      | ((formData: FormData) => void | Promise<any>);
+      | ((formData: FormData) => void | Promise<void>);
   };
 
 export const Button = forwardRef<
