@@ -16,16 +16,16 @@ import { test, expect } from '@playwright/test';
  */
 
 test.describe('OG image endpoint', () => {
-  test('GET /api/og returns a PNG image with status 200', async ({ request }) => {
-    const response = await request.get('/api/og');
+  test('GET /api/og/[year] returns a PNG image with status 200', async ({ request }) => {
+    const response = await request.get('/api/og/2026');
     expect(response.status()).toBe(200);
     const contentType = response.headers()['content-type'];
     expect(contentType).toContain('image/png');
   });
 
-  test('GET /api/og with version query param also returns 200', async ({ request }) => {
-    const response = await request.get('/api/og?v=2026');
-    expect(response.status()).toBe(200);
+  test('non-pre-rendered year returns 404', async ({ request }) => {
+    const response = await request.get('/api/og/1999');
+    expect(response.status()).toBe(404);
   });
 });
 
@@ -35,7 +35,7 @@ test.describe('Social sharing metadata on homepage', () => {
     const ogImage = await page
       .locator('meta[property="og:image"]')
       .getAttribute('content');
-    expect(ogImage).toMatch(/\/api\/og/);
+    expect(ogImage).toMatch(/\/api\/og\//);
   });
 
   test('og:image has correct 1200×630 dimensions declared', async ({ page }) => {
@@ -63,7 +63,7 @@ test.describe('Social sharing metadata on homepage', () => {
     const twitterImage = await page
       .locator('meta[name="twitter:image"]')
       .getAttribute('content');
-    expect(twitterImage).toMatch(/\/api\/og/);
+    expect(twitterImage).toMatch(/\/api\/og\//);
   });
 
   test('og:image URL resolves to an actual image', async ({ page, request }) => {

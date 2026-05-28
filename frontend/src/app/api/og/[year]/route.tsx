@@ -7,7 +7,16 @@ import type { NextRequest } from 'next/server';
 const IMG_WIDTH = 1200;
 const IMG_HEIGHT = 630;
 
-export async function GET(_request: NextRequest) {
+export function generateStaticParams() {
+  return [{ year: ticketYear }];
+}
+
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ year: string }> }
+) {
+  const { year } = await params;
+
   const robotoBoldData = await readFile(
     path.join(process.cwd(), 'public/assets/Roboto-Bold.ttf')
   ).then((buf) =>
@@ -38,7 +47,7 @@ export async function GET(_request: NextRequest) {
           <div tw='text-3xl mb-2'>
             A Global LabVIEW and Automated Test Conference
           </div>
-          <div tw='text-6xl font-black mb-4'>{`GLA Summit ${ticketYear}`}</div>
+          <div tw='text-6xl font-black mb-4'>{`GLA Summit ${year}`}</div>
           <div tw='text-2xl'>{`${dateString} · 12:00 UTC · 24 hours · Free`}</div>
           <div tw='text-xl mt-4' style={{ opacity: 0.8 }}>
             glasummit.org

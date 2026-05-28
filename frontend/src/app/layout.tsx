@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     siteName: siteTitle,
     images: [
       {
-        url: `/api/og?v=${ticketYear}`,
+        url: `/api/og/${ticketYear}`,
         width: 1200,
         height: 630,
         alt: siteTitle
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: siteTitle,
     description: 'A global online LabVIEW conference',
-    images: [`/api/og?v=${ticketYear}`]
+    images: [`/api/og/${ticketYear}`]
   }
 };
 
