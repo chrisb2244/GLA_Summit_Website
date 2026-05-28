@@ -11,7 +11,7 @@ const buildTitle = () =>
     .toString(16)
     .slice(2, 8)}`;
 
-test.describe('draft save regression', () => {
+test.describe('draft save regression', { tag: '@regression' }, () => {
   test.use({
     storageState: async ({}, use) =>
       use(path.resolve(__dirname, '.auth', 'attendee.json'))

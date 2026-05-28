@@ -1,12 +1,12 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Homepage tests', () => {
-  test('GLA homepage has title with GLA Summit', async ({ page }) => {
+  test('GLA homepage has title with GLA Summit', { tag: '@smoke' }, async ({ page }) => {
     await page.goto('/');
     await expect(page).toHaveTitle(/GLA Summit/);
   });
 
-  test('GLA homepage has link to ni.com', async ({ page }) => {
+  test('GLA homepage has link to ni.com', { tag: '@smoke' }, async ({ page }) => {
     await page.goto('/');
     const niText = page.locator('text=Sponsored by NI');
 

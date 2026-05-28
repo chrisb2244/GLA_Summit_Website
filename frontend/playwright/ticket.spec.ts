@@ -91,7 +91,7 @@ const createUserClient = (accessToken: string) =>
 test.describe('attendee ticket', () => {
   test.use({ storageState: attendeeStorageState });
 
-  test('renders expected ticket image', { tag: '@smoke' }, async ({ page }) => {
+  test('renders expected ticket image', { tag: '@regression' }, async ({ page }) => {
     const { img } = await openTicket(page);
     // First run creates the baseline; subsequent runs diff against it.
     await expect(img).toHaveScreenshot('attendee-ticket.png', {
@@ -112,7 +112,7 @@ test.describe('attendee ticket', () => {
 test.describe('presenter ticket', () => {
   test.use({ storageState: presenterStorageState });
 
-  test('renders expected ticket image', { tag: '@smoke' }, async ({ page }) => {
+  test('renders expected ticket image', { tag: '@regression' }, async ({ page }) => {
     const { img } = await openTicket(page);
     await expect(img).toHaveScreenshot('presenter-ticket.png', {
       maxDiffPixelRatio: 0.02

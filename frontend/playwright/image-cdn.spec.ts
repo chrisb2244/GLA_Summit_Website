@@ -67,8 +67,17 @@ test.describe('UserMenu avatar — logged-in user', () => {
   });
 });
 
-test.describe('Presenter list page — image routing', () => {
+test.describe('Presenter list page — image routing', { tag: '@smoke' }, () => {
   test('presenter avatar images are served via /_next/image', async ({ page }) => {
+    // Locally, NEXT_IMAGE_UNOPTIMIZED=true bypasses Next.js's image optimizer
+    // (required because Next.js refuses to fetch images from loopback IPs).
+    // In that mode <Image> emits bare URLs, so this production-only assertion
+    // doesn't apply. Vercel deploys never set this flag, so the check still runs there.
+    test.skip(
+      process.env.NEXT_IMAGE_UNOPTIMIZED === 'true',
+      'image optimizer disabled locally — /_next/image is not used'
+    );
+
     await page.goto('/presenters');
     await page.waitForLoadState('networkidle');
 

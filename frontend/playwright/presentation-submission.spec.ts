@@ -62,7 +62,7 @@ const buildTestTitle = (prefix: string) =>
 
     test(
       '/submit-presentation is accessible',
-      { tag: '@smoke' },
+      { tag: '@regression' },
       async ({ page }) => {
         // This page should be accessible to all logged-in users
         await page.goto('/submit-presentation');
