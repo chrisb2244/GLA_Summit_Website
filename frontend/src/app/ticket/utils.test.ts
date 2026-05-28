@@ -73,6 +73,14 @@ describe('checkToken', () => {
 // ── paramStringToData ─────────────────────────────────────────────────────────
 
 describe('paramStringToData', () => {
+  beforeEach(() => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('returns undefined for an empty string', () => {
     expect(paramStringToData('')).toBeUndefined();
   });
