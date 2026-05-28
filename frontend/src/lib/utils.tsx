@@ -10,6 +10,7 @@ const isDev = process.env.NODE_ENV !== 'production';
  * Log an event to the database. Server-side only (uses admin client).
  * Keep `message` free of PII — use `options.context` for structured metadata,
  * and `options.userId` to associate with a user.
+ * Use `options.retainDays` for logs containing PII or that have no long-term value.
  */
 export const logToDb = async (
   severity: 'info' | 'error' | 'severe',
@@ -18,6 +19,7 @@ export const logToDb = async (
   options?: {
     userId?: string;
     context?: Json;
+    retainDays?: number;
   }
 ) => {
   if (isDev) {
@@ -27,12 +29,17 @@ export const logToDb = async (
     );
   }
   const client = createAdminClient();
+  const expiresAt =
+    options?.retainDays != null
+      ? new Date(Date.now() + options.retainDays * 86_400_000).toISOString()
+      : null;
   const { error } = await client.from('log').insert({
     severity,
     message,
     source,
     user_id: options?.userId ?? null,
-    context: options?.context ?? null
+    context: options?.context ?? null,
+    expires_at: expiresAt
   });
   if (error) {
     console.error('logToDb failed:', error);

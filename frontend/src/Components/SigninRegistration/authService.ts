@@ -25,7 +25,10 @@ export const verifyLogin = async (data: {
   return verifyData.user !== null;
 };
 
-export const signIn = async (email: string, redirectTo?: string): Promise<boolean> => {
+export const signIn = async (
+  email: string,
+  redirectTo?: string
+): Promise<boolean> => {
   try {
     const response = await generateSupabaseLinks({
       type: 'magiclink',
@@ -35,7 +38,15 @@ export const signIn = async (email: string, redirectTo?: string): Promise<boolea
 
     const { properties, user } = response.data;
     if (properties == null) {
-      await logToDb('error', 'No OTP properties returned during sign-in', 'auth/signin');
+      await logToDb(
+        'error',
+        'No OTP properties returned during sign-in',
+        'auth/signin',
+        {
+          context: { email },
+          retainDays: 14
+        }
+      );
       return false;
     }
 
@@ -45,19 +56,27 @@ export const signIn = async (email: string, redirectTo?: string): Promise<boolea
       subject: 'Validation Code for GLA Summit Login',
       to: email,
       bodyPlain: plainText,
-      body: SignInEmailFn(`${firstName} ${lastName}`, properties.email_otp, email)
+      body: SignInEmailFn(
+        `${firstName} ${lastName}`,
+        properties.email_otp,
+        email
+      )
     });
 
     return mailResult.status === 200;
   } catch (err) {
     await logToDb('error', 'Failed to send sign-in link', 'auth/signin', {
-      context: { message: err instanceof Error ? err.message : String(err) }
+      context: { message: err instanceof Error ? err.message : String(err) },
+      retainDays: 90 // Possibly indicates an issue with email delivery, but unlikely to need forever.
     });
     return false;
   }
 };
 
-export const signUp = async (newUser: PersonProps, redirectTo?: string): Promise<boolean> => {
+export const signUp = async (
+  newUser: PersonProps,
+  redirectTo?: string
+): Promise<boolean> => {
   const password = randomBytes(32).toString('hex');
   const email = newUser.email;
 
@@ -83,7 +102,11 @@ export const signUp = async (newUser: PersonProps, redirectTo?: string): Promise
     to: email,
     subject: 'GLA Summit Website Signup',
     bodyPlain: otpEmailText(newUser.firstName, newUser.lastName, otp),
-    body: RegistrationEmailFn(`${newUser.firstName} ${newUser.lastName}`, otp, email)
+    body: RegistrationEmailFn(
+      `${newUser.firstName} ${newUser.lastName}`,
+      otp,
+      email
+    )
   });
 
   return mailResult.status === 200;
@@ -96,7 +119,9 @@ const otpEmailText = (firstName: string, lastName: string, otp: string) => {
   return [firstLine, mainLine, signature].join('\r\n');
 };
 
-const parseUserMetadata = (metadata: UserMetadata): { firstName: string; lastName: string } => {
+const parseUserMetadata = (
+  metadata: UserMetadata
+): { firstName: string; lastName: string } => {
   if (
     Object.hasOwn(metadata, 'firstName') &&
     typeof metadata.firstName === 'string' &&

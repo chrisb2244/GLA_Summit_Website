@@ -15,6 +15,7 @@ const makeEntry = (overrides: Partial<LogEntry> = {}): LogEntry => ({
   user_id: null,
   source: 'test/source',
   context: null,
+  expires_at: null,
   ...overrides
 });
 
