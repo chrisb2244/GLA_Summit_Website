@@ -27,6 +27,20 @@ export const metadata: Metadata = {
     url: 'https://www.glasummit.org',
     type: 'website',
     siteName: siteTitle,
+    images: [
+      {
+        url: `/api/og?v=${ticketYear}`,
+        width: 1200,
+        height: 630,
+        alt: siteTitle
+      }
+    ]
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: siteTitle,
+    description: 'A global online LabVIEW conference',
+    images: [`/api/og?v=${ticketYear}`]
   }
 };
 
