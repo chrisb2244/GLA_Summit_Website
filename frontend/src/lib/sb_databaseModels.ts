@@ -176,6 +176,7 @@ export type Database = {
         Row: {
           context: Json | null
           created_at: string
+          expires_at: string | null
           id: number
           message: string
           severity: Database["public"]["Enums"]["log_type"]
@@ -185,6 +186,7 @@ export type Database = {
         Insert: {
           context?: Json | null
           created_at?: string
+          expires_at?: string | null
           id?: number
           message: string
           severity: Database["public"]["Enums"]["log_type"]
@@ -194,6 +196,7 @@ export type Database = {
         Update: {
           context?: Json | null
           created_at?: string
+          expires_at?: string | null
           id?: number
           message?: string
           severity?: Database["public"]["Enums"]["log_type"]

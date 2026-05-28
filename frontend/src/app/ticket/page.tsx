@@ -138,7 +138,8 @@ const TicketGeneratorPageContent = async () => {
   after(() =>
     logToDb('info', 'Ticket issued', 'ticket/issue', {
       userId,
-      context: { ticketNumber: ticket.ticket_number }
+      context: { ticketNumber: ticket.ticket_number },
+      retainDays: 180
     })
   );
 
