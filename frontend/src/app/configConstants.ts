@@ -32,5 +32,16 @@ export const submissionsForYear: SummitYear = '2026';
 export const ticketYear: SummitYear = '2026';
 
 export const startDate = new Date(Date.UTC(2026, 7, 31, 12, 0, 0));
+
+// Historic summit start dates (all events run 24 hours from 12:00 UTC).
+// Sources: https://labviewwiki.org/wiki/GLA_Summit and year subpages.
+export const summitStartDates: Record<SummitYear, Date> = {
+  '2020': new Date(Date.UTC(2020, 10, 9, 12, 0, 0)),  // 9 Nov 2020
+  '2021': new Date(Date.UTC(2021, 10, 15, 12, 0, 0)), // 15 Nov 2021
+  '2022': new Date(Date.UTC(2022, 10, 14, 12, 0, 0)), // 14 Nov 2022
+  '2024': new Date(Date.UTC(2024, 2, 25, 12, 0, 0)),  // 25 Mar 2024
+  '2025': new Date(Date.UTC(2025, 5, 23, 12, 0, 0)),  // 23 Jun 2025
+  '2026': new Date(Date.UTC(2026, 7, 31, 12, 0, 0)),  // 31 Aug 2026
+};
 export const eventUrl =
   'https://app.events.ringcentral.com/events/gla-summit-2026/';

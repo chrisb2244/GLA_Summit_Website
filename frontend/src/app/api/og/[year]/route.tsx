@@ -1,14 +1,17 @@
 import { ImageResponse } from 'next/og';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { ticketYear, startDate } from '@/app/configConstants';
+import { summitStartDates } from '@/app/configConstants';
+import { isSummitYear } from '@/lib/databaseModels';
 import type { NextRequest } from 'next/server';
 
 const IMG_WIDTH = 1200;
 const IMG_HEIGHT = 630;
 
 export function generateStaticParams() {
-  return [{ year: ticketYear }];
+  return (Object.keys(summitStartDates) as Array<keyof typeof summitStartDates>).map(
+    (year) => ({ year })
+  );
 }
 
 export async function GET(
@@ -16,6 +19,12 @@ export async function GET(
   { params }: { params: Promise<{ year: string }> }
 ) {
   const { year } = await params;
+
+  if (!isSummitYear(year)) {
+    return new Response(null, { status: 404 });
+  }
+
+  const eventDate = summitStartDates[year];
 
   const robotoBoldData = await readFile(
     path.join(process.cwd(), 'public/assets/Roboto-Bold.ttf')
@@ -27,7 +36,7 @@ export async function GET(
     path.join(process.cwd(), 'public/assets/GLA-logo.svg')
   ).then((buf) => `data:image/svg+xml;base64,${buf.toString('base64')}`);
 
-  const dateString = startDate.toLocaleDateString('en-US', {
+  const dateString = eventDate.toLocaleDateString('en-US', {
     month: 'long',
     day: 'numeric',
     year: 'numeric',
