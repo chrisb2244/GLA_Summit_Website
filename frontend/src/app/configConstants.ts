@@ -13,8 +13,22 @@ export const CAN_SUBMIT_DRAFT: boolean = true;
 export const COPRESENTER_INVITE_WORKFLOW: boolean = false;
 // Set to true once banner images for the current year are ready to publish.
 export const MEDIA_BANNERS_AVAILABLE: boolean = false;
+
+// Controls for which year the presentation-list defaults,
+// and for which year the agenda is displayed.
+// This should be updated once presentations are accepted for a given year.
 export const currentDisplayYear: SummitYear = '2025';
+
+// The year for which presentation submissions are currently open.
+// Also controls the subjects in registration and login emails.
+// Update before opening presentation submissions.
 export const submissionsForYear: SummitYear = '2026';
+
+// The year for which tickets are currently being issued.
+// Also governs the homepage metadata,
+// the OG image generation for the homepage,
+// and the ICS file subject for the overall event.
+// Update when effectively transitioning the site to reflect primarily a new event year.
 export const ticketYear: SummitYear = '2026';
 
 export const startDate = new Date(Date.UTC(2026, 7, 31, 12, 0, 0));
