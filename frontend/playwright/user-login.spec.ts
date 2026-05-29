@@ -19,9 +19,6 @@ test.describe('User Authentication Tests', () => {
       email: `${emailWithoutDomain}@test.email`
     };
   };
-  const newUser = generateUser('New', 'User');
-  const existingUser = generateUser('Existing', 'User');
-
   const supabaseAdmin = createSupabaseAdmin();
 
   test.afterAll(async () => {
@@ -41,6 +38,11 @@ test.describe('User Authentication Tests', () => {
   });
 
   test('User can register', async ({ page }) => {
+    // Generated per-test (not at module scope) so --repeat-each runs each get a
+    // fresh email; reusing one address re-registers an existing account and the
+    // resent code no longer matches, breaking verification on the second repeat.
+    const newUser = generateUser('New', 'User');
+
     await page.goto('/');
     const loginablePage = new LoginablePage(page);
     await loginablePage.openLoginOrRegisterForm('register');
@@ -65,6 +67,10 @@ test.describe('User Authentication Tests', () => {
   });
 
   test('Existing user can login', async ({ page }) => {
+    // Generated per-test (not at module scope) so each --repeat-each run gets a
+    // distinct account and they don't race over a shared inbox / OTP.
+    const existingUser = generateUser('Existing', 'User');
+
     // Setup a user for login tests
     // console.log('Creating user with email: ', precreatedUser.email);
     emailsToDelete.push(existingUser.email);
