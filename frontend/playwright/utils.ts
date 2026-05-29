@@ -10,7 +10,8 @@ const supabaseKey = process.env.SECRET_SUPABASE_SERVICE_KEY as string;
 export const createSupabaseAdmin = () =>
   createClient<Database>(supabaseUrl, supabaseKey);
 
-const localMailApiUrl = process.env.TEST_MAIL_API_URL ?? 'http://localhost:54324';
+const localMailApiUrl =
+  process.env.TEST_MAIL_API_URL ?? 'http://localhost:54324';
 
 type MailpitMessageSummary = {
   ID: string;
@@ -33,7 +34,8 @@ type MailpitMessageDetail = {
   To: Array<{ Name: string; Address: string }>;
 };
 
-const getMailboxFromEmail = (email: string) => email.split('@')[0].toLowerCase();
+const getMailboxFromEmail = (email: string) =>
+  email.split('@')[0].toLowerCase();
 
 const matchesMailbox = (address: string, mailbox: string) => {
   const localPart = getMailboxFromEmail(address);
@@ -49,13 +51,15 @@ const toMessageModel = (mailpitMessage: MailpitMessageDetail): MessageModel =>
       html: mailpitMessage.HTML
     },
     subject: mailpitMessage.Subject,
-    from: mailpitMessage.From.Address,
+    from: mailpitMessage.From.Address
   }) as MessageModel;
 
 const listMailpitMessages = async (): Promise<MailpitMessagesResponse> => {
   const response = await fetch(`${localMailApiUrl}/api/v1/messages`);
   if (!response.ok) {
-    throw new Error(`[mailpit] request error: ${response.status} ${await response.text()}`);
+    throw new Error(
+      `[mailpit] request error: ${response.status} ${await response.text()}`
+    );
   }
   return response.json() as Promise<MailpitMessagesResponse>;
 };
@@ -63,7 +67,9 @@ const listMailpitMessages = async (): Promise<MailpitMessagesResponse> => {
 const getMailpitMessage = async (id: string): Promise<MailpitMessageDetail> => {
   const response = await fetch(`${localMailApiUrl}/api/v1/message/${id}`);
   if (!response.ok) {
-    throw new Error(`[mailpit] request error: ${response.status} ${await response.text()}`);
+    throw new Error(
+      `[mailpit] request error: ${response.status} ${await response.text()}`
+    );
   }
   return response.json() as Promise<MailpitMessageDetail>;
 };
@@ -73,7 +79,9 @@ const getLatestMailpitMessageForMailbox = async (
 ): Promise<MessageModel> => {
   const messagesResponse = await listMailpitMessages();
   const matched = (messagesResponse.messages ?? []).find((message) =>
-    (message.To ?? []).some((recipient) => matchesMailbox(recipient.Address, mailbox))
+    (message.To ?? []).some((recipient) =>
+      matchesMailbox(recipient.Address, mailbox)
+    )
   );
 
   if (!matched) {
@@ -87,7 +95,9 @@ const getLatestMailpitMessageForMailbox = async (
 const countMailpitEmailsInInbox = async (mailbox: string): Promise<number> => {
   const messagesResponse = await listMailpitMessages();
   return (messagesResponse.messages ?? []).filter((message) =>
-    (message.To ?? []).some((recipient) => matchesMailbox(recipient.Address, mailbox))
+    (message.To ?? []).some((recipient) =>
+      matchesMailbox(recipient.Address, mailbox)
+    )
   ).length;
 };
 
@@ -103,18 +113,22 @@ const getLatestInbucketMessageForMailbox = async (
   return client.message(mailbox, inbox[lastId].id);
 };
 
-const getLatestMessageForMailbox = async (mailbox: string): Promise<MessageModel> => {
+const getLatestMessageForMailbox = async (
+  mailbox: string
+): Promise<MessageModel> => {
   try {
     return await getLatestMailpitMessageForMailbox(mailbox);
   } catch (mailpitError) {
     // Backward compatibility for environments still running Inbucket APIs.
-    return getLatestInbucketMessageForMailbox(mailbox).catch((inbucketError) => {
-      throw new Error(
-        `Failed to fetch mailbox ${mailbox} from Mailpit and Inbucket. Mailpit error: ${String(
-          mailpitError
-        )}. Inbucket error: ${String(inbucketError)}`
-      );
-    });
+    return getLatestInbucketMessageForMailbox(mailbox).catch(
+      (inbucketError) => {
+        throw new Error(
+          `Failed to fetch mailbox ${mailbox} from Mailpit and Inbucket. Mailpit error: ${String(
+            mailpitError
+          )}. Inbucket error: ${String(inbucketError)}`
+        );
+      }
+    );
   }
 };
 
@@ -190,9 +204,12 @@ export const getInbucketVerificationCode = async (
   const text = mail.body?.text ?? '';
   const html = mail.body?.html ?? '';
 
-  const otpMatcher = /(?:one[-\s]?time[-\s]?passcode\s*(?:\(otp\))?\s*token\s*is:?|\botp\b[^\d]*)([0-9]{6})/i;
-  const textOtp = text.match(otpMatcher)?.[1] ?? text.match(/\b([0-9]{6})\b/)?.[1];
-  const htmlOtp = html.match(otpMatcher)?.[1] ?? html.match(/\b([0-9]{6})\b/)?.[1];
+  const otpMatcher =
+    /(?:one[-\s]?time[-\s]?passcode\s*(?:\(otp\))?\s*token\s*is:?|\botp\b[^\d]*)([0-9]{6})/i;
+  const textOtp =
+    text.match(otpMatcher)?.[1] ?? text.match(/\b([0-9]{6})\b/)?.[1];
+  const htmlOtp =
+    html.match(otpMatcher)?.[1] ?? html.match(/\b([0-9]{6})\b/)?.[1];
 
   if (typeof textOtp === 'undefined') {
     return Promise.reject('No verification code found');
@@ -289,14 +306,17 @@ export const seedSharedPresentation = async (
   const submitter = users?.find((u) => u.email === submitterEmail);
   const copresenter = users?.find((u) => u.email === copresenterEmail);
   if (!submitter || !copresenter) {
-    throw new Error('Could not find submitter/copresenter test users in email_lookup');
+    throw new Error(
+      'Could not find submitter/copresenter test users in email_lookup'
+    );
   }
 
   const { data: presentation, error: presentationError } = await admin
     .from('presentation_submissions')
     .insert({
       title,
-      abstract: 'Shared presentation abstract used for copresenter visibility tests.',
+      abstract:
+        'Shared presentation abstract used for copresenter visibility tests.',
       learning_points:
         'Shared learning points used for copresenter visibility and status tests.',
       submitter_id: submitter.id,
@@ -309,7 +329,9 @@ export const seedSharedPresentation = async (
 
   if (presentationError || !presentation) {
     throw new Error(
-      `Failed to create shared presentation: ${presentationError?.message ?? 'unknown error'}`
+      `Failed to create shared presentation: ${
+        presentationError?.message ?? 'unknown error'
+      }`
     );
   }
 
@@ -323,7 +345,10 @@ export const seedSharedPresentation = async (
     ]);
 
   if (presenterLinkError) {
-    await admin.from('presentation_submissions').delete().eq('id', presentationId);
+    await admin
+      .from('presentation_submissions')
+      .delete()
+      .eq('id', presentationId);
     throw new Error(
       `Failed to link shared presentation presenters: ${presenterLinkError.message}`
     );
@@ -334,7 +359,10 @@ export const seedSharedPresentation = async (
       .from('accepted_presentations')
       .insert({ id: presentationId, year });
     if (acceptedInsertError) {
-      await admin.from('presentation_submissions').delete().eq('id', presentationId);
+      await admin
+        .from('presentation_submissions')
+        .delete()
+        .eq('id', presentationId);
       throw new Error(
         `Failed to set accepted status for shared presentation: ${acceptedInsertError.message}`
       );
@@ -347,9 +375,18 @@ export const seedSharedPresentation = async (
     submitterId: submitter.id,
     copresenterId: copresenter.id,
     cleanup: async () => {
-      await admin.from('accepted_presentations').delete().eq('id', presentationId);
-      await admin.from('rejected_presentations').delete().eq('id', presentationId);
-      await admin.from('presentation_submissions').delete().eq('id', presentationId);
+      await admin
+        .from('accepted_presentations')
+        .delete()
+        .eq('id', presentationId);
+      await admin
+        .from('rejected_presentations')
+        .delete()
+        .eq('id', presentationId);
+      await admin
+        .from('presentation_submissions')
+        .delete()
+        .eq('id', presentationId);
     }
   };
 };
