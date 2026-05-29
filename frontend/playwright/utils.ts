@@ -207,9 +207,11 @@ export const loginOnPage = async (
   await userButton.waitFor({ state: 'visible', timeout: 2000 });
 
   // For redirect-sensitive tests, wait until the expected destination route settles.
+  // domcontentloaded (not 'load') avoids blocking on streaming Suspense boundaries.
   if (options?.expectedPath !== undefined) {
     await page.waitForURL(options.expectedPath, {
-      timeout: options.redirectTimeoutMs ?? 15000
+      timeout: options.redirectTimeoutMs ?? 15000,
+      waitUntil: 'domcontentloaded'
     });
   }
 };
