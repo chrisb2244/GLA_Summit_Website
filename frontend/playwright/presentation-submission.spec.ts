@@ -118,9 +118,12 @@ const buildTestTitle = (prefix: string) =>
       await expect(formPage.titleInput).toHaveValue(testTitle);
       // expect(await formPage.isFinalInput.isChecked()).toEqual(true);
 
-      // Fixed anchor captured before submit (the action that sends the email),
-      // so the toPass loop below cannot slide past an already-delivered email.
-      const emailSentAfter = Date.now();
+      // Fixed lower bound captured before submit (the action that sends the
+      // email), so the toPass loop below cannot slide past an already-delivered
+      // email. The 5s grace absorbs Mailpit truncating its stored Date to whole
+      // seconds (and any host/container clock skew); the unique-title match below
+      // means a wider window can never produce a false positive.
+      const emailSentAfter = Date.now() - 5000;
       await formPage.submitForm();
 
       await formPage.waitForSubmittedSuccess(testTitle);
@@ -193,9 +196,10 @@ const buildTestTitle = (prefix: string) =>
         speakerAgreement: true
       });
 
-      // Fixed anchor captured before submit (the action that sends the email),
-      // so the toPass loop below cannot slide past an already-delivered email.
-      const emailSentAfter = Date.now();
+      // Fixed lower bound captured before submit; 5s grace covers Mailpit's
+      // whole-second Date truncation and clock skew. See the note in "Form fill
+      // testing" — the unique-title match keeps the wide window false-positive-free.
+      const emailSentAfter = Date.now() - 5000;
       await formPage.submitForm();
       await formPage.waitForSubmittedSuccess(testTitle);
 
