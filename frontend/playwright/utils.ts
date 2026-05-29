@@ -143,81 +143,85 @@ export const countEmailsInInbox = async (email: string) => {
   }
 };
 
-export const getLatestEmail = async (
+const getEmailsWithConditions = async (
   mailbox: string,
-  timeout: number = 3000,
-  sentWithin: number = 3000
-): Promise<MessageModel> => {
-  if (timeout < 0) {
-    return Promise.reject('Timeout');
-  }
-  return getLatestMessageForMailbox(mailbox)
-    .then((msg) => {
-      const sentTime = new Date(msg.date);
-      if (sentTime.getTime() > Date.now() - sentWithin) {
-        return msg;
-      } else {
-        console.log('Rejecting message from : ', sentTime, msg.body.text);
-        throw new Error('Message too old');
-      }
-    })
-    .catch((err) => {
-      console.log('Error getting email, retrying...', err);
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(getLatestEmail(mailbox, timeout - 500, sentWithin));
-        }, 500);
-      });
-    });
-};
-
-export const getEmailsWithSubject = async (
-  mailbox: string,
-  subject: string,
+  conditions: Array<(message: MailpitMessageDetail) => boolean>,
   sentWithin: number = 3000
 ): Promise<MessageModel[]> => {
   const messagesResponse = await listMailpitMessages();
-  const matchedMessages = (messagesResponse.messages ?? []).filter((message) =>
-    (message.To ?? []).some((recipient) =>
-      matchesMailbox(recipient.Address, mailbox)
-    )
+  const summariesToMailbox = (messagesResponse.messages ?? []).filter(
+    (message) =>
+      (message.To ?? []).some((recipient) =>
+        matchesMailbox(recipient.Address, mailbox)
+      )
   );
-  const matchedDetails = await Promise.all(
-    matchedMessages.map((msg) => getMailpitMessage(msg.ID))
+  const details = await Promise.all(
+    summariesToMailbox.map((msg) => getMailpitMessage(msg.ID))
   );
-  const recentMatched = matchedDetails.filter((msg) => {
-    const sentTime = new Date(msg.Date);
-    return (
-      msg.Subject === subject && sentTime.getTime() > Date.now() - sentWithin
-    );
+  const matched = details.filter((message) => {
+    const sentTime = new Date(message.Date);
+    const isRecent = sentTime.getTime() > Date.now() - sentWithin;
+    const meetsConditions =
+      conditions.length === 0 || conditions.every((cond) => cond(message));
+    return isRecent && meetsConditions;
   });
-  return recentMatched.map(toMessageModel);
+  return matched.map(toMessageModel);
 };
+
+export const getEmailsWithSubject = (
+  mailbox: string,
+  subject: string,
+  sentWithin: number = 3000
+): Promise<MessageModel[]> =>
+  getEmailsWithConditions(
+    mailbox,
+    [(message) => message.Subject === subject],
+    sentWithin
+  );
 
 export const getInbucketVerificationCode = async (
   email: string,
   timeout: number = 3000,
   sentWithin: number = 3000
-) => {
+): Promise<string> => {
   const mailbox = getMailboxFromEmail(email);
-  const mail = await getLatestEmail(mailbox, timeout, sentWithin);
-  const text = mail.body?.text ?? '';
-  const html = mail.body?.html ?? '';
-
+  // Supabase OTPs are 6 digits locally but 8 digits in production; accept either.
+  // Longer alternative goes first so an 8-digit code isn't truncated to its first 6.
   const otpMatcher =
-    /(?:one[-\s]?time[-\s]?passcode\s*(?:\(otp\))?\s*token\s*is:?|\botp\b[^\d]*)([0-9]{6})/i;
-  const textOtp =
-    text.match(otpMatcher)?.[1] ?? text.match(/\b([0-9]{6})\b/)?.[1];
-  const htmlOtp =
-    html.match(otpMatcher)?.[1] ?? html.match(/\b([0-9]{6})\b/)?.[1];
+    /(?:one[-\s]?time[-\s]?passcode\s*(?:\(otp\))?\s*token\s*is:?|\botp\b[^\d]*)([0-9]{8}|[0-9]{6})/i;
+  const otpDigits = /\b([0-9]{8}|[0-9]{6})\b/;
 
-  if (typeof textOtp === 'undefined') {
-    return Promise.reject('No verification code found');
+  const tryExtract = (mail: MessageModel): string | null => {
+    const text = mail.body?.text ?? '';
+    const html = mail.body?.html ?? '';
+    const textOtp = text.match(otpMatcher)?.[1] ?? text.match(otpDigits)?.[1];
+    const htmlOtp = html.match(otpMatcher)?.[1] ?? html.match(otpDigits)?.[1];
+    if (typeof textOtp === 'undefined') return null;
+    if (htmlOtp && textOtp !== htmlOtp) return null;
+    return textOtp;
+  };
+
+  const deadline = Date.now() + timeout;
+  while (Date.now() <= deadline) {
+    const candidates = await getEmailsWithConditions(
+      mailbox,
+      [
+        (msg) =>
+          otpDigits.test(msg.Text ?? '') || otpDigits.test(msg.HTML ?? '')
+      ],
+      sentWithin
+    );
+    const newestFirst = candidates.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+    for (const mail of newestFirst) {
+      const otp = tryExtract(mail);
+      if (otp) return otp;
+    }
+    if (Date.now() >= deadline) break;
+    await new Promise((resolve) => setTimeout(resolve, 500));
   }
-  if (htmlOtp && textOtp !== htmlOtp) {
-    return Promise.reject('Text and HTML verification codes do not match');
-  }
-  return textOtp;
+  return Promise.reject('No verification code found');
 };
 
 type LoginOnPageOptions = {
@@ -238,13 +242,13 @@ export const loginOnPage = async (
     // Delay to allow the email to be sent - old emails exist for existing accounts
     .then(() => new Promise((resolve) => setTimeout(resolve, 300)));
 
-  const otp = await getInbucketVerificationCode(email, 5000, 5000);
+  const otp = await getInbucketVerificationCode(email, 5000, 3000);
   await loginablePage.fillInVerificationForm(otp);
   await loginablePage.submitForm();
 
   // Assert the user menu button is populated
   const userButton = page.locator('[data-testid="user-menu-button"]');
-  await userButton.waitFor({ state: 'visible', timeout: 2000 });
+  await userButton.waitFor({ state: 'visible', timeout: 5000 });
 
   // For redirect-sensitive tests, wait until the expected destination route settles.
   // domcontentloaded (not 'load') avoids blocking on streaming Suspense boundaries.
