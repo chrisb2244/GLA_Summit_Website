@@ -102,6 +102,9 @@ test.describe('copresenter invite — presenter logged in', () => {
         await invitePage.waitForInvitePage();
         await expect(invitePage.presentationTitle()).toHaveText(title);
 
+        // Fixed anchor captured before accept (the action that sends the email),
+        // so the toPass loop below cannot slide past an already-delivered email.
+        const emailSentAfter = Date.now();
         await invitePage.accept();
 
         // Submitter receives notification email
@@ -114,7 +117,7 @@ test.describe('copresenter invite — presenter logged in', () => {
           const matchingEmails = await getEmailsWithSubject(
             submitterMailbox,
             'GLA Summit: Co-presenter accepted your invitation',
-            5000
+            emailSentAfter
           ).then((emails) => emails.filter(matchesExpectation));
 
           expect(matchingEmails.length).toEqual(1);
@@ -147,6 +150,9 @@ test.describe('copresenter invite — presenter logged in', () => {
         await invitePage.goto(token);
         await invitePage.waitForInvitePage();
 
+        // Fixed anchor captured before decline (the action that sends the email),
+        // so the toPass loop below cannot slide past an already-delivered email.
+        const emailSentAfter = Date.now();
         await invitePage.decline();
 
         // Submitter receives notification email
@@ -159,7 +165,7 @@ test.describe('copresenter invite — presenter logged in', () => {
           const matchingEmails = await getEmailsWithSubject(
             submitterMailbox,
             'GLA Summit: Co-presenter declined your invitation',
-            5000
+            emailSentAfter
           ).then((emails) => emails.filter(matchesExpectation));
 
           expect(matchingEmails.length).toEqual(1);

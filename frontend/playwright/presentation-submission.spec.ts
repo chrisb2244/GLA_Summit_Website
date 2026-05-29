@@ -118,6 +118,9 @@ const buildTestTitle = (prefix: string) =>
       await expect(formPage.titleInput).toHaveValue(testTitle);
       // expect(await formPage.isFinalInput.isChecked()).toEqual(true);
 
+      // Fixed anchor captured before submit (the action that sends the email),
+      // so the toPass loop below cannot slide past an already-delivered email.
+      const emailSentAfter = Date.now();
       await formPage.submitForm();
 
       await formPage.waitForSubmittedSuccess(testTitle);
@@ -150,7 +153,8 @@ const buildTestTitle = (prefix: string) =>
       await expect(async () => {
         const matchingEmails = await getEmailsWithSubject(
           mailboxId,
-          'GLA Summit: Thank you for submitting a presentation'
+          'GLA Summit: Thank you for submitting a presentation',
+          emailSentAfter
         ).then((emails) => emails.filter(matchesExpectation));
 
         expect(matchingEmails.length).toEqual(1);
@@ -189,6 +193,9 @@ const buildTestTitle = (prefix: string) =>
         speakerAgreement: true
       });
 
+      // Fixed anchor captured before submit (the action that sends the email),
+      // so the toPass loop below cannot slide past an already-delivered email.
+      const emailSentAfter = Date.now();
       await formPage.submitForm();
       await formPage.waitForSubmittedSuccess(testTitle);
 
@@ -202,7 +209,8 @@ const buildTestTitle = (prefix: string) =>
       await expect(async () => {
         const matchingEmails = await getEmailsWithSubject(
           organizerMailbox,
-          'GLA Summit: New presentation submitted'
+          'GLA Summit: New presentation submitted',
+          emailSentAfter
         ).then((emails) => emails.filter(matchesExpectation));
 
         expect(matchingEmails.length).toEqual(1);

@@ -146,7 +146,16 @@ export const countEmailsInInbox = async (email: string) => {
 const getEmailsWithConditions = async (
   mailbox: string,
   conditions: Array<(message: MailpitMessageDetail) => boolean>,
-  sentWithin: number = 3000
+  // Absolute lower bound (epoch ms) on the email's send time; messages sent
+  // before this are ignored. Defaults to 0 (no lower bound).
+  //
+  // This MUST be an absolute timestamp captured once, before the email is
+  // triggered — never a relative "sent within the last N ms". A relative window
+  // is recomputed from Date.now() on every call, so inside an expect(...).toPass()
+  // retry loop it slides forward in time and walks off the end of an
+  // already-delivered email: once the email is older than the window, retrying
+  // only makes it staler and it can never match. A fixed anchor stays put.
+  sentAfter: number = 0
 ): Promise<MessageModel[]> => {
   const messagesResponse = await listMailpitMessages();
   const summariesToMailbox = (messagesResponse.messages ?? []).filter(
@@ -160,7 +169,7 @@ const getEmailsWithConditions = async (
   );
   const matched = details.filter((message) => {
     const sentTime = new Date(message.Date);
-    const isRecent = sentTime.getTime() > Date.now() - sentWithin;
+    const isRecent = sentTime.getTime() >= sentAfter;
     const meetsConditions =
       conditions.length === 0 || conditions.every((cond) => cond(message));
     return isRecent && meetsConditions;
@@ -171,18 +180,18 @@ const getEmailsWithConditions = async (
 export const getEmailsWithSubject = (
   mailbox: string,
   subject: string,
-  sentWithin: number = 3000
+  sentAfter: number = 0
 ): Promise<MessageModel[]> =>
   getEmailsWithConditions(
     mailbox,
     [(message) => message.Subject === subject],
-    sentWithin
+    sentAfter
   );
 
 export const getInbucketVerificationCode = async (
   email: string,
   timeout: number = 3000,
-  sentWithin: number = 3000
+  lookbackMs: number = 3000
 ): Promise<string> => {
   const mailbox = getMailboxFromEmail(email);
   // Supabase OTPs are 6 digits locally but 8 digits in production; accept either.
@@ -201,6 +210,10 @@ export const getInbucketVerificationCode = async (
     return textOtp;
   };
 
+  // Anchor the lower bound once, lookbackMs before we start polling, to cover the
+  // OTP email that was just triggered. Captured outside the loop so it does not
+  // slide forward on each iteration and skip a code that arrived early.
+  const sentAfter = Date.now() - lookbackMs;
   const deadline = Date.now() + timeout;
   while (Date.now() <= deadline) {
     const candidates = await getEmailsWithConditions(
@@ -209,7 +222,7 @@ export const getInbucketVerificationCode = async (
         (msg) =>
           otpDigits.test(msg.Text ?? '') || otpDigits.test(msg.HTML ?? '')
       ],
-      sentWithin
+      sentAfter
     );
     const newestFirst = candidates.sort(
       (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
