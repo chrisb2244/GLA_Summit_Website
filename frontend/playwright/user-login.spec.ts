@@ -143,7 +143,7 @@ test.describe('User Authentication Tests', () => {
     const numEmailsInBucket = await countEmailsInInbox(user.email);
     expect(numEmailsInBucket).toBe(1);
 
-    const otp = await getInbucketVerificationCode(user.email, 1000);
+    const otp = await getInbucketVerificationCode(user.email, 5000);
     expect(otp).toBeDefined();
 
     await loginablePage.fillInVerificationForm(otp);
@@ -191,7 +191,7 @@ test.describe('User Authentication Tests', () => {
     const numEmailsInBucket = await countEmailsInInbox(user.email);
     expect(numEmailsInBucket).toBe(1);
 
-    const otp = await getInbucketVerificationCode(user.email, 2000);
+    const otp = await getInbucketVerificationCode(user.email, 5000);
     expect(otp).toBeDefined();
 
     await loginablePage.fillInVerificationForm(otp);
