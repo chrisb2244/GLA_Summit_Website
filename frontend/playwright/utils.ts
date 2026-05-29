@@ -157,6 +157,29 @@ export const getLatestEmail = async (
     });
 };
 
+export const getEmailsWithSubject = async (
+  mailbox: string,
+  subject: string,
+  sentWithin: number = 3000
+): Promise<MessageModel[]> => {
+  const messagesResponse = await listMailpitMessages();
+  const matchedMessages = (messagesResponse.messages ?? []).filter((message) =>
+    (message.To ?? []).some((recipient) =>
+      matchesMailbox(recipient.Address, mailbox)
+    )
+  );
+  const matchedDetails = await Promise.all(
+    matchedMessages.map((msg) => getMailpitMessage(msg.ID))
+  );
+  const recentMatched = matchedDetails.filter((msg) => {
+    const sentTime = new Date(msg.Date);
+    return (
+      msg.Subject === subject && sentTime.getTime() > Date.now() - sentWithin
+    );
+  });
+  return recentMatched.map(toMessageModel);
+};
+
 export const getInbucketVerificationCode = async (
   email: string,
   timeout: number = 3000,

@@ -8,9 +8,10 @@ import path from 'path';
 import {
   createSupabaseAdmin,
   deletePresentationByTitle,
-  getLatestEmail,
+  getEmailsWithSubject,
   loginOnPage
 } from './utils';
+import { MessageModel } from 'inbucket-js-client';
 
 // Use an existing user who is not a presenter or organizer
 const attendeeEmail = process.env.TEST_ATTENDEE_EMAIL as string;
@@ -136,15 +137,24 @@ const buildTestTitle = (prefix: string) =>
 
       // Check an email is received for the submission
       const mailboxId = attendeeEmail.split('@')[0];
-      const emailMsg = await getLatestEmail(mailboxId);
-      const {
-        subject,
-        body: { html }
-      } = emailMsg;
-      expect(subject).toContain('Thank you for submitting a presentation');
-      expect(html).toContain(testTitle);
-      expect(html).toContain(abstract);
-      expect(html).toContain(learningPoints);
+
+      const matchesExpectation = (email: MessageModel) => {
+        const html = email.body.html;
+        return (
+          html.includes(testTitle) &&
+          html.includes(abstract) &&
+          html.includes(learningPoints)
+        );
+      };
+
+      await expect(async () => {
+        const matchingEmails = await getEmailsWithSubject(
+          mailboxId,
+          'GLA Summit: Thank you for submitting a presentation'
+        ).then((emails) => emails.filter(matchesExpectation));
+
+        expect(matchingEmails.length).toEqual(1);
+      }).toPass({ timeout: 10000 });
 
       // Check the database entry is created
       const adminSB = createSupabaseAdmin();
@@ -183,14 +193,20 @@ const buildTestTitle = (prefix: string) =>
       await formPage.waitForSubmittedSuccess(testTitle);
 
       const organizerMailbox = organizerEmail.split('@')[0];
-      const emailMsg = await getLatestEmail(organizerMailbox);
-      const {
-        subject,
-        body: { html }
-      } = emailMsg;
-      expect(subject).toContain('New presentation submitted');
-      expect(html).toContain('review-submissions');
-      expect(html).toContain(testTitle);
+
+      const matchesExpectation = (email: MessageModel) => {
+        const html = email.body.html;
+        return html.includes(testTitle) && html.includes('review-submission');
+      };
+
+      await expect(async () => {
+        const matchingEmails = await getEmailsWithSubject(
+          organizerMailbox,
+          'GLA Summit: New presentation submitted'
+        ).then((emails) => emails.filter(matchesExpectation));
+
+        expect(matchingEmails.length).toEqual(1);
+      }).toPass({ timeout: 10000 });
 
       await deletePresentationByTitle(testTitle, attendeeEmail);
     });

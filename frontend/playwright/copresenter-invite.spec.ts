@@ -1,9 +1,10 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
-import { createSupabaseAdmin, getLatestEmail } from './utils';
+import { createSupabaseAdmin, getEmailsWithSubject } from './utils';
 import { submissionsForYear, COPRESENTER_INVITE_WORKFLOW } from '@/app/configConstants';
 import { generateInviteToken } from '@/lib/copresenterInviteToken';
 import { CopresenterInvitePage } from './models/CopresenterInvitePage';
+import { MessageModel } from 'inbucket-js-client';
 
 // The accept/decline workflow ships inert behind COPRESENTER_INVITE_WORKFLOW.
 // While it is off, the route 404s and no invites are sent, so these end-to-end
@@ -105,8 +106,19 @@ test.describe('copresenter invite — presenter logged in', () => {
 
         // Submitter receives notification email
         const submitterMailbox = submitterEmail.split('@')[0];
-        const email = await getLatestEmail(submitterMailbox, 5000, 5000);
-        expect(email.subject).toMatch(/accepted/i);
+
+        const matchesExpectation = (email: MessageModel) =>
+          email.body.html.includes(title);
+
+        await expect(async () => {
+          const matchingEmails = await getEmailsWithSubject(
+            submitterMailbox,
+            'GLA Summit: Co-presenter accepted your invitation',
+            5000
+          ).then((emails) => emails.filter(matchesExpectation));
+
+          expect(matchingEmails.length).toEqual(1);
+        }).toPass({ timeout: 10000 });
 
         // DB row updated
         const admin = createSupabaseAdmin();
@@ -139,8 +151,19 @@ test.describe('copresenter invite — presenter logged in', () => {
 
         // Submitter receives notification email
         const submitterMailbox = submitterEmail.split('@')[0];
-        const email = await getLatestEmail(submitterMailbox, 5000, 5000);
-        expect(email.subject).toMatch(/declined/i);
+
+        const matchesExpectation = (email: MessageModel) =>
+          email.body.html.includes(title);
+
+        await expect(async () => {
+          const matchingEmails = await getEmailsWithSubject(
+            submitterMailbox,
+            'GLA Summit: Co-presenter declined your invitation',
+            5000
+          ).then((emails) => emails.filter(matchesExpectation));
+
+          expect(matchingEmails.length).toEqual(1);
+        }).toPass({ timeout: 10000 });
 
         // DB row updated
         const admin = createSupabaseAdmin();
