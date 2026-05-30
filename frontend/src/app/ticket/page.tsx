@@ -135,14 +135,6 @@ const TicketGeneratorPageContent = async () => {
     token: getToken(JSON.stringify(ticketObject))
   };
 
-  after(() =>
-    logToDb('info', 'Ticket issued', 'ticket/issue', {
-      userId,
-      context: { ticketNumber: ticket.ticket_number },
-      retainDays: 180
-    })
-  );
-
   redirect(ticketDataAndTokenToPageUrl(transferObject));
 };
 

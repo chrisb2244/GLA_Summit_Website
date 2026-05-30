@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import path from 'path';
+import { createAttendee, loginOnPage, type SeededUser } from './utils/index';
 
 /**
  * Verifies that image requests are routed through CDN / Vercel optimisation
@@ -22,14 +22,21 @@ import path from 'path';
 const SUPABASE_DOWNLOAD_API = /\/storage\/v1\/object\/avatars\//;
 
 // Direct browser request to the Supabase CDN (indicates a bare <img> rather than <Image>).
-const SUPABASE_CDN_AVATAR = /supabase\.co\/storage\/v1\/object\/public\/avatars\//;
+const SUPABASE_CDN_AVATAR =
+  /supabase\.co\/storage\/v1\/object\/public\/avatars\//;
 
 // Widths permitted by next.config.ts (imageSizes ∪ deviceSizes).
 const ALLOWED_IMAGE_WIDTHS = new Set(['320', '640', '1080', '1920']);
 
 test.describe('UserMenu avatar — logged-in user', () => {
-  test.use({
-    storageState: path.resolve(__dirname, '.auth', 'attendee.json')
+  let user: SeededUser;
+
+  test.beforeEach(async ({ page }) => {
+    user = await createAttendee();
+  });
+
+  test.afterEach(async () => {
+    await user?.cleanup();
   });
 
   test('page load does not trigger a Supabase storage download API call', async ({
@@ -43,6 +50,7 @@ test.describe('UserMenu avatar — logged-in user', () => {
     });
 
     await page.goto('/');
+    await loginOnPage(page, user.email);
     await page.waitForLoadState('networkidle');
 
     expect(
@@ -53,6 +61,7 @@ test.describe('UserMenu avatar — logged-in user', () => {
 
   test('avatar image src is not a blob: URL', async ({ page }) => {
     await page.goto('/');
+    await loginOnPage(page, user.email);
     await page.getByTestId('user-menu-button').waitFor({ state: 'visible' });
 
     const avatarImg = page.getByTestId('user-menu-button').locator('img');
@@ -63,12 +72,19 @@ test.describe('UserMenu avatar — logged-in user', () => {
 
     const src = await avatarImg.first().getAttribute('src');
     expect(src, 'Avatar must not be a blob: URL').not.toMatch(/^blob:/);
-    expect(src, 'Avatar must be served from an https:// URL').toMatch(/^https?:\/\//);
+    expect(src, 'Avatar must be served from an https:// URL').toMatch(
+      /^https?:\/\//
+    );
   });
 });
 
 test.describe('Presenter list page — image routing', () => {
-  test('presenter avatar images are served via /_next/image', async ({ page }) => {
+  test('presenter avatar images are served via /_next/image', {
+    tag: ['@smoke', '@synthetic']
+  }, async ({ page }) => {
+    // The image optimizer runs both locally and in production (locally,
+    // NEXT_IMAGE_ALLOW_LOCAL_IP=true lets it fetch from 127.0.0.1), so <Image>
+    // always emits /_next/image URLs and this assertion applies everywhere.
     await page.goto('/presenters');
     await page.waitForLoadState('networkidle');
 
@@ -89,9 +105,9 @@ test.describe('Presenter list page — image routing', () => {
     }
   });
 
-  test('browser makes no direct requests to Supabase storage for presenter images', async ({
-    page
-  }) => {
+  test('browser makes no direct requests to Supabase storage for presenter images', {
+    tag: '@regression'
+  }, async ({ page }) => {
     const directStorageRequests: string[] = [];
 
     // With <Image>, Next.js fetches from Supabase server-side and caches the result.
@@ -110,7 +126,9 @@ test.describe('Presenter list page — image routing', () => {
     ).toHaveLength(0);
   });
 
-  test('/_next/image requests only use configured width values', async ({ page }) => {
+  test('/_next/image requests only use configured width values', {
+    tag: '@regression'
+  }, async ({ page }) => {
     const unexpectedWidths: string[] = [];
 
     await page.route('**/_next/image**', (route) => {
@@ -127,7 +145,9 @@ test.describe('Presenter list page — image routing', () => {
 
     expect(
       unexpectedWidths,
-      `/_next/image used widths outside the configured set {${[...ALLOWED_IMAGE_WIDTHS].join(', ')}}: ${unexpectedWidths.join(', ')}`
+      `/_next/image used widths outside the configured set {${[
+        ...ALLOWED_IMAGE_WIDTHS
+      ].join(', ')}}: ${unexpectedWidths.join(', ')}`
     ).toHaveLength(0);
   });
 });
