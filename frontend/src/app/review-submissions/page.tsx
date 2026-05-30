@@ -5,8 +5,14 @@ import {
 import { createServerClient } from '@/lib/supabaseServer';
 import { submissionsForYear } from '@/app/configConstants';
 import { DownloadButton } from './DownloadButton';
+import { SubmissionVotingPanel } from './SubmissionVotingPanel';
+import { getUser } from '@/lib/supabase/userFunctions';
 import { Suspense } from 'react';
-import type { ReviewableSubmissions } from '@/lib/databaseModels';
+import type {
+  OrganizerDirectoryEntry,
+  OrganizerVote,
+  ReviewableSubmissions
+} from '@/lib/databaseModels';
 
 const ReviewSubmissionsPage = () => {
   return (
@@ -57,57 +63,156 @@ export const mapSubmittedPresentations = (
     });
 };
 
+export type SubmissionBucket = 'under-review' | 'accepted' | 'declined';
+
+/**
+ * Split submissions into the three review buckets based on the outcome tables,
+ * keeping each list sorted by most recently updated first. A submission is
+ * accepted/declined if its id appears in the respective outcome set; otherwise it
+ * is still under review.
+ */
+export const bucketSubmissions = (
+  submissions: PresentationReviewInfo[],
+  acceptedIds: Set<string>,
+  declinedIds: Set<string>
+): Record<SubmissionBucket, PresentationReviewInfo[]> => {
+  const buckets: Record<SubmissionBucket, PresentationReviewInfo[]> = {
+    'under-review': [],
+    accepted: [],
+    declined: []
+  };
+
+  for (const submission of submissions) {
+    if (acceptedIds.has(submission.presentation_id)) {
+      buckets.accepted.push(submission);
+    } else if (declinedIds.has(submission.presentation_id)) {
+      buckets.declined.push(submission);
+    } else {
+      buckets['under-review'].push(submission);
+    }
+  }
+
+  const byUpdatedDesc = (
+    a: PresentationReviewInfo,
+    b: PresentationReviewInfo
+  ) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+  buckets['under-review'].sort(byUpdatedDesc);
+  buckets.accepted.sort(byUpdatedDesc);
+  buckets.declined.sort(byUpdatedDesc);
+
+  return buckets;
+};
+
 export const ReviewSubmissionsPageContent = async () => {
   const supabase = await createServerClient();
-  const { data, error } = await supabase.rpc('get_reviewable_submissions', {
-    target_year: submissionsForYear
-  });
+  const user = await getUser();
+
+  const [
+    { data, error },
+    { data: downloadInfo },
+    { data: voteRows },
+    { data: organizerRows },
+    { data: acceptedRows },
+    { data: rejectedRows }
+  ] = await Promise.all([
+    supabase.rpc('get_reviewable_submissions', {
+      target_year: submissionsForYear
+    }),
+    supabase
+      .from('review_download_information')
+      .select('presentation_id, last_downloaded'),
+    supabase
+      .from('submission_votes')
+      .select('presentation_id, organizer_id, vote'),
+    supabase.rpc('get_organizer_directory'),
+    supabase
+      .from('accepted_presentations')
+      .select('id')
+      .eq('year', submissionsForYear),
+    supabase.from('rejected_presentations').select('id')
+  ]);
 
   const submittedPresentations = mapSubmittedPresentations(
     data,
     Boolean(error)
   );
 
-  const { data: downloadInfo } = await supabase
-    .from('review_download_information')
-    .select('presentation_id, last_downloaded');
+  const acceptedIds = new Set((acceptedRows ?? []).map((r) => r.id));
+  const declinedIds = new Set((rejectedRows ?? []).map((r) => r.id));
+  const organizers: OrganizerDirectoryEntry[] = organizerRows ?? [];
+  const votes = voteRows ?? [];
 
-  const listElems = submittedPresentations
-    .sort((a, b) => {
-      return (
-        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-      );
-    })
-    .map((p) => {
-      const lastDownloadedInfo = downloadInfo?.find(
-        (d) => d.presentation_id === p.presentation_id
-      )?.last_downloaded;
-      const lastDownloaded = lastDownloadedInfo
-        ? new Date(lastDownloadedInfo)
-        : null;
+  const buckets = bucketSubmissions(
+    submittedPresentations,
+    acceptedIds,
+    declinedIds
+  );
 
-      return (
-        <div
-          key={p.presentation_id}
-          className='flex flex-row space-x-2 rounded-md border p-2'
-        >
-          <div className='flex w-3/4'>
-            <SubmittedPresentationReviewCard presentationInfo={p} />
-          </div>
-          <DownloadButton
-            lastDownloaded={lastDownloaded}
+  const renderCard = (
+    p: PresentationReviewInfo,
+    status: SubmissionBucket
+  ) => {
+    const lastDownloadedInfo = downloadInfo?.find(
+      (d) => d.presentation_id === p.presentation_id
+    )?.last_downloaded;
+    const lastDownloaded = lastDownloadedInfo
+      ? new Date(lastDownloadedInfo)
+      : null;
+    const presentationVotes = votes
+      .filter((v) => v.presentation_id === p.presentation_id)
+      .map((v) => ({
+        organizer_id: v.organizer_id,
+        vote: v.vote as OrganizerVote
+      }));
+
+    return (
+      <div
+        key={p.presentation_id}
+        className='flex flex-row space-x-2 rounded-md border p-2'
+      >
+        <div className='flex w-3/4 flex-col'>
+          <SubmittedPresentationReviewCard presentationInfo={p} />
+          <SubmissionVotingPanel
             presentationId={p.presentation_id}
+            currentUserId={user?.id ?? null}
+            organizers={organizers}
+            votes={presentationVotes}
+            status={status}
           />
         </div>
-      );
-    });
+        <DownloadButton
+          lastDownloaded={lastDownloaded}
+          presentationId={p.presentation_id}
+        />
+      </div>
+    );
+  };
+
+  const sections: { title: string; status: SubmissionBucket }[] = [
+    { title: 'Under review', status: 'under-review' },
+    { title: 'Accepted', status: 'accepted' },
+    { title: 'Declined', status: 'declined' }
+  ];
 
   return (
     <div className='mx-auto mt-4 w-full max-w-(--breakpoint-lg)'>
       <p className='prose mx-auto text-center'>
-        {`Here's a list of ${submittedPresentations.length} presentations!!!`}
+        {`${submittedPresentations.length} submitted presentations`}
       </p>
-      <div className='flex flex-col space-y-2'>{listElems}</div>
+      {sections.map(({ title, status }) => (
+        <section key={status} className='mt-6'>
+          <h2 className='mb-2 text-lg font-semibold'>
+            {`${title} (${buckets[status].length})`}
+          </h2>
+          {buckets[status].length === 0 ? (
+            <p className='text-sm italic text-gray-500'>None.</p>
+          ) : (
+            <div className='flex flex-col space-y-2'>
+              {buckets[status].map((p) => renderCard(p, status))}
+            </div>
+          )}
+        </section>
+      ))}
     </div>
   );
 };
