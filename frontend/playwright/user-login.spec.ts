@@ -3,22 +3,18 @@ import { LoginablePage } from './models/LoginablePage';
 import {
   countEmailsInInbox,
   createSupabaseAdmin,
+  generateTestEmail,
   getInbucketVerificationCode
 } from './utils';
 
 test.describe('User Authentication Tests', () => {
   const emailsToDelete: string[] = [];
 
-  const generateUser = (firstname: string, lastname: string) => {
-    const emailWithoutDomain = `test-${Math.random()
-      .toString(36)
-      .substring(2)}`;
-    return {
-      firstname,
-      lastname,
-      email: `${emailWithoutDomain}@test.email`
-    };
-  };
+  const generateUser = (firstname: string, lastname: string) => ({
+    firstname,
+    lastname,
+    email: generateTestEmail('test')
+  });
   const supabaseAdmin = createSupabaseAdmin();
 
   test.afterAll(async () => {

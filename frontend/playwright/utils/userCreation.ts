@@ -1,6 +1,7 @@
 import type { Database } from '@/lib/sb_databaseModels';
 import { ticketYear } from '@/app/configConstants';
 import { createSupabaseAdmin } from './supabaseAdmin';
+import { generateTestEmail } from './email';
 
 // ── Script-created test users ──────────────────────────────────────────────
 //
@@ -45,13 +46,6 @@ type BaseUserOptions = {
   emailPrefix?: string;
 };
 
-const randomTestEmail = (prefix: string) => {
-  const unique = `${Date.now().toString(36)}-${Math.random()
-    .toString(36)
-    .slice(2, 8)}`;
-  return `${prefix}-${unique}@test.email`;
-};
-
 // Delete every row that references this user without an ON DELETE CASCADE back
 // to auth.users, then delete the user. Cascading rows (profiles, email_lookup,
 // organizers, tickets, and presentation_presenters/accepted_presentations that
@@ -87,7 +81,7 @@ const createBaseUser = async (
   const admin = createSupabaseAdmin();
   const firstName = options?.firstName ?? 'Test';
   const lastName = options?.lastName ?? role;
-  const email = randomTestEmail(options?.emailPrefix ?? `pw-${role}`);
+  const email = generateTestEmail(options?.emailPrefix ?? `pw-${role}`);
 
   const { data, error } = await admin.auth.admin.createUser({
     email,

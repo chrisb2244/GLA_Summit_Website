@@ -5,11 +5,10 @@ import {
   getEmailsWithSubject,
   loginOnPage
 } from './utils';
-import type { SeededUser } from './utils';
+import type { SeededUser, TestEmailMessage } from './utils';
 import { submissionsForYear, COPRESENTER_INVITE_WORKFLOW } from '@/app/configConstants';
 import { generateInviteToken } from '@/lib/copresenterInviteToken';
 import { CopresenterInvitePage } from './models/CopresenterInvitePage';
-import { MessageModel } from 'inbucket-js-client';
 
 // The accept/decline workflow ships inert behind COPRESENTER_INVITE_WORKFLOW.
 // While it is off, the route 404s and no invites are sent, so these end-to-end
@@ -112,14 +111,12 @@ test.describe('copresenter invite — presenter logged in', () => {
       await invitePage.accept();
 
       // Submitter receives notification email
-      const submitterMailbox = submitter.email.split('@')[0];
-
-      const matchesExpectation = (email: MessageModel) =>
+      const matchesExpectation = (email: TestEmailMessage) =>
         email.body.html.includes(title);
 
       await expect(async () => {
         const matchingEmails = await getEmailsWithSubject(
-          submitterMailbox,
+          submitter.email,
           'GLA Summit: Co-presenter accepted your invitation',
           emailSentAfter
         ).then((emails) => emails.filter(matchesExpectation));
@@ -163,14 +160,12 @@ test.describe('copresenter invite — presenter logged in', () => {
       await invitePage.decline();
 
       // Submitter receives notification email
-      const submitterMailbox = submitter.email.split('@')[0];
-
-      const matchesExpectation = (email: MessageModel) =>
+      const matchesExpectation = (email: TestEmailMessage) =>
         email.body.html.includes(title);
 
       await expect(async () => {
         const matchingEmails = await getEmailsWithSubject(
-          submitterMailbox,
+          submitter.email,
           'GLA Summit: Co-presenter declined your invitation',
           emailSentAfter
         ).then((emails) => emails.filter(matchesExpectation));

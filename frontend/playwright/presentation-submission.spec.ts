@@ -11,8 +11,7 @@ import {
   getEmailsWithSubject,
   loginOnPage
 } from './utils';
-import type { SeededUser } from './utils';
-import { MessageModel } from 'inbucket-js-client';
+import type { SeededUser, TestEmailMessage } from './utils';
 
 const buildTestTitle = (prefix: string) =>
   `${prefix} ${Date.now()} ${Math.random().toString(16).slice(2, 8)}`;
@@ -158,9 +157,7 @@ const buildTestTitle = (prefix: string) =>
       ).toBeVisible();
 
       // Check an email is received for the submission
-      const mailboxId = user.email.split('@')[0];
-
-      const matchesExpectation = (email: MessageModel) => {
+      const matchesExpectation = (email: TestEmailMessage) => {
         const html = email.body.html;
         return (
           html.includes(testTitle) &&
@@ -171,7 +168,7 @@ const buildTestTitle = (prefix: string) =>
 
       await expect(async () => {
         const matchingEmails = await getEmailsWithSubject(
-          mailboxId,
+          user.email,
           'GLA Summit: Thank you for submitting a presentation',
           emailSentAfter
         ).then((emails) => emails.filter(matchesExpectation));
@@ -222,16 +219,14 @@ const buildTestTitle = (prefix: string) =>
         await formPage.submitForm();
         await formPage.waitForSubmittedSuccess(testTitle);
 
-        const organizerMailbox = organizer.email.split('@')[0];
-
-        const matchesExpectation = (email: MessageModel) => {
+        const matchesExpectation = (email: TestEmailMessage) => {
           const html = email.body.html;
           return html.includes(testTitle) && html.includes('review-submission');
         };
 
         await expect(async () => {
           const matchingEmails = await getEmailsWithSubject(
-            organizerMailbox,
+            organizer.email,
             'GLA Summit: New presentation submitted',
             emailSentAfter
           ).then((emails) => emails.filter(matchesExpectation));

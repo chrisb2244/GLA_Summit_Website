@@ -4,10 +4,12 @@
 export { createSupabaseAdmin } from './supabaseAdmin';
 export {
   countEmailsInInbox,
+  generateTestEmail,
   getEmailsWithSubject,
   getInbucketVerificationCode,
-  getLatestMessageForMailbox
+  getLatestMessageForEmail
 } from './email';
+export type { TestEmailMessage } from './email';
 export { loginOnPage } from './login';
 export { seedSharedPresentation } from './presentations';
 export { seedTicket } from './tickets';
