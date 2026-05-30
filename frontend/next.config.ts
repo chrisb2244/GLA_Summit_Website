@@ -25,7 +25,12 @@ const config: NextConfig = {
     imageSizes: [320, 640],
     formats: ['image/webp'],
     minimumCacheTTL: 2678400,
-    unoptimized: process.env.NEXT_IMAGE_UNOPTIMIZED === 'true'
+    // Next.js 16's image optimizer blocks fetching from private/loopback IPs
+    // (SSRF protection). Local Supabase storage is served from http://127.0.0.1,
+    // so allow it locally to keep the optimizer (/_next/image) running just like
+    // production. Vercel deploys fetch from a public *.supabase.co host and never
+    // set this flag, so they keep the secure default (false).
+    dangerouslyAllowLocalIP: process.env.NEXT_IMAGE_ALLOW_LOCAL_IP === 'true'
   },
   async redirects() {
     return [

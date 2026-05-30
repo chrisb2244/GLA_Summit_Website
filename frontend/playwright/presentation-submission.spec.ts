@@ -4,18 +4,16 @@ import {
   CAN_SUBMIT_PRESENTATION,
   submissionsForYear
 } from '@/app/configConstants';
-import path from 'path';
 import {
+  createAttendee,
+  createOrganizer,
   createSupabaseAdmin,
-  deletePresentationByTitle,
   getEmailsWithSubject,
   loginOnPage
 } from './utils';
+import type { SeededUser } from './utils';
 import { MessageModel } from 'inbucket-js-client';
 
-// Use an existing user who is not a presenter or organizer
-const attendeeEmail = process.env.TEST_ATTENDEE_EMAIL as string;
-const organizerEmail = process.env.TEST_ORGANIZER_EMAIL as string;
 const buildTestTitle = (prefix: string) =>
   `${prefix} ${Date.now()} ${Math.random().toString(16).slice(2, 8)}`;
 
@@ -24,6 +22,13 @@ const buildTestTitle = (prefix: string) =>
 
   test.describe(`logged-out tests for presentation submission ${trailing}`, () => {
     test.use({ javaScriptEnabled: jsEnabled });
+
+    let loggedInUser: SeededUser | undefined;
+    test.afterEach(async () => {
+      await loggedInUser?.cleanup();
+      loggedInUser = undefined;
+    });
+
     test('Form submission unavailable if logged out', async ({ page }) => {
       await page.goto('/submit-presentation');
       await expect(page.getByText('You need to be logged in')).toBeVisible();
@@ -35,11 +40,10 @@ const buildTestTitle = (prefix: string) =>
       await page.goto('/submit-presentation');
       await expect(page.getByText('You need to be logged in')).toBeVisible();
 
-      const email = process.env.TEST_ATTENDEE_EMAIL as string;
-      await loginOnPage(page, email, {
-        expectedPath: /\/my-presentations(?:\?.*)?$/,
-        redirectTimeoutMs: 5000
-      });
+      loggedInUser = await createAttendee();
+      await page.goto('/');
+      await loginOnPage(page, loggedInUser.email);
+      await page.goto('/submit-presentation');
 
       if (CAN_SUBMIT_PRESENTATION) {
         await expect(
@@ -55,10 +59,20 @@ const buildTestTitle = (prefix: string) =>
 
   test.describe(`logged-in tests for presentation submission ${trailing}`, () => {
     test.skip(!CAN_SUBMIT_PRESENTATION, 'Presentation submission closed');
-    test.use({
-      javaScriptEnabled: jsEnabled,
-      storageState: async ({}, use) =>
-        use(path.resolve(__dirname, '.auth', 'attendee.json'))
+    test.use({ javaScriptEnabled: jsEnabled });
+
+    // The submitter starts as a plain attendee — submitting is what (potentially)
+    // makes them a presenter, so we must not seed that end state.
+    let user: SeededUser;
+    test.beforeEach(async ({ page }) => {
+      user = await createAttendee();
+      await page.goto('/');
+      await loginOnPage(page, user.email);
+    });
+    test.afterEach(async () => {
+      // Cascades any submissions/drafts this test created, so per-title deletes
+      // are unnecessary.
+      await user?.cleanup();
     });
 
     test(
@@ -86,7 +100,7 @@ const buildTestTitle = (prefix: string) =>
       const submitterEmailInput = formPage.submitterEmailInput();
       await expect(submitterEmailInput).toBeVisible();
       await expect(submitterEmailInput).toHaveAttribute('readonly', '');
-      await expect(submitterEmailInput).toHaveValue(attendeeEmail);
+      await expect(submitterEmailInput).toHaveValue(user.email);
     });
 
     test('Form fill testing', async ({ page }) => {
@@ -142,7 +156,7 @@ const buildTestTitle = (prefix: string) =>
       ).toBeVisible();
 
       // Check an email is received for the submission
-      const mailboxId = attendeeEmail.split('@')[0];
+      const mailboxId = user.email.split('@')[0];
 
       const matchesExpectation = (email: MessageModel) => {
         const html = email.body.html;
@@ -171,56 +185,60 @@ const buildTestTitle = (prefix: string) =>
         .eq('title', testTitle)
         .single();
       expect(presentations?.is_submitted).toEqual(true);
-
-      await deletePresentationByTitle(testTitle, attendeeEmail);
     });
 
     test('organizer receives notification email on final submission', async ({
       page
     }) => {
-      await page.goto('/my-presentations');
+      // The notification is sent to every row in the organizers table, so a
+      // freshly created organizer receives it in its own (unique) mailbox.
+      const organizer = await createOrganizer();
+      try {
+        await page.goto('/my-presentations');
 
-      const formPage = new PresentationSubmissionPage(page);
-      await formPage.waitForFormLoad();
+        const formPage = new PresentationSubmissionPage(page);
+        await formPage.waitForFormLoad();
 
-      const testTitle = buildTestTitle('Organizer notification');
-      const abstract = 'Organizer notify abstract '.repeat(10);
-      const learningPoints = 'Organizer notify learning '.repeat(4);
+        const testTitle = buildTestTitle('Organizer notification');
+        const abstract = 'Organizer notify abstract '.repeat(10);
+        const learningPoints = 'Organizer notify learning '.repeat(4);
 
-      await formPage.fillFormData({
-        title: testTitle,
-        abstract,
-        learningPoints,
-        presentationType: '15 minutes',
-        submitIntent: 'submit',
-        speakerAgreement: true
-      });
+        await formPage.fillFormData({
+          title: testTitle,
+          abstract,
+          learningPoints,
+          presentationType: '15 minutes',
+          submitIntent: 'submit',
+          speakerAgreement: true
+        });
 
-      // Fixed lower bound captured before submit; 5s grace covers Mailpit's
-      // whole-second Date truncation and clock skew. See the note in "Form fill
-      // testing" — the unique-title match keeps the wide window false-positive-free.
-      const emailSentAfter = Date.now() - 5000;
-      await formPage.submitForm();
-      await formPage.waitForSubmittedSuccess(testTitle);
+        // Fixed lower bound captured before submit; 5s grace covers Mailpit's
+        // whole-second Date truncation and clock skew. See the note in "Form
+        // fill testing" — the unique-title match keeps the wide window
+        // false-positive-free.
+        const emailSentAfter = Date.now() - 5000;
+        await formPage.submitForm();
+        await formPage.waitForSubmittedSuccess(testTitle);
 
-      const organizerMailbox = organizerEmail.split('@')[0];
+        const organizerMailbox = organizer.email.split('@')[0];
 
-      const matchesExpectation = (email: MessageModel) => {
-        const html = email.body.html;
-        return html.includes(testTitle) && html.includes('review-submission');
-      };
+        const matchesExpectation = (email: MessageModel) => {
+          const html = email.body.html;
+          return html.includes(testTitle) && html.includes('review-submission');
+        };
 
-      await expect(async () => {
-        const matchingEmails = await getEmailsWithSubject(
-          organizerMailbox,
-          'GLA Summit: New presentation submitted',
-          emailSentAfter
-        ).then((emails) => emails.filter(matchesExpectation));
+        await expect(async () => {
+          const matchingEmails = await getEmailsWithSubject(
+            organizerMailbox,
+            'GLA Summit: New presentation submitted',
+            emailSentAfter
+          ).then((emails) => emails.filter(matchesExpectation));
 
-        expect(matchingEmails.length).toEqual(1);
-      }).toPass({ timeout: 10000 });
-
-      await deletePresentationByTitle(testTitle, attendeeEmail);
+          expect(matchingEmails.length).toEqual(1);
+        }).toPass({ timeout: 10000 });
+      } finally {
+        await organizer.cleanup();
+      }
     });
 
     test('draft save shows draft card in Draft Submissions', async ({
@@ -523,6 +541,11 @@ const buildTestTitle = (prefix: string) =>
   });
 });
 
+// NOTE: these flows are fixme'd (the no-JS server-rendered path is not yet
+// functional). When re-enabling, they also need a JS-less authentication
+// strategy: loginOnPage drives the client-side login form, which cannot run
+// with javaScriptEnabled:false. The previous saved-storageState approach has
+// been removed, so a session-cookie injection helper will be required here.
 test.describe(`presentation submission tests handling no-js only path`, () => {
   test.use({ javaScriptEnabled: false });
   test.skip(!CAN_SUBMIT_PRESENTATION, 'Presentation submission closed');
@@ -530,9 +553,13 @@ test.describe(`presentation submission tests handling no-js only path`, () => {
     true,
     'No-JS flows currently remain on loading fallback (form controls never render). Keep coverage here for re-enable once server-rendered path is fixed.'
   );
-  test.use({
-    storageState: async ({}, use) =>
-      use(path.resolve(__dirname, '.auth', 'attendee.json'))
+
+  let user: SeededUser;
+  test.beforeEach(async () => {
+    user = await createAttendee();
+  });
+  test.afterEach(async () => {
+    await user?.cleanup();
   });
 
   test('no-js: Save Draft persists using server action fallback', async ({
@@ -541,21 +568,13 @@ test.describe(`presentation submission tests handling no-js only path`, () => {
     const adminSB = createSupabaseAdmin();
     const title = buildTestTitle('No JS draft save fallback');
 
-    const { data: emailLookup } = await adminSB
-      .from('email_lookup')
-      .select('id')
-      .eq('email', attendeeEmail)
-      .single();
-
-    expect(emailLookup?.id).toBeTruthy();
-
     const { data: draftInsert } = await adminSB
       .from('presentation_submissions')
       .insert({
         title,
         abstract: 'No JS draft abstract '.repeat(12),
         learning_points: 'No JS draft learning point '.repeat(4),
-        submitter_id: emailLookup!.id,
+        submitter_id: user.userId,
         year: submissionsForYear,
         is_submitted: false,
         presentation_type: 'full length'
@@ -567,7 +586,7 @@ test.describe(`presentation submission tests handling no-js only path`, () => {
 
     await adminSB.from('presentation_presenters').upsert({
       presentation_id: draftInsert!.id,
-      presenter_id: emailLookup!.id
+      presenter_id: user.userId
     });
 
     const editUrl = `/my-presentations/edit/${draftInsert!.id}`;
@@ -605,21 +624,13 @@ test.describe(`presentation submission tests handling no-js only path`, () => {
     const adminSB = createSupabaseAdmin();
     const title = buildTestTitle('No JS edit submit fallback');
 
-    const { data: emailLookup } = await adminSB
-      .from('email_lookup')
-      .select('id')
-      .eq('email', attendeeEmail)
-      .single();
-
-    expect(emailLookup?.id).toBeTruthy();
-
     const { data: draftInsert } = await adminSB
       .from('presentation_submissions')
       .insert({
         title,
         abstract: 'No JS edit abstract '.repeat(12),
         learning_points: 'No JS edit learning point '.repeat(4),
-        submitter_id: emailLookup!.id,
+        submitter_id: user.userId,
         year: submissionsForYear,
         is_submitted: false,
         presentation_type: 'full length'
@@ -631,7 +642,7 @@ test.describe(`presentation submission tests handling no-js only path`, () => {
 
     await adminSB.from('presentation_presenters').upsert({
       presentation_id: draftInsert!.id,
-      presenter_id: emailLookup!.id
+      presenter_id: user.userId
     });
 
     const editUrl = `/my-presentations/edit/${draftInsert!.id}`;
@@ -670,21 +681,13 @@ test.describe(`presentation submission tests handling no-js only path`, () => {
     const adminSB = createSupabaseAdmin();
     const title = buildTestTitle('No JS duplicate override');
 
-    const { data: emailLookup } = await adminSB
-      .from('email_lookup')
-      .select('id')
-      .eq('email', attendeeEmail)
-      .single();
-
-    expect(emailLookup?.id).toBeTruthy();
-
     const { data: existingDraft } = await adminSB
       .from('presentation_submissions')
       .insert({
         title,
         abstract: 'No JS duplicate existing abstract '.repeat(12),
         learning_points: 'No JS duplicate existing learning point '.repeat(4),
-        submitter_id: emailLookup!.id,
+        submitter_id: user.userId,
         year: submissionsForYear,
         is_submitted: false,
         presentation_type: 'full length'
@@ -698,7 +701,7 @@ test.describe(`presentation submission tests handling no-js only path`, () => {
         title,
         abstract: 'No JS duplicate target abstract '.repeat(12),
         learning_points: 'No JS duplicate target learning point '.repeat(4),
-        submitter_id: emailLookup!.id,
+        submitter_id: user.userId,
         year: submissionsForYear,
         is_submitted: false,
         presentation_type: '15 minutes'
@@ -709,11 +712,11 @@ test.describe(`presentation submission tests handling no-js only path`, () => {
     await adminSB.from('presentation_presenters').upsert([
       {
         presentation_id: existingDraft!.id,
-        presenter_id: emailLookup!.id
+        presenter_id: user.userId
       },
       {
         presentation_id: editableDraft!.id,
-        presenter_id: emailLookup!.id
+        presenter_id: user.userId
       }
     ]);
 

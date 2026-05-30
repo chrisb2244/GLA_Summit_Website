@@ -41,7 +41,7 @@ NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:55321  # 5532x ports (not 5432x — WS
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon key>
 SECRET_SUPABASE_SERVICE_KEY=<service_role key>
 USE_MOCK_EMAIL=true
-NEXT_IMAGE_UNOPTIMIZED=true                       # required locally (Next.js SSRF protection)
+NEXT_IMAGE_ALLOW_LOCAL_IP=true                    # let the image optimizer fetch from 127.0.0.1 locally (Next.js 16 SSRF protection)
 ```
 
 ## Architecture
