@@ -115,7 +115,7 @@ test.describe('attendee ticket', () => {
     }
   );
 
-  test("shows the owner view heading (You're all set to go!)", async ({
+  test("shows the owner view heading (You're all set to go!)", { tag: '@smoke' }, async ({
     page
   }) => {
     await openTicket(page);

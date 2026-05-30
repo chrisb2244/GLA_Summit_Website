@@ -66,7 +66,7 @@ test.describe('User Authentication Tests', () => {
     await expect(userButton).toBeVisible();
   });
 
-  test('Existing user can login', async ({ page }) => {
+  test('Existing user can login', { tag: '@smoke' }, async ({ page }) => {
     // Generated per-test (not at module scope) so each --repeat-each run gets a
     // distinct account and they don't race over a shared inbox / OTP.
     const existingUser = generateUser('Existing', 'User');

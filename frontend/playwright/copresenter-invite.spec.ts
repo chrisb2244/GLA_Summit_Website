@@ -88,7 +88,8 @@ test.describe('copresenter invite — presenter logged in', () => {
   });
 
   test(
-    '@smoke @copresenter accept: updates status to accepted and notifies submitter',
+    'accept: updates status to accepted and notifies submitter',
+    { tag: ['@smoke', '@copresenter'] },
     async ({ page }) => {
       const title = buildTitle('CP Invite Accept');
       const seeded = await seedInvite({
@@ -139,7 +140,8 @@ test.describe('copresenter invite — presenter logged in', () => {
   );
 
   test(
-    '@smoke @copresenter decline: updates status, increments declined_count, notifies submitter',
+    'decline: updates status, increments declined_count, notifies submitter',
+    { tag: '@copresenter' },
     async ({ page }) => {
       const title = buildTitle('CP Invite Decline');
       const seeded = await seedInvite({
@@ -189,9 +191,9 @@ test.describe('copresenter invite — presenter logged in', () => {
     }
   );
 
-  test('@copresenter already-responded: shows confirmation and hides response buttons', async ({
-    page
-  }) => {
+  test('already-responded: shows confirmation and hides response buttons', {
+    tag: '@copresenter'
+  }, async ({ page }) => {
     const title = buildTitle('CP Invite Already Responded');
     const seeded = await seedInvite({
       title,
@@ -227,9 +229,9 @@ test.describe('copresenter invite — submitter/attendee logged in', () => {
     await copresenter?.cleanup();
   });
 
-  test('@copresenter wrong-user guard: shows error for the wrong logged-in account', async ({
-    page
-  }) => {
+  test('wrong-user guard: shows error for the wrong logged-in account', {
+    tag: '@copresenter'
+  }, async ({ page }) => {
     const title = buildTitle('CP Invite Wrong User');
     const seeded = await seedInvite({
       title,
@@ -249,7 +251,8 @@ test.describe('copresenter invite — submitter/attendee logged in', () => {
   });
 
   test(
-    '@smoke @copresenter submitter sees pending badge before copresenter responds',
+    'submitter sees pending badge before copresenter responds',
+    { tag: '@copresenter' },
     async ({ page }) => {
       // Seed as submitted so the card has aria-label (PastPresentationSubmissions)
       const title = buildTitle('CP Invite Pending Badge');
@@ -270,9 +273,9 @@ test.describe('copresenter invite — submitter/attendee logged in', () => {
     }
   );
 
-  test('@copresenter submitter sees declined badge after copresenter declines', async ({
-    page
-  }) => {
+  test('submitter sees declined badge after copresenter declines', {
+    tag: '@copresenter'
+  }, async ({ page }) => {
     const title = buildTitle('CP Invite Declined Badge');
     await seedInvite({
       title,
@@ -292,7 +295,7 @@ test.describe('copresenter invite — submitter/attendee logged in', () => {
 });
 
 // No auth required — invalid token is caught before auth check
-test('@copresenter invalid token: shows error page', async ({ page }) => {
+test('invalid token: shows error page', { tag: '@copresenter' }, async ({ page }) => {
   const invitePage = new CopresenterInvitePage(page);
   await invitePage.goto('not-a-valid-token');
   expect(await invitePage.isInvalidToken()).toBe(true);

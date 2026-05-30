@@ -78,10 +78,10 @@ test.describe('UserMenu avatar — logged-in user', () => {
   });
 });
 
-test.describe('Presenter list page — image routing', { tag: '@smoke' }, () => {
-  test('presenter avatar images are served via /_next/image', async ({
-    page
-  }) => {
+test.describe('Presenter list page — image routing', () => {
+  test('presenter avatar images are served via /_next/image', {
+    tag: ['@smoke', '@synthetic']
+  }, async ({ page }) => {
     // The image optimizer runs both locally and in production (locally,
     // NEXT_IMAGE_ALLOW_LOCAL_IP=true lets it fetch from 127.0.0.1), so <Image>
     // always emits /_next/image URLs and this assertion applies everywhere.
@@ -105,9 +105,9 @@ test.describe('Presenter list page — image routing', { tag: '@smoke' }, () => 
     }
   });
 
-  test('browser makes no direct requests to Supabase storage for presenter images', async ({
-    page
-  }) => {
+  test('browser makes no direct requests to Supabase storage for presenter images', {
+    tag: '@regression'
+  }, async ({ page }) => {
     const directStorageRequests: string[] = [];
 
     // With <Image>, Next.js fetches from Supabase server-side and caches the result.
@@ -126,9 +126,9 @@ test.describe('Presenter list page — image routing', { tag: '@smoke' }, () => 
     ).toHaveLength(0);
   });
 
-  test('/_next/image requests only use configured width values', async ({
-    page
-  }) => {
+  test('/_next/image requests only use configured width values', {
+    tag: '@regression'
+  }, async ({ page }) => {
     const unexpectedWidths: string[] = [];
 
     await page.route('**/_next/image**', (route) => {

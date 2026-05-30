@@ -29,7 +29,9 @@ const buildTestTitle = (prefix: string) =>
       loggedInUser = undefined;
     });
 
-    test('Form submission unavailable if logged out', async ({ page }) => {
+    test('Form submission unavailable if logged out', { tag: ['@smoke', '@synthetic'] }, async ({
+      page
+    }) => {
       await page.goto('/submit-presentation');
       await expect(page.getByText('You need to be logged in')).toBeVisible();
     });
