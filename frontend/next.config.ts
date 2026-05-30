@@ -5,14 +5,16 @@ const config: NextConfig = {
   cacheComponents: true,
   cacheLife: {
     // Public content (presentations, presenters, agenda) is invalidated
-    // on-demand via cacheTag/revalidateTag when edited through the site.
-    // These time values are only a backstop. Once externally-mutated data
-    // (acceptance/scheduling/video links) is covered by a revalidation
-    // webhook, the backstop can be lengthened (e.g. towards the 'max' profile).
+    // on-demand: edits through the site call cacheTag/revalidateTag, and
+    // external changes (acceptance/scheduling/video links) made directly in
+    // Supabase fire a database webhook → /api/revalidate (see the
+    // add_cache_revalidation_webhooks migration). With both paths covering
+    // freshness, these times are now only a safety net for a missed webhook,
+    // so they are lengthened to cut DB load.
     publicContent: {
-      stale: 300, // 5 minutes (client)
-      revalidate: 600, // 10 minutes (background server refresh)
-      expire: 86400 // 1 day
+      stale: 3600, // 1 hour (client)
+      revalidate: 21600, // 6 hours (background server refresh)
+      expire: 604800 // 1 week (hard cap before a blocking refresh)
     }
   },
   turbopack: {
