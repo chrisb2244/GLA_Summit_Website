@@ -3,6 +3,18 @@ import type { NextConfig } from 'next';
 const config: NextConfig = {
   reactStrictMode: true,
   cacheComponents: true,
+  cacheLife: {
+    // Public content (presentations, presenters, agenda) is invalidated
+    // on-demand via cacheTag/revalidateTag when edited through the site.
+    // These time values are only a backstop. Once externally-mutated data
+    // (acceptance/scheduling/video links) is covered by a revalidation
+    // webhook, the backstop can be lengthened (e.g. towards the 'max' profile).
+    publicContent: {
+      stale: 300, // 5 minutes (client)
+      revalidate: 600, // 10 minutes (background server refresh)
+      expire: 86400 // 1 day
+    }
+  },
   turbopack: {
     root: __dirname
   },

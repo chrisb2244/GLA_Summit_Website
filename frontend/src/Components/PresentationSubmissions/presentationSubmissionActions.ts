@@ -17,8 +17,14 @@ import {
   SubmitReturnType
 } from '@/actions/presentationActionTypes';
 import { logToDb } from '@/lib/utils';
-import { revalidatePath } from 'next/cache';
-import { revalidateTag } from 'next/cache';
+import { revalidatePath, revalidateTag, updateTag } from 'next/cache';
+import {
+  CACHE_TAGS,
+  cacheTagForPresentation,
+  cacheTagForPresentationVideo,
+  cacheTagForPresenterPresentations,
+  cacheTagForYear
+} from '@/lib/supabase/cacheTags';
 import { sendMailApi } from '@/lib/sendMail';
 import {
   FormSubmissionEmailFn,
@@ -375,9 +381,23 @@ const handlePresentationSubmission = async (
 
   if (presentationId) {
     revalidatePath(`/my-presentations/edit/${presentationId}`);
-    revalidatePath(`/presentations/${presentationId}`);
-    revalidateTag(`presentation:${presentationId}`, 'max');
-    revalidateTag(`presentation-video:${presentationId}`, 'max');
+
+    // The submitter is sent to their presentation after submitting, so use
+    // updateTag (read-your-writes) for the presentation's own caches.
+    updateTag(cacheTagForPresentation(presentationId));
+    updateTag(cacheTagForPresentationVideo(presentationId));
+
+    // The edited title/abstract also appears on the year list, the agenda, and
+    // each presenter's page. Those aren't the page the submitter lands on, so
+    // stale-while-revalidate (revalidateTag 'max') is appropriate.
+    revalidateTag(cacheTagForYear(submissionsForYear), 'max');
+    revalidateTag(CACHE_TAGS.agenda, 'max');
+    const affectedPresenterIds = new Set(
+      [...existingPresenters, ...prunedPresenters].map((p) => p.id)
+    );
+    for (const id of affectedPresenterIds) {
+      revalidateTag(cacheTagForPresenterPresentations(id), 'max');
+    }
   }
 
   return { success: true };
