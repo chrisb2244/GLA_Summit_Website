@@ -2,7 +2,93 @@
 
 import { createServerClient } from '@/lib/supabaseServer';
 import { joinNames, logToDb } from '@/lib/utils';
+import type { OrganizerVote } from '@/lib/databaseModels';
+import { revalidatePath } from 'next/cache';
 import JSZip from 'jszip';
+
+export type CastVoteResult = { success: boolean; error?: string };
+
+/**
+ * Record (or clear) the current organizer's vote on a submission.
+ *
+ * `vote === null` clears the vote (back to "not voted"); any other value is an
+ * upsert, which is also how an organizer changes their existing vote. Voting is
+ * only permitted while the submission is still under review — once it has been
+ * accepted or declined the outcome is locked (also enforced by RLS). Acceptance
+ * and decline themselves are handled by the `submission_votes` database trigger;
+ * this action only writes the vote.
+ */
+export const castVote = async (
+  presentationId: string,
+  vote: OrganizerVote | null
+): Promise<CastVoteResult> => {
+  const supabase = await createServerClient();
+  const { user } = (await supabase.auth.getUser()).data;
+  if (!user) {
+    return { success: false, error: 'You must be signed in to vote.' };
+  }
+
+  const isOrganizer =
+    ((
+      await supabase
+        .from('organizers')
+        .select('id', { head: true, count: 'exact' })
+        .eq('id', user.id)
+    ).count ?? 0) !== 0;
+  if (!isOrganizer) {
+    await logToDb('error', 'Unauthorized vote attempt', 'review-submissions/vote', {
+      userId: user.id,
+      context: { presentationId }
+    });
+    return { success: false, error: 'Only organizers can vote.' };
+  }
+
+  // Voting is locked once an outcome exists. RLS enforces this too, but fail
+  // fast with a clear message rather than surfacing an RLS rejection.
+  const [{ count: acceptedCount }, { count: rejectedCount }] = await Promise.all([
+    supabase
+      .from('accepted_presentations')
+      .select('id', { head: true, count: 'exact' })
+      .eq('id', presentationId),
+    supabase
+      .from('rejected_presentations')
+      .select('id', { head: true, count: 'exact' })
+      .eq('id', presentationId)
+  ]);
+  if ((acceptedCount ?? 0) !== 0 || (rejectedCount ?? 0) !== 0) {
+    return {
+      success: false,
+      error: 'This submission is no longer under review.'
+    };
+  }
+
+  const { error } =
+    vote === null
+      ? await supabase
+          .from('submission_votes')
+          .delete()
+          .eq('presentation_id', presentationId)
+          .eq('organizer_id', user.id)
+      : await supabase
+          .from('submission_votes')
+          .upsert({
+            presentation_id: presentationId,
+            organizer_id: user.id,
+            vote,
+            updated_at: new Date().toISOString()
+          });
+
+  if (error) {
+    await logToDb('error', 'Failed to record vote', 'review-submissions/vote', {
+      userId: user.id,
+      context: { presentationId, vote, message: error.message, code: error.code }
+    });
+    return { success: false, error: 'Could not record your vote.' };
+  }
+
+  revalidatePath('/review-submissions');
+  return { success: true };
+};
 
 export const downloadSharableSubmissionContent = async (
   presentationId: string
