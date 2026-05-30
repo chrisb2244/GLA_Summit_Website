@@ -102,9 +102,19 @@ type TestmailInboxData = {
   };
 };
 
-const testmailInboxQuery = `
+// The inbox query, optionally as a live query. With livequery the request
+// blocks server-side until at least one email matches (or returns immediately
+// if matches already exist), so callers learn of a new email the instant it
+// lands instead of polling. See waitForTestmailEmails for how the server-side
+// hold and its periodic 307 self-redirect are bounded.
+const testmailInboxQuery = (livequery: boolean = false): string => `
   query Inbox($namespace: String!, $tag: String!, $timestamp_from: Float) {
-    inbox(namespace: $namespace, tag: $tag, timestamp_from: $timestamp_from) {
+    inbox(
+      namespace: $namespace
+      tag: $tag
+      timestamp_from: $timestamp_from
+      ${livequery ? 'livequery: true' : ''}
+    ) {
       result
       count
       emails {
@@ -149,7 +159,7 @@ const queryTestmailInbox = async (
 ): Promise<TestmailEmail[]> => {
   try {
     const data = await getTestmailClient().request<TestmailInboxData>(
-      testmailInboxQuery,
+      testmailInboxQuery(),
       { namespace: testmailNamespace, tag, timestamp_from: timestampFrom }
     );
     return data.inbox?.emails ?? [];
@@ -185,6 +195,45 @@ const fromTestmail = (email: TestmailEmail): TestEmailMessage => ({
   timestamp: email.timestamp,
   spamScore: email.spam_score ?? undefined
 });
+
+// Block until at least one email to `tag` (sent at or after `sentAfter`)
+// satisfies every condition, then resolve to all matching messages. Uses
+// testmail's livequery, so the request returns the instant a matching email
+// lands instead of polling.
+//
+// There is no internal timeout: testmail holds each request open for up to a
+// minute, then 307-redirects to itself (which node-fetch auto-follows), so a
+// missing email simply keeps the request pending — which is the "set a timeout
+// in your test suite" the testmail docs call for. The Playwright per-test
+// timeout provides exactly that bound, well before node-fetch's redirect-follow
+// limit is reached.
+const waitForTestmailEmails = async (
+  tag: string,
+  conditions: EmailCondition[],
+  sentAfter: number
+): Promise<TestEmailMessage[]> => {
+  // Advance past emails we've already seen and rejected, so a re-issued live
+  // query blocks for newer mail instead of returning the same batch at once.
+  let anchor = sentAfter;
+
+  for (;;) {
+    const data = await getTestmailClient().request<TestmailInboxData>(
+      testmailInboxQuery(true),
+      { namespace: testmailNamespace, tag, timestamp_from: anchor }
+    );
+    const emails = data.inbox?.emails ?? [];
+    const matched = emails
+      .map(fromTestmail)
+      .filter((message) => conditions.every((condition) => condition(message)));
+    if (matched.length > 0) return matched;
+
+    anchor =
+      emails.reduce(
+        (newest, email) => Math.max(newest, email.timestamp),
+        anchor - 1
+      ) + 1;
+  }
+};
 
 // ── Mailpit ───────────────────────────────────────────────────────────────────
 
@@ -409,10 +458,38 @@ export const getInbucketVerificationCode = async (
     return textOtp;
   };
 
+  const extractNewest = (candidates: TestEmailMessage[]): string | null => {
+    const newestFirst = candidates.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+    for (const mail of newestFirst) {
+      const otp = tryExtract(mail);
+      if (otp) return otp;
+    }
+    return null;
+  };
+
   // Anchor the lower bound once, lookbackMs before we start polling, to cover the
   // OTP email that was just triggered. Captured outside the loop so it does not
   // slide forward on each iteration and skip a code that arrived early.
   const sentAfter = Date.now() - lookbackMs;
+
+  // On testmail, block on a live query so the code is returned the instant it
+  // lands; the wait condition is the strict extraction itself, so it only
+  // resolves on an email a code can actually be read from. The overall wait is
+  // bounded by the Playwright test timeout rather than `timeout`.
+  if (useTestmail()) {
+    const candidates = await waitForTestmailEmails(
+      getTagFromEmail(email),
+      [(mail) => tryExtract(mail) !== null],
+      sentAfter
+    );
+    return (
+      extractNewest(candidates) ?? Promise.reject('No verification code found')
+    );
+  }
+
+  // Mailpit has no blocking endpoint, so poll snapshots until the deadline.
   const deadline = Date.now() + timeout;
   while (Date.now() <= deadline) {
     const candidates = await getEmailsWithConditions(
@@ -424,13 +501,8 @@ export const getInbucketVerificationCode = async (
       ],
       sentAfter
     );
-    const newestFirst = candidates.sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
-    for (const mail of newestFirst) {
-      const otp = tryExtract(mail);
-      if (otp) return otp;
-    }
+    const otp = extractNewest(candidates);
+    if (otp) return otp;
     if (Date.now() >= deadline) break;
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
