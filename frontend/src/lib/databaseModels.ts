@@ -71,3 +71,10 @@ export type PresentationSubmissionsModel = {
 };
 
 export type ReviewableSubmissions = Database['public']['Functions']['get_reviewable_submissions']['Returns'];
+
+// Organizer voting on submitted presentations.
+export type OrganizerVote = Database['public']['Enums']['organizer_vote'];
+export type SubmissionVoteRow =
+  Database['public']['Tables']['submission_votes']['Row'];
+export type OrganizerDirectoryEntry =
+  Database['public']['Functions']['get_organizer_directory']['Returns'][number];

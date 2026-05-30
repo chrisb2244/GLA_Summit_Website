@@ -448,6 +448,42 @@ export type Database = {
           },
         ]
       }
+      submission_votes: {
+        Row: {
+          organizer_id: string
+          presentation_id: string
+          updated_at: string
+          vote: Database["public"]["Enums"]["organizer_vote"]
+        }
+        Insert: {
+          organizer_id: string
+          presentation_id: string
+          updated_at?: string
+          vote: Database["public"]["Enums"]["organizer_vote"]
+        }
+        Update: {
+          organizer_id?: string
+          presentation_id?: string
+          updated_at?: string
+          vote?: Database["public"]["Enums"]["organizer_vote"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "submission_votes_organizer_id_fkey"
+            columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "organizers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "submission_votes_presentation_id_fkey"
+            columns: ["presentation_id"]
+            isOneToOne: false
+            referencedRelation: "presentation_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ticket_sequences: {
         Row: {
           name: string | null
@@ -610,6 +646,14 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      get_organizer_directory: {
+        Args: never
+        Returns: {
+          firstname: string
+          id: string
+          lastname: string
+        }[]
+      }
       get_reviewable_submissions: {
         Args: { target_year: Database["public"]["Enums"]["summit_year"] }
         Returns: {
@@ -623,10 +667,12 @@ export type Database = {
           updated_at: string
         }[]
       }
+      is_organizer: { Args: never; Returns: boolean }
     }
     Enums: {
       log_type: "info" | "error" | "severe"
       mentoring_type: "mentor" | "mentee"
+      organizer_vote: "for" | "abstain" | "against"
       presentation_type:
         | "7x7"
         | "full length"
@@ -1316,6 +1362,7 @@ export const Constants = {
     Enums: {
       log_type: ["info", "error", "severe"],
       mentoring_type: ["mentor", "mentee"],
+      organizer_vote: ["for", "abstain", "against"],
       presentation_type: [
         "7x7",
         "full length",
