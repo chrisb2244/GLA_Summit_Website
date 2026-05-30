@@ -3,8 +3,12 @@ import type { NextParams, satisfy } from '@/lib/NextTypes';
 import { getPublicPresentationsForPresenter } from '@/lib/databaseFunctions';
 import { splitByYear } from '@/lib/presentationArrayFunctions';
 import { getAcceptedPresenterIds, getPerson } from '@/lib/supabase/public';
+import {
+  cacheTagForPerson,
+  cacheTagForPresenterPresentations
+} from '@/lib/supabase/cacheTags';
 import { createAnonServerClient } from '@/lib/supabaseClient';
-import { cacheLife } from 'next/cache';
+import { cacheLife, cacheTag } from 'next/cache';
 import { Metadata, NextPage } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -39,12 +43,20 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
 
 const PresentersPage: NextPage<PageProps> = async (props) => {
   'use cache';
-  cacheLife({ stale: 300, revalidate: 600, expire: 86400 });
+  cacheLife('publicContent');
 
   const presenterId = (await props.params).id;
   if (typeof presenterId !== 'string') {
     notFound();
   }
+
+  // Tag so a profile edit (cacheTagForPerson) or a presentation edit
+  // (cacheTagForPresenterPresentations) invalidates this rendered page, not
+  // just the inner getPerson cache entry.
+  cacheTag(
+    cacheTagForPerson(presenterId),
+    cacheTagForPresenterPresentations(presenterId)
+  );
 
   const supabase = createAnonServerClient();
 

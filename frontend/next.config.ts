@@ -3,6 +3,20 @@ import type { NextConfig } from 'next';
 const config: NextConfig = {
   reactStrictMode: true,
   cacheComponents: true,
+  cacheLife: {
+    // Public content (presentations, presenters, agenda) is invalidated
+    // on-demand: edits through the site call cacheTag/revalidateTag, and
+    // external changes (acceptance/scheduling/video links) made directly in
+    // Supabase fire a database webhook → /api/revalidate (see the
+    // add_cache_revalidation_webhooks migration). With both paths covering
+    // freshness, these times are now only a safety net for a missed webhook,
+    // so they are lengthened to cut DB load.
+    publicContent: {
+      stale: 3600, // 1 hour (client)
+      revalidate: 21600, // 6 hours (background server refresh)
+      expire: 604800 // 1 week (hard cap before a blocking refresh)
+    }
+  },
   turbopack: {
     root: __dirname
   },

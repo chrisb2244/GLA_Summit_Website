@@ -9,8 +9,9 @@ import {
   sortPresentationsBySchedule
 } from '@/lib/utils';
 import type { NextParams, satisfy } from '@/lib/NextTypes';
-import { isSummitYear, SummitYear } from '@/lib/databaseModels';
-import { cacheLife } from 'next/cache';
+import { isSummitYear, summityears, SummitYear } from '@/lib/databaseModels';
+import { cacheTagForYear } from '@/lib/supabase/cacheTags';
+import { cacheLife, cacheTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 
@@ -18,24 +19,41 @@ type PageProps = {
   params: satisfy<NextParams, Promise<{ year: string }>>;
 };
 
-const PresentationsForYearPage = (props: PageProps) => {
-  return (
-    <Suspense fallback={<p>Loading presentations...</p>}>
-      <PresentationsForYearPageContent {...props} />
-    </Suspense>
-  );
-};
+// Prerender the known summit years at build time. Without this the [year]
+// route is rendered on-demand, where the 'use cache' store is a per-instance
+// in-memory LRU that doesn't persist across serverless requests — so every
+// visit re-ran the DB query. Prerendering serves static HTML and lets the
+// existing cacheTag/webhook revalidation refresh it via ISR.
+export function generateStaticParams() {
+  return summityears.map((year) => ({ year }));
+}
 
-const PresentationsForYearPageContent = async (props: PageProps) => {
-  'use cache';
-  cacheLife({ stale: 300, revalidate: 600, expire: 86400 });
-
+const PresentationsForYearPage = async (props: PageProps) => {
+  // Validate the param outside the cached scope so the cache boundary only
+  // ever sees a known SummitYear, and the redirect doesn't run inside cache.
   const { year } = await props.params;
   if (!isSummitYear(year)) {
     redirect('/presentation-list');
   }
+
+  return (
+    <Suspense fallback={<p>Loading presentations...</p>}>
+      <PresentationsForYearPageContent year={year} />
+    </Suspense>
+  );
+};
+
+const PresentationsForYearPageContent = async ({
+  year
+}: {
+  year: SummitYear;
+}) => {
+  'use cache';
+  cacheLife('publicContent');
+  cacheTag(cacheTagForYear(year));
+
   const supabase = createAnonServerClient();
-  const { data, error } = await supabase.rpc('get_all_presentations').eq('year', year as SummitYear).select('*');
+  const { data, error } = await supabase.rpc('get_all_presentations').eq('year', year).select('*');
 
   if (error) {
     return <p>Error loading presentations</p>;

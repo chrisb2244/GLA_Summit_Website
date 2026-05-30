@@ -7,7 +7,14 @@ import { cacheLife, cacheTag } from 'next/cache';
 import { logToDb } from '../utils';
 import { PersonDisplayProps } from '@/Components/PersonDisplay';
 import { getPeople_Authed } from './authorized';
-import { cacheTagForPerson, CACHE_TAGS } from './cacheTags';
+import {
+  cacheTagForPerson,
+  cacheTagForPresentation,
+  cacheTagForPresentationVideo,
+  CACHE_TAGS
+} from './cacheTags';
+import { getPublicPresentation, getVideoLink } from '../databaseFunctions';
+import type { PresentationModel } from '../databaseModels';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string;
@@ -66,7 +73,8 @@ export const getAcceptedPresenterIds = async (year?: SummitYear) => {
  * @returns An array of user profiles
  * @throws Error if the request fails
  *
- * This function is cached with the 'getPeople' tag
+ * Each entry is tagged per-person (cacheTagForPerson), so editing one profile
+ * invalidates exactly the entries that contain that person.
  */
 export const getPeople = async (
   ids: string[]
@@ -75,17 +83,50 @@ export const getPeople = async (
 > => {
   'use cache';
   cacheLife('weeks');
-  cacheTag(CACHE_TAGS.people);
   ids.forEach((id) => cacheTag(cacheTagForPerson(id)));
 
   const anonClient = createClient();
   return getPeople_Authed(ids, anonClient);
 };
 
+/**
+ * Get a single person's profile.
+ *
+ * Delegates to the cached, batched {@link getPeople} (a single DB query, cached
+ * and tagged per-person) rather than wrapping its own `'use cache'` boundary,
+ * which would create a second, duplicate cache entry for the same data.
+ */
 export const getPerson = async (id: string) => {
-  'use cache';
-  cacheLife('weeks');
-  cacheTag(CACHE_TAGS.people, cacheTagForPerson(id));
-
   return getPeople([id]).then((people) => people[0]);
+};
+
+/**
+ * Cached public presentation data (the raw `get_all_presentations` row).
+ *
+ * Shared between the presentation page and its `generateMetadata` so both read
+ * from the same cache entry. Tagged so edits made through the site can
+ * invalidate it via {@link cacheTagForPresentation}.
+ */
+export const getCachedPublicPresentation = async (
+  presentationId: string
+): Promise<PresentationModel> => {
+  'use cache';
+  cacheLife('publicContent');
+  cacheTag(cacheTagForPresentation(presentationId));
+
+  return getPublicPresentation(presentationId, createClient());
+};
+
+/**
+ * Cached video link for a presentation. Tagged via
+ * {@link cacheTagForPresentationVideo} for on-demand invalidation.
+ */
+export const getCachedVideoLink = async (
+  presentationId: string
+): Promise<string | null> => {
+  'use cache';
+  cacheLife('publicContent');
+  cacheTag(cacheTagForPresentationVideo(presentationId));
+
+  return getVideoLink(presentationId, createClient());
 };
