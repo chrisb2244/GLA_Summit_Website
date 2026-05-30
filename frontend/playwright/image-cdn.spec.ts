@@ -31,7 +31,7 @@ const ALLOWED_IMAGE_WIDTHS = new Set(['320', '640', '1080', '1920']);
 test.describe('UserMenu avatar — logged-in user', () => {
   let user: SeededUser;
 
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async () => {
     user = await createAttendee();
   });
 
@@ -79,75 +79,87 @@ test.describe('UserMenu avatar — logged-in user', () => {
 });
 
 test.describe('Presenter list page — image routing', () => {
-  test('presenter avatar images are served via /_next/image', {
-    tag: ['@smoke', '@synthetic']
-  }, async ({ page }) => {
-    // The image optimizer runs both locally and in production (locally,
-    // NEXT_IMAGE_ALLOW_LOCAL_IP=true lets it fetch from 127.0.0.1), so <Image>
-    // always emits /_next/image URLs and this assertion applies everywhere.
-    await page.goto('/presenters');
-    await page.waitForLoadState('networkidle');
+  test(
+    'presenter avatar images are served via /_next/image',
+    {
+      tag: ['@smoke', '@synthetic']
+    },
+    async ({ page }) => {
+      // The image optimizer runs both locally and in production (locally,
+      // NEXT_IMAGE_ALLOW_LOCAL_IP=true lets it fetch from 127.0.0.1), so <Image>
+      // always emits /_next/image URLs and this assertion applies everywhere.
+      await page.goto('/presenters');
+      await page.waitForLoadState('networkidle');
 
-    const presenterImages = page.locator('img[alt^="Image of"]');
-    const count = await presenterImages.count();
+      const presenterImages = page.locator('img[alt^="Image of"]');
+      const count = await presenterImages.count();
 
-    if (count === 0) {
-      // No accepted presenters with avatars in this environment.
-      return;
-    }
-
-    for (let i = 0; i < count; i++) {
-      const src = await presenterImages.nth(i).getAttribute('src');
-      expect(
-        src,
-        `Presenter image [${i}] should be served via /_next/image, not as a bare URL`
-      ).toMatch(/^\/_next\/image\?url=/);
-    }
-  });
-
-  test('browser makes no direct requests to Supabase storage for presenter images', {
-    tag: '@regression'
-  }, async ({ page }) => {
-    const directStorageRequests: string[] = [];
-
-    // With <Image>, Next.js fetches from Supabase server-side and caches the result.
-    // The browser should only ever see /_next/image URLs, never raw Supabase CDN URLs.
-    await page.route(SUPABASE_CDN_AVATAR, (route) => {
-      directStorageRequests.push(route.request().url());
-      route.continue();
-    });
-
-    await page.goto('/presenters');
-    await page.waitForLoadState('networkidle');
-
-    expect(
-      directStorageRequests,
-      'Presenter images should be fetched server-side via /_next/image, not directly by the browser'
-    ).toHaveLength(0);
-  });
-
-  test('/_next/image requests only use configured width values', {
-    tag: '@regression'
-  }, async ({ page }) => {
-    const unexpectedWidths: string[] = [];
-
-    await page.route('**/_next/image**', (route) => {
-      const url = new URL(route.request().url());
-      const w = url.searchParams.get('w');
-      if (w && !ALLOWED_IMAGE_WIDTHS.has(w)) {
-        unexpectedWidths.push(w);
+      if (count === 0) {
+        // No accepted presenters with avatars in this environment.
+        return;
       }
-      route.continue();
-    });
 
-    await page.goto('/presenters');
-    await page.waitForLoadState('networkidle');
+      for (let i = 0; i < count; i++) {
+        const src = await presenterImages.nth(i).getAttribute('src');
+        expect(
+          src,
+          `Presenter image [${i}] should be served via /_next/image, not as a bare URL`
+        ).toMatch(/^\/_next\/image\?url=/);
+      }
+    }
+  );
 
-    expect(
-      unexpectedWidths,
-      `/_next/image used widths outside the configured set {${[
-        ...ALLOWED_IMAGE_WIDTHS
-      ].join(', ')}}: ${unexpectedWidths.join(', ')}`
-    ).toHaveLength(0);
-  });
+  test(
+    'browser makes no direct requests to Supabase storage for presenter images',
+    {
+      tag: '@regression'
+    },
+    async ({ page }) => {
+      const directStorageRequests: string[] = [];
+
+      // With <Image>, Next.js fetches from Supabase server-side and caches the result.
+      // The browser should only ever see /_next/image URLs, never raw Supabase CDN URLs.
+      await page.route(SUPABASE_CDN_AVATAR, (route) => {
+        directStorageRequests.push(route.request().url());
+        route.continue();
+      });
+
+      await page.goto('/presenters');
+      await page.waitForLoadState('networkidle');
+
+      expect(
+        directStorageRequests,
+        'Presenter images should be fetched server-side via /_next/image, not directly by the browser'
+      ).toHaveLength(0);
+    }
+  );
+
+  test(
+    '/_next/image requests only use configured width values',
+    {
+      tag: '@regression'
+    },
+    async ({ page }) => {
+      const unexpectedWidths: string[] = [];
+
+      await page.route('**/_next/image**', (route) => {
+        const url = new URL(route.request().url());
+        const w = url.searchParams.get('w');
+        if (w && !ALLOWED_IMAGE_WIDTHS.has(w)) {
+          unexpectedWidths.push(w);
+        }
+        route.continue();
+      });
+
+      await page.goto('/presenters');
+      await page.waitForLoadState('networkidle');
+
+      expect(
+        unexpectedWidths,
+        `/_next/image used widths outside the configured set {${[
+          ...ALLOWED_IMAGE_WIDTHS
+        ].join(', ')}}: ${unexpectedWidths.join(', ')}`
+      ).toHaveLength(0);
+    }
+  );
 });
