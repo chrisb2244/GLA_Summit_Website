@@ -10,7 +10,7 @@
     "@mdi/react": "^1.6.1",
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.104.1",
-    "@vercel/speed-insights": "^1.0.12",
+    "@vercel/speed-insights": "^2.0.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^1.2.1",
     "form-data": "^4.0.0",
@@ -44,13 +44,13 @@
     "@testing-library/react": "^16.1.0",
     "@testing-library/user-event": "^14.5.2",
     "@testmail.app/graphql-request": "^1.8.4",
-    "@types/node": "^18.16.16",
+    "@types/node": "^22.0.0",
     "@types/nodemailer": "^6.4.4",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@typescript-eslint/eslint-plugin": "^8.11.0",
     "@typescript-eslint/parser": "^8.11.0",
-    "@vitejs/plugin-react": "^4.3.4",
+    "@vitejs/plugin-react": "^6.0.2",
     "autoprefixer": "^10.4.13",
     "dotenv": "^16.0.3",
     "encoding": "^0.1.13",
@@ -70,7 +70,7 @@
     "types-react": "^19.0.0-rc.1",
     "types-react-dom": "^19.0.0-rc.1",
     "typescript": "^5.3.3",
-    "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.0.9"
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.7"
   }
 }
