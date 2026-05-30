@@ -512,32 +512,66 @@ const buildTestTitle = (prefix: string) =>
       await expect(formPage.learningPointsInput).toHaveValue(learningPoints);
     });
 
-    // test('Switching tabs does not change form content', async ({ page, context }) => {
-    //   const formPage = new PresentationSubmissionPage(page)
-    //   await formPage.goto('/submit-presentation')
-    //   // Wait for the login dialog to disappear (have saved session state)
-    //   await formPage.waitForFormLoad()
+    test('Switching tabs does not change form content', async ({
+      page,
+      context
+    }) => {
+      // Auth comes from the describe-level beforeEach (createAttendee +
+      // loginOnPage); the removed saved-storageState path is no longer used.
+      await page.goto('/submit-presentation');
 
-    //   // Expect a clean form
-    //   expect(await formPage.titleInput.inputValue()).toEqual("")
+      const formPage = new PresentationSubmissionPage(page);
+      await formPage.waitForFormLoad();
 
-    //   const testTitle = 'Form title for checking values dont change';
-    //   const abstract = new Array(10).fill(testTitle).join(" ")
-    //   await formPage.fillFormData({
-    //     title: testTitle,
-    //     abstract
-    //   })
+      // Form starts clean.
+      await expect(formPage.titleInput).toHaveValue('');
 
-    //   expect(await formPage.titleInput.inputValue()).toEqual(testTitle)
+      const testTitle = buildTestTitle('Tab switch persistence');
+      const abstract = 'Tab switch abstract '.repeat(10);
+      await formPage.fillFormData({ title: testTitle, abstract });
+      await expect(formPage.titleInput).toHaveValue(testTitle);
 
-    //   const otherPage = await context.newPage();
-    //   await otherPage.goto("https://google.com");
-    //   await otherPage.bringToFront();
+      // Background this tab by opening and focusing another, mirroring a real
+      // user switching away.
+      const otherPage = await context.newPage();
+      await otherPage.goto('about:blank');
+      await otherPage.bringToFront();
 
-    //   await page.bringToFront();
-    //   expect(await formPage.titleInput.inputValue()).toEqual(testTitle)
-    //   expect(await formPage.abstractInput.textContent()).not.toEqual("")
-    // })
+      // Sanity check: did backgrounding actually flip this page's visibility?
+      // Firefox/headless visibility emulation is unreliable, so if the native
+      // event did not fire we drive the hidden→visible cycle ourselves. Either
+      // way any focus/visibility-driven reset code path is genuinely exercised
+      // before we assert persistence, which prevents a false pass.
+      const nativeHidden = await page.evaluate(
+        () => document.visibilityState === 'hidden'
+      );
+      if (!nativeHidden) {
+        await page.evaluate(() => {
+          const setVisibility = (state: 'hidden' | 'visible') =>
+            Object.defineProperty(document, 'visibilityState', {
+              configurable: true,
+              get: () => state
+            });
+          setVisibility('hidden');
+          document.dispatchEvent(new Event('visibilitychange'));
+          window.dispatchEvent(new Event('blur'));
+          setVisibility('visible');
+          document.dispatchEvent(new Event('visibilitychange'));
+          window.dispatchEvent(new Event('focus'));
+        });
+      }
+
+      // Return to the form tab.
+      await page.bringToFront();
+      await otherPage.close();
+
+      // Poll (toHaveValue auto-retries) so an async focus-triggered
+      // refetch/reset cannot slip past a single synchronous read. Use
+      // inputValue semantics — abstract is an uncontrolled <textarea>, so its
+      // typed value lives in `.value`, not `.textContent`.
+      await expect(formPage.titleInput).toHaveValue(testTitle);
+      await expect(formPage.abstractInput).toHaveValue(abstract);
+    });
   });
 });
 
