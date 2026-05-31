@@ -22,6 +22,7 @@ next-env.d.ts
 .env.development.local
 .env.test.local
 .env.test
+.env.test.remote
 .env.production.local
 
 tsconfig.tsbuildinfo
