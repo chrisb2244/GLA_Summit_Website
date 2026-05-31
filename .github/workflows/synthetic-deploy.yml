@@ -36,6 +36,10 @@ jobs:
       NEXT_PUBLIC_SUPABASE_URL: ${{ vars.TEST_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.TEST_SUPABASE_ANON_KEY }}
       SECRET_SUPABASE_SERVICE_KEY: ${{ secrets.TEST_SUPABASE_SERVICE_KEY }}
+      # Sent as the `x-synthetic-bypass` request header (see playwright.config.ts)
+      # to satisfy a Vercel Firewall bypass rule, so Attack Challenge Mode does
+      # not block these checks. Configure the matching rule + GH secret in Vercel.
+      SYNTHETIC_BYPASS_SECRET: ${{ secrets.SYNTHETIC_BYPASS_SECRET }}
     steps:
       - uses: actions/checkout@v6
 
