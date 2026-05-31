@@ -140,13 +140,19 @@ test.describe('User Authentication Tests', () => {
       loginablePage.submitForm('enter key'),
       loginablePage.submitForm('button click'),
       loginablePage.submitForm()
-    ]).then(() => new Promise((r) => setTimeout(r, 500)));
+    ]);
 
-    const numEmailsInBucket = await countEmailsInInbox(user.email);
-    expect(numEmailsInBucket).toBe(1);
-
+    // Wait for the OTP email to actually land before counting. Against
+    // testmail.app, app→Mailgun→testmail delivery takes seconds, so the old
+    // fixed 500ms snapshot raced delivery and counted 0. Block on the code
+    // first (latency-tolerant livequery), then let any duplicate a broken
+    // debounce would have sent settle, then assert exactly one arrived.
     const otp = await getInbucketVerificationCode(user.email, 5000);
     expect(otp).toBeDefined();
+
+    await page.waitForTimeout(2000);
+    const numEmailsInBucket = await countEmailsInInbox(user.email);
+    expect(numEmailsInBucket).toBe(1);
 
     await loginablePage.fillInVerificationForm(otp);
     await loginablePage.submitForm();
@@ -188,13 +194,16 @@ test.describe('User Authentication Tests', () => {
 
     await Promise.allSettled(attempts);
 
-    await page.waitForTimeout(500); // Wait for any potential emails to be sent
-
-    const numEmailsInBucket = await countEmailsInInbox(user.email);
-    expect(numEmailsInBucket).toBe(1);
-
+    // Wait for the OTP email to actually land before counting. testmail.app
+    // delivery (app→Mailgun→testmail) takes seconds, so a fixed 500ms snapshot
+    // races delivery and counts 0. Block on the code first (latency-tolerant
+    // livequery), let any duplicate settle, then assert exactly one arrived.
     const otp = await getInbucketVerificationCode(user.email, 5000);
     expect(otp).toBeDefined();
+
+    await page.waitForTimeout(2000);
+    const numEmailsInBucket = await countEmailsInInbox(user.email);
+    expect(numEmailsInBucket).toBe(1);
 
     await loginablePage.fillInVerificationForm(otp);
     await loginablePage.submitForm();
