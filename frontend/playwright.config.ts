@@ -43,6 +43,20 @@ const config: PlaywrightTestConfig = {
     baseURL:
       process.env.VERCEL_URL || process.env.baseURL || 'http://localhost:3000',
 
+    /*
+     * Vercel Firewall Attack Challenge Mode serves a "Vercel Security
+     * Checkpoint" interstitial to automated/datacenter clients (e.g. CI), which
+     * the browser can't pass. When SYNTHETIC_BYPASS_SECRET is set we attach the
+     * matching header so a Vercel Firewall bypass rule (Header
+     * `x-synthetic-bypass` equals the secret → Action: Bypass) lets the request
+     * through. Only CI knows the secret, so the rule can't be abused.
+     */
+    ...(process.env.SYNTHETIC_BYPASS_SECRET && {
+      extraHTTPHeaders: {
+        'x-synthetic-bypass': process.env.SYNTHETIC_BYPASS_SECRET
+      }
+    }),
+
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry'
   },
