@@ -15,7 +15,7 @@ export const getUser = cache(async () => {
 });
 
 export const getUserDataForMenu = async () => {
-  'use cache';
+  'use cache: private';
   cacheLife('default');
 
   const user = await getUser();
