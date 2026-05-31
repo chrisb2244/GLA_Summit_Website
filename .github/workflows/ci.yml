@@ -20,8 +20,8 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: '22.x'
           cache: npm
@@ -36,8 +36,8 @@ jobs:
       NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:55321
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-dummy-anon-key
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: '22.x'
           cache: npm
