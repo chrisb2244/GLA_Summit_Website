@@ -26,10 +26,16 @@ jobs:
     env:
       # playwright.config.ts reads `baseURL` (and VERCEL_URL) for the target.
       baseURL: ${{ github.event.deployment_status.target_url }}
-      # Public, read-only — lets any client init at import time succeed. No
-      # service key, no testmail: these checks must never write or send email.
+      # @synthetic tests are read-only browser checks against the deployment URL
+      # and never call the admin client. But Playwright imports the whole test
+      # dir during collection, and some specs construct createSupabaseAdmin() at
+      # describe scope — which throws if the key is absent. Provide the TEST
+      # project's key (NOT prod's): it targets the test DB, so it cannot affect
+      # production, and the synthetic tests never use it. Deliberately no
+      # testmail/Mailgun — these checks must never send email.
       NEXT_PUBLIC_SUPABASE_URL: ${{ vars.TEST_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.TEST_SUPABASE_ANON_KEY }}
+      SECRET_SUPABASE_SERVICE_KEY: ${{ secrets.TEST_SUPABASE_SERVICE_KEY }}
     steps:
       - uses: actions/checkout@v6
 
