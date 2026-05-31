@@ -213,6 +213,38 @@ export const ReviewSubmissionsPageContent = async () => {
           )}
         </section>
       ))}
+
+      <details className='mt-8 rounded-lg border border-gray-200 bg-gray-50'>
+        <summary className='cursor-pointer select-none px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900'>
+          Voting rules
+        </summary>
+        <div className='px-4 pb-4 pt-2 text-sm text-gray-700'>
+          <p className='mb-2'>
+            Outcomes are decided automatically after each vote is cast or changed.
+          </p>
+          <ul className='space-y-2'>
+            <li>
+              <span className='font-semibold text-green-700'>Accept</span>
+              {' — all organizers have voted, at least one "for", and zero "against".'}
+              <span className='ml-1 text-gray-500'>(Full participation required.)</span>
+            </li>
+            <li>
+              <span className='font-semibold text-red-700'>Decline</span>
+              {' — a "for" majority is no longer achievable: '}
+              <span className='font-mono'>2 × against + abstain &gt; total organizers</span>
+              {'. An abstain is treated as a committed non-"for" vote; only unvoted organizers can still swing "for".'}
+              <span className='ml-1 text-gray-500'>(Does not require full participation.)</span>
+            </li>
+            <li>
+              <span className='font-semibold text-gray-700'>Under review</span>
+              {' — neither condition is met yet.'}
+            </li>
+          </ul>
+          <p className='mt-2 text-gray-500'>
+            Once accepted or declined, votes are locked and the outcome cannot be reversed.
+          </p>
+        </div>
+      </details>
     </div>
   );
 };
