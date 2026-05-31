@@ -1,0 +1,68 @@
+name: Synthetic (on deploy)
+
+# Read-only @synthetic checks against the REAL Vercel deployment once it is
+# ready. Fires for every successful deployment (feature preview, staging, and
+# production). Safe even when the URL is prod-backed because the @synthetic
+# specs provision nothing and only navigate/assert.
+#
+# NOTE: `deployment_status`-triggered workflows only run from the file on the
+# default branch (master), so this takes effect once merged to master.
+
+on:
+  deployment_status:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: frontend
+
+jobs:
+  synthetic:
+    if: ${{ github.event.deployment_status.state == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # playwright.config.ts reads `baseURL` (and VERCEL_URL) for the target.
+      baseURL: ${{ github.event.deployment_status.target_url }}
+      # Public, read-only — lets any client init at import time succeed. No
+      # service key, no testmail: these checks must never write or send email.
+      NEXT_PUBLIC_SUPABASE_URL: ${{ vars.TEST_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.TEST_SUPABASE_ANON_KEY }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22.x'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - run: npm ci
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: pw-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}
+
+      - name: Install Playwright Firefox
+        run: npx playwright install --with-deps firefox
+
+      - name: Run @synthetic against the deployment
+        run: |
+          touch .env.test
+          echo "Target: $baseURL"
+          npx playwright test --project firefox --reporter=line,html --grep @synthetic
+
+      - name: Upload Playwright report
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: synthetic-report
+          path: |
+            frontend/playwright-report
+            frontend/test-results
+          if-no-files-found: ignore
+          retention-days: 7
