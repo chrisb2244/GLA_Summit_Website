@@ -1,0 +1,112 @@
+name: E2E (test DB)
+
+# Heavy/provisioning Playwright suites. They must NOT run against the Vercel
+# preview/prod URLs (those point at the production DB), so CI builds and serves
+# the app itself with TEST-project env and runs Playwright against localhost.
+#
+# Tag depth by PR target branch:
+#   → staging : @synthetic | @smoke | @regression
+#   → master  : full suite (promotion gate)
+#
+# Make the `e2e` job a required check on `staging` and `master`.
+
+on:
+  pull_request:
+    branches: [staging, master]
+
+permissions:
+  contents: read
+
+# One shared test database → serialise so concurrent runs can't collide on
+# deterministic seed data (e.g. ticket sequences). Queue rather than cancel.
+concurrency:
+  group: e2e-shared-test-db
+  cancel-in-progress: false
+
+defaults:
+  run:
+    working-directory: frontend
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CI: 'true'
+      # Build-time + runtime app env → the TEST Supabase project.
+      # URL + publishable anon key are non-sensitive → repository variables.
+      NEXT_PUBLIC_SUPABASE_URL: ${{ vars.TEST_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.TEST_SUPABASE_ANON_KEY }}
+      SECRET_SUPABASE_SERVICE_KEY: ${{ secrets.TEST_SUPABASE_SERVICE_KEY }}
+      # Server-side secrets the exercised flows need.
+      TICKET_KEY: ${{ secrets.CI_TICKET_KEY }}
+      COPRESENTER_INVITE_KEY: ${{ secrets.CI_COPRESENTER_INVITE_KEY }}
+      # Real Mailgun so app-sent emails (submission/invite) reach testmail.app.
+      MAILGUN_SENDING_KEY: ${{ secrets.MAILGUN_SENDING_KEY }}
+      EMAIL_FROM_MG: ${{ vars.EMAIL_FROM_MG }}
+      # Route test email lookups to testmail.app instead of the local inbox.
+      TESTMAIL_NAMESPACE: ${{ vars.TESTMAIL_NAMESPACE }}
+      TESTMAIL_API_KEY: ${{ secrets.TESTMAIL_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - run: npm ci
+
+      - name: Cache Next build
+        uses: actions/cache@v4
+        with:
+          path: frontend/.next/cache
+          key: next-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}-${{ github.sha }}
+          restore-keys: |
+            next-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}-
+
+      - name: Build app (test DB)
+        run: npm run build
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: pw-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}
+
+      - name: Install Playwright Firefox
+        run: npx playwright install --with-deps firefox
+
+      - name: Start app and wait for ready
+        run: |
+          # playwright.config.ts hard-requires .env.test to exist; an empty file
+          # is valid (all real values come from the job env above, which dotenv
+          # does not override).
+          touch .env.test
+          nohup npm start > /tmp/app.log 2>&1 &
+          for i in $(seq 1 60); do
+            if curl -fsS http://localhost:3000 >/dev/null 2>&1; then
+              echo "app ready"; exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::app did not become ready"; cat /tmp/app.log; exit 1
+
+      - name: Run Playwright (tier by target branch)
+        run: |
+          if [ "${{ github.base_ref }}" = "master" ]; then
+            echo "Master promotion gate → full suite"
+            npx playwright test --project firefox --reporter=line
+          else
+            echo "Staging gate → @synthetic|@smoke|@regression"
+            npx playwright test --project firefox --reporter=line --grep "@synthetic|@smoke|@regression"
+          fi
+
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: frontend/playwright-report
+          retention-days: 7
