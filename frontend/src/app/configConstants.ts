@@ -31,6 +31,10 @@ export const submissionsForYear: SummitYear = '2026';
 // Update when effectively transitioning the site to reflect primarily a new event year.
 export const ticketYear: SummitYear = '2026';
 
+// Cache-busting version for the generated ticket OG image (/api/ticket).
+// It is not part of the signed data, so it does not affect token validation.
+export const TICKET_DESIGN_VERSION = 1;
+
 export const startDate = new Date(Date.UTC(2026, 7, 31, 12, 0, 0));
 export const eventUrl =
   'https://app.events.ringcentral.com/events/gla-summit-2026/';
