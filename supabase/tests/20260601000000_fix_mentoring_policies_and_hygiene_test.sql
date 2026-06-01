@@ -1,0 +1,158 @@
+-- pgTAP tests for 20260601000000_fix_mentoring_policies_and_hygiene.sql
+--
+-- Assumes the migration under test has already been applied (the normal
+-- `supabase test db` flow runs after `db:reset` applies all migrations).
+--
+-- The explicit BEGIN/ROLLBACK is required: `supabase test db` does NOT wrap the
+-- file in a transaction, so without it the SET LOCAL ROLE and
+-- set_config(..., is_local => true) calls below are no-ops ("SET LOCAL can only
+-- be used in transaction blocks"). The rollback also discards the seeded row.
+
+BEGIN;
+SELECT plan(15);
+
+-- A real account email/id to drive the auth.email() / email_lookup paths.
+SELECT id AS acct_id, email AS acct_email
+FROM public.email_lookup
+ORDER BY email
+LIMIT 1 \gset
+SELECT set_config('test.acct_email', :'acct_email', true);
+SELECT set_config('test.acct_id',    :'acct_id',    true);
+
+-- Seed a mentoring row owned by nobody (different email) to prove that a
+-- logged-in user cannot read other people's rows. Inserted as the superuser
+-- test role, bypassing RLS.
+INSERT INTO public.mentoring (email, firstname, lastname, entry_type)
+VALUES ('foreign@example.invalid', 'Not', 'You', 'mentor');
+
+-- ---------------------------------------------------------------------------
+-- email_has_account helper
+-- ---------------------------------------------------------------------------
+SELECT has_function(
+  'public', 'email_has_account', ARRAY['text'],
+  'email_has_account(text) exists'
+);
+SELECT is(
+  (SELECT prosecdef FROM pg_proc WHERE oid = 'public.email_has_account(text)'::regprocedure),
+  true,
+  'email_has_account is SECURITY DEFINER'
+);
+SELECT is(
+  public.email_has_account(current_setting('test.acct_email')),
+  true,
+  'email_has_account returns true for a known account email'
+);
+SELECT is(
+  public.email_has_account('definitely-not-real@example.invalid'),
+  false,
+  'email_has_account returns false for an unknown email'
+);
+
+-- ---------------------------------------------------------------------------
+-- mentoring policy set was replaced (old buggy policy is gone)
+-- ---------------------------------------------------------------------------
+SELECT policies_are(
+  'public', 'mentoring',
+  ARRAY[
+    'Register an email with no existing account',
+    'Logged in users can register their own email',
+    'Users can read their own status'
+  ],
+  'mentoring has exactly the three corrected policies'
+);
+
+-- ---------------------------------------------------------------------------
+-- anon INSERT behaviour
+-- ---------------------------------------------------------------------------
+SET LOCAL ROLE anon;
+SELECT set_config('request.jwt.claims', '', true);
+
+SELECT lives_ok(
+  $$INSERT INTO public.mentoring (email, firstname, lastname, entry_type)
+    VALUES ('brand-new@example.invalid', 'New', 'Person', 'mentee')$$,
+  'anon CAN register an email with no existing account'
+);
+SELECT throws_ok(
+  $$INSERT INTO public.mentoring (email, firstname, lastname, entry_type)
+    VALUES (current_setting('test.acct_email'), 'Imp', 'Oster', 'mentee')$$,
+  '42501',
+  NULL,
+  'anon CANNOT register an email that already has an account'
+);
+RESET ROLE;
+
+-- ---------------------------------------------------------------------------
+-- authenticated INSERT / SELECT behaviour (JWT email = own account email)
+-- ---------------------------------------------------------------------------
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claims',
+  json_build_object(
+    'sub',   current_setting('test.acct_id'),
+    'email', current_setting('test.acct_email'),
+    'role',  'authenticated'
+  )::text,
+  true
+);
+
+SELECT lives_ok(
+  $$INSERT INTO public.mentoring (email, firstname, lastname, entry_type)
+    VALUES (current_setting('test.acct_email'), 'Me', 'Self', 'mentor')$$,
+  'authenticated CAN register their own account email'
+);
+SELECT is(
+  (SELECT count(*)::int FROM public.mentoring
+   WHERE email = current_setting('test.acct_email')),
+  1,
+  'authenticated can read their own mentoring row'
+);
+SELECT is(
+  (SELECT count(*)::int FROM public.mentoring
+   WHERE email = 'foreign@example.invalid'),
+  0,
+  'authenticated cannot read another person''s mentoring row'
+);
+RESET ROLE;
+
+-- ---------------------------------------------------------------------------
+-- confirmed_presentations.created_at column protection restored
+-- ---------------------------------------------------------------------------
+SELECT is(
+  has_column_privilege('authenticated', 'public.confirmed_presentations', 'created_at', 'SELECT'),
+  false,
+  'authenticated cannot SELECT confirmed_presentations.created_at'
+);
+SELECT is(
+  has_column_privilege('authenticated', 'public.confirmed_presentations', 'id', 'SELECT'),
+  true,
+  'authenticated can still SELECT confirmed_presentations.id'
+);
+
+-- ---------------------------------------------------------------------------
+-- ticket sequence USAGE withdrawn from client roles
+-- ---------------------------------------------------------------------------
+SELECT is(
+  has_sequence_privilege('authenticated', 'public.ticket_sequence_2026', 'USAGE'),
+  false,
+  'authenticated has no USAGE on ticket_sequence_2026'
+);
+SELECT is(
+  has_sequence_privilege('anon', 'public.ticket_sequence_2026', 'USAGE'),
+  false,
+  'anon has no USAGE on ticket_sequence_2026'
+);
+
+-- ---------------------------------------------------------------------------
+-- check_confirmer_is_submitter pins search_path
+-- ---------------------------------------------------------------------------
+SELECT ok(
+  EXISTS (
+    SELECT 1 FROM pg_proc
+    WHERE oid = 'public.check_confirmer_is_submitter'::regproc
+      AND array_to_string(proconfig, ',') LIKE '%search_path=%'
+  ),
+  'check_confirmer_is_submitter sets search_path'
+);
+
+SELECT * FROM finish();
+ROLLBACK;
