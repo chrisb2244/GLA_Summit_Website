@@ -5,7 +5,11 @@ import {
   ticketYear,
   TICKET_DESIGN_VERSION
 } from '@/app/configConstants';
-import { paramStringToData, ticketDataAndTokenToPageUrl } from '../utils';
+import {
+  checkToken,
+  paramStringToData,
+  ticketDataAndTokenToPageUrl
+} from '../utils';
 import type { TransferObject } from '../page';
 import Link from 'next/link';
 import { Button } from '@/Components/Form/Button';
@@ -131,6 +135,24 @@ const TicketPageContent: NextPage<PageProps> = async ({
       </div>
     );
   }
+
+  // The image route (/api/ticket) only generates the ticket PNG after
+  // validating the HMAC token over the data payload. Mirror that check here,
+  // inside the Suspense boundary, so a tampered URL renders an error instead of
+  // a broken <img>. Awaiting here means the page waits for the image to be
+  // known-good before rendering it.
+  const tokenValid = await checkToken(
+    transferObject.data,
+    transferObject.token
+  );
+  if (!tokenValid) {
+    return (
+      <div>
+        <h3>Failed to fetch ticket data.</h3>
+      </div>
+    );
+  }
+
   const nameString = [
     transferObject.data.firstName,
     transferObject.data.lastName
@@ -208,6 +230,10 @@ const TicketPageContent: NextPage<PageProps> = async ({
           alt='My GLA Summit Ticket'
           width={'100%'}
           height={'auto'}
+          // Reserve the intrinsic aspect ratio so the browser holds the layout
+          // box before the image (loaded directly from the cacheable, versioned
+          // /api/ticket URL) arrives, keeping CLS minimal.
+          style={{ aspectRatio: `${IMG_WIDTH} / ${IMG_HEIGHT}` }}
         />
       </div>
       {isSharedPage ? (
