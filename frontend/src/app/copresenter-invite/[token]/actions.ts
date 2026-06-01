@@ -8,6 +8,9 @@ import { sendMailApi } from '@/lib/sendMail';
 import { CopresenterResponseNotificationEmailFn } from '@/EmailTemplates/FormSubmissionEmail';
 import { logToDb } from '@/lib/utils';
 import { COPRESENTER_INVITE_WORKFLOW } from '@/app/configConstants';
+import { revalidateTag } from 'next/cache';
+import { CACHE_TAGS } from '@/lib/supabase/cacheTags';
+import type { SummitYear } from '@/lib/databaseModels';
 
 export type RespondToInviteResult =
   | { success: true; action: 'accept' | 'decline' }
@@ -81,9 +84,11 @@ export const respondToInvite = async (
     };
   }
 
-  // Idempotent: already responded
+  // Idempotent: already responded. Report the *stored* decision rather than
+  // echoing the attempted action, so an old "accept" link clicked after a
+  // decline (or vice-versa) cannot claim a state change that did not happen.
   if (currentRow.status === 'accepted' || currentRow.status === 'declined') {
-    return { success: true, action };
+    return { success: true, action: statusToAction(currentRow.status) };
   }
 
   const updateData =
@@ -91,11 +96,17 @@ export const respondToInvite = async (
       ? { status: 'declined', declined_count: currentRow.declined_count + 1 }
       : { status: 'accepted' };
 
-  const { error: updateError } = await supabaseAdmin
+  // Optimistic-concurrency guard: only transition a row that is still 'pending'.
+  // Two concurrent responses (e.g. a double-submit) both read 'pending', but the
+  // row lock serialises the writes — the second sees status != 'pending' and
+  // matches zero rows, so declined_count cannot be double-incremented.
+  const { data: updatedRows, error: updateError } = await supabaseAdmin
     .from('presentation_presenters')
     .update(updateData)
     .eq('presentation_id', payload.presentationId)
-    .eq('presenter_id', payload.presenterId);
+    .eq('presenter_id', payload.presenterId)
+    .eq('status', 'pending')
+    .select('status');
 
   if (updateError) {
     await logToDb(
@@ -114,6 +125,27 @@ export const respondToInvite = async (
     return { success: false, error: 'Failed to record your response. Please try again.' };
   }
 
+  if (!updatedRows || updatedRows.length === 0) {
+    // Lost the race: a concurrent response already moved the row out of
+    // 'pending'. Re-read and report whatever decision actually landed.
+    const { data: latest } = await supabaseAdmin
+      .from('presentation_presenters')
+      .select('status')
+      .eq('presentation_id', payload.presentationId)
+      .eq('presenter_id', payload.presenterId)
+      .single();
+    if (latest?.status === 'accepted' || latest?.status === 'declined') {
+      return { success: true, action: statusToAction(latest.status) };
+    }
+    return { success: false, error: 'Failed to record your response. Please try again.' };
+  }
+
+  // The public /presenters list is filtered by accepted status and cached for
+  // weeks (getAcceptedPresenterIds). An accept/decline changes who appears
+  // there, so invalidate that cache — it is otherwise only revalidated when an
+  // accepted_presentations row changes, which a status flip does not touch.
+  await revalidateAcceptedPresenters(payload.presentationId, supabaseAdmin);
+
   await notifySubmitter(
     payload.presentationId,
     user.id,
@@ -122,6 +154,28 @@ export const respondToInvite = async (
   );
 
   return { success: true, action };
+};
+
+const statusToAction = (status: 'accepted' | 'declined'): 'accept' | 'decline' =>
+  status === 'accepted' ? 'accept' : 'decline';
+
+const revalidateAcceptedPresenters = async (
+  presentationId: string,
+  supabaseAdmin: ReturnType<typeof createAdminClient>
+) => {
+  revalidateTag(CACHE_TAGS.acceptedPresenterIds, { expire: 0 });
+
+  // getAcceptedPresenterIds also attaches a per-year tag when called with a
+  // year, so invalidate that variant too in case a year-scoped caller exists.
+  const { data: presentation } = await supabaseAdmin
+    .from('presentation_submissions')
+    .select('year')
+    .eq('id', presentationId)
+    .single();
+  const year = presentation?.year as SummitYear | undefined;
+  if (year) {
+    revalidateTag(`${CACHE_TAGS.acceptedPresenterIds}:${year}`, { expire: 0 });
+  }
 };
 
 const notifySubmitter = async (
