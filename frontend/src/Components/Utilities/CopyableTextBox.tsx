@@ -25,7 +25,7 @@ export const CopyableTextBox = (props: {
           focus (opacity, not visibility/display) so it stays accessible. */}
       <button
         type='button'
-        aria-label='copy'
+        aria-label='Copy to clipboard'
         className='absolute right-4 top-4 cursor-pointer rounded-md p-1 opacity-0 transition-opacity hover:bg-secondaryc hover:bg-opacity-40 focus-visible:opacity-100 group-hover:opacity-100'
         onClick={(ev) => {
           ev.currentTarget.classList.add('animate-wiggle');

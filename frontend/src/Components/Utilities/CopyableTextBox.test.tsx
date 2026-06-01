@@ -25,14 +25,18 @@ describe('CopyableTextBox', () => {
 
   it('exposes the copy control with an accessible label', () => {
     render(<CopyableTextBox copyString='Blah blah'>Blah blah</CopyableTextBox>);
-    expect(screen.getByRole('button', { name: 'copy' })).toBeDefined();
+    expect(
+      screen.getByRole('button', { name: 'Copy to clipboard' })
+    ).toBeDefined();
   });
 
   it('copies the copyString to the clipboard when clicked', async () => {
     const writeText = vi.spyOn(navigator.clipboard, 'writeText');
     render(<CopyableTextBox copyString='Blah blah'>Blah blah</CopyableTextBox>);
 
-    await userEvent.click(screen.getByRole('button', { name: 'copy' }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Copy to clipboard' })
+    );
 
     expect(writeText).toHaveBeenCalledWith('Blah blah');
     writeText.mockRestore();
@@ -49,7 +53,9 @@ describe('CopyableTextBox', () => {
       </CopyableTextBox>
     );
 
-    await userEvent.click(screen.getByRole('button', { name: 'copy' }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Copy to clipboard' })
+    );
 
     expect(writeText).toHaveBeenCalledWith(copyString);
     writeText.mockRestore();
