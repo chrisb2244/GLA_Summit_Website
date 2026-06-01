@@ -20,7 +20,7 @@ export const UserIcon = (props: UserIconProps) => {
     typeof src !== 'undefined' ? (
       <NextImage
         src={src}
-        alt={`usericon_${text}`}
+        alt={text ? '' : 'User avatar'}
         width={pxSz}
         height={pxSz}
         className='inline-flex rounded-full object-cover'

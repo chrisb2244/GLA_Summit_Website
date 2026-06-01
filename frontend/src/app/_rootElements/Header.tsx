@@ -5,9 +5,6 @@ import { UserMenuButton } from '../../Components/User/UserMenuButton';
 import { Suspense } from 'react';
 
 export const Header = () => {
-  const imageProps = {
-    'aria-label': 'logo'
-  };
   const logo = (
     <div className='col-span-full h-full md:col-span-1'>
       <NextLink href='/' tabIndex={-1}>
@@ -15,7 +12,6 @@ export const Header = () => {
           <NextImage
             alt='GLA Logo'
             src='/media/GLA-logo.svg'
-            {...imageProps}
             fill
             priority
             sizes='16vw'
@@ -34,7 +30,6 @@ export const Header = () => {
             priority
             fill
             sizes='100vw'
-            {...imageProps}
             style={{ pointerEvents: 'none' }}
           />
         </div>
