@@ -1,17 +1,17 @@
-import { PersonDisplayProps } from '@/Components/PersonDisplay';
+import { generateAvatarIcon } from '@/actions/generateAvatarIcon';
 import {
   PostgrestError,
   User as SB_User,
   SupabaseClient
 } from '@supabase/supabase-js';
-import { AllPresentationsModel, ProfileModel } from './databaseModels';
+import { PresentationModel, ProfileModel } from './databaseModels';
 import { Database } from './sb_databaseModels';
 import {
   supabase,
   createAdminClient,
   createAnonServerClient
 } from './supabaseClient';
-import { defaultTimezoneInfo, fullUrlToIconUrl, myLog } from './utils';
+import { defaultTimezoneInfo, fullUrlToIconUrl, logToDb } from './utils';
 import type { NewUserInformation } from './sessionTypes';
 
 export type User = SB_User;
@@ -27,7 +27,9 @@ export const checkForExistingUser = async (
     .maybeSingle()
     .then(({ data, error }) => {
       if (error) {
-        console.log({ error, m: 'Searching for email-id table entry' });
+        logToDb('error', 'Email lookup query failed', 'db/email-lookup', {
+          context: { message: error.message, code: error.code }
+        });
         throw error;
       }
       if (data) {
@@ -203,7 +205,10 @@ export const uploadAvatar = async (
   // Upload a new file to storage
   const { error } = await supabase.storage
     .from('avatars')
-    .upload(remoteFilePath, localFile);
+    .upload(remoteFilePath, localFile, {
+      cacheControl: '31536000',
+      upsert: false
+    });
   if (error) throw error;
 
   // Set that file as the profile avatar
@@ -217,10 +222,7 @@ export const uploadAvatar = async (
   }
 
   // Generate a smaller webp version of the image for the user icon.
-  await fetch('/api/handleAvatarUpdate', {
-    method: 'POST',
-    body: JSON.stringify({ userId, remoteFilePath })
-  });
+  await requestAvatarIconGeneration(userId, remoteFilePath);
 
   // Delete the old avatar
   if (originalProfileURL != null) {
@@ -229,54 +231,64 @@ export const uploadAvatar = async (
   return true;
 };
 
-export const downloadIconAvatarAndGenerateIfNeeded = async (
+const requestAvatarIconGeneration = (
   userId: string,
+  remoteFilePath: string
+) => {
+  return fetch('/api/handleAvatarUpdate', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ userId, remoteFilePath })
+  });
+};
+
+const downloadAvatarFromStorage = async (
+  client: SupabaseClient,
+  remotePath: string
+) => {
+  const { data, error } = await client.storage
+    .from('avatars')
+    .download(remotePath);
+  if (error) return error;
+  return data;
+};
+
+export const downloadIconAvatarAndGenerateIfNeeded = async (
   fullSizeImageUrl: string,
-  client: SupabaseClient
+  client: SupabaseClient,
+  userId?: string
 ) => {
   const iconUrl = fullUrlToIconUrl(fullSizeImageUrl);
-  const iconBlob = await client.storage
-    .from('avatars')
-    .download(iconUrl)
-    .then(async ({ data, error }) => {
-      if (error) {
-        // Failed to get the icon-sized image, so try to generate it.
-        const body = {
-          userId,
-          remoteFilePath: fullSizeImageUrl
-        };
-        const newIconUrl = await fetch('/api/handleAvatarUpdate', {
-          method: 'POST',
-          body: JSON.stringify(body)
-        })
-          .then((res) => res.json())
-          .then((value) => {
-            if (value.error) {
-              console.log(value.error);
-              return null;
-            }
-            return value.iconUrl as string;
-          });
-        if (newIconUrl == null) {
-          return null;
-        } else {
-          // Try to download the newly generated icon-sized image.
-          return client.storage
-            .from('avatars')
-            .download(newIconUrl)
-            .then(({ data, error }) => {
-              if (error) {
-                return error;
-              }
-              return data;
-            });
-        }
-      } else {
-        // Found the icon-sized image, so return it.
-        return data;
-      }
-    });
-  return iconBlob;
+  const iconData = await downloadAvatarFromStorage(client, iconUrl);
+  if (!(iconData instanceof Error)) {
+    return iconData;
+  }
+
+  // Icon not found — generate it now (blocking) so we always return the
+  // smaller icon and avoid serving the full-size image unnecessarily.
+  let generatedIconUrl: string | null = null;
+  if (typeof window !== 'undefined' && typeof userId === 'string') {
+    // Client context: generate via the authenticated API route.
+    generatedIconUrl = await requestAvatarIconGeneration(
+      userId,
+      fullSizeImageUrl
+    )
+      .then((res) => res.json())
+      .then((body) => (typeof body.iconUrl === 'string' ? body.iconUrl : null))
+      .catch(() => null);
+  } else if (typeof window === 'undefined') {
+    // Server context: call the server action directly, tied to request lifetime.
+    generatedIconUrl = await generateAvatarIcon(fullSizeImageUrl).catch(
+      () => null
+    );
+  }
+
+  if (generatedIconUrl == null) {
+    return null;
+  }
+  return downloadAvatarFromStorage(client, generatedIconUrl);
 };
 
 export const downloadAvatar = async (userId: string) => {
@@ -351,9 +363,9 @@ export const getPublicProfiles = async (
 
 export const getPublicPresentations = async (client: Client = supabase) => {
   const { data, error } = await client
-    .from('all_presentations')
-    .select()
-    .order('scheduled_for', { ascending: true });
+    .rpc('get_all_presentations')
+    .order('scheduled_for', { ascending: true })
+    .select('*');
   if (error) throw error;
   return data;
 };
@@ -362,10 +374,10 @@ export const getPublicPresentationsForPresenter = async (
   client: Client = supabase
 ) => {
   const { data, error } = await client
-    .from('all_presentations')
-    .select()
+    .rpc('get_all_presentations')
     .contains('all_presenters', [presenterId])
-    .order('scheduled_for', { ascending: true });
+    .order('scheduled_for', { ascending: true })
+    .select('*');
   if (error) throw error;
   return data;
 };
@@ -373,11 +385,11 @@ export const getPublicPresentationsForPresenter = async (
 export const getPublicPresentation = async (
   presentationId: string,
   client: Client = supabase
-): Promise<AllPresentationsModel> => {
+): Promise<PresentationModel> => {
   return client
-    .from('all_presentations')
-    .select()
+    .rpc('get_all_presentations')
     .eq('presentation_id', presentationId)
+    .select('*')
     .single()
     .then(({ data, error }) => {
       if (error) throw error;
@@ -387,26 +399,19 @@ export const getPublicPresentation = async (
 
 export const getMyPresentations = async (client: Client = supabase) => {
   const { data, error: errorPresData } = await client
-    .from('my_submissions')
-    .select();
+    .rpc('get_my_submissions')
+    .select('*');
   if (errorPresData) {
-    myLog({
-      error: errorPresData,
-      desc: 'Failed to fetch presentation details for this user'
-    });
-    throw errorPresData;
+    const message =
+      'message' in errorPresData && typeof errorPresData.message === 'string'
+        ? errorPresData.message.toLowerCase()
+        : '';
+    const isAbortLike =
+      message.includes('aborted') || message.includes('aborterror');
+    if (!isAbortLike) {
+      console.error('Failed to fetch presentation details for this user', { error: errorPresData });
+      throw errorPresData;
+    }
   }
   return data ?? [];
-};
-
-export const deletePresentation = async (presentationId: string) => {
-  const { error } = await supabase
-    .from('presentation_submissions')
-    .delete()
-    .eq('id', presentationId);
-  if (error) {
-    myLog({ error });
-    return false;
-  }
-  return true;
 };

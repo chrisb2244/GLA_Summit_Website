@@ -4,6 +4,10 @@ import Icon from '@mdi/react';
 import { Metadata } from 'next';
 import { ReactNode } from 'react';
 
+const CenteredParagraph = (props: { children: ReactNode }) => {
+  return <p className='text-center'>{props.children}</p>;
+};
+
 export const metadata: Metadata = {
   robots: {
     index: false
@@ -11,10 +15,6 @@ export const metadata: Metadata = {
 };
 
 const AccessDeniedPage = () => {
-  const T = (props: { children: ReactNode }) => {
-    return <p className='text-center'>{props.children}</p>;
-  };
-
   return (
     <div className='mb-auto flex flex-col'>
       <div className='md:h-8' />
@@ -22,17 +22,17 @@ const AccessDeniedPage = () => {
         <div className='flex justify-center'>
           <Icon path={mdiAlertCircle} size={2} />
         </div>
-        <T>You do not have access to this page.</T>
-        <T>
+        <CenteredParagraph>You do not have access to this page.</CenteredParagraph>
+        <CenteredParagraph>
           If you believe you should have access, please check you are signed in,
           and with the correct account.
-        </T>
-        <T>
+        </CenteredParagraph>
+        <CenteredParagraph>
           If you still cannot access this page, contact{' '}
           <a className='link' href='mailto:web@glasummit.org'>
             web@glasummit.org
           </a>
-        </T>
+        </CenteredParagraph>
       </StackedBoxes>
     </div>
   );

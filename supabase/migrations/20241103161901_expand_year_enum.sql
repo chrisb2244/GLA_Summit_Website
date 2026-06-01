@@ -1,1 +1,0 @@
-ALTER TYPE public.summit_year ADD VALUE '2025';

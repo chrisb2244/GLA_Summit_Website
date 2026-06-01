@@ -1,0 +1,15 @@
+{
+  "name": "gla-summit-checkly",
+  "private": true,
+  "description": "Checkly synthetic monitoring for the GLA Summit production site",
+  "scripts": {
+    "test": "checkly test",
+    "deploy": "checkly deploy"
+  },
+  "devDependencies": {
+    "checkly": "^5.0.0",
+    "@playwright/test": "^1.49.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}

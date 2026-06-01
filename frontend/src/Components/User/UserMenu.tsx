@@ -7,17 +7,17 @@ import {
   mdiTicket
 } from '@mdi/js';
 import { Icon } from '@mdi/react';
-import { JSX, PropsWithChildren, Suspense, useEffect, useState } from 'react';
+import { JSX, Suspense } from 'react';
 import NextLink from 'next/link';
 import {
-  downloadIconAvatarAndGenerateIfNeeded,
+  getAvatarPublicUrl,
   type User
 } from '@/lib/databaseFunctions';
 import type { ProfileModel } from '@/lib/databaseModels';
 import { Route } from 'next';
 import { DefaultUserIcon, UserIcon } from './UserIcon';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabaseClient';
+import { fullUrlToIconUrl } from '@/lib/utils';
 
 type UserMenuProps = {
   user: User;
@@ -33,36 +33,25 @@ type UserMenuEntry = {
   clickFn?: () => void;
 };
 
+const ListIcon = ({ path }: { path: string }) => {
+  return (
+    <div className='inline-flex min-w-[36px] flex-shrink-0 text-black text-opacity-50'>
+      <Icon path={path} size={1} />
+    </div>
+  );
+};
+
 export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
   props
 ) => {
   const { isOrganizer, profile, signOut } = props;
 
-  const [avatarSrc, setAvatarSrc] = useState<string | undefined>(undefined);
-  useEffect(() => {
-    const url = props.profile?.avatar_url;
-    if (typeof url === 'undefined' || url === null) {
-      return;
-    }
-    downloadIconAvatarAndGenerateIfNeeded(props.user.id, url, supabase).then(
-      (value) => {
-        if (value instanceof Blob) {
-          setAvatarSrc(URL.createObjectURL(value));
-        } else if (value instanceof Error) {
-          console.log(value);
-        }
-      }
-    );
-  }, [props.profile?.avatar_url, props.user.id]);
+  const iconPath = props.profile?.avatar_url
+    ? fullUrlToIconUrl(props.profile.avatar_url)
+    : null;
+  const avatarSrc = getAvatarPublicUrl(iconPath) ?? undefined;
 
   const email = props.user.email;
-  const ListIcon = (props: { path: string }) => {
-    return (
-      <div className='inline-flex min-w-[36px] flex-shrink-0 text-black text-opacity-50'>
-        <Icon path={props.path} size={1} />
-      </div>
-    );
-  };
 
   const router = useRouter();
 
@@ -106,16 +95,6 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
       ]
     : [];
 
-  const WrapperElement: React.FC<
-    PropsWithChildren<{ href: Route | undefined }>
-  > = ({ href, children }) => {
-    if (typeof href !== 'undefined') {
-      return <NextLink href={href}>{children}</NextLink>;
-    } else {
-      return <button>{children}</button>;
-    }
-  };
-
   const buttonText = profile
     ? profile.firstname + ' ' + profile.lastname
     : email;
@@ -144,19 +123,25 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
                   {menuObjs
                     .concat(organizerMenuObjs)
                     .map(({ title, href, imgObj, clickFn }) => {
-                      return (
-                        <WrapperElement href={href} key={title}>
-                          <li
-                            className='flex h-8 flex-row items-center px-4 py-[6px]'
-                            onClick={() => {
-                              clickFn?.();
-                              close();
-                            }}
-                          >
-                            {imgObj}
-                            <span className='prose'>{title}</span>
-                          </li>
-                        </WrapperElement>
+                      const item = (
+                        <li
+                          className='flex h-8 flex-row items-center px-4 py-[6px]'
+                          onClick={() => {
+                            clickFn?.();
+                            close();
+                          }}
+                        >
+                          {imgObj}
+                          <span className='prose'>{title}</span>
+                        </li>
+                      );
+
+                      return typeof href !== 'undefined' ? (
+                        <NextLink href={href} key={title}>
+                          {item}
+                        </NextLink>
+                      ) : (
+                        <button key={title}>{item}</button>
                       );
                     })}
                 </ul>

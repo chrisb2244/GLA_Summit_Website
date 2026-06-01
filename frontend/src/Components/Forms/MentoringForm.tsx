@@ -58,7 +58,7 @@ export const MentoringForm: React.FC<React.PropsWithChildren<FormProps>> = ({
     }
   ] as const;
 
-  const [tabIndex, setTabIndex] = useState(0);
+  const [tabIndex, /* setTabIndex */] = useState(0);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   const confirmationResponse = (
@@ -67,9 +67,9 @@ export const MentoringForm: React.FC<React.PropsWithChildren<FormProps>> = ({
     </div>
   );
 
-  const handleChange = (event: React.SyntheticEvent, newIndex: number) => {
-    setTabIndex(newIndex);
-  };
+  // const handleChange = (event: React.SyntheticEvent, newIndex: number) => {
+  //   setTabIndex(newIndex);
+  // };
 
   if (registered !== null) {
     const msg = entryTypes.filter((eType) => eType.entryType === registered)[0]

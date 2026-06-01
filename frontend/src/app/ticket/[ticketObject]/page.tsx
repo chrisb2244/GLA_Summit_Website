@@ -93,7 +93,18 @@ export async function generateMetadata({
   };
 }
 
-const TicketPage: NextPage<PageProps> = async ({ params, searchParams }) => {
+const TicketPage: NextPage<PageProps> = ({ params, searchParams }) => {
+  return (
+    <Suspense fallback={<WaitingIndicator maxLength={300} />}>
+      <TicketPageContent params={params} searchParams={searchParams} />
+    </Suspense>
+  );
+};
+
+const TicketPageContent: NextPage<PageProps> = async ({
+  params,
+  searchParams
+}) => {
   const { ticketObject: transferObjectString } = await params;
   const { share } = await searchParams;
 
@@ -201,7 +212,10 @@ const AsyncElem = ({
     })
     .then((srcData) => {
       const endDate = new Date(startDate.getTime() + 24 * 60 * 60 * 1000);
-      const monthString = startDate.toLocaleDateString('en-US', {
+      const startMonth = startDate.toLocaleDateString('en-US', {
+        month: 'long'
+      });
+      const endMonth = endDate.toLocaleDateString('en-US', {
         month: 'long'
       });
       const getSuffixedDate = (date: number) => {
@@ -210,9 +224,16 @@ const AsyncElem = ({
         if (date === 3 || date === 23) return `${date}rd`;
         return `${date}th`;
       };
-      const dateString = `the ${getSuffixedDate(
-        startDate.getDate()
-      )} and ${getSuffixedDate(endDate.getDate())} of ${monthString}`;
+      const dateString =
+        startMonth === endMonth
+          ? `the ${getSuffixedDate(startDate.getDate())} and ${getSuffixedDate(
+              endDate.getDate()
+            )} of ${startMonth}`
+          : `the ${getSuffixedDate(
+              startDate.getDate()
+            )} of ${startMonth} and the ${getSuffixedDate(
+              endDate.getDate()
+            )} of ${endMonth}`;
 
       return (
         <>

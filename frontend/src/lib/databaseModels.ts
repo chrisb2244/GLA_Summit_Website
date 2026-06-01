@@ -1,8 +1,10 @@
 import { Database } from './sb_databaseModels';
 
 export type PresentationType = Database['public']['Enums']['presentation_type'];
+export type AllMyPresentationSubmissionType =
+  Database['public']['Functions']['get_my_submissions']['Returns'];
 export type MyPresentationSubmissionType =
-  Database['public']['Views']['my_submissions']['Row'];
+  AllMyPresentationSubmissionType extends Array<infer U> ? U : never;
 
 export type SummitYear = Database['public']['Enums']['summit_year'];
 
@@ -24,7 +26,14 @@ declare const exactType: <T, U>(
   a: T & IfEquals<T, U>,
   b: U & IfEquals<T, U>
 ) => IfEquals<T, U>;
-const summityears = ['2020', '2021', '2022', '2024', '2025'] as const;
+export const summityears = [
+  '2020',
+  '2021',
+  '2022',
+  '2024',
+  '2025',
+  '2026'
+] as const;
 declare let dummyYear: SummitYear;
 declare let summitCandidateYear: (typeof summityears)[number];
 // The check is placed inside a function to prevent being called
@@ -45,9 +54,10 @@ export type PresentationPresentersModel =
 
 // These types aren't used for insertion or updating, so export the Row directly
 export type AllPresentationsModel =
-  Database['public']['Views']['all_presentations']['Row'];
-export type MySubmissionsModel =
-  Database['public']['Views']['my_submissions']['Row'];
+  Database['public']['Functions']['get_all_presentations']['Returns'];
+export type PresentationModel = AllPresentationsModel extends Array<infer U>
+  ? U
+  : never;
 
 export type PresentationSubmissionsModel = {
   id: string;
@@ -59,3 +69,5 @@ export type PresentationSubmissionsModel = {
   is_submitted: boolean;
   presentation_type: PresentationType;
 };
+
+export type ReviewableSubmissions = Database['public']['Functions']['get_reviewable_submissions']['Returns'];

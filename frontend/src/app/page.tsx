@@ -7,7 +7,7 @@ import { CAN_SUBMIT_PRESENTATION } from './configConstants';
 
 export const metadata: Metadata = {
   title: {
-    absolute: 'GLA Summit 2025'
+    absolute: 'GLA Summit 2026'
   }
 };
 
@@ -57,17 +57,17 @@ export default async function Page() {
 
   return (
     <div className='prose prose-base mx-auto max-w-2xl text-justify xl:max-w-3xl'>
-      {/* <p className='prose-lg text-center'>
+      <p className='prose-lg text-center'>
         The GLA&nbsp;Summit Organizers are excited to announce the next
-        GLA&nbsp;Summit, scheduled for{' '}
-        <span className='whitespace-nowrap'>23-24 June 2025!</span>
-      </p> */}
-      {/* <p>
+        GLA&nbsp;Summit, scheduled for 24 hours starting at{' '}
+        <span className='whitespace-nowrap'>31 August 2026 12:00 UTC!</span>
+      </p>
+      <p>
         We are excited to welcome advanced LabVIEW developers and Architects
         (certified or self-proclaimed) from around the world to network and
         participate in an inclusive, all-digital, free event.
-      </p> */}
-      <p className='prose-lg text-center'>
+      </p>
+      {/* <p className='prose-lg text-center'>
         The GLA Summit Organizers would like to thank all those
         <br />
         who presented at, or attended,
@@ -78,22 +78,22 @@ export default async function Page() {
         We were excited to welcome advanced LabVIEW developers and Architects
         (certified or self-proclaimed) from around the world to network and
         participate in an inclusive, all-digital, free event.
-      </p>
+      </p> */}
       {CAN_SUBMIT_PRESENTATION && <SubmitPresentationButton />}
       {/* <p>Our event ticketing system will open soon.</p> */}
       {/* <div>{ticketButton}</div> */}
       <div>
-        {/* <p className='text-center'>
-          The GLA Summit is open for 2025 tickets! You can register at{' '}
+        <p className='text-center'>
+          The GLA Summit is open for 2026 tickets!<br/>You can register at{' '}
           <a
-            href='https://events.ringcentral.com/events/gla-summit-2025'
+            href='https://events.ringcentral.com/events/gla-summit-2026'
             className='link'
           >
-            https://events.ringcentral.com/events/gla-summit-2025
+            https://events.ringcentral.com/events/gla-summit-2026
           </a>
           .
         </p>
-        {generalEventButton} */}
+        {generalEventButton}
         {/* <p>
           If you registered for a ticket using this website, you should have
           received an email with a customised link - you can use that directly
@@ -111,10 +111,10 @@ export default async function Page() {
         </p>
         </div> */}
 
-      <p>
+      {/* <p>
         We will be working on uploading recordings of our 2025 presentations to
         our YouTube channel.
-      </p>
+      </p> */}
       <p>
         Recordings of past presentations are available on the{' '}
         <a

@@ -1,5 +1,4 @@
 import { SummitYear } from '@/lib/databaseModels';
-import { myLog } from '@/lib/utils';
 
 export type PresentationPlottingInfo = {
   style: {
@@ -118,7 +117,6 @@ export const calculatePositioningInfo = (
     });
 
     usedContainerIds.forEach((containerId) => {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const container = containerHints.find(
         (ch) => ch.container_id === containerId
       )!;
@@ -127,9 +125,7 @@ export const calculatePositioningInfo = (
         ({ minStartCount, maxEndCount }, current) => {
           const presentation = presentations.find((p) => p.id === current);
           if (typeof presentation === 'undefined') {
-            myLog(
-              `Unexpected unfound presentationId ${current} in containerId ${container}`
-            );
+            console.error(`Unexpected unfound presentationId ${current} in containerId ${container}`);
             return {
               minStartCount,
               maxEndCount
@@ -203,7 +199,6 @@ export const calculatePositioningInfo = (
 
         const containedPresentations = containedPresentationIds.map(
           (containedId) =>
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             presentations.find((pres) => pres.id === containedId)!
         );
         return containedPresentations.map((containedP) =>

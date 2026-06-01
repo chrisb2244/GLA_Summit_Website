@@ -86,12 +86,12 @@ describe('PersonArray', () => {
 
   it('has a functioning Delete button', async () => {
     const { button: addButton } = renderForm();
-    userEvent.click(addButton);
+    await userEvent.click(addButton);
 
     const deleteButton = screen
       .getAllByRole('button')
       .filter((elem) => elem !== addButton)[0];
-    userEvent.click(deleteButton);
+    await userEvent.click(deleteButton);
 
     const inputs = screen.queryAllByRole('textbox');
     await waitFor(() => expect(inputs).toHaveLength(0));

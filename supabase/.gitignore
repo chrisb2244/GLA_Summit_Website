@@ -1,4 +1,7 @@
 # Supabase
 .branches
 .temp
-.env
+.env*
+
+# Generated storage files
+seeds/.generated/

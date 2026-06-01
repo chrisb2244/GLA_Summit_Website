@@ -10,11 +10,11 @@ export type PopupProps = {
 export const ConfirmationPopup: React.FC<
   React.PropsWithChildren<PopupProps>
 > = (props) => {
-  const buttonDisplayProps = {
-    mb: { xs: 1, md: 0 },
-    mx: 1,
-    flexGrow: 1
-  };
+  // const buttonDisplayProps = {
+  //   mb: { xs: 1, md: 0 },
+  //   mx: 1,
+  //   flexGrow: 1
+  // };
 
   const resolveFn = (response: boolean) => {
     props.setClosed();

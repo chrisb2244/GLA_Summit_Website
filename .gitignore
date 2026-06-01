@@ -1,3 +1,4 @@
 */.git
 .vscode/
-node_modules/
+frontend/tsconfig.tsbuildinfo
+node_modules/*

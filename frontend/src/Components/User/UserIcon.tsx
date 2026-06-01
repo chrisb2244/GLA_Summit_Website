@@ -24,6 +24,7 @@ export const UserIcon = (props: UserIconProps) => {
         width={pxSz}
         height={pxSz}
         className='inline-flex rounded-full object-cover'
+        unoptimized
       />
     ) : (
       <DefaultUserIcon size={size} text={text} />

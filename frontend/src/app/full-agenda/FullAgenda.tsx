@@ -8,7 +8,6 @@ import type {
 } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabaseClient';
 import { ContainerHint } from '@/Components/Agenda/AgendaCalculations';
-import { myLog } from '@/lib/utils';
 import { startDate } from '../configConstants';
 
 type DB_SubscriptionEvent = RealtimePostgresChangesPayload<
@@ -29,15 +28,31 @@ export const FullAgenda = (props: {
         setUser(data.user);
       }
     });
-  }, [supabase]);
+  }, []);
 
   const { fullAgenda, containerHints } = props;
 
-  const [hoursToShow, setHoursToShow] = useState(4.5);
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setHoursToShow(window.matchMedia('(min-width: 768px)').matches ? 6 : 3);
+  const [hoursToShow, setHoursToShow] = useState(() => {
+    if (typeof window === 'undefined') {
+      return 4.5;
     }
+    return window.matchMedia('(min-width: 768px)').matches ? 6 : 3;
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const mq = window.matchMedia('(min-width: 768px)');
+    const onChange = (e: MediaQueryListEvent) => {
+      setHoursToShow(e.matches ? 6 : 3);
+    };
+
+    mq.addEventListener('change', onChange);
+    return () => {
+      mq.removeEventListener('change', onChange);
+    };
   }, []);
 
   const favouriteReducer = (
@@ -77,7 +92,7 @@ export const FullAgenda = (props: {
         .then((favourites) => {
           setUserFavs({ eventType: 'INITIALIZE', data: favourites });
         });
-    } catch (err) {
+    } catch {
       return;
     }
   }, [user]);
@@ -88,7 +103,6 @@ export const FullAgenda = (props: {
       return;
     }
     
-    myLog('adding subscription');
     const subscription = supabase
       .channel('public:agenda_favourites')
       .on(
@@ -118,12 +132,6 @@ export const FullAgenda = (props: {
 
   if (fullAgenda === null) {
     return unableToRenderElem;
-  }
-
-  if (typeof window !== 'undefined') {
-    window.matchMedia('(min-width: 768px)').addEventListener('change', (e) => {
-      setHoursToShow(e.matches ? 6 : 3);
-    });
   }
 
   return (

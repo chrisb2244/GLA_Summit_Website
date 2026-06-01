@@ -11,7 +11,7 @@ import {
   adminUpdateExistingProfile,
   checkForExistingUser
 } from './databaseFunctions';
-import { logErrorToDb, myLog } from './utils';
+import { logToDb } from './utils';
 
 export type GenerateLinkBody =
   | {
@@ -59,10 +59,11 @@ export const generateSupabaseLinks = async (
       const { data, password } = bodyData.signUpData;
       if (existingId != null) {
         // This is an error... but want to try migrate, see issue #30.
-        logErrorToDb(
-          'Attempted to create an existing user, adding data instead (id is attempted user, not signed in user)',
+        await logToDb(
           'info',
-          existingId
+          'Attempted to create an existing user — migrating to existing account',
+          'auth/signup',
+          { userId: existingId }
         );
         if (typeof data !== 'undefined') {
           adminUpdateExistingProfile(existingId, data);
@@ -111,8 +112,6 @@ export const generateInviteLink = async (
   email: string,
   redirectTo?: string
 ) => {
-  myLog(`Inviting new user: ${email}`);
-
   return createAdminClient()
     .auth.admin.generateLink({
       type: 'invite',
@@ -127,7 +126,6 @@ export const generateInviteLink = async (
     })
     .then(({ data, error }) => {
       if (error) throw error;
-      myLog({ data });
       return {
         newUserId: data.user.id,
         confirmationLink: data.properties.action_link

@@ -1,16 +1,17 @@
 import { PersonProps } from '@/Components/Form/Person';
-import { PresentationSubmissionForm } from '@/Components/Forms/PresentationSubmissionForm';
 import { getProfileInfo } from '@/lib/databaseFunctions';
 import { getUser } from '@/lib/supabase/userFunctions';
 import { createServerClient } from '@/lib/supabaseServer';
 import { User } from '@supabase/supabase-js';
 import { Metadata } from 'next';
 import { CAN_SUBMIT_PRESENTATION } from '../configConstants';
+import { PastPresentationSubmissions } from './PastPresentationSubmissions';
+import { PastPresentationSubmissionsFallback } from './PastPresentationSubmissions';
+import NextLink from 'next/link';
 import { Suspense } from 'react';
-import {
-  PastPresentationSubmissions,
-  PastPresentationSubmissionsFallback
-} from './PastPresentationSubmissions';
+import { SuccessNotification } from './SuccessNotification';
+import { NextSearchParams } from '@/lib/NextTypes';
+import { PresentationFormFields } from '@/Components/PresentationSubmissions/PresentationFormFields';
 
 export const metadata: Metadata = {
   robots: {
@@ -18,61 +19,67 @@ export const metadata: Metadata = {
   }
 };
 
-const MyPresentationsPage = async () => {
+const SubmissionFormSection = async () => {
   const user = await getUser();
+  if (!user) {
+    return null;
+  }
 
   const supabase = await createServerClient();
   const getSubmitter = async (
     user: User | null
-  ): Promise<PersonProps | null> => {
+  ): Promise<{ submitter: PersonProps | null; profileIncomplete: boolean }> => {
     if (user === null || typeof user.email === 'undefined') {
-      return null;
+      return { submitter: null, profileIncomplete: false };
     }
-    const { firstname, lastname } = await getProfileInfo(user, supabase);
+    const profile = await getProfileInfo(user, supabase).catch(() => null);
+    if (!profile) {
+      return { submitter: null, profileIncomplete: false };
+    }
+    const { firstname, lastname, bio, avatar_url } = profile;
     return {
-      email: user.email,
-      firstName: firstname,
-      lastName: lastname
+      submitter: {
+        email: user.email,
+        firstName: firstname,
+        lastName: lastname
+      },
+      profileIncomplete: !bio || !avatar_url
     };
   };
 
-  const submitter = await getSubmitter(user);
-
-  // const activeDrafts = draftPresentations.filter(
-  //   (p) => p.year === submissionsForYear
-  // );
-  // const draftEntries =
-  //   activeDrafts.length === 0 ? (
-  //     <div>
-  //       <p>You have no active draft submissions</p>
-  //     </div>
-  //   ) : (
-  //     activeDrafts.map((p) => {
-  //       return (
-  //         <div key={p.presentation_id}>
-  //           <h4>{p.title}</h4>
-  //         </div>
-  //       );
-  //     })
-  //   );
+  const { submitter, profileIncomplete } = await getSubmitter(user);
 
   const submissionElements = CAN_SUBMIT_PRESENTATION ? (
     submitter && (
       <div className='mx-auto flex flex-col'>
-        <div className='prose rounded-md bg-orange-300 p-4 prose-p:my-2'>
-          <p>
-            <span className='font-bold'>Known issue:</span> incomplete or
-            invalid entries cause a full reset of the form.
-          </p>
-          <p>
-            Please ensure all fields are filled in correctly before submitting,
-            and consider copy-pasting from a text editor to avoid frustration!
-          </p>
-        </div>
-        {/* <p>The presentation submission page is currently being reworked!</p>
-        <p>We look forwards to being able to accept submissions soon.</p> */}
         <h3>Submit a new Presentation</h3>
-        <PresentationSubmissionForm submitter={submitter} />
+        {/* <PresentationSubmissionForm submitter={submitter} /> */}
+        <div className='prose'>
+          <p>
+            Please enter the information below and submit your presentation.
+          </p>
+          <p>
+            Any additional presenters that you add here will be emailed inviting
+            them to create an account, if they do not have one already, and to
+            join this presentation. Only you, the presentation submitter, will
+            be able to edit the presentation.
+          </p>
+          <div className='border border-gray-200 bg-gray-100 p-2 shadow-lg'>
+            <PresentationFormFields
+              defaultValues={{
+                submitter,
+                title: '',
+                abstract: '',
+                learningPoints: '',
+                presentationType: 'full length',
+                speakerAgreement: false,
+                skipDuplicateCheck: false,
+                submitIntent: 'submit',
+                otherPresenters: []
+              }}
+            />
+          </div>
+        </div>
       </div>
     )
   ) : (
@@ -82,20 +89,45 @@ const MyPresentationsPage = async () => {
   );
 
   return (
-    <div className='prose mx-auto flex max-w-none flex-col'>
+    <>
+      {profileIncomplete && (
+        <div className='mb-4 rounded-md border border-blue-300 bg-blue-50 p-3'>
+          <p className='font-semibold text-blue-800'>Profile incomplete</p>
+          <p className='text-blue-700'>
+            Your{' '}
+            <NextLink href='/my-profile' className='underline'>
+              profile
+            </NextLink>{' '}
+            is missing a bio or photo. These will be shown in the conference
+            programme — please update them before the event.
+          </p>
+        </div>
+      )}
       {submissionElements}
+    </>
+  );
+};
 
-      {/* <div>
-        <h3>Draft Submissions</h3>
-        {draftEntries}
-      </div> */}
+const SubmissionFormSectionFallback = () => {
+  return <div className='flex min-h-16 animate-pulse bg-gray-200'></div>;
+};
 
-      <div>
-        <h3>Submitted Presentations</h3>
-        <Suspense fallback={<PastPresentationSubmissionsFallback />}>
-          {<PastPresentationSubmissions />}
-        </Suspense>
-      </div>
+const MyPresentationsPage = ({
+  searchParams
+}: {
+  searchParams: NextSearchParams;
+}) => {
+  return (
+    <div className='prose mx-auto flex max-w-none flex-col'>
+      <Suspense fallback={null}>
+        <SuccessNotification searchParams={searchParams} />
+      </Suspense>
+      <Suspense fallback={<SubmissionFormSectionFallback />}>
+        <SubmissionFormSection />
+      </Suspense>
+      <Suspense fallback={<PastPresentationSubmissionsFallback />}>
+        <PastPresentationSubmissions />
+      </Suspense>
     </div>
   );
 };

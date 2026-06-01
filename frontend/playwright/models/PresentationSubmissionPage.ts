@@ -1,4 +1,4 @@
-import type { Locator, Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 import type { EmailProps, PersonProps } from '@/Components/Form/Person';
 import type { PresentationType } from '@/lib/databaseModels';
 
@@ -10,7 +10,8 @@ export type FormData = {
   learningPoints: string;
   presentationType: PresentationType;
   timeWindows: { windowStartTime: Date; windowEndTime: Date }[];
-  isFinal: boolean;
+  submitIntent: 'saveDraft' | 'submit';
+  speakerAgreement: boolean;
 };
 type PresentationFormData = Omit<
   FormData,
@@ -23,19 +24,22 @@ export class PresentationSubmissionPage {
   readonly abstractInput: Locator;
   readonly learningPointsInput: Locator;
   readonly presentationTypeInput: Locator;
-  readonly isFinalInput: Locator;
+  readonly speakerAgreementInput: Locator;
+  readonly duplicateWarning: Locator;
 
   constructor(page: Page) {
+    const opt = { exact: true };
     this.page = page;
-    this.titleInput = this.page.locator('label:has-text("Title")');
-    this.abstractInput = this.page.locator('label:has-text("Abstract")');
-    this.learningPointsInput = this.page.locator(
-      'label:has-text("Learning Points")'
-    );
+    this.titleInput = this.page.getByLabel('Title', opt);
+    this.abstractInput = this.page.getByLabel('Abstract', opt);
+    this.learningPointsInput = this.page.getByLabel('Learning Points', opt);
     this.presentationTypeInput = this.page.locator(
-      'label:has-text("Presentation Type") >> xpath=.. >> role=button'
+      'select[name="presentationType"]'
     );
-    this.isFinalInput = this.page.locator('role=checkbox');
+    this.speakerAgreementInput = this.page.getByLabel(
+      /I agree to the GLA Summit speaker agreement/i
+    );
+    this.duplicateWarning = this.page.getByRole('alert');
   }
 
   async goto(url: string) {
@@ -57,7 +61,36 @@ export class PresentationSubmissionPage {
 
   async waitForFormLoad() {
     await this.titleInput.waitFor({ state: 'visible' });
-    // await this.presentationTypeInput.waitFor({state: 'visible'})
+    await this.page
+      .getByRole('button', { name: /Submit Presentation|Save Draft/, exact: true })
+      .first()
+      .waitFor({ state: 'visible' });
+  }
+
+  async waitForDraftSaved(title: string) {
+    await expect(
+      this.page.getByText('You have no active draft submissions')
+    ).toBeHidden({ timeout: 20000 });
+
+    await expect(
+      this.page.getByRole('link', { name: title, exact: true })
+    ).toBeVisible({ timeout: 20000 });
+  }
+
+  async waitForSubmittedSuccess(title: string) {
+    const submittedCard = this.page.locator(`div[aria-label="${title}"]`);
+    const successMessage = this.page.getByText(
+      'Presentation submitted successfully',
+      { exact: false }
+    );
+
+    await expect(submittedCard.or(successMessage).first()).toBeVisible({
+      timeout: 20000
+    });
+  }
+
+  submitterEmailInput() {
+    return this.page.locator('input[name="submitter.email"]');
   }
 
   async fillFormData(data: Partial<PresentationFormData>) {
@@ -69,17 +102,38 @@ export class PresentationSubmissionPage {
       await this.learningPointsInput.fill(data.learningPoints);
 
     if (typeof data.presentationType !== 'undefined') {
-      // Mui selects aren't actually <select> items
-      // they produce a popup listbox and a button...
-      await this.presentationTypeInput.click();
-      const regexp = new RegExp(data.presentationType);
-      await this.page.getByText(regexp).click();
+      await this.presentationTypeInput.selectOption(data.presentationType);
     }
 
-    if (typeof data.isFinal !== 'undefined') {
-      await (data.isFinal
-        ? this.isFinalInput.check()
-        : this.isFinalInput.uncheck());
+    if (typeof data.speakerAgreement !== 'undefined') {
+      await this.setSpeakerAgreement(data.speakerAgreement);
     }
+  }
+
+  async setSpeakerAgreement(agreed: boolean) {
+    await (agreed
+      ? this.speakerAgreementInput.check()
+      : this.speakerAgreementInput.uncheck());
+  }
+
+  async submitForm(
+    preferredLabel?: 'Submit Presentation' | 'Save Draft' | 'Submit Anyway'
+  ) {
+    const labelOrder = preferredLabel
+      ? [preferredLabel, 'Submit Anyway', 'Submit Presentation', 'Save Draft']
+      : ['Submit Anyway', 'Submit Presentation', 'Save Draft'];
+
+    for (const label of labelOrder) {
+      const button = this.page.getByRole('button', {
+        name: label,
+        exact: true
+      });
+      if (await button.isVisible()) {
+        await button.click();
+        return;
+      }
+    }
+
+    throw new Error('No visible submit button found for presentation form');
   }
 }

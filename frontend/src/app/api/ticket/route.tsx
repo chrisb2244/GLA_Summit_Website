@@ -3,9 +3,10 @@ import { IMG_WIDTH, IMG_HEIGHT } from './constants';
 import { ticketYear } from '@/app/configConstants';
 import { Ticket } from './Ticket';
 import { checkToken, paramStringToData } from '@/app/ticket/utils';
+import { createAdminClient } from '@/lib/supabaseClient';
 import type { NextRequest } from 'next/server';
-
-export const runtime = 'edge';
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -26,24 +27,13 @@ export async function GET(request: NextRequest) {
 
   const dataObj = transferObject.data;
 
-  const robotoBoldData = await fetch(
-    new URL('public/assets/Roboto-Bold.ttf', import.meta.url)
-  ).then((res) => res.arrayBuffer());
+  const robotoBoldData = await readFile(
+    path.join(process.cwd(), 'public/assets/Roboto-Bold.ttf')
+  ).then((buffer) => buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength));
 
-  const logoData = await fetch(
-    new URL('public/assets/GLA-logo.svg', import.meta.url)
-  )
-    .then((res) => res.arrayBuffer())
-    .then((buffer) => {
-      let binary = '';
-      const bytes = new Uint8Array(buffer);
-      const len = buffer.byteLength;
-      for (let i = 0; i < len; i++) {
-        binary += String.fromCharCode(bytes[i]);
-      }
-      return btoa(binary);
-    })
-    .then((b64) => `data:image/svg+xml;base64,${b64}`);
+  const logoData = await readFile(
+    path.join(process.cwd(), 'public/assets/GLA-logo.svg')
+  ).then((buffer) => `data:image/svg+xml;base64,${buffer.toString('base64')}`);
 
   const isPresenter = dataObj.isPresenter;
   const titles = isPresenter ? await getTitles(dataObj.userId) : null;
@@ -75,7 +65,6 @@ export async function GET(request: NextRequest) {
 }
 
 const getTitles = async (userId: string) => {
-  const { createAdminClient } = await import('@/lib/supabaseClient');
   const supabase = createAdminClient();
   const titles = await supabase
     .from('presentation_submissions')

@@ -3,7 +3,6 @@ import { mdiCalendar } from '@mdi/js';
 // import {  mdiStarPlusOutline, mdiStarRemoveOutline } from '@mdi/js';
 import Icon from '@mdi/react';
 import { type Schedule, formatTextToPs } from '@/lib/utils';
-// import { logErrorToDb } from '@/lib/utils';
 import { TimestampSpan } from '../Utilities/TimestampSpan';
 import { YouTubeFrame } from './YouTubeFrame';
 

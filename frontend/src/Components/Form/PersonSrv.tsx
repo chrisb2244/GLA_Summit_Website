@@ -20,6 +20,7 @@ xl:w-1/2 xl:pr-2 xl:pl-2 xl:mr-2 xl:ml-2 xl:before:ml-[6px] xl:pl-[10px] xl:flex
 type SharedProps = {
   giveFocus?: boolean;
   defaultValue?: PersonProps;
+  errors?: Partial<Record<keyof PersonProps, string>>;
   locked?: boolean;
   heading?: string;
   splitSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | null;
@@ -70,6 +71,7 @@ export function Person<FV extends FieldValues>(props: PersonTypeProps<FV>) {
   const fieldProps = (field: keyof PersonProps) => {
     return {
       defaultValue: defaultValue?.[field],
+      error: props.errors?.[field],
       label: labels[field],
       readOnly: locked
     };

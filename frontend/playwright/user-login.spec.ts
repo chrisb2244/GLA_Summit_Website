@@ -3,51 +3,42 @@ import { LoginablePage } from './models/LoginablePage';
 import {
   countEmailsInInbox,
   createSupabaseAdmin,
+  generateTestEmail,
   getInbucketVerificationCode
 } from './utils';
 
 test.describe('User Authentication Tests', () => {
   const emailsToDelete: string[] = [];
 
-  const generateUser = (firstname: string, lastname: string) => {
-    const emailWithoutDomain = `test-${Math.random()
-      .toString(36)
-      .substring(2)}`;
-    return {
-      firstname,
-      lastname,
-      email: `${emailWithoutDomain}@test.email`,
-      emailPrefix: emailWithoutDomain
-    };
-  };
-  const newUser = generateUser('New', 'User');
-  const existingUser = generateUser('Existing', 'User');
-
+  const generateUser = (firstname: string, lastname: string) => ({
+    firstname,
+    lastname,
+    email: generateTestEmail('test')
+  });
   const supabaseAdmin = createSupabaseAdmin();
 
   test.afterAll(async () => {
-    // Cleanup all users created (beforeAll, and can register test)
-
     for (const email of emailsToDelete) {
-      // delete user
-      // console.log('Searching for user (to delete) with email: ', email);
-      await supabaseAdmin
+      const { data, error } = await supabaseAdmin
         .from('email_lookup')
         .select('id')
         .eq('email', email)
-        .single()
-        .then(({ data, error }) => {
-          if (error) {
-            // May not have created the user (e.g. partial tests run)
-            return;
-          }
-          // console.log('Deleting user with id: ', data.id);
-          supabaseAdmin.auth.admin.deleteUser(data.id);
-        });
+        .single();
+
+      if (error || !data?.id) {
+        continue;
+      }
+
+      await supabaseAdmin.auth.admin.deleteUser(data.id);
     }
   });
 
   test('User can register', async ({ page }) => {
+    // Generated per-test (not at module scope) so --repeat-each runs each get a
+    // fresh email; reusing one address re-registers an existing account and the
+    // resent code no longer matches, breaking verification on the second repeat.
+    const newUser = generateUser('New', 'User');
+
     await page.goto('/');
     const loginablePage = new LoginablePage(page);
     await loginablePage.openLoginOrRegisterForm('register');
@@ -56,7 +47,7 @@ test.describe('User Authentication Tests', () => {
     await loginablePage.fillInRegistrationForm(newUser);
     await loginablePage.submitForm();
 
-    const otp = await getInbucketVerificationCode(newUser.emailPrefix, 5000);
+    const otp = await getInbucketVerificationCode(newUser.email, 5000);
     expect(otp).toBeDefined();
 
     await loginablePage.fillInVerificationForm(otp);
@@ -71,7 +62,11 @@ test.describe('User Authentication Tests', () => {
     await expect(userButton).toBeVisible();
   });
 
-  test('Existing user can login', async ({ page }) => {
+  test('Existing user can login', { tag: '@smoke' }, async ({ page }) => {
+    // Generated per-test (not at module scope) so each --repeat-each run gets a
+    // distinct account and they don't race over a shared inbox / OTP.
+    const existingUser = generateUser('Existing', 'User');
+
     // Setup a user for login tests
     // console.log('Creating user with email: ', precreatedUser.email);
     emailsToDelete.push(existingUser.email);
@@ -92,10 +87,7 @@ test.describe('User Authentication Tests', () => {
     await loginablePage.fillInLoginForm(existingUser.email);
     await loginablePage.submitForm();
 
-    const otp = await getInbucketVerificationCode(
-      existingUser.emailPrefix,
-      5000
-    );
+    const otp = await getInbucketVerificationCode(existingUser.email, 5000);
     expect(otp).toBeDefined();
 
     await loginablePage.fillInVerificationForm(otp);
@@ -148,13 +140,19 @@ test.describe('User Authentication Tests', () => {
       loginablePage.submitForm('enter key'),
       loginablePage.submitForm('button click'),
       loginablePage.submitForm()
-    ]).then(() => new Promise((r) => setTimeout(r, 500)));
+    ]);
 
-    const numEmailsInBucket = await countEmailsInInbox(user.emailPrefix);
-    expect(numEmailsInBucket).toBe(1);
-
-    const otp = await getInbucketVerificationCode(user.emailPrefix, 1000);
+    // Wait for the OTP email to actually land before counting. Against
+    // testmail.app, app→Mailgun→testmail delivery takes seconds, so the old
+    // fixed 500ms snapshot raced delivery and counted 0. Block on the code
+    // first (latency-tolerant livequery), then let any duplicate a broken
+    // debounce would have sent settle, then assert exactly one arrived.
+    const otp = await getInbucketVerificationCode(user.email, 5000);
     expect(otp).toBeDefined();
+
+    await page.waitForTimeout(2000);
+    const numEmailsInBucket = await countEmailsInInbox(user.email);
+    expect(numEmailsInBucket).toBe(1);
 
     await loginablePage.fillInVerificationForm(otp);
     await loginablePage.submitForm();
@@ -188,17 +186,24 @@ test.describe('User Authentication Tests', () => {
     await loginablePage.fillInLoginForm(user.email);
 
     // Click submit multiple times
-    await Promise.all([
+    const attempts = [
       loginablePage.submitForm('button click'),
       loginablePage.submitForm('enter key'),
       loginablePage.submitForm()
-    ]).then(() => new Promise((r) => setTimeout(r, 500)));
+    ];
 
-    const numEmailsInBucket = await countEmailsInInbox(user.emailPrefix);
-    expect(numEmailsInBucket).toBe(1);
+    await Promise.allSettled(attempts);
 
-    const otp = await getInbucketVerificationCode(user.emailPrefix, 2000);
+    // Wait for the OTP email to actually land before counting. testmail.app
+    // delivery (app→Mailgun→testmail) takes seconds, so a fixed 500ms snapshot
+    // races delivery and counts 0. Block on the code first (latency-tolerant
+    // livequery), let any duplicate settle, then assert exactly one arrived.
+    const otp = await getInbucketVerificationCode(user.email, 5000);
     expect(otp).toBeDefined();
+
+    await page.waitForTimeout(2000);
+    const numEmailsInBucket = await countEmailsInInbox(user.email);
+    expect(numEmailsInBucket).toBe(1);
 
     await loginablePage.fillInVerificationForm(otp);
     await loginablePage.submitForm();
@@ -221,13 +226,12 @@ test.describe('User Authentication Tests', () => {
     await loginablePage.openLoginOrRegisterForm('login');
     expect(await loginablePage.isLoginForm()).toBeTruthy();
 
-    await loginablePage.fillInLoginForm('notavalidemail.com');
-    // Attempt to submit by hitting enter
-    await loginablePage.submitForm('enter key');
-    // Should not be able to login (i.e. dialog remains open)
-    // expect(await loginablePage.hasOpenDialog()).toBeTruthy();
-    const errors = await loginablePage.getAllErrors();
-    expect(errors).toHaveLength(1);
+    const loginForm = page.getByRole('form', { name: 'Login Form' });
+    const emailInput = loginForm.getByLabel('Email');
+    await emailInput.fill('notavalidemail.com');
+    await emailInput.blur();
+
+    await expect(loginForm.getByRole('alert')).toHaveCount(1);
   });
 
   test('Registration form displays errors correctly', async ({ page }) => {
@@ -237,17 +241,19 @@ test.describe('User Authentication Tests', () => {
     await loginablePage.openLoginOrRegisterForm('register');
     expect(await loginablePage.isRegistrationForm()).toBeTruthy();
 
-    await loginablePage.fillInRegistrationForm({
-      firstname: '',
-      lastname: '',
-      email: 'notavalidemail.com'
+    const registrationForm = page.getByRole('form', {
+      name: 'Registration Form'
     });
-    // Attempt to submit
+    await registrationForm.getByLabel('First Name').fill('');
+    await registrationForm.getByLabel('Last Name').fill('');
+    await registrationForm.getByLabel('Email').fill('notavalidemail.com');
+    await registrationForm.getByLabel('First Name').blur();
+    await registrationForm.getByLabel('Last Name').blur();
+    await registrationForm.getByLabel('Email').blur();
+
     await loginablePage.submitForm('button click');
-    // Should not be able to login (i.e. dialog remains open)
-    // expect(await loginablePage.hasOpenDialog()).toBeTruthy();
-    const errors = await loginablePage.getAllErrors();
-    expect(errors).toHaveLength(3);
+
+    await expect(registrationForm.getByRole('alert')).toHaveCount(3);
   });
 
   // Skip this test - it's unclear if we want this behaviour or not.

@@ -4,27 +4,73 @@ import {
 } from './SubmittedPresentationReviewCard';
 import { createServerClient } from '@/lib/supabaseServer';
 import { submissionsForYear } from '@/app/configConstants';
-import { dateToDateArray } from '@/lib/utils';
 import { DownloadButton } from './DownloadButton';
+import { Suspense } from 'react';
+import type { ReviewableSubmissions } from '@/lib/databaseModels';
 
-const ReviewSubmissionsPage = async () => {
+const ReviewSubmissionsPage = () => {
+  return (
+    <Suspense fallback={<p>Loading review submissions...</p>}>
+      <ReviewSubmissionsPageContent />
+    </Suspense>
+  );
+};
+
+export const mapSubmittedPresentations = (
+  data: ReviewableSubmissions | null,
+  hasError: boolean
+): PresentationReviewInfo[] => {
+  if (hasError || !data) {
+    return [];
+  }
+
+  // Defensive filter: exclude drafts if an environment still has an older RPC
+  // implementation that does not enforce is_submitted=true server-side.
+  return data
+    .filter((d) => {
+      return (
+        // Doesn't have the property - should be submitted
+        !d.hasOwnProperty('is_submitted') ||
+        // Has the property and is true
+        (d as ReviewableSubmissions[number] & { is_submitted: boolean })
+          .is_submitted !== false
+      );
+    })
+    .map((d) => {
+      const presenters = (d.presenters ?? []).map((p) => ({
+        id: p.id ?? '',
+        firstname: p.firstname ?? '',
+        lastname: p.lastname ?? ''
+      }));
+      const submitter = presenters.find((p) => p.id === d.submitter_id) ?? {
+        id: d.submitter_id ?? '',
+        firstname: 'Unknown',
+        lastname: 'User'
+      };
+
+      return {
+        ...d,
+        learning_points: d.learning_points ?? '',
+        presenters,
+        submitter
+      };
+    });
+};
+
+export const ReviewSubmissionsPageContent = async () => {
   const supabase = await createServerClient();
   const { data, error } = await supabase.rpc('get_reviewable_submissions', {
     target_year: submissionsForYear
   });
 
-  const { data: downloadInfo, error: downloadInfoError } = await supabase
-    .from('review_download_information')
-    .select('*');
+  const submittedPresentations = mapSubmittedPresentations(
+    data,
+    Boolean(error)
+  );
 
-  const submittedPresentations: PresentationReviewInfo[] = error
-    ? []
-    : data.map((d) => {
-        return {
-          ...d,
-          submitter: d.presenters.filter((p) => p.id === d.submitter_id)[0]
-        };
-      });
+  const { data: downloadInfo } = await supabase
+    .from('review_download_information')
+    .select('presentation_id, last_downloaded');
 
   const listElems = submittedPresentations
     .sort((a, b) => {

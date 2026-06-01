@@ -1,8 +1,13 @@
 import type { PlaywrightTestConfig } from '@playwright/test';
 import { devices } from '@playwright/test';
 import dotenv from 'dotenv';
+import path from 'path';
 
-dotenv.config({ path: './.env.local' });
+const envPath = path.join(__dirname, './.env.test');
+const envConfig = dotenv.config({ path: envPath });
+if (envConfig.error) {
+  throw envConfig.error;
+}
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -18,14 +23,16 @@ const config: PlaywrightTestConfig = {
      */
     timeout: 5000
   },
-  /* Run tests in files in parallel */
-  // fullyParallel: true,
+  // Tests now provision their own users via the userCreation factories, each
+  // with a uniquely generated email. Because no two tests share a mailbox or
+  // seeded row, there are no inbox-count or row races between them, so both
+  // file-level and (where enabled) in-file parallelism are safe.
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : 1,
+  /* Retry on CI; also retry once locally to surface genuine flakes without hiding them */
+  retries: process.env.CI ? 2 : 1,
+  /* CI: serialise to avoid resource contention. Local: 6 (reduce maximum from undefined: CPU count / 2). */
+  workers: process.env.CI ? 1 : 6,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -36,65 +43,37 @@ const config: PlaywrightTestConfig = {
     baseURL:
       process.env.VERCEL_URL || process.env.baseURL || 'http://localhost:3000',
 
+    /*
+     * Vercel Firewall Attack Challenge Mode serves a "Vercel Security
+     * Checkpoint" interstitial to automated/datacenter clients (e.g. CI), which
+     * the browser can't pass. When SYNTHETIC_BYPASS_SECRET is set we attach the
+     * matching header so a Vercel Firewall bypass rule (Header
+     * `x-synthetic-bypass` equals the secret → Action: Bypass) lets the request
+     * through. Only CI knows the secret, so the rule can't be abused.
+     */
+    ...(process.env.SYNTHETIC_BYPASS_SECRET && {
+      extraHTTPHeaders: {
+        'x-synthetic-bypass': process.env.SYNTHETIC_BYPASS_SECRET
+      }
+    }),
+
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry'
   },
 
   // globalSetup: require.resolve('./playwright/global-setup.ts'),
 
-  /* Configure projects for major browsers */
+  /* Configure projects for major browsers.
+   *
+   * There is no longer a shared `setup` project or saved storage state: each
+   * test provisions and authenticates its own user (see playwright/utils). */
   projects: [
-    { name: 'setup', testMatch: /.*\.setup\.ts/ },
-
-    // {
-    //   name: 'chromium',
-    //   use: {
-    //     ...devices['Desktop Chrome'],
-    //   },
-    // },
-
-    {
-      name: 'firefox',
-      use: {
-        ...devices['Desktop Firefox']
-      },
-      dependencies: ['setup']
-    }
-
-    // {
-    //   name: 'webkit',
-    //   use: {
-    //     ...devices['Desktop Safari'],
-    //   },
-    // },
-
-    /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: {
-    //     ...devices['Pixel 5'],
-    //   },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: {
-    //     ...devices['iPhone 12'],
-    //   },
-    // },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: {
-    //     channel: 'msedge',
-    //   },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: {
-    //     channel: 'chrome',
-    //   },
-    // },
+    { name: 'firefox', use: { ...devices['Desktop Firefox'] } }
+    // Uncomment as required
+    // { name: 'mobile chrome', use: { ...devices['Pixel 5'] } },
+    // { name: 'mobile safari', use: { ...devices['iPhone 14'] } },
+    // { name: 'chromium', use: { ...devices['Desktop Chromium'] } },
+    // { name: 'webkit', use: { ...devices['Desktop Webkit'] } }
   ]
 
   /* Folder for test artifacts such as screenshots, videos, traces, etc. */

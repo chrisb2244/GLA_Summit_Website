@@ -79,7 +79,7 @@ describe('MentoringForm', () => {
   it('allows registration as a mentor for an existing user', async () => {
     renderForm(existingPerson, null);
     const submitButton = screen.getByRole('button');
-    userEvent.click(submitButton);
+    await userEvent.click(submitButton);
     // default is being a mentor...
     await waitFor(() => {
       return expect(submitFn).toBeCalledWith({
@@ -95,8 +95,8 @@ describe('MentoringForm', () => {
       name: /Receive Mentorship/i
     });
     const submitButton = screen.getByRole('button');
-    userEvent.click(menteeButton);
-    userEvent.click(submitButton);
+    await userEvent.click(menteeButton);
+    await userEvent.click(submitButton);
     await waitFor(() => {
       return expect(submitFn).toBeCalledWith({
         person: existingPerson,
@@ -165,16 +165,16 @@ describe('MentoringForm', () => {
         registered={null}
       />
     );
-    userEvent.type(getInput('First Name'), existingPerson.firstName);
-    userEvent.type(getInput('Email'), existingPerson.email);
+    await userEvent.type(getInput('First Name'), existingPerson.firstName);
+    await userEvent.type(getInput('Email'), existingPerson.email);
 
     const lastNameInput = getInput('Last Name');
     // userEvent.type(lastNameInput, existingPerson.lastName)
 
     const submitButton = screen.getByRole('button');
+    await userEvent.click(submitButton);
 
     await waitFor(() => {
-      userEvent.click(submitButton);
       expect(lastNameInput).toBeInvalid();
     });
     expect(submitFn).toBeCalledTimes(0);
