@@ -56,14 +56,24 @@ export default function RootLayout(props: {
       </head>
 
       <body>
+        <a
+          href='#main-content'
+          className='sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-[100] focus:rounded focus:bg-white focus:px-4 focus:py-2 focus:text-black focus:shadow'
+        >
+          Skip to main content
+        </a>
         <div className='flex min-h-screen flex-col'>
           <Header />
 
           <div style={{ flex: '1 0 auto', display: 'flex' }}>
-            <div className='mx-auto mb-8 flex w-[85%] max-w-screen-lg flex-col md:w-4/5'>
+            <main
+              id='main-content'
+              tabIndex={-1}
+              className='mx-auto mb-8 flex w-[85%] max-w-screen-lg flex-col focus:outline-none md:w-4/5'
+            >
               {props.children}
               {/* {props.loginModal} */}
-            </div>
+            </main>
           </div>
           <Footer />
         </div>
