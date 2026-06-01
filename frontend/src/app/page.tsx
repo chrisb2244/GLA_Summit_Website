@@ -32,7 +32,7 @@ export default async function Page() {
   // )
 
   const generalEventButton = (
-    <a href='https://events.ringcentral.com/events/gla-summit-2025'>
+    <a href='https://events.ringcentral.com/events/gla-summit-2026'>
       <Button fullWidth>Go to the Event!</Button>
     </a>
   );
@@ -84,7 +84,9 @@ export default async function Page() {
       {/* <div>{ticketButton}</div> */}
       <div>
         <p className='text-center'>
-          The GLA Summit is open for 2026 tickets!<br/>You can register at{' '}
+          The GLA Summit is open for 2026 tickets!
+          <br />
+          You can register at{' '}
           <a
             href='https://events.ringcentral.com/events/gla-summit-2026'
             className='link'
