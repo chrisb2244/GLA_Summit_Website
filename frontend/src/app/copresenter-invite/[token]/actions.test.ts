@@ -37,7 +37,7 @@ const mockAuth = (userId: string | null) => {
         data: { user: userId ? { id: userId } : null }
       })
     }
-  } as unknown as ReturnType<typeof createServerActionClient>);
+  } as unknown as Awaited<ReturnType<typeof createServerActionClient>>);
 };
 
 type AdminOptions = {
@@ -196,6 +196,16 @@ describe('respondToInvite', () => {
       `${CACHE_TAGS.acceptedPresenterIds}:2026`,
       { expire: 0 }
     );
+  });
+
+  it('does not revalidate caches on a successful decline (accepted set is unchanged)', async () => {
+    mockAuth(PRESENTER_ID);
+    makeAdminMock({ status: 'pending', declined_count: 0, year: '2026' });
+    const result = await respondToInvite(makeToken(), 'decline');
+    expect(result.success).toBe(true);
+    // A pending→declined transition cannot change who appears on the public
+    // accepted-presenters list, so the weeks-cached list is left intact.
+    expect(revalidateTag).not.toHaveBeenCalled();
   });
 
   it('does not revalidate caches when the response is not recorded', async () => {

@@ -141,10 +141,13 @@ export const respondToInvite = async (
   }
 
   // The public /presenters list is filtered by accepted status and cached for
-  // weeks (getAcceptedPresenterIds). An accept/decline changes who appears
-  // there, so invalidate that cache — it is otherwise only revalidated when an
+  // weeks (getAcceptedPresenterIds). Only an accept changes who appears there —
+  // a pending→declined transition leaves the accepted set untouched — so we
+  // revalidate just for accepts. It is otherwise only revalidated when an
   // accepted_presentations row changes, which a status flip does not touch.
-  await revalidateAcceptedPresenters(payload.presentationId, supabaseAdmin);
+  if (action === 'accept') {
+    await revalidateAcceptedPresenters(payload.presentationId, supabaseAdmin);
+  }
 
   await notifySubmitter(
     payload.presentationId,
