@@ -11,7 +11,7 @@ const loadNewCopresenterEmailFn = async (workflow: boolean) => {
     COPRESENTER_INVITE_WORKFLOW: workflow,
     submissionsForYear: '2026'
   }));
-  const mod = await import('./FormSubmissionEmail');
+  const mod = await import('./FormSubmissionEmail.js');
   return mod.NewCopresenterEmailFn;
 };
 
