@@ -1,11 +1,11 @@
 import { Header } from './_rootElements/Header';
 import { Footer } from './_rootElements/Footer';
 import { roboto } from './font-workaround';
-import { SpeedInsights } from '@vercel/speed-insights/next';
-
-import './global.css';
 import type { Metadata } from 'next';
 import { ticketYear } from './configConstants';
+import { SpeedInsightsWrapper } from './_rootElements/SpeedInsightsWrapper';
+
+import './global.css';
 
 const baseUrl =
   process.env.NEXT_PUBLIC_BASEURL ?? process.env.VERCEL_URL
@@ -66,7 +66,7 @@ export default function RootLayout(props: {
           </div>
           <Footer />
         </div>
-        <SpeedInsights />
+        <SpeedInsightsWrapper />
       </body>
     </html>
   );

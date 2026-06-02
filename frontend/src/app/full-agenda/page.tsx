@@ -4,12 +4,14 @@ import type { ContainerHint } from '@/Components/Agenda/AgendaCalculations';
 import { currentDisplayYear } from '@/app/configConstants';
 import { createAnonServerClient } from '@/lib/supabaseClient';
 import { Suspense } from 'react';
-import { cacheLife } from 'next/cache';
+import { cacheLife, cacheTag } from 'next/cache';
+import { CACHE_TAGS } from '@/lib/supabase/cacheTags';
 import type { PresentationModel as AgendaEntry } from '@/lib/databaseModels';
 
 const getAgendaAndHints = async () => {
   'use cache';
-  cacheLife({ stale: 300, revalidate: 300, expire: 86400 });
+  cacheLife('publicContent');
+  cacheTag(CACHE_TAGS.agenda);
 
   const returnVal = (
     agenda: AgendaEntry[] | null,

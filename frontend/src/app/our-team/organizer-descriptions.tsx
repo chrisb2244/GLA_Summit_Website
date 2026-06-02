@@ -128,21 +128,21 @@ export const descriptions = {
     <>
       <h3 className='my-1 pt-0 text-sm font-normal italic'>Treasurer</h3>
       <p>
-        Michał (aka Mike) is a test environment architect working at Siemens
-        Gamesa Renewable Energy. There, he takes care of the fleet of Hardware
-        in the Loop simulators for wind turbines. Besides the technical role, he
-        is also an advocate of good engineering practice coaching developers in
-        writing testable code and using conventional commits and semantic
-        versioning.
+        Michał (aka Mike) works with Embedded Control Systems Simulations. 
+        At KK-Group, he takes care of the Software and Hardwarein the Loop 
+        simulators for wind turbine control systems. Besides the technical role, 
+        he is also an engineering excellence agent coaching developers in clean 
+        architecture, code testability, and software engineering beyond coding.
       </p>
       <p>
         Mike&apos;s adventure with LabVIEW started in 2009 in academia, where he
         was developing controllers for excimer lasers and incubators of organic
-        crystals. Before settling in the wind industry he worked in plenty of
-        green-energy projects together with CCM-EE consultancy.
+        crystals. Then, he continued with green-energy projects ever since including 
+        geothermal power with CCM-EE, embracing wind with Siemens Gamesa, and P<sub>2</sub>H
+        with Nel/Cavendish.
       </p>
       <p>
-        He is a CLD, active member of ADVANCED LABVIEW USER GROUP DENMARK, and
+        He is a CLA and LabVIEW champion. Member of ADVANCED LABVIEW USER GROUP DENMARK, and
         presenter from the first VI week. Mike lives in Denmark, plays a hang
         drum, and can bake the yummiest chocolate cake ever!
       </p>

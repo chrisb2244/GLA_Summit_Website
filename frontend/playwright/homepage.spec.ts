@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Homepage tests', () => {
-  test('GLA homepage has title with GLA Summit', async ({ page }) => {
+  test('GLA homepage has title with GLA Summit', { tag: ['@smoke', '@synthetic'] }, async ({ page }) => {
     await page.goto('/');
     await expect(page).toHaveTitle(/GLA Summit/);
   });

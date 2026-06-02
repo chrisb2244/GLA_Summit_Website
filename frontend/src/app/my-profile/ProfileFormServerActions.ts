@@ -1,7 +1,7 @@
 'use server';
 
 import { ProfileModel } from '@/lib/databaseModels';
-import { cacheTagForPerson, CACHE_TAGS } from '@/lib/supabase/cacheTags';
+import { cacheTagForPerson } from '@/lib/supabase/cacheTags';
 import { createServerActionClient } from '@/lib/supabaseServer';
 import { revalidatePath, revalidateTag } from 'next/cache';
 
@@ -74,7 +74,8 @@ export const updateProfileAction = async (
     };
   }
 
-  revalidateTag(CACHE_TAGS.people, 'max');
+  // Per-person tag only: invalidates exactly the cached entries that contain
+  // this person (presenter pages, presentation speaker lists, our-team, etc).
   revalidateTag(cacheTagForPerson(id), 'max');
   revalidatePath('/my-profile');
   return {

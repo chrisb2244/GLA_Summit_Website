@@ -1,20 +1,24 @@
 import { test, expect } from '@playwright/test';
 import { PresentationSubmissionPage } from './models/PresentationSubmissionPage';
-import { createSupabaseAdmin } from './utils';
-import { submissionsForYear } from '@/app/configConstants';
-import path from 'path';
-
-const attendeeEmail = process.env.TEST_ATTENDEE_EMAIL as string;
+import { createAttendee, createSupabaseAdmin, loginOnPage } from './utils';
+import type { SeededUser } from './utils';
 
 const buildTitle = () =>
   `Draft RLS regression ${Date.now()} ${Math.random()
     .toString(16)
     .slice(2, 8)}`;
 
-test.describe('draft save regression', () => {
-  test.use({
-    storageState: async ({}, use) =>
-      use(path.resolve(__dirname, '.auth', 'attendee.json'))
+test.describe('draft save regression', { tag: '@regression' }, () => {
+  let user: SeededUser;
+
+  test.beforeEach(async ({ page }) => {
+    user = await createAttendee();
+    await page.goto('/');
+    await loginOnPage(page, user.email);
+  });
+
+  test.afterEach(async () => {
+    await user?.cleanup();
   });
 
   test('saving a draft does not fail with presentation_submissions RLS error', async ({
@@ -66,19 +70,7 @@ test.describe('draft save regression', () => {
       page.getByRole('link', { name: title, exact: true })
     ).toBeVisible();
 
-    const { data: emailLookup } = await admin
-      .from('email_lookup')
-      .select('id')
-      .eq('email', attendeeEmail)
-      .single();
-
-    if (emailLookup?.id) {
-      await admin
-        .from('presentation_submissions')
-        .delete()
-        .eq('submitter_id', emailLookup.id)
-        .eq('title', title)
-        .eq('year', submissionsForYear);
-    }
+    // The draft row is removed by the afterEach user cleanup (deleting the user
+    // cascades their submissions), so no per-title delete is needed here.
   });
 });

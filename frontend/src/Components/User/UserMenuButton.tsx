@@ -1,56 +1,19 @@
 import { SignInUpButton } from '@/Components/SigninRegistration/SignInUpButton';
 import { UserMenu } from '@/Components/User/UserMenu';
 import { signOut } from '@/Components/SigninRegistration/SignInUpActions';
-import { createServerClient } from '@/lib/supabaseServer';
-import { User } from '@supabase/supabase-js';
-import { getUser } from '@/lib/supabase/userFunctions';
+import { getUserDataForMenu } from '@/lib/supabase/userFunctions';
 
 export async function UserMenuButton() {
-  const user = await getUser();
-
-  const supabase = await createServerClient();
-
-  const getIsOrganizer = async (user: User | null) => {
-    if (user === null) {
-      return false;
-    }
-    const { count, error } = await supabase
-      .from('organizers')
-      .select('id', { head: true, count: 'exact' })
-      .eq('id', user.id);
-    if (error) {
-      console.log({ getOrganizerError: error });
-      return false;
-    }
-    return (count ?? 0) === 1;
-  };
-  const isOrganizer = await getIsOrganizer(user);
-
-  const getProfile = async (user: User | null) => {
-    if (user === null) {
-      return null;
-    }
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('id, firstname, lastname, bio, website, avatar_url, updated_at')
-      .eq('id', user.id)
-      .single();
-    if (error) {
-      console.log({ error, m: 'Fetching profile' });
-      return null;
-    }
-    return data;
-  };
-  const profile = await getProfile(user);
+  const userData = await getUserDataForMenu();
 
   const button =
-    user == null ? (
+    userData == null ? (
       <SignInUpButton />
     ) : (
       <UserMenu
-        user={user}
-        isOrganizer={isOrganizer}
-        profile={profile}
+        user={userData.user}
+        isOrganizer={userData.isOrganizer}
+        profile={userData.profile}
         signOut={signOut}
       />
     );

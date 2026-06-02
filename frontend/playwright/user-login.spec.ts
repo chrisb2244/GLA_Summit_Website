@@ -3,25 +3,18 @@ import { LoginablePage } from './models/LoginablePage';
 import {
   countEmailsInInbox,
   createSupabaseAdmin,
+  generateTestEmail,
   getInbucketVerificationCode
 } from './utils';
 
 test.describe('User Authentication Tests', () => {
   const emailsToDelete: string[] = [];
 
-  const generateUser = (firstname: string, lastname: string) => {
-    const emailWithoutDomain = `test-${Math.random()
-      .toString(36)
-      .substring(2)}`;
-    return {
-      firstname,
-      lastname,
-      email: `${emailWithoutDomain}@test.email`
-    };
-  };
-  const newUser = generateUser('New', 'User');
-  const existingUser = generateUser('Existing', 'User');
-
+  const generateUser = (firstname: string, lastname: string) => ({
+    firstname,
+    lastname,
+    email: generateTestEmail('test')
+  });
   const supabaseAdmin = createSupabaseAdmin();
 
   test.afterAll(async () => {
@@ -41,6 +34,11 @@ test.describe('User Authentication Tests', () => {
   });
 
   test('User can register', async ({ page }) => {
+    // Generated per-test (not at module scope) so --repeat-each runs each get a
+    // fresh email; reusing one address re-registers an existing account and the
+    // resent code no longer matches, breaking verification on the second repeat.
+    const newUser = generateUser('New', 'User');
+
     await page.goto('/');
     const loginablePage = new LoginablePage(page);
     await loginablePage.openLoginOrRegisterForm('register');
@@ -64,7 +62,11 @@ test.describe('User Authentication Tests', () => {
     await expect(userButton).toBeVisible();
   });
 
-  test('Existing user can login', async ({ page }) => {
+  test('Existing user can login', { tag: '@smoke' }, async ({ page }) => {
+    // Generated per-test (not at module scope) so each --repeat-each run gets a
+    // distinct account and they don't race over a shared inbox / OTP.
+    const existingUser = generateUser('Existing', 'User');
+
     // Setup a user for login tests
     // console.log('Creating user with email: ', precreatedUser.email);
     emailsToDelete.push(existingUser.email);
@@ -138,13 +140,19 @@ test.describe('User Authentication Tests', () => {
       loginablePage.submitForm('enter key'),
       loginablePage.submitForm('button click'),
       loginablePage.submitForm()
-    ]).then(() => new Promise((r) => setTimeout(r, 500)));
+    ]);
 
+    // Wait for the OTP email to actually land before counting. Against
+    // testmail.app, app→Mailgun→testmail delivery takes seconds, so the old
+    // fixed 500ms snapshot raced delivery and counted 0. Block on the code
+    // first (latency-tolerant livequery), then let any duplicate a broken
+    // debounce would have sent settle, then assert exactly one arrived.
+    const otp = await getInbucketVerificationCode(user.email, 5000);
+    expect(otp).toBeDefined();
+
+    await page.waitForTimeout(2000);
     const numEmailsInBucket = await countEmailsInInbox(user.email);
     expect(numEmailsInBucket).toBe(1);
-
-    const otp = await getInbucketVerificationCode(user.email, 1000);
-    expect(otp).toBeDefined();
 
     await loginablePage.fillInVerificationForm(otp);
     await loginablePage.submitForm();
@@ -186,13 +194,16 @@ test.describe('User Authentication Tests', () => {
 
     await Promise.allSettled(attempts);
 
-    await page.waitForTimeout(500); // Wait for any potential emails to be sent
+    // Wait for the OTP email to actually land before counting. testmail.app
+    // delivery (app→Mailgun→testmail) takes seconds, so a fixed 500ms snapshot
+    // races delivery and counts 0. Block on the code first (latency-tolerant
+    // livequery), let any duplicate settle, then assert exactly one arrived.
+    const otp = await getInbucketVerificationCode(user.email, 5000);
+    expect(otp).toBeDefined();
 
+    await page.waitForTimeout(2000);
     const numEmailsInBucket = await countEmailsInInbox(user.email);
     expect(numEmailsInBucket).toBe(1);
-
-    const otp = await getInbucketVerificationCode(user.email, 2000);
-    expect(otp).toBeDefined();
 
     await loginablePage.fillInVerificationForm(otp);
     await loginablePage.submitForm();

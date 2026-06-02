@@ -2,22 +2,20 @@ import {
   Presentation,
   PresentationDisplay
 } from '@/Components/Layout/PresentationDisplay';
-import {
-  getPresentationIds,
-  getPublicPresentation,
-  getVideoLink
-} from '@/lib/databaseFunctions';
-import { createAnonServerClient } from '@/lib/supabaseClient';
+import { getPresentationIds } from '@/lib/databaseFunctions';
 import { createServerClient } from '@/lib/supabaseServer';
 import { calculateSchedule } from '@/lib/utils';
 import type { Metadata, NextPage } from 'next';
 import { notFound } from 'next/navigation';
 import { redirect } from 'next/navigation';
 import { getPanelLink } from '@/app/panels/panelLinks';
-import { getPeople } from '@/lib/supabase/public';
+import {
+  getCachedPublicPresentation,
+  getCachedVideoLink,
+  getPeople
+} from '@/lib/supabase/public';
 import { getPeople_Authed } from '@/lib/supabase/authorized';
 import type { NextParams, satisfy } from '@/lib/NextTypes';
-import { cacheLife, cacheTag } from 'next/cache';
 import { Suspense } from 'react';
 
 type PageProps = {
@@ -37,7 +35,7 @@ export async function generateStaticParams(): Promise<{ id: string }[]> {
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const { id } = await props.params;
   try {
-    const title = (await getPublicPresentation(id)).title;
+    const title = (await getCachedPublicPresentation(id)).title;
     return { title };
   } catch {
     return {};
@@ -69,56 +67,35 @@ const PresentationsForYearPageContent = async (props: PageProps) => {
       }
     | (Presentation & { redirect?: undefined });
 
-  const getCachedPublicPresentation = async (
-    presentationId: string
-  ): Promise<PresentationReturn> => {
-    'use cache';
-    cacheLife({ stale: 300, revalidate: 600, expire: 86400 });
-    cacheTag(`presentation:${presentationId}`);
-
-    const supabase = createAnonServerClient();
-    const data = await getPublicPresentation(presentationId, supabase);
-    const presenters = (await getPeople(data.all_presenters)).map((p) => {
-      return { ...p, pageLink: `/presenters/${p.id}` };
-    });
+  let presentation: PresentationReturn;
+  try {
+    const data = await getCachedPublicPresentation(pId);
 
     const type = data.presentation_type;
     if (type === 'panel') {
-      return {
+      presentation = {
         redirect: {
           destination: getPanelLink(data.title)
         }
       };
+    } else {
+      const presenters = (await getPeople(data.all_presenters)).map((p) => {
+        return { ...p, pageLink: `/presenters/${p.id}` };
+      });
+
+      // Allow masking the schedule for 2025
+      const mask = false; // data.year === '2025';
+      const scheduledFor = mask ? null : data.scheduled_for;
+      const schedule = calculateSchedule(type, scheduledFor);
+
+      presentation = {
+        title: data.title,
+        abstract: data.abstract,
+        speakers: presenters,
+        speakerNames: data.all_presenters_names,
+        ...schedule
+      };
     }
-
-    // Allow masking the schedule for 2025
-    const mask = false; // data.year === '2025';
-    const scheduledFor = mask ? null : data.scheduled_for;
-    const schedule = calculateSchedule(type, scheduledFor);
-
-    return {
-      title: data.title,
-      abstract: data.abstract,
-      speakers: presenters,
-      speakerNames: data.all_presenters_names,
-      ...schedule
-    };
-  };
-
-  const getCachedVideoLink = async (
-    presentationId: string
-  ): Promise<string | null> => {
-    'use cache';
-    cacheLife({ stale: 300, revalidate: 600, expire: 86400 });
-    cacheTag(`presentation-video:${presentationId}`);
-
-    const anonClient = createAnonServerClient();
-    return getVideoLink(presentationId, anonClient);
-  };
-
-  let presentation: PresentationReturn;
-  try {
-    presentation = await getCachedPublicPresentation(pId);
   } catch (err) {
     // Not returned by getPublicPresentations.
     const supabaseLoggedIn = await createServerClient();

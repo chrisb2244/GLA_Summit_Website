@@ -2,7 +2,10 @@ import { EmailProps } from '@/Components/Form/Person';
 import type { PresentationSubmissionFormData } from '@/Components/PresentationSubmissions/PresentationSubmissionFormSchema';
 import { LogoImg, UnexpectedPresentationEmail } from './emailComponents';
 import { PresentationType } from '@/lib/databaseModels';
-import { submissionsForYear } from '@/app/configConstants';
+import {
+  submissionsForYear,
+  COPRESENTER_INVITE_WORKFLOW
+} from '@/app/configConstants';
 
 const escapeHtml = (s: string) =>
   s
@@ -196,13 +199,30 @@ export const NewCopresenterEmailFn = (
   const labelStyle =
     'padding:8px 8px 8px 0;vertical-align:middle;font-size:10px;text-transform:uppercase;width:100px';
 
+  // With the accept/decline workflow on, the verify-account link redirects to the
+  // invite page, so the copy invites the recipient to respond. With it off, the
+  // co-presenter is implicitly accepted and there is no invite page — the copy must
+  // only ask them to verify their new account, not to "accept or decline".
+  const introLine = COPRESENTER_INVITE_WORKFLOW
+    ? `You have been invited as a co-presenter for a GLA Summit ${submissionsForYear} presentation!`
+    : `You have been added as a co-presenter for a GLA Summit ${submissionsForYear} presentation!`;
+  const verifyLine = COPRESENTER_INVITE_WORKFLOW
+    ? 'An account has been created for you at <a href="https://glasummit.org" target="_blank" style="color:#a25bcd;text-decoration:underline">glasummit.org</a>. Click the link below to verify your account and accept or decline this invitation:'
+    : 'An account has been created for you at <a href="https://glasummit.org" target="_blank" style="color:#a25bcd;text-decoration:underline">glasummit.org</a>. Click the link below to verify your account:';
+  const ctaLabel = COPRESENTER_INVITE_WORKFLOW
+    ? 'Verify account &amp; respond to invitation'
+    : 'Verify your account';
+  const verifyLinePlain = COPRESENTER_INVITE_WORKFLOW
+    ? `To verify your account and respond to the invitation, visit: https://glasummit.org${validateLoginUrl}`
+    : `To verify your account, visit: https://glasummit.org${validateLoginUrl}`;
+
   return {
     body: `
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <html lang="en">
     <head></head>
-    <div id="__react-email-preview" style="display:none;overflow:hidden;line-height:1px;opacity:0;max-height:0;max-width:0">GLA Summit - You have been invited as a co-presenter</div>
+    <div id="__react-email-preview" style="display:none;overflow:hidden;line-height:1px;opacity:0;max-height:0;max-width:0">GLA Summit - ${COPRESENTER_INVITE_WORKFLOW ? 'You have been invited as a co-presenter' : 'You have been added as a co-presenter'}</div>
 
     <body style="background-color:#fff;font-family:Roboto,sans-serif">
       <table align="center" width="100%" role="presentation" cellSpacing="0" cellPadding="0" border="0" style="max-width:37.5em;background-color:#fff;border:1px solid #eee;border-radius:5px;box-shadow:0 5px 10px rgba(20,50,70,.2);margin-top:20px;width:360px;margin:0 auto;padding:68px 0 130px">
@@ -215,9 +235,9 @@ export const NewCopresenterEmailFn = (
                   <tr style="width:100%">
                     <td>
                       ${DearPerson(nameString)}
-                      <p style="font-size:14px;line-height:24px;margin:16px 0">You have been invited as a co-presenter for a GLA Summit ${submissionsForYear} presentation!</p>
-                      <p style="font-size:14px;line-height:24px;margin:16px 0">An account has been created for you at <a href="https://glasummit.org" target="_blank" style="color:#a25bcd;text-decoration:underline">glasummit.org</a>. Click the link below to verify your account and accept or decline this invitation:</p>
-                      <p style="font-size:14px;line-height:24px;margin:16px 0;text-align:center"><a href="${escapedValidateUrl}" target="_blank" style="background-color:#a25bcd;color:#fff;padding:10px 20px;border-radius:4px;text-decoration:none;display:inline-block">Verify account &amp; respond to invitation</a></p>
+                      <p style="font-size:14px;line-height:24px;margin:16px 0">${introLine}</p>
+                      <p style="font-size:14px;line-height:24px;margin:16px 0">${verifyLine}</p>
+                      <p style="font-size:14px;line-height:24px;margin:16px 0;text-align:center"><a href="${escapedValidateUrl}" target="_blank" style="background-color:#a25bcd;color:#fff;padding:10px 20px;border-radius:4px;text-decoration:none;display:inline-block">${ctaLabel}</a></p>
                       <p style="font-size:12px;line-height:20px;margin:16px 0;color:#666">If the button doesn't work, visit <a href="https://glasummit.org/auth/validateLogin" target="_blank" style="color:#a25bcd;text-decoration:underline">glasummit.org/auth/validateLogin</a> and enter the verification code: <strong>${escapedOtp}</strong></p>
                       <p style="font-size:14px;line-height:24px;margin:16px 0">The presentation details are shown below.</p>
                       <table style="border-spacing:0px;border-collapse:collapse;color:#444;width:100%;table-layout:fixed">
@@ -266,9 +286,10 @@ export const NewCopresenterEmailFn = (
   </html>
     `,
     bodyPlain: `Dear ${nameString},\r\n
-    You have been invited as a co-presenter for a GLA Summit ${submissionsForYear} presentation titled "${title}".\r\n
+    ${introLine}\r\n
+    The presentation is titled "${title}".\r\n
     An account has been created for you at https://glasummit.org\r\n
-    To verify your account and respond to the invitation, visit: https://glasummit.org${validateLoginUrl}\r\n
+    ${verifyLinePlain}\r\n
     If that link doesn't work, visit https://glasummit.org/auth/validateLogin and enter the verification code: ${otpCode}\r\n
     More details can be found in an HTML copy of this email - if you would like more detail in our plain-text emails, please contact web@glasummit.org\r\n
     From the GLA Summit Organizers`

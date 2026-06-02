@@ -15,9 +15,12 @@ vi.mock('@/lib/utils', () => ({ logToDb: vi.fn() }));
 vi.mock('@/EmailTemplates/FormSubmissionEmail', () => ({
   CopresenterResponseNotificationEmailFn: vi.fn(() => ({ body: '', bodyPlain: '' }))
 }));
+vi.mock('next/cache', () => ({ revalidateTag: vi.fn() }));
 
 import { createAdminClient } from '@/lib/supabaseClient';
 import { createServerActionClient } from '@/lib/supabaseServer';
+import { revalidateTag } from 'next/cache';
+import { CACHE_TAGS } from '@/lib/supabase/cacheTags';
 import { generateInviteToken } from '@/lib/copresenterInviteToken';
 import { respondToInvite, submitInviteResponse } from './actions';
 
@@ -34,28 +37,77 @@ const mockAuth = (userId: string | null) => {
         data: { user: userId ? { id: userId } : null }
       })
     }
-  } as unknown as ReturnType<typeof createServerActionClient>);
+  } as unknown as Awaited<ReturnType<typeof createServerActionClient>>);
 };
 
-const makeAdminMock = (status = 'pending', declined_count = 0) => {
-  const selectBuilder = {
-    select: vi.fn().mockReturnThis(),
-    eq: vi.fn().mockReturnThis(),
-    single: vi.fn().mockResolvedValue({ data: { status, declined_count }, error: null })
+type AdminOptions = {
+  /** Status of the presenter row on the initial read. */
+  status?: 'pending' | 'accepted' | 'declined';
+  declined_count?: number;
+  /**
+   * Rows returned by the guarded `update(...).select('status')`. Defaults to a
+   * single row (a successful pending→accepted/declined transition). Pass `[]`
+   * to simulate losing an optimistic-concurrency race.
+   */
+  updatedRows?: Array<{ status: string }>;
+  /** Status re-read after a lost race (the decision that actually landed). */
+  latestStatus?: 'accepted' | 'declined' | 'pending' | null;
+  year?: string;
+};
+
+// Builds a query-aware admin client. The presentation_presenters table is
+// accessed up to three times per respondToInvite call:
+//   1. initial read       — select(...).eq().eq().single()        → currentRow
+//   2. guarded update      — update(...).eq().eq().eq().select()   → updatedRows
+//   3. lost-race re-read    — select(...).eq().eq().single()        → latestRow
+// A per-`from('presentation_presenters')` call counter routes each chain to the
+// right terminal value.
+const makeAdminMock = (opts: AdminOptions = {}) => {
+  const status = opts.status ?? 'pending';
+  const declined_count = opts.declined_count ?? 0;
+  const updatedRows = opts.updatedRows ?? [{ status: 'accepted' }];
+  const latestStatus = opts.latestStatus ?? null;
+
+  let presenterFromCall = 0;
+
+  const presentersBuilder = () => {
+    presenterFromCall += 1;
+    const callIndex = presenterFromCall;
+    let isUpdate = false;
+    const builder: Record<string, unknown> = {
+      update: vi.fn(() => {
+        isUpdate = true;
+        return builder;
+      }),
+      eq: vi.fn(() => builder),
+      select: vi.fn(() => {
+        // After update(), select() is terminal and resolves to the affected rows.
+        if (isUpdate) {
+          return Promise.resolve({ data: updatedRows, error: null });
+        }
+        return builder;
+      }),
+      single: vi.fn(() => {
+        if (callIndex === 1) {
+          return Promise.resolve({ data: { status, declined_count }, error: null });
+        }
+        return Promise.resolve({
+          data: latestStatus ? { status: latestStatus } : null,
+          error: null
+        });
+      })
+    };
+    return builder;
   };
-  const updateBuilder = {
-    update: vi.fn().mockReturnThis(),
-    eq: vi.fn().mockReturnThis(),
-    then: vi.fn((resolve: (v: unknown) => void) => resolve({ error: null }))
-  };
+
   const fromMock = vi.fn((table: string) => {
-    if (table === 'presentation_presenters') return { ...selectBuilder, ...updateBuilder };
+    if (table === 'presentation_presenters') return presentersBuilder();
     if (table === 'presentation_submissions')
       return {
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
         single: vi.fn().mockResolvedValue({
-          data: { title: 'Test Talk', submitter_id: SUBMITTER_ID },
+          data: { title: 'Test Talk', submitter_id: SUBMITTER_ID, year: opts.year ?? '2026' },
           error: null
         })
       };
@@ -74,10 +126,14 @@ const makeAdminMock = (status = 'pending', declined_count = 0) => {
           error: null
         })
       };
-    return selectBuilder;
+    return {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      single: vi.fn().mockResolvedValue({ data: null, error: null })
+    };
   });
   vi.mocked(createAdminClient).mockReturnValue({ from: fromMock } as unknown as ReturnType<typeof createAdminClient>);
-  return { fromMock, updateBuilder };
+  return { fromMock };
 };
 
 describe('respondToInvite', () => {
@@ -108,37 +164,110 @@ describe('respondToInvite', () => {
 
   it('accepts a pending invite and returns success', async () => {
     mockAuth(PRESENTER_ID);
-    makeAdminMock('pending', 0);
+    makeAdminMock({ status: 'pending', declined_count: 0 });
     const result = await respondToInvite(makeToken(), 'accept');
     expect(result.success).toBe(true);
     expect((result as { success: true; action: string }).action).toBe('accept');
   });
 
-  it('declines a pending invite and increments declined_count', async () => {
+  it('declines a pending invite, guarding the update on status=pending and incrementing declined_count', async () => {
     mockAuth(PRESENTER_ID);
-    const { fromMock } = makeAdminMock('pending', 0);
+    const { fromMock } = makeAdminMock({ status: 'pending', declined_count: 0 });
     const result = await respondToInvite(makeToken(), 'decline');
     expect(result.success).toBe(true);
     expect((result as { success: true; action: string }).action).toBe('decline');
-    // Verify update was called with declined_count: 1
-    const presenterFromCalls = (fromMock as ReturnType<typeof vi.fn>).mock.calls
-      .filter((call: unknown[]) => call[0] === 'presentation_presenters');
-    const updateCall = presenterFromCalls.find(() => true);
-    expect(updateCall).toBeDefined();
+
+    // The update call must be guarded by .eq('status', 'pending') and must write
+    // declined_count: 1 (read 0 + 1).
+    const updateBuilder = fromMock.mock.results
+      .map((r) => r.value as Record<string, ReturnType<typeof vi.fn>>)
+      .find((b) => b.update && (b.update as ReturnType<typeof vi.fn>).mock.calls.length > 0);
+    expect(updateBuilder).toBeDefined();
+    expect(updateBuilder!.update).toHaveBeenCalledWith({ status: 'declined', declined_count: 1 });
+    expect(updateBuilder!.eq).toHaveBeenCalledWith('status', 'pending');
   });
 
-  it('is idempotent when already accepted', async () => {
+  it('revalidates the accepted-presenter caches after a successful response', async () => {
     mockAuth(PRESENTER_ID);
-    makeAdminMock('accepted', 0);
-    const result = await respondToInvite(makeToken(), 'accept');
-    expect(result.success).toBe(true);
+    makeAdminMock({ status: 'pending', year: '2026' });
+    await respondToInvite(makeToken(), 'accept');
+    expect(revalidateTag).toHaveBeenCalledWith(CACHE_TAGS.acceptedPresenterIds, { expire: 0 });
+    expect(revalidateTag).toHaveBeenCalledWith(
+      `${CACHE_TAGS.acceptedPresenterIds}:2026`,
+      { expire: 0 }
+    );
   });
 
-  it('is idempotent when already declined', async () => {
+  it('does not revalidate caches on a successful decline (accepted set is unchanged)', async () => {
     mockAuth(PRESENTER_ID);
-    makeAdminMock('declined', 1);
+    makeAdminMock({ status: 'pending', declined_count: 0, year: '2026' });
     const result = await respondToInvite(makeToken(), 'decline');
     expect(result.success).toBe(true);
+    // A pending→declined transition cannot change who appears on the public
+    // accepted-presenters list, so the weeks-cached list is left intact.
+    expect(revalidateTag).not.toHaveBeenCalled();
+  });
+
+  it('does not revalidate caches when the response is not recorded', async () => {
+    mockAuth(PRESENTER_ID);
+    // Already declined: idempotent short-circuit, no write, no cache work.
+    makeAdminMock({ status: 'declined', declined_count: 1 });
+    await respondToInvite(makeToken(), 'accept');
+    expect(revalidateTag).not.toHaveBeenCalled();
+  });
+
+  it('is idempotent when already accepted (reports the stored decision)', async () => {
+    mockAuth(PRESENTER_ID);
+    makeAdminMock({ status: 'accepted', declined_count: 0 });
+    const result = await respondToInvite(makeToken(), 'accept');
+    expect(result.success).toBe(true);
+    expect((result as { success: true; action: string }).action).toBe('accept');
+  });
+
+  it('is idempotent when already declined (reports the stored decision)', async () => {
+    mockAuth(PRESENTER_ID);
+    makeAdminMock({ status: 'declined', declined_count: 1 });
+    const result = await respondToInvite(makeToken(), 'decline');
+    expect(result.success).toBe(true);
+    expect((result as { success: true; action: string }).action).toBe('decline');
+  });
+
+  it('reports the stored "decline" when an accept link is used after declining', async () => {
+    // A stale accept link clicked after the user already declined must not claim
+    // acceptance — it reports the actual stored decision.
+    mockAuth(PRESENTER_ID);
+    makeAdminMock({ status: 'declined', declined_count: 1 });
+    const result = await respondToInvite(makeToken(), 'accept');
+    expect(result.success).toBe(true);
+    expect((result as { success: true; action: string }).action).toBe('decline');
+  });
+
+  it('reports the stored "accept" when a decline link is used after accepting', async () => {
+    mockAuth(PRESENTER_ID);
+    makeAdminMock({ status: 'accepted', declined_count: 0 });
+    const result = await respondToInvite(makeToken(), 'decline');
+    expect(result.success).toBe(true);
+    expect((result as { success: true; action: string }).action).toBe('accept');
+  });
+
+  it('on a lost concurrency race, reports the decision that actually landed', async () => {
+    // Row read as pending, but the guarded update matches zero rows because a
+    // concurrent request already accepted it. We re-read and report 'accept'.
+    mockAuth(PRESENTER_ID);
+    makeAdminMock({ status: 'pending', updatedRows: [], latestStatus: 'accepted' });
+    const result = await respondToInvite(makeToken(), 'decline');
+    expect(result.success).toBe(true);
+    expect((result as { success: true; action: string }).action).toBe('accept');
+    // No double-counting: the caller's own update wrote nothing.
+    expect(revalidateTag).not.toHaveBeenCalled();
+  });
+
+  it('fails cleanly if a lost race leaves the row in an unexpected state', async () => {
+    mockAuth(PRESENTER_ID);
+    makeAdminMock({ status: 'pending', updatedRows: [], latestStatus: null });
+    const result = await respondToInvite(makeToken(), 'accept');
+    expect(result.success).toBe(false);
+    expect((result as { success: false; error: string }).error).toMatch(/try again/i);
   });
 });
 
