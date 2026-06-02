@@ -21,8 +21,12 @@ export const CopyableTextBox = (props: {
 
   return (
     <div className='group relative'>
-      <div
-        className='invisible absolute right-4 top-4 hover:cursor-pointer hover:rounded-md hover:bg-secondaryc hover:bg-opacity-40 hover:p-1 group-hover:visible'
+      {/* Revealed on hover, but kept in the tab order and shown on keyboard
+          focus (opacity, not visibility/display) so it stays accessible. */}
+      <button
+        type='button'
+        aria-label='copy'
+        className='absolute right-4 top-4 cursor-pointer rounded-md p-1 opacity-0 transition-opacity hover:bg-secondaryc hover:bg-opacity-40 focus-visible:opacity-100 group-hover:opacity-100'
         onClick={(ev) => {
           ev.currentTarget.classList.add('animate-wiggle');
           copyToClipboard();
@@ -32,8 +36,8 @@ export const CopyableTextBox = (props: {
         }}
       >
         <Icon path={mdiContentCopy} size={1} />
-      </div>
-      <div className=''>{children}</div>
+      </button>
+      <div>{children}</div>
     </div>
   );
 };
