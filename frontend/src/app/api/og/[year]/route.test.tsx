@@ -41,7 +41,7 @@ describe('generateStaticParams', () => {
 describe('GET /api/og/[year]', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    MockImageResponse.mockReturnValue({ status: 200 });
+    MockImageResponse.mockImplementation(function () { return { status: 200 }; });
   });
 
   it('returns 404 for an unknown year', async () => {
