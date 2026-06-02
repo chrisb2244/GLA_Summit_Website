@@ -33,7 +33,12 @@ const seedInvite = async (params: {
   submitterId: string;
   copresenterId: string;
   copresenterStatus?: 'pending' | 'accepted' | 'declined';
+  copresenterDeclinedCount?: number;
   isSubmitted?: boolean;
+  // When true, also marks the presentation as accepted (accepted_presentations),
+  // which is the precondition for any of its presenters to appear on the public
+  // /presenters list.
+  accepted?: boolean;
 }): Promise<{ presentationId: string }> => {
   const admin = createSupabaseAdmin();
   const {
@@ -41,7 +46,9 @@ const seedInvite = async (params: {
     submitterId,
     copresenterId,
     copresenterStatus = 'pending',
-    isSubmitted = false
+    copresenterDeclinedCount = 0,
+    isSubmitted = false,
+    accepted = false
   } = params;
 
   const { data: presentation, error: insertError } = await admin
@@ -63,8 +70,19 @@ const seedInvite = async (params: {
 
   await admin.from('presentation_presenters').insert([
     { presentation_id: presentation.id, presenter_id: submitterId, status: 'accepted' },
-    { presentation_id: presentation.id, presenter_id: copresenterId, status: copresenterStatus }
+    {
+      presentation_id: presentation.id,
+      presenter_id: copresenterId,
+      status: copresenterStatus,
+      declined_count: copresenterDeclinedCount
+    }
   ]);
+
+  if (accepted) {
+    await admin
+      .from('accepted_presentations')
+      .insert({ id: presentation.id, year: submissionsForYear });
+  }
 
   return { presentationId: presentation.id };
 };
@@ -288,6 +306,62 @@ test.describe('copresenter invite — submitter/attendee logged in', () => {
     await expect(card.getByText('Declined', { exact: true })).toBeVisible();
   });
 });
+
+// Accepting an invite must surface the co-presenter on the public /presenters
+// list. That list is filtered to status='accepted' and cached for weeks
+// (getAcceptedPresenterIds), so this also exercises the cache revalidation that
+// respondToInvite performs — without it the primed (pending) list would stay
+// stale and the presenter would never appear.
+test(
+  'accept: co-presenter appears on the public presenters page after revalidation',
+  { tag: '@copresenter' },
+  async ({ page }) => {
+    // A unique name so we can assert on exactly this presenter among any others
+    // already accepted in the database. New co-presenters added via the form have
+    // blank names; here the invitee has set a profile name (as an existing user
+    // would), which is the case where they are eligible to be shown at all.
+    const uniqueLast = `Pubcp${Date.now()}${Math.random().toString(16).slice(2, 6)}`;
+    const submitter = await createAttendee({ emailPrefix: 'pw-cp-pubsub' });
+    const copresenter = await createAttendee({
+      emailPrefix: 'pw-cp-pubcp',
+      firstName: 'Accepted',
+      lastName: uniqueLast
+    });
+
+    try {
+      const title = buildTitle('CP Public Presenters');
+      const seeded = await seedInvite({
+        title,
+        submitterId: submitter.userId,
+        copresenterId: copresenter.userId,
+        copresenterStatus: 'pending',
+        isSubmitted: true,
+        accepted: true
+      });
+
+      // Prime the weeks-cached list while still pending: must be absent.
+      await page.goto('/presenters');
+      await expect(page.getByText(uniqueLast)).toHaveCount(0);
+
+      const token = generateInviteToken(seeded.presentationId, copresenter.userId);
+      const invitePage = new CopresenterInvitePage(page);
+      await page.goto('/');
+      await loginOnPage(page, copresenter.email);
+      await invitePage.goto(token);
+      await invitePage.waitForInvitePage();
+      await invitePage.accept();
+
+      // After accepting + revalidation, the presenter must appear.
+      await expect(async () => {
+        await page.goto('/presenters');
+        await expect(page.getByText(uniqueLast).first()).toBeVisible();
+      }).toPass({ timeout: 10000 });
+    } finally {
+      await submitter.cleanup();
+      await copresenter.cleanup();
+    }
+  }
+);
 
 // No auth required — invalid token is caught before auth check
 test('invalid token: shows error page', { tag: '@copresenter' }, async ({ page }) => {
