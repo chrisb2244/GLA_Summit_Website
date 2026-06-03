@@ -25,7 +25,9 @@ const mockDraft: MyPresentationSubmissionType = {
   updated_at: '2025-03-01T12:00:00Z',
   all_firstnames: ['Alice'],
   all_lastnames: ['Smith'],
-  all_presenters_ids: ['user-1']
+  all_presenters_ids: ['user-1'],
+  all_presenter_emails: ['alice@example.com'],
+  all_presenter_statuses: ['accepted']
 };
 
 describe('DraftPresentationCard', () => {

@@ -1,4 +1,5 @@
-// import { Box, Button, Container, Dialog } from '@mui/material';
+'use client';
+import { CenteredDialog } from '@/Components/CenteredDialog';
 
 export type PopupProps = {
   open: boolean;
@@ -10,46 +11,30 @@ export type PopupProps = {
 export const ConfirmationPopup: React.FC<
   React.PropsWithChildren<PopupProps>
 > = (props) => {
-  // const buttonDisplayProps = {
-  //   mb: { xs: 1, md: 0 },
-  //   mx: 1,
-  //   flexGrow: 1
-  // };
-
   const resolveFn = (response: boolean) => {
     props.setClosed();
     props.onResolve(response);
   };
 
-  console.error('Unexpected use of deprecated ConfirmationPopup component');
-  // Unconditionally resolve - this should not be used
-  resolveFn(true);
-
   return (
-    <>
-      {/* <Dialog open={props.open} onClose={() => props.setClosed()}>
-        <Container maxWidth='md' sx={{ p: 2 }}>
-          {props.children}
-          <Box display='flex' flexDirection={{ xs: 'column', md: 'row' }}>
-            <Button
-              type='submit'
-              variant='outlined'
-              sx={{ ...buttonDisplayProps }}
-              onClick={() => resolveFn(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              type='submit'
-              variant='contained'
-              sx={{ ...buttonDisplayProps }}
-              onClick={() => resolveFn(true)}
-            >
-              Confirm
-            </Button>
-          </Box>
-        </Container>
-      </Dialog> */}
-    </>
+    <CenteredDialog open={props.open} onClose={() => props.setClosed()}>
+      {props.children}
+      <div className='mt-4 flex flex-col gap-2 md:flex-row md:justify-end'>
+        <button
+          type='button'
+          onClick={() => resolveFn(false)}
+          className='rounded border border-gray-300 px-4 py-1 hover:bg-gray-50'
+        >
+          Cancel
+        </button>
+        <button
+          type='button'
+          onClick={() => resolveFn(true)}
+          className='rounded bg-primaryc px-4 py-1 text-white hover:bg-primaryc.light'
+        >
+          Confirm
+        </button>
+      </div>
+    </CenteredDialog>
   );
 };
