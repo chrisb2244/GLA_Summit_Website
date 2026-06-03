@@ -10,6 +10,8 @@ import JKI_Logo from '@/media/JKI-Logo.webp';
 import NextImage, { StaticImageData } from 'next/image';
 import { estimateAspectRatio } from '@/lib/utils';
 import { MEDIA_BANNERS_AVAILABLE } from '@/app/configConstants';
+import { CopyableTextBox } from '@/Components/Utilities/CopyableTextBox';
+import glaLogo from '../../../public/logo.png';
 
 const MediaPage = () => {
   const hostname =
@@ -55,6 +57,14 @@ const MediaPage = () => {
   const bannerImagesAttendee = buildImageTableRows(images, 'Attendee');
   const bannerImagesSpeaker = buildImageTableRows(images, 'Speaker');
 
+  // The forum-signature HTML is copied out and pasted on an external site
+  // (the NI Community forums), so it must use a fixed, absolute, canonical URL
+  // rather than the runtime `hostname` the banner links use above (which is
+  // empty during SSR and localhost in development).
+  const SITE_ORIGIN = 'https://www.glasummit.org';
+  const signatureImgUrl = `${SITE_ORIGIN}/logo.png`;
+  const signatureHtml = `<a href="${SITE_ORIGIN}"><img src="${signatureImgUrl}" height="100" width="100" alt="I'm attending the GLA Summit!"></a>`;
+
   return (
     <div className='mt-4 flex flex-col space-y-4 px-6 md:mx-auto md:max-w-4xl'>
       {MEDIA_BANNERS_AVAILABLE ? (
@@ -78,11 +88,34 @@ const MediaPage = () => {
           {/* Usage suggestions */}
           <p className='prose mx-2 max-w-none text-center'>
             Please feel free to use the images on this page on your social media
-            or website. Links to the images can be found in the
-            &lsquo;href&rsquo; attributes of the HTML samples, or by
-            right-clicking and choosing an option like &ldquo;Copy link
-            address&rdquo;.
+            or website (including your NI forum signature). Links to the images
+            can be found in the &lsquo;href&rsquo; attributes of the HTML
+            samples, or by right-clicking and choosing an option like
+            &ldquo;Copy link address&rdquo;.
           </p>
+          {/* Forum copyable link */}
+          <h3 className='text-3xl'>Forum Signature</h3>
+          <p className='prose mx-2 max-w-none'>
+            To adjust your NI Community forum signature, go to your community
+            account &ldquo;My Profile&rdquo; settings, then Personal &gt;
+            Personal Information, and paste the HTML below. It renders as a
+            small GLA Summit logo linking back to the event site.
+          </p>
+          <div className='space-4 flex flex-col sm:flex-row'>
+            <NextImage
+              src={glaLogo}
+              alt='GLA Summit logo'
+              className='sm:mx-6 h-24 w-24 align-middle my-6 sm:my-auto mx-auto'
+            />
+            <CopyableTextBox copyString={signatureHtml}>
+              <div className='bg-gray-200 p-6'>
+                <code className='font-mono max-xl:break-all'>
+                  {signatureHtml}
+                </code>
+              </div>
+            </CopyableTextBox>
+          </div>
+
           {/* Attendee links and example banner */}
           <h3 className='text-3xl'>Attendees</h3>
           <table className='w-min [&_td]:whitespace-nowrap [&_td]:border-none [&_td]:px-4 [&_td]:py-0'>
