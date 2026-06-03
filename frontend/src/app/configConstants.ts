@@ -12,7 +12,7 @@ export const CAN_SUBMIT_DRAFT: boolean = true;
 // (openssl rand -hex 32), then flip this to true.
 export const COPRESENTER_INVITE_WORKFLOW: boolean = false;
 // Set to true once banner images for the current year are ready to publish.
-export const MEDIA_BANNERS_AVAILABLE: boolean = false;
+export const MEDIA_BANNERS_AVAILABLE: boolean = true;
 
 // Controls for which year the presentation-list defaults,
 // and for which year the agenda is displayed.
