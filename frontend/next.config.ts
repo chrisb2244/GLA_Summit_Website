@@ -18,6 +18,66 @@ const supabaseImageHost = (():
   }
 })();
 
+// Content Security Policy, deployed Report-Only first (see headers() below).
+// Notes on the sources:
+//  - script/connect 'self' + va.vercel-scripts.com: Next's own bundles plus
+//    Vercel Speed Insights (script + vitals beacon, whichever host it uses).
+//  - 'unsafe-inline' (script & style): the App Router emits inline hydration
+//    scripts, and next/font + JSX style={{...}} emit inline styles. A nonce
+//    would remove the script 'unsafe-inline' but forces per-request dynamic
+//    rendering, which fights this app's cacheComponents/ISR caching — revisit
+//    if the Report-Only trial shows the policy is otherwise clean.
+//  - img *.supabase.co + data: avatars/storage and data-URI images.
+//  - font-src 'self': next/font self-hosts Roboto at build time (no gstatic).
+//  - frame-src youtube-nocookie: the YouTubeFrame embed.
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: https://*.supabase.co",
+  "font-src 'self'",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://va.vercel-scripts.com",
+  'frame-src https://www.youtube-nocookie.com',
+  "frame-ancestors 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "object-src 'none'",
+  // Violation reporting, dual-delivery for cross-browser coverage:
+  //  - report-uri: Firefox & Safari (legacy, still their only mechanism).
+  //  - report-to: Chromium, naming the group in the Reporting-Endpoints header.
+  // Browsers that support report-to use it and ignore report-uri (no dupes).
+  'report-uri /api/csp-report',
+  'report-to csp-endpoint'
+].join('; ');
+
+// Cache-safe security headers (no per-request nonce), applied to every route.
+const securityHeaders = [
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  { key: 'X-Frame-Options', value: 'DENY' },
+  {
+    key: 'Permissions-Policy',
+    value: 'camera=(), microphone=(), geolocation=()'
+  },
+  {
+    key: 'Strict-Transport-Security',
+    value: 'max-age=63072000; includeSubDomains; preload'
+  },
+  // Defines the 'csp-endpoint' group referenced by the CSP `report-to`
+  // directive (Chromium's Reporting API). Firefox/Safari ignore this and use
+  // the `report-uri` directive instead.
+  {
+    key: 'Reporting-Endpoints',
+    value: 'csp-endpoint="/api/csp-report"'
+  },
+  // Report-Only: surfaces violations without blocking. Switch
+  // the key to 'Content-Security-Policy' to enforce once the trial is clean.
+  {
+    key: 'Content-Security-Policy-Report-Only',
+    value: contentSecurityPolicy
+  }
+];
+
 const config: NextConfig = {
   reactStrictMode: true,
   cacheComponents: true,
@@ -79,15 +139,8 @@ const config: NextConfig = {
   async headers() {
     return [
       {
-        // Append the "Service-Worker-Allowed" header
-        // to every response, overriding the default worker's scope.
         source: '/(.*)',
-        headers: [
-          {
-            key: 'Service-Worker-Allowed',
-            value: '/'
-          }
-        ]
+        headers: [...securityHeaders]
       }
     ];
   }

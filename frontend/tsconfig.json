@@ -38,6 +38,9 @@
       ],
       "@/media/*": [
         "./public/media/*"
+      ],
+      "@/public/*": [
+        "./public/*"
       ]
     },
     "incremental": true,
