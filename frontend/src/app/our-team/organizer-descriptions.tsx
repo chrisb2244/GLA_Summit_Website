@@ -209,13 +209,13 @@ export const descriptions = {
         After Q left ATK, he began working at Hill Air Force Base. In 2016, Q
         became a CLA, and his team was certified as a LabVIEW Center of
         Excellence. In 2018, Q was accepted as a LabVIEW Champion and at NIWeek
-        2019 he received the Community Contribution Award for his creation of
+        2019, he received the Community Contribution Award for his creation of
         the QControl Toolkit.
       </p>
       <p>
-        In August 2021, Q left working for the Air Force and joined Testeract,
-        as their Chief LabVIEW Architect. Q also serves on the board of GCentral
-        and is involved in the LabVIEW Community.
+        Q currently works at Choose Movement Consulting as a Senior Systems 
+        Engineer. Q also serves on the board of GCentral and is involved in
+        the LabVIEW Community.
       </p>
     </>
   ),
