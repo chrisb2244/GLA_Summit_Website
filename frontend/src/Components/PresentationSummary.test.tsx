@@ -1,7 +1,9 @@
-import { expect, test } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, afterEach } from 'vitest';
+import { cleanup, render, screen } from '@testing-library/react';
 import { PresentationSummary } from './PresentationSummary';
 import type { Presentation } from './PresentationSummary';
+
+afterEach(cleanup);
 
 const mockPresentation: Presentation = {
   title: 'Sample Presentation',
@@ -17,22 +19,92 @@ const mockPresentation: Presentation = {
   presentationType: 'full length'
 };
 
-test('renders only defined presenter names when one of the presenters has a blank first and last name', () => {
-  render(<PresentationSummary presentation={mockPresentation} />);
-  const speakerElement = screen.getByText('Tom Smith', { exact: true });
-  expect(speakerElement).toBeDefined();
-});
+describe('PresentationSummary', () => {
+  it('renders the title as a link to the presentation', () => {
+    render(<PresentationSummary presentation={mockPresentation} />);
+    expect(
+      screen.getByRole('link', { name: mockPresentation.title })
+    ).toBeDefined();
+  });
 
-test('renders only defined presenter names when one of the presenters has a blank first and last name (reordered)', () => {
-  const mockPresentation2 = {
-    ...mockPresentation,
-    speakers: [
-      { firstname: '', lastname: '' },
-      { firstname: 'Jane', lastname: 'Smith' }
-    ],
-    speakerNames: ['', 'Jane Smith']
-  };
-  render(<PresentationSummary presentation={mockPresentation2} />);
-  const speakerElement = screen.getByText('Jane Smith', { exact: true });
-  expect(speakerElement).toBeDefined();
+  it('renders the abstract', () => {
+    render(<PresentationSummary presentation={mockPresentation} />);
+    expect(screen.getByText(mockPresentation.abstract)).toBeDefined();
+  });
+
+  it('renders a multi-line abstract as separate paragraphs', () => {
+    render(
+      <PresentationSummary
+        presentation={{
+          ...mockPresentation,
+          abstract: 'First line of the abstract.\r\nSecond line of the abstract.'
+        }}
+      />
+    );
+    expect(screen.getByText('First line of the abstract.')).toBeDefined();
+    expect(screen.getByText('Second line of the abstract.')).toBeDefined();
+  });
+
+  it('renders a single presenter passed as a string', () => {
+    render(
+      <PresentationSummary
+        presentation={{
+          ...mockPresentation,
+          speakers: { firstname: 'Solo', lastname: 'Speaker' },
+          speakerNames: 'Solo Speaker'
+        }}
+      />
+    );
+    expect(screen.getByText('Solo Speaker')).toBeDefined();
+  });
+
+  it('renders a single presenter passed as an array', () => {
+    render(
+      <PresentationSummary
+        presentation={{
+          ...mockPresentation,
+          speakers: [{ firstname: 'Solo', lastname: 'Speaker' }],
+          speakerNames: ['Solo Speaker']
+        }}
+      />
+    );
+    expect(screen.getByText('Solo Speaker')).toBeDefined();
+  });
+
+  it('renders multiple presenters joined with commas', () => {
+    render(
+      <PresentationSummary
+        presentation={{
+          ...mockPresentation,
+          speakers: [
+            { firstname: 'Tom', lastname: 'Smith' },
+            { firstname: 'Jane', lastname: 'Smith' }
+          ],
+          speakerNames: ['Tom Smith', 'Jane Smith']
+        }}
+      />
+    );
+    expect(screen.getByText('Tom Smith, Jane Smith')).toBeDefined();
+  });
+
+  it('renders only the defined presenter name when another presenter is blank', () => {
+    render(<PresentationSummary presentation={mockPresentation} />);
+    expect(screen.getByText('Tom Smith', { exact: true })).toBeDefined();
+  });
+
+  it('renders only the defined presenter name when the blank presenter is first', () => {
+    render(
+      <PresentationSummary
+        presentation={{
+          ...mockPresentation,
+          speakers: [
+            { firstname: '', lastname: '' },
+            { firstname: 'Jane', lastname: 'Smith' }
+          ],
+          speakerNames: ['', 'Jane Smith']
+        }}
+      />
+    );
+    expect(screen.getByText('Jane Smith', { exact: true })).toBeDefined();
+  });
 });

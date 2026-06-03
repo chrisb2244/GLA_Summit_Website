@@ -1,13 +1,14 @@
-import { calculatePositioningInfo } from '@/Components/Agenda/AgendaCalculations';
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
+import { calculatePositioningInfo } from './AgendaCalculations';
 
 describe('calculatePlottingAreas', () => {
   const now = new Date(Date.UTC(2022, 10, 11, 10, 0, 0));
   beforeAll(() => {
-    jest.useFakeTimers('modern');
-    jest.setSystemTime(now);
+    vi.useFakeTimers();
+    vi.setSystemTime(now);
   });
   afterAll(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   const start = new Date(Date.UTC(2022, 10, 14, 12, 0, 0));

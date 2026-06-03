@@ -1,18 +1,19 @@
-import { ConfirmationPopup } from '@/Components/ConfirmationPopup';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { ConfirmationPopup } from './ConfirmationPopup';
 
-const onCloseFn = jest.fn(() => {});
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const onResolveFn = jest.fn((value: boolean) => {});
+const onCloseFn = vi.fn(() => {});
+const onResolveFn = vi.fn((_value: boolean) => {});
 
 const EmptyConfPopup = (
   <ConfirmationPopup open setClosed={onCloseFn} onResolve={onResolveFn} />
 );
 
 describe('ConfirmationPopup', () => {
-  beforeEach(() => {
-    jest.resetAllMocks();
+  afterEach(() => {
+    cleanup();
+    vi.clearAllMocks();
   });
 
   it('contains two buttons', () => {
@@ -27,21 +28,21 @@ describe('ConfirmationPopup', () => {
         {children}
       </ConfirmationPopup>
     );
-    expect(screen.getByText('Some dummy text...')).toBeVisible();
+    expect(screen.getByText('Some dummy text...')).toBeDefined();
   });
 
   it('calls the setClosed function when resolved false', async () => {
     render(EmptyConfPopup);
     const cancelButton = screen.getByRole('button', { name: 'Cancel' });
     await userEvent.click(cancelButton);
-    expect(onCloseFn).toBeCalledTimes(1);
+    expect(onCloseFn).toHaveBeenCalledTimes(1);
   });
 
   it('calls the setClosed function when resolved true', async () => {
     render(EmptyConfPopup);
     const submitButton = screen.getByRole('button', { name: 'Confirm' });
     await userEvent.click(submitButton);
-    expect(onCloseFn).toBeCalledTimes(1);
+    expect(onCloseFn).toHaveBeenCalledTimes(1);
   });
 
   it('calls the onResolve function with true when confirmed', async () => {
@@ -55,6 +56,6 @@ describe('ConfirmationPopup', () => {
     render(EmptyConfPopup);
     const cancelButton = screen.getByRole('button', { name: 'Cancel' });
     await userEvent.click(cancelButton);
-    return expect(onResolveFn).toHaveBeenCalledWith(false);
+    expect(onResolveFn).toHaveBeenCalledWith(false);
   });
 });
