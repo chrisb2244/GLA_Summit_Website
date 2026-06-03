@@ -16,6 +16,7 @@ import {
 } from '@/lib/supabase/public';
 import { getPeople_Authed } from '@/lib/supabase/authorized';
 import type { NextParams, satisfy } from '@/lib/NextTypes';
+import { buildOpenGraph } from '@/app/sharedMetadata';
 import { Suspense } from 'react';
 
 type PageProps = {
@@ -36,7 +37,12 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const { id } = await props.params;
   try {
     const title = (await getCachedPublicPresentation(id)).title;
-    return { title };
+    const url = `/presentations/${id}`;
+    return {
+      title,
+      alternates: { canonical: url },
+      openGraph: buildOpenGraph({ title, url })
+    };
   } catch {
     return {};
   }

@@ -8,6 +8,7 @@ import {
   cacheTagForPresenterPresentations
 } from '@/lib/supabase/cacheTags';
 import { createAnonServerClient } from '@/lib/supabaseClient';
+import { buildOpenGraph } from '@/app/sharedMetadata';
 import { cacheLife, cacheTag } from 'next/cache';
 import { Metadata, NextPage } from 'next';
 import Link from 'next/link';
@@ -34,8 +35,13 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const { id } = await props.params;
   try {
     const { firstName, lastName } = await getPerson(id);
-
-    return { title: `${firstName} ${lastName}` };
+    const title = `${firstName} ${lastName}`;
+    const url = `/presenters/${id}`;
+    return {
+      title,
+      alternates: { canonical: url },
+      openGraph: buildOpenGraph({ title, url })
+    };
   } catch {
     return {};
   }

@@ -2,17 +2,31 @@ import { Header } from './_rootElements/Header';
 import { Footer } from './_rootElements/Footer';
 import { roboto } from './font-workaround';
 import type { Metadata } from 'next';
-import { ticketYear } from './configConstants';
 import { SpeedInsightsWrapper } from './_rootElements/SpeedInsightsWrapper';
+import {
+  buildOpenGraph,
+  ogImageUrl,
+  siteDescription,
+  siteTitle
+} from './sharedMetadata';
 
 import './global.css';
 
-const baseUrl =
-  process.env.NEXT_PUBLIC_BASEURL ?? process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : `http://localhost:${process.env.PORT ?? 3000}`;
-
-const siteTitle = `GLA Summit ${ticketYear}`;
+// Resolve the absolute origin used to expand relative metadata URLs
+// (e.g. the og:image route).
+// If NEXT_PUBLIC_BASEURL is set, use that;
+// Otherwise, if VERCEL_ENV is production, use the production URL;
+// Otherwise, if VERCEL_URL is set, use that as the base URL (preview deploys);
+// Otherwise, assume we're in local development and use localhost with the appropriate port.
+const baseUrl = process.env.NEXT_PUBLIC_BASEURL
+  ? process.env.NEXT_PUBLIC_BASEURL.startsWith('http')
+    ? process.env.NEXT_PUBLIC_BASEURL
+    : `https://${process.env.NEXT_PUBLIC_BASEURL}`
+  : process.env.VERCEL_ENV === 'production'
+  ? 'https://www.glasummit.org'
+  : process.env.VERCEL_URL
+  ? `https://${process.env.VERCEL_URL}`
+  : `http://localhost:${process.env.PORT ?? 3000}`;
 
 export const metadata: Metadata = {
   title: {
@@ -20,27 +34,14 @@ export const metadata: Metadata = {
     default: siteTitle
   },
   metadataBase: new URL(baseUrl),
-  description: 'A global online LabVIEW conference',
-  openGraph: {
-    title: siteTitle,
-    description: 'A global online LabVIEW conference',
-    url: 'https://www.glasummit.org',
-    type: 'website',
-    siteName: siteTitle,
-    images: [
-      {
-        url: `/api/og/${ticketYear}`,
-        width: 1200,
-        height: 630,
-        alt: siteTitle
-      }
-    ]
-  },
+  description: siteDescription,
+  alternates: { canonical: '/' },
+  openGraph: buildOpenGraph(),
   twitter: {
     card: 'summary_large_image',
     title: siteTitle,
-    description: 'A global online LabVIEW conference',
-    images: [`/api/og/${ticketYear}`]
+    description: siteDescription,
+    images: [ogImageUrl]
   }
 };
 
