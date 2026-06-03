@@ -25,12 +25,12 @@ npm run db:reset               # reset DB + re-seed avatar storage
 npm run dev                    # dev server (USE_MOCK_EMAIL=true)
 npm run dev_full               # dev server without mock email override
 npm run build / lint / test
-npx vitest run path/to/file
+npx vitest run path/to/file    # unit tests; no --reporter flag (that's Playwright-only, below)
 npm run playwright -- --project firefox --reporter=line [--grep @smoke]
 PW_REUSE_AUTH=1 npm run playwright -- --project firefox --reporter=line
 ```
 
-Never use `--ui`, `show-report`, or any flag that opens a browser window with Playwright. Always pass `--reporter=line`.
+Never use `--ui`, `show-report`, or any flag that opens a browser window with Playwright - pass `--reporter=line`.
 
 ## Environment
 
