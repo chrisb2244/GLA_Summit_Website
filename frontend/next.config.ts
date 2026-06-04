@@ -139,6 +139,16 @@ const config: NextConfig = {
         source: '/presentation-list',
         destination: `presentation-list/${currentDisplayYear}`,
         permanent: true
+      },
+      {
+        source: '/presenters',
+        destination: '/presenter-list',
+        permanent: true
+      },
+      {
+        source: '/presenter-list',
+        destination: `presenter-list/${currentDisplayYear}`,
+        permanent: true
       }
     ];
   },

@@ -36,7 +36,7 @@ const PresentationListLayout = async ({
           Presentations below are grouped by year, and sorted by the first
           speaker&apos;s name.
         </p>
-        {agendaElem}
+        {/* {agendaElem} */}
       </div>
 
       <div className='flex flex-row space-x-4 py-2'>
