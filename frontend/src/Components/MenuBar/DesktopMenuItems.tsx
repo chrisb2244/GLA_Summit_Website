@@ -11,9 +11,9 @@ export const DesktopMenuItems = (props: { menuElements: MenuElement[] }) => {
             href={link}
             role='menuitem'
             key={title}
-            className='mx-1 flex h-full min-w-[64px] self-center px-1 hover:bg-secondaryc'
+            className='mx-1 flex h-full items-center justify-center px-1 hover:bg-secondaryc'
           >
-            <span className='prose-lg prose p-2 text-white'>
+            <span className='prose-lg prose p-2 text-white text-center'>
               {title.toUpperCase()}
             </span>
           </NextLink>

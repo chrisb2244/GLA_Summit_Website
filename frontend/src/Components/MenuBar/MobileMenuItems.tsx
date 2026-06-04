@@ -28,16 +28,17 @@ export const MobileMenuItems = (props: { menuElements: MenuElement[] }) => {
                 <ul>
                   {props.menuElements.map(({ title, link }) => {
                     return (
-                      <NextLink
-                        href={link}
-                        key={title}
-                        prefetch={false}
-                        role='menuitem'
-                      >
-                        <li className='px-4 py-[6px]' onClick={() => close()}>
-                          <span className='prose'>{title}</span>
-                        </li>
-                      </NextLink>
+                      <li key={title}>
+                        <NextLink
+                          href={link}
+                          prefetch={false}
+                          role='menuitem'
+                          onClick={() => close()}
+                          className='group block px-4 py-[6px] transition-transform hover:bg-secondaryc active:scale-95 motion-reduce:transition-none motion-reduce:active:scale-100'
+                        >
+                          <span className='prose group-hover:text-white'>{title}</span>
+                        </NextLink>
+                      </li>
                     );
                   })}
                 </ul>

@@ -35,7 +35,7 @@ type UserMenuEntry = {
 
 const ListIcon = ({ path }: { path: string }) => {
   return (
-    <div className='inline-flex min-w-[36px] flex-shrink-0 text-black text-opacity-50'>
+    <div className='inline-flex min-w-[36px] flex-shrink-0 text-black text-opacity-50 group-hover:text-white group-hover:text-opacity-100'>
       <Icon path={path} size={1} />
     </div>
   );
@@ -123,25 +123,41 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
                   {menuObjs
                     .concat(organizerMenuObjs)
                     .map(({ title, href, imgObj, clickFn }) => {
-                      const item = (
-                        <li
-                          className='flex h-8 flex-row items-center px-4 py-[6px]'
-                          onClick={() => {
-                            clickFn?.();
-                            close();
-                          }}
-                        >
+                      const className =
+                        'group flex h-8 w-full flex-row items-center px-4 py-[6px] transition-transform hover:bg-secondaryc active:scale-95 motion-reduce:transition-none motion-reduce:active:scale-100';
+                      const onClick = () => {
+                        clickFn?.();
+                        close();
+                      };
+                      const content = (
+                        <>
                           {imgObj}
-                          <span className='prose'>{title}</span>
-                        </li>
+                          <span className='prose group-hover:text-white'>
+                            {title}
+                          </span>
+                        </>
                       );
 
-                      return typeof href !== 'undefined' ? (
-                        <NextLink href={href} key={title}>
-                          {item}
-                        </NextLink>
-                      ) : (
-                        <button key={title}>{item}</button>
+                      return (
+                        <li key={title}>
+                          {typeof href !== 'undefined' ? (
+                            <NextLink
+                              href={href}
+                              className={className}
+                              onClick={onClick}
+                            >
+                              {content}
+                            </NextLink>
+                          ) : (
+                            <button
+                              type='button'
+                              className={className}
+                              onClick={onClick}
+                            >
+                              {content}
+                            </button>
+                          )}
+                        </li>
                       );
                     })}
                 </ul>
