@@ -46,7 +46,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     /our-team (yearly)
     /panels (monthly)
     /presentation-list/[year] (monthly/never (by year))
-    /presenters (monthly)
+    /presenter-list/[year] (monthly/never (by year))
   */
   const generateEntry = (relUrl: string, frequency?: Frequency): Entry => {
     return {
@@ -64,8 +64,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     generateEntry('/presentation-list/2021', 'never'),
     generateEntry('/presentation-list/2022', 'never'),
     generateEntry('/presentation-list/2024', 'never'),
-    generateEntry('/presentation-list/2025', 'monthly'),
-    generateEntry('/presenters', 'monthly')
+    generateEntry('/presentation-list/2025', 'never'),
+    generateEntry('/presentation-list/2026', 'monthly'),
+    generateEntry('/presenter-list/2021', 'never'),
+    generateEntry('/presenter-list/2022', 'never'),
+    generateEntry('/presenter-list/2024', 'never'),
+    generateEntry('/presenter-list/2025', 'never'),
+    generateEntry('/presenter-list/2026', 'monthly')
   ];
 
   /*

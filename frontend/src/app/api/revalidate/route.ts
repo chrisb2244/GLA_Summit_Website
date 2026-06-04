@@ -126,7 +126,7 @@ const tagsForPayload = async (
       tags.add(cacheTagForPresentation(presentationId));
       tags.add(CACHE_TAGS.agenda);
       // Accepting/un-accepting changes the set of accepted presenters shown on
-      // the /presenters index. (Harmless to expire on a schedule-only update.)
+      // the /presenter-list pages. (Harmless to expire on a schedule-only update.)
       tags.add(CACHE_TAGS.acceptedPresenterIds);
       if (year) {
         tags.add(cacheTagForYear(year));

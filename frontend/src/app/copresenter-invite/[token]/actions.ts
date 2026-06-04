@@ -140,7 +140,7 @@ export const respondToInvite = async (
     return { success: false, error: 'Failed to record your response. Please try again.' };
   }
 
-  // The public /presenters list is filtered by accepted status and cached for
+  // The public /presenter-list is filtered by accepted status and cached for
   // weeks (getAcceptedPresenterIds). Only an accept changes who appears there —
   // a pending→declined transition leaves the accepted set untouched — so we
   // revalidate just for accepts. It is otherwise only revalidated when an

@@ -22,7 +22,12 @@ export const MenuBar = () => {
       showOnDesktop: true
     },
     // { title: 'Virtual Venue (Hopin)', link: 'https://hopin.com/events/gla-summit-2022', showOnMobile: true, showOnDesktop: true },
-    { title: 'Presenters', link: '/presenters', showOnMobile: true, showOnDesktop: true },
+    {
+      title: 'Presenters',
+      link: `/presenter-list/${currentDisplayYear}` as Route,
+      showOnMobile: true,
+      showOnDesktop: true
+    },
     { title: 'Media and Banners', link: '/media', showOnMobile: true, showOnDesktop: true },
     { title: 'Our Team', link: '/our-team', showOnMobile: true, showOnDesktop: false }
   ];

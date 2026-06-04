@@ -53,7 +53,10 @@ const PresentationsForYearPageContent = async ({
   cacheTag(cacheTagForYear(year));
 
   const supabase = createAnonServerClient();
-  const { data, error } = await supabase.rpc('get_all_presentations').eq('year', year).select('*');
+  const { data, error } = await supabase
+    .rpc('get_all_presentations')
+    .eq('year', year)
+    .select('*');
 
   if (error) {
     return <p>Error loading presentations</p>;
@@ -96,6 +99,17 @@ const PresentationsForYearPageContent = async ({
         </div>
       );
     });
+
+  if (presentations.length === 0) {
+    return (
+      <>
+        <h3 className='py-1 pt-4 text-center'>{year} Presentations</h3>
+        <p className='py-4 text-center'>
+          No presentations to show for {year} yet — check back soon.
+        </p>
+      </>
+    );
+  }
 
   return (
     <>
