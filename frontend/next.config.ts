@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import { currentDisplayYear } from './src/app/configConstants';
 
 // Allow the Supabase Storage host that THIS build talks to (prod or the test
 // project), derived from NEXT_PUBLIC_SUPABASE_URL, so the image optimizer never
@@ -132,6 +133,11 @@ const config: NextConfig = {
       {
         source: '/submit-presentation',
         destination: '/my-presentations',
+        permanent: true
+      },
+      {
+        source: '/presentation-list',
+        destination: `presentation-list/${currentDisplayYear}`,
         permanent: true
       }
     ];
