@@ -91,8 +91,8 @@ const config: NextConfig = {
     // so they are lengthened to cut DB load.
     publicContent: {
       stale: 3600, // 1 hour (client)
-      revalidate: 21600, // 6 hours (background server refresh)
-      expire: 604800 // 1 week (hard cap before a blocking refresh)
+      revalidate: 3600*24, // 24 hours (background server refresh)
+      expire: 3600*24*30 // 30 days (hard cap before a blocking refresh)
     }
   },
   turbopack: {
