@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import { currentDisplayYear } from './src/app/configConstants';
 
 // Allow the Supabase Storage host that THIS build talks to (prod or the test
 // project), derived from NEXT_PUBLIC_SUPABASE_URL, so the image optimizer never
@@ -91,8 +92,8 @@ const config: NextConfig = {
     // so they are lengthened to cut DB load.
     publicContent: {
       stale: 3600, // 1 hour (client)
-      revalidate: 21600, // 6 hours (background server refresh)
-      expire: 604800 // 1 week (hard cap before a blocking refresh)
+      revalidate: 3600*24, // 24 hours (background server refresh)
+      expire: 3600*24*30 // 30 days (hard cap before a blocking refresh)
     }
   },
   turbopack: {
@@ -132,6 +133,21 @@ const config: NextConfig = {
       {
         source: '/submit-presentation',
         destination: '/my-presentations',
+        permanent: true
+      },
+      {
+        source: '/presentation-list',
+        destination: `presentation-list/${currentDisplayYear}`,
+        permanent: true
+      },
+      {
+        source: '/presenters',
+        destination: '/presenter-list',
+        permanent: true
+      },
+      {
+        source: '/presenter-list',
+        destination: `presenter-list/${currentDisplayYear}`,
         permanent: true
       }
     ];
