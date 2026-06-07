@@ -36,19 +36,20 @@ export const SocialMediaIcons: React.FC = () => {
     }
   ].map(({ path, title, href }) => {
     return (
-      <a aria-label={title} href={href} key={title}>
-        <Icon path={path} size={0.8} />
-      </a>
+      <li key={title}>
+        <a aria-label={title} href={href}>
+          <Icon path={path} size={0.8} />
+        </a>
+      </li>
     );
   });
 
   return (
-    <div
-      className='flex justify-around md:self-center'
-      role='grid'
-      aria-label='Social Media Links'
+    <ul
+      className='flex list-none justify-around md:self-center'
+      aria-label='Social media links'
     >
       {icons}
-    </div>
+    </ul>
   );
 };

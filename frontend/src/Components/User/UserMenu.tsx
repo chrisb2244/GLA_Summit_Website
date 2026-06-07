@@ -9,10 +9,7 @@ import {
 import { Icon } from '@mdi/react';
 import { JSX, Suspense } from 'react';
 import NextLink from 'next/link';
-import {
-  getAvatarPublicUrl,
-  type User
-} from '@/lib/databaseFunctions';
+import { getAvatarPublicUrl, type User } from '@/lib/databaseFunctions';
 import type { ProfileModel } from '@/lib/databaseModels';
 import { Route } from 'next';
 import { DefaultUserIcon, UserIcon } from './UserIcon';
@@ -101,7 +98,7 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
 
   return (
     <Popover className='pr-4'>
-      <Popover.Button aria-haspopup aria-label=''>
+      <Popover.Button aria-haspopup aria-label='User menu'>
         <Suspense fallback={<DefaultUserIcon size='large' text={buttonText} />}>
           <UserIcon src={avatarSrc} size='large' text={buttonText} />
         </Suspense>
@@ -125,17 +122,13 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
                     .map(({ title, href, imgObj, clickFn }) => {
                       const className =
                         'group flex h-8 w-full flex-row items-center px-4 py-[6px] transition-transform hover:bg-secondaryc active:scale-95 motion-reduce:transition-none motion-reduce:active:scale-100';
-                      const onClick = () => {
-                        clickFn?.();
-                        close();
-                      };
-                      const content = (
-                        <>
+                      const itemContent = (
+                        <span className='flex w-full flex-row items-center text-left'>
                           {imgObj}
                           <span className='prose group-hover:text-white'>
                             {title}
                           </span>
-                        </>
+                        </span>
                       );
 
                       return (
@@ -144,17 +137,20 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
                             <NextLink
                               href={href}
                               className={className}
-                              onClick={onClick}
+                              onClick={() => close()}
                             >
-                              {content}
+                              {itemContent}
                             </NextLink>
                           ) : (
                             <button
                               type='button'
                               className={className}
-                              onClick={onClick}
+                              onClick={() => {
+                                clickFn?.();
+                                close();
+                              }}
                             >
-                              {content}
+                              {itemContent}
                             </button>
                           )}
                         </li>

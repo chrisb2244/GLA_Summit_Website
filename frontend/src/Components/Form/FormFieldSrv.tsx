@@ -175,6 +175,7 @@ export const FormField: React.FC<FormFieldProps> = (props) => {
         placeholder={props.placeholder ?? id}
         readOnly={readOnly}
         aria-labelledby={`${id}-label`}
+        aria-describedby={isError ? `${id}-error` : undefined}
         {...inputProps}
       />
       <TopBorderElement paddingElems={borderMargin} />
@@ -191,7 +192,7 @@ export const FormField: React.FC<FormFieldProps> = (props) => {
       >
         {label ?? id}
       </label>
-      <ErrorMessage error={props.error} />
+      <ErrorMessage error={props.error} id={`${id}-error`} />
     </div>
   );
 };
@@ -222,6 +223,7 @@ export const TextArea: React.FC<TextAreaProps> = (props) => {
           placeholderVisible
         })}
         placeholder={props.placeholder ?? id}
+        aria-describedby={isError ? `${id}-error` : undefined}
         {...inputProps}
       />
       <TopBorderElement />
@@ -232,18 +234,18 @@ export const TextArea: React.FC<TextAreaProps> = (props) => {
       >
         {props.label ?? id}
       </label>
-      <ErrorMessage error={error} />
+      <ErrorMessage error={error} id={`${id}-error`} />
     </div>
   );
 };
 
-const ErrorMessage = (props: { error?: string }) => {
+const ErrorMessage = (props: { error?: string; id?: string }) => {
   if (typeof props.error === 'undefined') {
     return null;
   }
   return (
     <div className={'relative h-0'}>
-      <span className={errorTextClassName} role='alert'>
+      <span id={props.id} className={errorTextClassName} role='alert'>
         {props.error}
       </span>
     </div>

@@ -252,7 +252,14 @@ export const PresentationFormFields = ({
           />
         )}
 
+        <label
+          htmlFor='presentationType'
+          className='mt-2 block text-sm text-gray-700'
+        >
+          Presentation Type
+        </label>
         <Select
+          id='presentationType'
           name='presentationType'
           fullWidth
           defaultValue={values.presentationType}
