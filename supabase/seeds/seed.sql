@@ -439,6 +439,33 @@ INSERT INTO "public"."presentation_presenters" ("presentation_id", "presenter_id
 
 
 --
+-- Accepted presentations for 2025 (the current display year), which otherwise
+-- has no seed data. All presenters reuse existing profiles defined above:
+--   * the first two are single-presenter talks (each submitter is the sole
+--     presenter);
+--   * the third is co-presented, with a second presenter distinct from the
+--     submitter.
+-- Each needs a presentation_submissions row, an accepted_presentations row (so
+-- get_all_presentations surfaces it), and presentation_presenters rows.
+--
+INSERT INTO "public"."presentation_submissions" ("id", "submitter_id", "updated_at", "title", "abstract", "is_submitted", "presentation_type", "learning_points", "year") VALUES
+	('1100d9bd-cb01-4238-aaae-4c2b03f25b43', '35f03917-dd1c-4a4d-88c4-1cd3b8996d27', '2025-04-01 08:00:00+00', 'Dependency Injection Patterns in LabVIEW', 'Loose coupling is not just an OOP buzzword. This session shows how dependency injection makes LabVIEW classes testable and swappable, with concrete before/after refactors of a hardware abstraction layer.', true, 'full length', 'How to invert dependencies so your code is easier to test and extend.', '2025'),
+	('481885b5-4665-4f64-804d-4b88f3cbdf29', '0aab4c3b-1415-4871-943a-5c377c9158e9', '2025-04-02 10:30:00+00', 'Automated Releases on a Budget', 'A pragmatic look at building a CI/CD pipeline for LabVIEW packages using free tooling, covering versioning, build steps, and publishing without an expensive toolchain.', true, '15 minutes', 'A starting point for automating your build and release process cheaply.', '2025'),
+	('a633b7ff-a5a9-4e46-a8b3-390adfb6ac7b', '4671cf60-ae64-46c0-b3a5-fc934cf1bd8a', '2025-04-03 13:45:00+00', 'Designing a Reusable Test Framework', 'Two practitioners share how they built and rolled out a reusable test framework across multiple teams, the architectural trade-offs they made, and the organisational lessons learned along the way.', true, 'full length', 'Architectural and team practices for a test framework others will actually use.', '2025');
+
+INSERT INTO "public"."accepted_presentations" ("id", "accepted_at", "scheduled_for", "year") VALUES
+	('1100d9bd-cb01-4238-aaae-4c2b03f25b43', '2025-05-01 09:00:00+00', '2025-06-23 13:00:00+00', '2025'),
+	('481885b5-4665-4f64-804d-4b88f3cbdf29', '2025-05-01 09:00:00+00', '2025-06-23 14:00:00+00', '2025'),
+	('a633b7ff-a5a9-4e46-a8b3-390adfb6ac7b', '2025-05-01 09:00:00+00', '2025-06-23 15:00:00+00', '2025');
+
+INSERT INTO "public"."presentation_presenters" ("presentation_id", "presenter_id", "status") VALUES
+	('1100d9bd-cb01-4238-aaae-4c2b03f25b43', '35f03917-dd1c-4a4d-88c4-1cd3b8996d27', 'accepted'),
+	('481885b5-4665-4f64-804d-4b88f3cbdf29', '0aab4c3b-1415-4871-943a-5c377c9158e9', 'accepted'),
+	('a633b7ff-a5a9-4e46-a8b3-390adfb6ac7b', '4671cf60-ae64-46c0-b3a5-fc934cf1bd8a', 'accepted'),
+	('a633b7ff-a5a9-4e46-a8b3-390adfb6ac7b', 'ef21a78e-9e42-47ba-9e22-1707c3ad1e43', 'accepted');
+
+
+--
 -- Data for Name: buckets; Type: TABLE DATA; Schema: storage; Owner: supabase_storage_admin
 --
 
