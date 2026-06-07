@@ -5,13 +5,15 @@
 -- so the organizer set is global. Each scenario resets it via pg_temp.reset_orgs
 -- and votes on its own presentation. Scenarios 1-8 run as the postgres superuser
 -- to exercise the trigger logic directly (superuser bypasses RLS); scenario 9
--- switches to the authenticated role to verify the RLS vote-lock.
+-- switches to the authenticated role to verify the RLS vote-lock; scenarios 10-13
+-- mutate public.organizers after voting to confirm the roster-change behaviour
+-- (re-evaluation on organizer removal, and the deliberate no-op on addition).
 --
 -- User ids:        11111111-1111-1111-1111-1111111100 0{1..6}
 -- Presentation ids: 22222222-2222-2222-2222-2222222200{01..11}
 
 BEGIN;
-SELECT plan(21);
+SELECT plan(30);
 
 -- ---------------------------------------------------------------------------
 -- Fixtures: six users (profiles auto-created by the on_auth_user_created
@@ -31,7 +33,7 @@ SELECT
   ('22222222-2222-2222-2222-2222222200' || lpad(g::text, 2, '0'))::uuid,
   '11111111-1111-1111-1111-111111110001',
   'Talk ' || g, 'Abstract ' || g, true, 'full length', '2026'
-FROM generate_series(1, 11) g;
+FROM generate_series(1, 14) g;
 
 -- Reset the (global) organizer set and clear all votes/outcomes between
 -- scenarios. Votes are cleared before organizers so the FK cascade has nothing
@@ -240,6 +242,83 @@ SELECT is(
   pg_temp.try_vote_as('11111111-1111-1111-1111-111111110003',
     '22222222-2222-2222-2222-222222220010', 'for'),
   true, 'an organizer can vote on a submission still under review');
+
+-- ===========================================================================
+-- Scenario 10: removing a NON-voting organizer re-evaluates and ACCEPTS. The
+-- removed organizer cast no vote, so nothing cascades and the per-row trigger
+-- never fires; the statement-level organizers trigger is what re-tallies here.
+-- (3 orgs: 1,2 vote 'for', 3 never votes -> under review; remove 3 -> 2 orgs,
+-- both 'for', full participation, 0 against -> accept.)
+-- ===========================================================================
+SELECT pg_temp.reset_orgs(ARRAY[
+  '11111111-1111-1111-1111-111111110001',
+  '11111111-1111-1111-1111-111111110002',
+  '11111111-1111-1111-1111-111111110003']::uuid[]);
+SELECT pg_temp.vote('22222222-2222-2222-2222-222222220011', '11111111-1111-1111-1111-111111110001', 'for');
+SELECT pg_temp.vote('22222222-2222-2222-2222-222222220011', '11111111-1111-1111-1111-111111110002', 'for');
+SELECT is(pg_temp.n_accepted('22222222-2222-2222-2222-222222220011'), 0::bigint,
+  'under review while a non-voting organizer remains');
+DELETE FROM public.organizers WHERE id = '11111111-1111-1111-1111-111111110003';
+SELECT is(pg_temp.n_accepted('22222222-2222-2222-2222-222222220011'), 1::bigint,
+  'removing the last non-voting organizer accepts the now-unanimous submission');
+
+-- ===========================================================================
+-- Scenario 11: removing a NON-voting organizer can also DECLINE once a tie
+-- becomes unreachable. (4 orgs: 1,2 vote 'against', 3,4 never vote ->
+-- 2*2+0 = 4, not > 4, under review; remove 4 -> 3 orgs, 2*2+0 = 4 > 3 -> decline.)
+-- ===========================================================================
+SELECT pg_temp.reset_orgs(ARRAY[
+  '11111111-1111-1111-1111-111111110001',
+  '11111111-1111-1111-1111-111111110002',
+  '11111111-1111-1111-1111-111111110003',
+  '11111111-1111-1111-1111-111111110004']::uuid[]);
+SELECT pg_temp.vote('22222222-2222-2222-2222-222222220012', '11111111-1111-1111-1111-111111110001', 'against');
+SELECT pg_temp.vote('22222222-2222-2222-2222-222222220012', '11111111-1111-1111-1111-111111110002', 'against');
+SELECT is(pg_temp.n_rejected('22222222-2222-2222-2222-222222220012'), 0::bigint,
+  'under review while a tie is still reachable with four organizers');
+DELETE FROM public.organizers WHERE id = '11111111-1111-1111-1111-111111110004';
+SELECT is(pg_temp.n_rejected('22222222-2222-2222-2222-222222220012'), 1::bigint,
+  'removing a non-voting organizer declines once a tie can no longer be reached');
+
+-- ===========================================================================
+-- Scenario 12: removing a VOTING organizer re-tallies via the FK cascade (the
+-- per-row trigger fires on the cascade-deleted vote). Removing the lone dissenter
+-- flips an otherwise-unanimous submission to accepted. (3 orgs: 1,2 'for',
+-- 3 'against' -> under review; remove 3 -> their vote cascades away -> 2 orgs,
+-- 2 'for', 0 against -> accept.)
+-- ===========================================================================
+SELECT pg_temp.reset_orgs(ARRAY[
+  '11111111-1111-1111-1111-111111110001',
+  '11111111-1111-1111-1111-111111110002',
+  '11111111-1111-1111-1111-111111110003']::uuid[]);
+SELECT pg_temp.vote('22222222-2222-2222-2222-222222220013', '11111111-1111-1111-1111-111111110001', 'for');
+SELECT pg_temp.vote('22222222-2222-2222-2222-222222220013', '11111111-1111-1111-1111-111111110002', 'for');
+SELECT pg_temp.vote('22222222-2222-2222-2222-222222220013', '11111111-1111-1111-1111-111111110003', 'against');
+SELECT is(pg_temp.n_accepted('22222222-2222-2222-2222-222222220013'), 0::bigint,
+  'under review while the dissenting organizer is present');
+DELETE FROM public.organizers WHERE id = '11111111-1111-1111-1111-111111110003';
+SELECT is(pg_temp.n_accepted('22222222-2222-2222-2222-222222220013'), 1::bigint,
+  'removing the dissenting organizer accepts via the cascade re-tally');
+
+-- ===========================================================================
+-- Scenario 13: ADDING an organizer is deliberately not hooked and must never
+-- finalize a submission on its own — a larger roster only raises the bar. (3 orgs:
+-- 1,2 vote 'for', 3 not voted -> under review; add a 4th organizer -> still
+-- under review, no accept, no decline.)
+-- ===========================================================================
+SELECT pg_temp.reset_orgs(ARRAY[
+  '11111111-1111-1111-1111-111111110001',
+  '11111111-1111-1111-1111-111111110002',
+  '11111111-1111-1111-1111-111111110003']::uuid[]);
+SELECT pg_temp.vote('22222222-2222-2222-2222-222222220014', '11111111-1111-1111-1111-111111110001', 'for');
+SELECT pg_temp.vote('22222222-2222-2222-2222-222222220014', '11111111-1111-1111-1111-111111110002', 'for');
+SELECT is(pg_temp.n_accepted('22222222-2222-2222-2222-222222220014'), 0::bigint,
+  'under review before the organizer is added');
+INSERT INTO public.organizers (id) VALUES ('11111111-1111-1111-1111-111111110004');
+SELECT is(pg_temp.n_accepted('22222222-2222-2222-2222-222222220014'), 0::bigint,
+  'adding an organizer does not accept an under-review submission');
+SELECT is(pg_temp.n_rejected('22222222-2222-2222-2222-222222220014'), 0::bigint,
+  'adding an organizer does not decline an under-review submission');
 
 SELECT * FROM finish();
 ROLLBACK;
