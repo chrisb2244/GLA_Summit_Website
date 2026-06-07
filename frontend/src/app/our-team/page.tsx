@@ -119,7 +119,7 @@ const OurTeam = () => {
         <h2>Current Organizers</h2>
         {elemSrcs.map((p, idx) => {
           return (
-            <div className='border p-4 shadow-sm' key={idx}>
+            <div className='border p-4 shadow-xs' key={idx}>
               <PersonDisplay
                 {...p}
                 stripContainer

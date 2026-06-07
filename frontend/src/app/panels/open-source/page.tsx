@@ -36,7 +36,7 @@ const Open_Source_Page = () => {
   return (
     <StackedBoxes>
       <h3 className='text-center'>How to make Open-Source more worthwhile?</h3>
-      <div className='prose mx-auto max-w-screen-lg'>
+      <div className='prose mx-auto max-w-(--breakpoint-lg)'>
         <p>
           One of the things that keeps the software community alive is the
           sharing and reuse of code. However, the LabVIEW community has

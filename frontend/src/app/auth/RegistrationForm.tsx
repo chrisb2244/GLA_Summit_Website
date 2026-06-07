@@ -70,7 +70,7 @@ export const RegistrationForm = (props: { redirectTo?: string }) => {
           a verification token - enter this token on the next page to complete
           your registration.
         </p>
-        {/* <div className='my-2 rounded bg-red-600 py-2 text-white'>
+        {/* <div className='my-2 rounded-sm bg-red-600 py-2 text-white'>
           <span>
             In order to attend the conference, the required registration can be
             found at{' '}

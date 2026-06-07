@@ -45,14 +45,14 @@ export const DraftPresentationCard = ({
           <DraftLastSaved isoString={draft.updated_at} />
           <NextLink
             href={`/my-presentations/edit/${draft.presentation_id}`}
-            className='mt-1 rounded border border-blue-400 px-2 py-0.5 text-sm text-blue-600 hover:bg-blue-50 md:ml-2 md:mt-0'
+            className='mt-1 rounded-sm border border-blue-400 px-2 py-0.5 text-sm text-blue-600 hover:bg-blue-50 md:ml-2 md:mt-0'
           >
             Edit
           </NextLink>
           <button
             type='button'
             onClick={() => setConfirmOpen(true)}
-            className='mt-1 rounded border border-red-400 px-2 py-0.5 text-sm text-red-600 hover:bg-red-50 md:ml-2 md:mt-0'
+            className='mt-1 rounded-sm border border-red-400 px-2 py-0.5 text-sm text-red-600 hover:bg-red-50 md:ml-2 md:mt-0'
           >
             Delete Draft
           </button>
@@ -76,7 +76,7 @@ export const DraftPresentationCard = ({
             type='button'
             onClick={() => setConfirmOpen(false)}
             disabled={deleting}
-            className='rounded border border-gray-300 px-4 py-1 hover:bg-gray-50 disabled:opacity-50'
+            className='rounded-sm border border-gray-300 px-4 py-1 hover:bg-gray-50 disabled:opacity-50'
           >
             Cancel
           </button>
@@ -84,7 +84,7 @@ export const DraftPresentationCard = ({
             type='button'
             onClick={handleDelete}
             disabled={deleting}
-            className='rounded bg-red-600 px-4 py-1 text-white hover:bg-red-700 disabled:opacity-50'
+            className='rounded-sm bg-red-600 px-4 py-1 text-white hover:bg-red-700 disabled:opacity-50'
           >
             {deleting ? 'Deleting...' : 'Delete'}
           </button>

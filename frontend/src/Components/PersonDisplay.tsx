@@ -82,11 +82,11 @@ export const PersonDisplay: React.FC<
   const imgDispCName = isDefaultImage ? 'max-sm:hidden' : '';
 
   return (
-    <div className={`${props.stripContainer ? '' : 'rounded shadow-md'}`}>
+    <div className={`${props.stripContainer ? '' : 'rounded-sm shadow-md'}`}>
       <div
         className={`flex flex-col ${md_direction} my-2 content-center justify-around`}
       >
-        <div className={`my-auto flex-grow items-center`}>
+        <div className={`my-auto grow items-center`}>
           <h3 className='my-0'>{title}</h3>
           <div className='space-y-4 whitespace-pre-wrap text-justify'>
             {descriptionElem}
@@ -94,7 +94,7 @@ export const PersonDisplay: React.FC<
         </div>
         {imageElem !== null && (
           <div
-            className={`not-prose relative w-full flex-shrink-0 align-middle md:w-[30%] ${imgDispCName} mx-4 flex flex-row justify-center`}
+            className={`not-prose relative w-full shrink-0 align-middle md:w-[30%] ${imgDispCName} mx-4 flex flex-row justify-center`}
           >
             {imageElem}
           </div>

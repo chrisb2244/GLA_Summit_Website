@@ -8,7 +8,7 @@ const errorTextClassName =
   'text-red-700 absolute top-0 left-2 text-sm sm:text-base';
 
 const inputAlways = [
-  'px-4 pt-3 pb-1 peer border focus-visible:outline-none',
+  'px-4 pt-3 pb-1 peer border focus-visible:outline-hidden',
   'border-t-0 focus:border-t-0 placeholder-shown:border-t-0',
   'text-lg border-gray-400 box-border'
 ].join(' ');
@@ -19,11 +19,8 @@ const inputFieldStyles = cva(inputAlways, {
       true: 'w-full'
     },
     readOnly: {
-      // text-gray-600 (not -500) on bg-gray-100 to clear the WCAG AA 4.5:1
-      // contrast ratio for the read-only/locked fields (e.g. the email field
-      // on the profile and presentation-submission forms).
-      true: 'text-gray-600 bg-gray-100 before:peer-focus:bg-gray-100',
-      false: 'border-b-4 focus:border-b-secondaryc before:peer-focus:bg-white'
+      true: 'text-gray-500 bg-gray-100 peer-focus:before:bg-gray-100',
+      false: 'border-b-4 focus:border-b-secondaryc peer-focus:before:bg-white'
     },
     placeholderVisible: {
       false: 'placeholder-transparent',
@@ -39,20 +36,20 @@ const placeholderShownClassNames = [
   'peer-placeholder-shown:text-base',
   'peer-placeholder-shown:top-4',
   'peer-placeholder-shown:left-4',
-  'before:peer-placeholder-shown:hidden'
+  'peer-placeholder-shown:before:hidden'
 ].join(' ');
 
 const labelAlways = [
-  'absolute block z-[2] transition-all text-gray-700',
+  'absolute block z-2 transition-all text-gray-700',
   'text-sm -top-2 left-2 px-1 peer-focus:text-gray-700',
   'peer-focus:text-sm peer-focus:-top-2 peer-focus:left-2',
   'before:w-[105%] before:absolute before:flex before:top-2',
-  'before:-left-[2px] before:z-[-1]',
-  'before:h-[10px] before:rounded-b before:peer-focus:w-[105%]',
-  'before:peer-focus:absolute before:peer-focus:flex',
-  'before:peer-focus:top-2 before:peer-focus:-left-[2px]',
-  'before:peer-focus:z-[-1]',
-  'before:peer-focus:h-[10px] before:peer-focus:rounded-b',
+  'before:left-[-2px] before:z-[-1]',
+  'before:h-[10px] before:rounded-b peer-focus:before:w-[105%]',
+  'peer-focus:before:absolute peer-focus:before:flex',
+  'peer-focus:before:top-2 peer-focus:before:left-[-2px]',
+  'peer-focus:before:z-[-1]',
+  'peer-focus:before:h-[10px] peer-focus:before:rounded-b',
   'peer-placeholder-shown:text-gray-500'
 ].join(' ');
 
@@ -259,6 +256,6 @@ const ErrorMessage = (props: { error?: string; id?: string }) => {
 const TopBorderElement = (props: { paddingElems?: string }) => {
   const className = `${
     props.paddingElems ?? ''
-  } absolute left-0 right-0 top-0 h-[1px] bg-gray-400 peer-focus:block`;
+  } absolute left-0 right-0 top-0 h-px bg-gray-400 peer-focus:block`;
   return <div className={className} aria-hidden />;
 };

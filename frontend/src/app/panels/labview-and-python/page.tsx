@@ -31,7 +31,7 @@ const LabVIEW_Python_Page = () => {
   return (
     <StackedBoxes>
       <h3 className='text-center'>LabVIEW and Python - A Discussion</h3>
-      <div className='prose mx-auto max-w-screen-lg'>
+      <div className='prose mx-auto max-w-(--breakpoint-lg)'>
         <p>
           In recent years, LabVIEW has gained better and better support for
           interoperability with some text-based languages, such as Python and

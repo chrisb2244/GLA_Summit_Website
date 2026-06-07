@@ -70,7 +70,7 @@ const PresentersForYearPageContent = async ({
 
   const presenterElements = peopleWithNames.map(({ id, ...person }) => {
     return (
-      <div className='border p-4 shadow-sm [&_p]:line-clamp-6' key={id}>
+      <div className='border p-4 shadow-xs [&_p]:line-clamp-6' key={id}>
         <PersonDisplay
           {...person}
           pageLink={`/presenters/${id}` as Route}

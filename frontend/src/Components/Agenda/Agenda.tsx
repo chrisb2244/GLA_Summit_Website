@@ -146,7 +146,7 @@ export const Agenda = (props: AgendaProps) => {
           height: `${(totalDuration * pixelsPerMinute) / (60 * 1000)}px`
         }}
       >
-        <div className='border-1 relative w-[6ch] border-primaryc'>
+        <div className='border relative w-[6ch] border-primaryc'>
           {agendaArea && (
             <TimeMarkers
               startDate={props.startDate}
@@ -158,7 +158,7 @@ export const Agenda = (props: AgendaProps) => {
         </div>
         <div
           id='presentations'
-          className='relative box-border flex-grow'
+          className='relative box-border grow'
           ref={dataColumnRef}
         >
           {agendaArea && (

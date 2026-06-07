@@ -52,7 +52,7 @@ export function SuccessNotification({
 
   return (
     <div
-      className='fixed bottom-24 left-1/2 z-10 w-2/3 max-w-screen-md -translate-x-1/2 transform rounded-md border border-green-400 bg-green-50 px-4 py-2 shadow-lg'
+      className='fixed bottom-24 left-1/2 z-10 w-2/3 max-w-(--breakpoint-md) -translate-x-1/2 transform rounded-md border border-green-400 bg-green-50 px-4 py-2 shadow-lg'
       role='status'
       aria-live='polite'
     >

@@ -1,22 +1,82 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --breakpoint-*: initial;
+  --breakpoint-xs: 0px;
+  --breakpoint-sm: 600px;
+  --breakpoint-md: 900px;
+  --breakpoint-lg: 1200px;
+  --breakpoint-xl: 1536px;
+
+  --shadow:
+    0px 5px 5px -3px rgba(0, 0, 0, 0.1), 0px 8px 10px 1px rgba(0, 0, 0, 0.07),
+    0px 3px 14px 2px rgba(0, 0, 0, 0.06);
+
+  --color-primaryc: #5837b9;
+  --color-secondaryc: #a25bcd;
+  --color-primaryc-light: #795fc7;
+
+  --text-h1s: 6.8552rem;
+  --text-h1s--line-height: 1.167;
+  --text-h4s: 2.4291rem;
+  --text-h4s--line-height: 1.235;
+
+  --animate-wiggle: wiggle 200ms ease-in-out;
+  --animate-clickbounce: clickbounce 200ms ease-in-out;
+
+  @keyframes wiggle {
+    0%,
+    100% {
+      transform: rotate(-3deg);
+    }
+    50% {
+      transform: rotate(3deg);
+    }
+  }
+  @keyframes clickbounce {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.02);
+    }
+  }
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@utility link {
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  cursor: pointer;
+  color: rgb(88 55 185);
+  &:hover {
+    text-decoration-thickness: 2px;
+    color: rgb(162 91 205);
+  }
+}
 
 @layer base {
   [data-nextjs-scroll-focus-boundary] {
     display: contents;
-  }
-}
-
-@layer components {
-  .link {
-    text-decoration-line: underline;
-    text-decoration-thickness: 1px;
-    cursor: pointer;
-    color: rgb(88 55 185);
-  }
-  .link:hover {
-    text-decoration-thickness: 2px;
-    color: rgb(162 91 205);
   }
 }

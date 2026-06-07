@@ -37,14 +37,14 @@ export const MenuBar = () => {
   return (
     <>
       <div
-        className='flex flex-grow content-center pl-4 md:hidden'
+        className='flex grow content-center pl-4 md:hidden'
         role='menu'
         id='mobile-menu'
       >
         <MobileMenuItems menuElements={menuElements.filter((el) => el.showOnMobile)} />
       </div>
       <div
-        className='flex-grow self-stretch pl-2 xs:hidden md:flex'
+        className='grow self-stretch pl-2 xs:hidden md:flex'
         role='menu'
         id='desktop-menu'
       >

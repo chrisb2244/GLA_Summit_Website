@@ -150,7 +150,7 @@ export const PresentationFormFields = ({
         return (
           <div className='pb-2' key={field.id}>
             <div className='flex flex-col items-start justify-between sm:flex-row'>
-              <div className='flex w-full flex-grow'>
+              <div className='flex w-full grow'>
                 <div className='flex flex-1'>
                   <FormField
                     name={presenterPath}
@@ -166,7 +166,7 @@ export const PresentationFormFields = ({
                   />
                 </div>
               </div>
-              <div className='ml-auto flex w-1/2 text-center sm:ml-0 sm:w-auto sm:flex-grow-0 sm:p-2'>
+              <div className='ml-auto flex w-1/2 text-center sm:ml-0 sm:w-auto sm:grow-0 sm:p-2'>
                 <Button
                   type='button'
                   onClick={() =>

@@ -46,7 +46,7 @@ export const PresentationSummary = (props: PresentationProps) => {
     // <Paper {...paperProps}>
     <div className='flex flex-col border-2 p-4'>
       <Link href={`/presentations/${pres.presentationId}`}>{pres.title}</Link>
-      <div className='mb-0 [&>*]:-my-1'>
+      <div className='mb-0 *:-my-1'>
         <span className='italic'>{speakerLine}</span>
         <TimestampSpan utcValue={pres.scheduledFor} />
         {durationElem}

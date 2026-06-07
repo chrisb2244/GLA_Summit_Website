@@ -96,7 +96,7 @@ export const LogViewer: React.FC<LogViewerProps> = ({
           aria-label='Filter logs by source'
           value={sourceFilter}
           onChange={(e) => setSourceFilter(e.target.value)}
-          className='rounded border border-gray-200 px-2 py-1 text-sm'
+          className='rounded-sm border border-gray-200 px-2 py-1 text-sm'
         >
           <option value=''>All sources</option>
           {distinctSources.map((s) => (
@@ -108,7 +108,7 @@ export const LogViewer: React.FC<LogViewerProps> = ({
           placeholder='Search messages…'
           value={textSearch}
           onChange={(e) => setTextSearch(e.target.value)}
-          className='rounded border border-gray-200 px-2 py-1 text-sm w-48'
+          className='rounded-sm border border-gray-200 px-2 py-1 text-sm w-48'
         />
         <span className='ml-auto text-xs text-gray-600'>{filtered.length} entries</span>
       </div>
@@ -142,7 +142,7 @@ export const LogViewer: React.FC<LogViewerProps> = ({
                   <td className={`p-2 ${SEVERITY_COLOURS[e.severity]}`}>
                     {e.severity}
                   </td>
-                  <td className='p-2 break-words'>
+                  <td className='p-2 wrap-break-word'>
                     <span>{e.message}</span>
                     {hasContext && (
                       <span className='ml-1 text-xs text-gray-600'>

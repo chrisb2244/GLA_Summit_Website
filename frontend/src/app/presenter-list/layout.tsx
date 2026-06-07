@@ -12,7 +12,7 @@ const PresenterListLayout = async ({
 
   return (
     <div>
-      <div className='prose mx-auto text-center [&>*]:my-0'>
+      <div className='prose mx-auto text-center *:my-0'>
         <p>
           Presenters below are grouped by year, and sorted by surname.
         </p>

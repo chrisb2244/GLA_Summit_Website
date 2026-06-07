@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 
 const buttonStyles = cva(
-  'p-2 border bg-gray-200 border-gray-400 focus:border-secondaryc focus:border-2 text-base text-center shadow-md focus-within:outline-none',
+  'p-2 border bg-gray-200 border-gray-400 focus:border-secondaryc focus:border-2 text-base text-center shadow-md focus-within:outline-hidden',
   {
     variants: {
       fullWidth: {

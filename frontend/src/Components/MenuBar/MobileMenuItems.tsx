@@ -20,10 +20,10 @@ export const MobileMenuItems = (props: { menuElements: MenuElement[] }) => {
         leaveFrom='transform scale-100 opacity-100'
         leaveTo='transform scale-90 opacity-0'
       >
-        <Popover.Panel className='absolute -left-2 mt-2 rounded bg-white p-2 text-black text-opacity-75 shadow'>
+        <Popover.Panel className='absolute -left-2 mt-2 rounded-sm bg-white p-2 text-black/75 shadow'>
           {({ close }) => (
             <>
-              <div className='absolute -top-[6px] left-[14px] h-3 w-3 rotate-45 rounded-none bg-white shadow-none' />
+              <div className='absolute top-[-6px] left-[14px] h-3 w-3 rotate-45 rounded-none bg-white shadow-none' />
               <div className='w-max max-w-[80vw] cursor-pointer list-none'>
                 <ul>
                   {props.menuElements.map(({ title, link }) => {

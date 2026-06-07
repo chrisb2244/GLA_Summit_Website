@@ -19,7 +19,7 @@ export async function UserMenuButton() {
     );
 
   return (
-    <div id='user' className='flex h-full flex-grow-0 pr-2'>
+    <div id='user' className='flex h-full grow-0 pr-2'>
       {button}
     </div>
   );

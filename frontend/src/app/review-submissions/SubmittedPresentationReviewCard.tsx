@@ -41,7 +41,7 @@ export const SubmittedPresentationReviewCard: React.FC<
       <Disclosure>
         <Disclosure.Button
           // as='div' {/* This is required to put buttons in the Button */}
-          className='w-full rounded-lg bg-gray-100 ui-open:rounded-b-none ui-open:bg-gray-200'
+          className='w-full rounded-lg bg-gray-100 data-[open]:rounded-b-none data-[open]:bg-gray-200'
         >
           <div className='flex flex-row'>
             <div className='mx-2 my-1 flex-1'>
