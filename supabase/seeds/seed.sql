@@ -421,6 +421,24 @@ INSERT INTO "public"."video_links" ("presentation_id", "url") VALUES
 
 
 --
+-- Local interactive-testing data for the current submission year (2026).
+-- Two submitted presentations (under review on /review-submissions, i.e. not in
+-- accepted_presentations / rejected_presentations) and one draft. Submitters are
+-- existing profiles defined above. Each submitter is also listed as a presenter
+-- so the review card resolves them correctly.
+--
+INSERT INTO "public"."presentation_submissions" ("id", "submitter_id", "updated_at", "title", "abstract", "is_submitted", "presentation_type", "learning_points", "year") VALUES
+	('9a40c2da-9034-4279-884d-e2f265b9a4c8', 'c87226b4-564d-4fce-b8bc-d4f806b4f927', '2026-06-01 09:00:00+00', 'Error Handling Patterns That Scale', 'A walkthrough of practical error-handling strategies for large LabVIEW applications: error clusters vs. exceptions-style channels, where to log, and how to keep error wiring from drowning out your business logic.', true, 'full length', 'Attendees will learn a handful of reusable error-handling patterns and when to apply each.', '2026'),
+	('fcb96369-858d-427b-b0cb-af8557c9a40e', '3a1dce05-2678-497f-bd30-584bb3a4c6c0', '2026-06-02 14:30:00+00', 'Profiling LabVIEW Without Guesswork', 'Stop guessing where the time goes. This short talk covers the desktop execution trace toolkit, the in-built profiler, and a few homegrown timing wrappers to find the real bottlenecks in your VIs.', true, '15 minutes', 'How to measure before optimising, using the tools already in your IDE.', '2026'),
+	('c9c31aa5-25fa-4060-a254-81c923ddc948', '06ab35dd-6fcb-49a6-a85f-0b0bf9cbcc62', '2026-06-03 11:15:00+00', 'Web UIs for LabVIEW Apps (draft)', 'A draft submission exploring how to bolt a modern web front-end onto an existing LabVIEW application without rewriting the back end.', false, 'full length', NULL, '2026');
+
+INSERT INTO "public"."presentation_presenters" ("presentation_id", "presenter_id", "status") VALUES
+	('9a40c2da-9034-4279-884d-e2f265b9a4c8', 'c87226b4-564d-4fce-b8bc-d4f806b4f927', 'accepted'),
+	('fcb96369-858d-427b-b0cb-af8557c9a40e', '3a1dce05-2678-497f-bd30-584bb3a4c6c0', 'accepted'),
+	('c9c31aa5-25fa-4060-a254-81c923ddc948', '06ab35dd-6fcb-49a6-a85f-0b0bf9cbcc62', 'accepted');
+
+
+--
 -- Data for Name: buckets; Type: TABLE DATA; Schema: storage; Owner: supabase_storage_admin
 --
 
