@@ -6,7 +6,12 @@ import { revalidatePath } from 'next/cache';
 vi.mock('@/lib/supabaseServer', () => ({
   createServerClient: vi.fn()
 }));
-vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
+vi.mock('next/cache', () => ({
+  revalidatePath: vi.fn(),
+  // castVote reaches getUserDataForMenu, which uses these cache primitives.
+  cacheLife: vi.fn(),
+  cacheTag: vi.fn()
+}));
 vi.mock('@/lib/utils', () => ({
   logToDb: vi.fn(),
   joinNames: vi.fn()
@@ -50,6 +55,18 @@ const buildClient = (opts: {
         return countFor(opts.rejectedCount ?? 0);
       case 'submission_votes':
         return { upsert, delete: del };
+      case 'profiles':
+        // getUserDataForMenu fetches the caller's profile after the organizer
+        // count; the value is irrelevant to castVote, it just must resolve.
+        return {
+          select: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              single: vi.fn().mockResolvedValue({
+                data: { id: opts.userId, firstname: 'T', lastname: 'U' }
+              })
+            }))
+          }))
+        };
       default:
         throw new Error(`unexpected table ${table}`);
     }
