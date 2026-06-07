@@ -6,7 +6,7 @@ import { createServerClient } from '@/lib/supabaseServer';
 import { submissionsForYear } from '@/app/configConstants';
 import { DownloadButton } from './DownloadButton';
 import { SubmissionVotingPanel } from './SubmissionVotingPanel';
-import { getUser } from '@/lib/supabase/userFunctions';
+import { getUserDataForMenu } from '@/lib/supabase/userFunctions';
 import { Suspense } from 'react';
 import type {
   OrganizerDirectoryEntry,
@@ -104,8 +104,19 @@ export const bucketSubmissions = (
 };
 
 export const ReviewSubmissionsPageContent = async () => {
+  // Organizer-only page. RLS already hides every submission/vote from
+  // non-organizers, but without this gate the page shell still renders to anyone
+  // (and to logged-out visitors). Fail closed before doing any work.
+  const userData = await getUserDataForMenu();
+  if (!userData?.isOrganizer) {
+    return (
+      <p className='prose mx-auto mt-8 text-center'>
+        You must be signed in as an organizer to review submissions.
+      </p>
+    );
+  }
+  const { user } = userData;
   const supabase = await createServerClient();
-  const user = await getUser();
 
   const [
     { data, error },
@@ -174,7 +185,7 @@ export const ReviewSubmissionsPageContent = async () => {
           <SubmittedPresentationReviewCard presentationInfo={p} />
           <SubmissionVotingPanel
             presentationId={p.presentation_id}
-            currentUserId={user?.id ?? null}
+            currentUserId={user.id}
             organizers={organizers}
             votes={presentationVotes}
             status={status}
