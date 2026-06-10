@@ -63,7 +63,7 @@
     "next-devtools-mcp": "^0.3.10",
     "postcss": "^8.5.15",
     "postcss-cli": "^10.0.0",
-    "prettier": "3.0.3",
+    "prettier": "^3.8.4",
     "prettier-plugin-tailwindcss": "^0.8.0",
     "tailwindcss": "^4.3.0",
     "ts-node": "^10.9.1",
