@@ -1,5 +1,5 @@
-import { Button } from '@/Components/Form/Button';
-import { SummitYear } from '@/lib/databaseModels';
+import { PageIntro } from '@/Components/Typography';
+import { YearNav } from '@/Components/YearNav';
 import NextLink from 'next/link';
 import React from 'react';
 
@@ -27,28 +27,16 @@ const PresentationListLayout = async ({
   //   </p>
   // );
 
-  const years: SummitYear[] = ['2025', '2024', '2022', '2021'];
-
   return (
     <div>
-      <div className='prose mx-auto text-center *:my-0'>
-        <p>
-          Presentations below are grouped by year, and sorted by the first
-          speaker&apos;s name.
-        </p>
-        {/* {agendaElem} */}
-      </div>
+      <PageIntro>
+        Presentations below are grouped by year, and sorted by the first
+        speaker&apos;s name.
+      </PageIntro>
+      {/* {agendaElem} */}
 
-      <div className='flex flex-row space-x-4 py-2'>
-        {years.map((y) => {
-          return (
-            <NextLink key={y} href={`/presentation-list/${y}`}>
-              <Button type='button'>{y}</Button>
-            </NextLink>
-          );
-        })}
-      </div>
-      <div className='prose max-w-none shadow'>{children}</div>
+      <YearNav basePath='/presentation-list' />
+      <div className='shadow'>{children}</div>
     </div>
   );
 };

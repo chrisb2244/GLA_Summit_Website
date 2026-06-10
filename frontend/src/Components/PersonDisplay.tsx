@@ -86,8 +86,8 @@ export const PersonDisplay: React.FC<
       <div
         className={`flex flex-col ${md_direction} my-2 content-center justify-around`}
       >
-        <div className={`my-auto grow items-center`}>
-          <h3 className='my-0'>{title}</h3>
+        <div className='prose prose-h3:my-0 prose-p:mb-0 my-auto max-w-none grow items-center'>
+          <h3>{title}</h3>
           <div className='space-y-4 whitespace-pre-wrap text-justify'>
             {descriptionElem}
           </div>

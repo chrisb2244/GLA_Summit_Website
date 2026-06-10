@@ -1,4 +1,6 @@
+import { ListCard } from '@/Components/Layout/ListCard';
 import { PersonDisplay } from '@/Components/PersonDisplay';
+import { SectionHeading } from '@/Components/Typography';
 import { getAcceptedPresenterIds, getPeople } from '@/lib/supabase/public';
 import { CACHE_TAGS, cacheTagForPerson } from '@/lib/supabase/cacheTags';
 import type { NextParams, satisfy } from '@/lib/NextTypes';
@@ -60,7 +62,7 @@ const PresentersForYearPageContent = async ({
   if (peopleWithNames.length === 0) {
     return (
       <>
-        <h3 className='py-1 pt-4 text-center'>{year} Presenters</h3>
+        <SectionHeading>{year} Presenters</SectionHeading>
         <p className='py-4 text-center'>
           No presenters to show for {year} yet — check back soon.
         </p>
@@ -70,20 +72,20 @@ const PresentersForYearPageContent = async ({
 
   const presenterElements = peopleWithNames.map(({ id, ...person }) => {
     return (
-      <div className='border p-4 shadow-xs [&_p]:line-clamp-6' key={id}>
+      <ListCard className='[&_p]:line-clamp-6' key={id}>
         <PersonDisplay
           {...person}
           pageLink={`/presenters/${id}` as Route}
           useDefaultIconImage
           stripContainer
         />
-      </div>
+      </ListCard>
     );
   });
 
   return (
     <>
-      <h3 className='py-1 pt-4 text-center'>{year} Presenters</h3>
+      <SectionHeading>{year} Presenters</SectionHeading>
       <div className='mx-4 flex flex-col space-y-2 pb-4'>
         {presenterElements}
       </div>
