@@ -3,12 +3,13 @@ import {
   forwardRef,
   type ChangeEvent,
   type HTMLProps,
+  type ReactNode,
   ForwardedRef
 } from 'react';
 
 type CheckboxProps = {
   name: string;
-  label?: string;
+  label?: ReactNode;
   onChange?: (ev: ChangeEvent<HTMLInputElement>) => void;
 };
 
