@@ -120,6 +120,7 @@ export const PresentationFormFields = ({
           checkValidity(ev.target);
         }
       }}
+      className='border border-gray-200 bg-gray-100 p-4 shadow-lg'
     >
       <input type='hidden' name='redirectTo' value={redirectTo ?? ''} />
       <input
