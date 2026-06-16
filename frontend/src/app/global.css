@@ -68,10 +68,10 @@
   text-decoration-line: underline;
   text-decoration-thickness: 1px;
   cursor: pointer;
-  color: rgb(88 55 185);
+  color: var(--color-primaryc);
   &:hover {
     text-decoration-thickness: 2px;
-    color: rgb(162 91 205);
+    color: var(--color-secondaryc);
   }
 }
 
