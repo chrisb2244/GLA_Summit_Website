@@ -1,6 +1,6 @@
 import { PageIntro } from '@/Components/Typography';
 import { YearNav } from '@/Components/YearNav';
-import Link from 'next/link';
+// import Link from 'next/link';
 import React from 'react';
 
 const PresentationListLayout = async ({
@@ -8,17 +8,17 @@ const PresentationListLayout = async ({
 }: {
   children: React.ReactNode;
 }) => {
-  const agendaElem = (
-    <>
-      <p>
-        For a list by schedule, see our{' '}
-        <Link href='/full-agenda' className='link'>
-          agenda
-        </Link>
-        .
-      </p>
-    </>
-  );
+  // const agendaElem = (
+  //   <>
+  //     <p>
+  //       For a list by schedule, see our{' '}
+  //       <Link href='/full-agenda' className='link'>
+  //         agenda
+  //       </Link>
+  //       .
+  //     </p>
+  //   </>
+  // );
 
   // const agendaElem = (
   //   <p>
