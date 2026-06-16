@@ -23,7 +23,12 @@ const inputFieldStyles = cva(inputAlways, {
       // contrast ratio for the read-only/locked fields (e.g. the email field
       // on the profile and presentation-submission forms).
       true: 'text-gray-600 bg-gray-100 peer-focus:before:bg-gray-100',
-      false: 'border-b-4 focus:border-b-secondaryc peer-focus:before:bg-white'
+      // Editable fields need an explicit bg-white: Tailwind v4's Preflight
+      // resets form controls to background-color: transparent (v3 only did this
+      // for buttons), which otherwise lets the gray-100 form container show
+      // through and drops the empty-state gray-500 label below 4.5:1 contrast.
+      false:
+        'bg-white border-b-4 focus:border-b-secondaryc peer-focus:before:bg-white'
     },
     placeholderVisible: {
       false: 'placeholder-transparent',
