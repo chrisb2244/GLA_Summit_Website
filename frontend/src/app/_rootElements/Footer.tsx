@@ -14,13 +14,21 @@ export const Footer = async () => {
       <div className='flex min-h-[64px] items-center justify-between bg-primaryc px-6 text-white'>
         <div className='mx-auto flex grow flex-col justify-between py-4 text-sm md:flex-row md:py-0'>
           <SocialMediaIcons />
-          <div className='flex self-center py-[0.8px] underline md:py-0'>
-            <Link prefetch={false} href='/our-team' className='self-center'>
+          <div className='flex self-center py-[0.8px] md:py-0'>
+            <Link
+              prefetch={false}
+              href='/our-team'
+              className='link-on-dark self-center'
+            >
               About Us
             </Link>
           </div>
-          <div className='flex self-center py-[0.8px] underline md:py-0'>
-            <Link prefetch={false} href='/media' className='self-center'>
+          <div className='flex self-center py-[0.8px] md:py-0'>
+            <Link
+              prefetch={false}
+              href='/media'
+              className='link-on-dark self-center'
+            >
               Media Banners
             </Link>
           </div>
@@ -43,12 +51,16 @@ export const Footer = async () => {
 
 const FileLink = (props: { link: string; title: string }): JSX.Element => {
   const text = (
-    <p className='self-center py-[0.8px] underline md:py-0'>{props.title}</p>
+    <p className='self-center py-[0.8px] md:py-0'>{props.title}</p>
   );
 
   if (props.link !== '') {
     return (
-      <a href={props.link} style={{ alignSelf: 'center' }}>
+      <a
+        href={props.link}
+        className='link-on-dark'
+        style={{ alignSelf: 'center' }}
+      >
         {text}
       </a>
     );

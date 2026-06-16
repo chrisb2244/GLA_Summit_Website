@@ -75,6 +75,34 @@
   }
 }
 
+/* Link variant for placement on the dark (primaryc) brand background, e.g.
+   the footer, where the standard purple `link` colour would be illegible. */
+@utility link-on-dark {
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  cursor: pointer;
+  color: var(--color-white);
+  &:hover {
+    text-decoration-thickness: 2px;
+  }
+}
+
+/* Make links inside prose (user/markdown content) match the `link` utility
+   instead of the typography plugin's default neutral colour, so content links
+   are visually consistent with the rest of the site.
+
+   These rules are intentionally declared OUTSIDE @layer: the typography plugin
+   emits its `.prose` variables and `a` rules into the `utilities` layer, which
+   wins over anything in `base`. Unlayered declarations beat every layer, so
+   this is what actually makes the override take effect. */
+.prose {
+  --tw-prose-links: var(--color-primaryc);
+}
+.prose a:hover {
+  color: var(--color-secondaryc);
+  text-decoration-thickness: 2px;
+}
+
 @layer base {
   [data-nextjs-scroll-focus-boundary] {
     display: contents;

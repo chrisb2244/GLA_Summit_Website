@@ -35,7 +35,7 @@ export const DraftPresentationCard = ({
         <div className='flex flex-col gap-1 md:flex-row md:items-center'>
           <Link
             href={`/presentations/${draft.presentation_id}`}
-            className='hover:text-primary font-medium underline'
+            className='link font-medium'
           >
             {draft.title}
           </Link>
