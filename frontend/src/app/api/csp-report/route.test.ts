@@ -58,6 +58,20 @@ describe('isReportable', () => {
       fields: { blockedUri: 'safari-web-extension://x/content.js' },
       expected: false
     },
+    {
+      // Some Chromium reports anonymise the extension URL to the bare scheme,
+      // with no `://host` and therefore no colon to anchor on.
+      label: 'bare chrome-extension scheme in sourceFile',
+      fields: { sourceFile: 'chrome-extension' },
+      expected: false
+    },
+    {
+      // wasm-eval blocked by script-src, sourced from an extension content
+      // script — the real-world report this filter must catch.
+      label: 'wasm-eval blocked from an extension source',
+      fields: { blockedUri: 'wasm-eval', sourceFile: 'chrome-extension' },
+      expected: false
+    },
     // Inert pseudo-schemes, anchored to a boundary.
     {
       label: 'about:blank',
@@ -86,6 +100,11 @@ describe('isReportable', () => {
     {
       label: 'about: inside a real URL query string is not a false positive',
       fields: { blockedUri: 'https://x.com/?next=about:blank' },
+      expected: true
+    },
+    {
+      label: '"chrome-extension" as a real URL path segment is not filtered',
+      fields: { blockedUri: 'https://glasummit.org/chrome-extension-guide' },
       expected: true
     }
   ])('$label -> $expected', ({ fields, expected }) => {
