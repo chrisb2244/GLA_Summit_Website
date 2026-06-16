@@ -97,8 +97,12 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
     : email;
 
   return (
-    <Popover className='pr-4'>
-      <Popover.Button aria-haspopup aria-label='User menu'>
+    <Popover className='flex self-stretch pr-4'>
+      <Popover.Button
+        aria-haspopup
+        aria-label='User menu'
+        className='flex h-full items-center justify-center px-3 hover:bg-secondaryc'
+      >
         <Suspense fallback={<DefaultUserIcon size='large' text={buttonText} />}>
           <UserIcon src={avatarSrc} size='large' text={buttonText} />
         </Suspense>
