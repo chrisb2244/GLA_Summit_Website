@@ -29,7 +29,7 @@ export const Footer = async () => {
           <div className='flex flex-col items-center'>
             <p>
               Contact Us:&nbsp;
-              <a href='mailto:contact@glasummit.org' color='#fff'>
+              <a href='mailto:contact@glasummit.org'>
                 contact@glasummit.org
               </a>
             </p>
@@ -48,7 +48,7 @@ const FileLink = (props: { link: string; title: string }): JSX.Element => {
 
   if (props.link !== '') {
     return (
-      <a href={props.link} color='#fff' style={{ alignSelf: 'center' }}>
+      <a href={props.link} style={{ alignSelf: 'center' }}>
         {text}
       </a>
     );
