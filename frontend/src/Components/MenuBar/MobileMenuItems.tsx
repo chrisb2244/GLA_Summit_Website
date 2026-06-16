@@ -3,7 +3,7 @@
 import { Popover, Transition } from '@headlessui/react';
 import { mdiMenu } from '@mdi/js';
 import { Icon } from '@mdi/react';
-import NextLink from 'next/link';
+import Link from 'next/link';
 import { MenuElement } from './MenuBar';
 
 export const MobileMenuItems = (props: { menuElements: MenuElement[] }) => {
@@ -29,7 +29,7 @@ export const MobileMenuItems = (props: { menuElements: MenuElement[] }) => {
                   {props.menuElements.map(({ title, link }) => {
                     return (
                       <li key={title}>
-                        <NextLink
+                        <Link
                           href={link}
                           prefetch={false}
                           role='menuitem'
@@ -37,7 +37,7 @@ export const MobileMenuItems = (props: { menuElements: MenuElement[] }) => {
                           className='group block px-4 py-[6px] transition-transform hover:bg-secondaryc active:scale-95 motion-reduce:transition-none motion-reduce:active:scale-100'
                         >
                           <span className='prose group-hover:text-white'>{title}</span>
-                        </NextLink>
+                        </Link>
                       </li>
                     );
                   })}

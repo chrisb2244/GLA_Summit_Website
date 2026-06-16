@@ -1,6 +1,6 @@
 import { PageIntro } from '@/Components/Typography';
 import { YearNav } from '@/Components/YearNav';
-import NextLink from 'next/link';
+import Link from 'next/link';
 import React from 'react';
 
 const PresentationListLayout = async ({
@@ -12,9 +12,9 @@ const PresentationListLayout = async ({
     <>
       <p>
         For a list by schedule, see our{' '}
-        <NextLink href='/full-agenda' className='link'>
+        <Link href='/full-agenda' className='link'>
           agenda
-        </NextLink>
+        </Link>
         .
       </p>
     </>

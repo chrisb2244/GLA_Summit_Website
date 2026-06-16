@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState, useEffect, useReducer, useState, useSyncExternalStore } from 'react';
-import NextLink from 'next/link';
+import Link from 'next/link';
 import { Button } from '../Form/Button';
 import { FormField, TextArea } from '../Form/FormFieldSrv';
 import { Person } from '../Form/PersonSrv';
@@ -319,9 +319,9 @@ export const PresentationFormFields = ({
           </p>
           {isEditingDraft && state.status.type === 'success' && (
             <p className='mt-1 text-green-700'>
-              <NextLink href='/my-presentations' className='underline'>
+              <Link href='/my-presentations' className='underline'>
                 Back to my presentations
-              </NextLink>
+              </Link>
             </p>
           )}
         </div>

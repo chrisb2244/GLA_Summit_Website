@@ -4,7 +4,7 @@ import { useSyncExternalStore, useState } from 'react';
 import { deleteDraftPresentation } from '@/Components/PresentationSubmissions/presentationSubmissionActions';
 import { CenteredDialog } from '@/Components/CenteredDialog';
 import type { MyPresentationSubmissionType } from '@/lib/databaseModels';
-import NextLink from 'next/link';
+import Link from 'next/link';
 import { CopresenterStatusList } from './CopresenterStatusList';
 
 type DraftPresentationCardProps = {
@@ -33,22 +33,22 @@ export const DraftPresentationCard = ({
     <>
       <div className='relative left-4 mr-6 border border-secondaryc p-2'>
         <div className='flex flex-col gap-1 md:flex-row md:items-center'>
-          <NextLink
+          <Link
             href={`/presentations/${draft.presentation_id}`}
             className='hover:text-primary font-medium underline'
           >
             {draft.title}
-          </NextLink>
+          </Link>
           <span className='text-sm text-gray-500 md:ml-1'>
             ({draft.presentation_type})
           </span>
           <DraftLastSaved isoString={draft.updated_at} />
-          <NextLink
+          <Link
             href={`/my-presentations/edit/${draft.presentation_id}`}
             className='mt-1 rounded-sm border border-blue-400 px-2 py-0.5 text-sm text-blue-600 hover:bg-blue-50 md:ml-2 md:mt-0'
           >
             Edit
-          </NextLink>
+          </Link>
           <button
             type='button'
             onClick={() => setConfirmOpen(true)}

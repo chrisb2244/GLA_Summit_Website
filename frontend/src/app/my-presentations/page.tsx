@@ -7,7 +7,7 @@ import { Metadata } from 'next';
 import { CAN_SUBMIT_PRESENTATION } from '../configConstants';
 import { PastPresentationSubmissions } from './PastPresentationSubmissions';
 import { PastPresentationSubmissionsFallback } from './PastPresentationSubmissions';
-import NextLink from 'next/link';
+import Link from 'next/link';
 import { Suspense } from 'react';
 import { SuccessNotification } from './SuccessNotification';
 import { NextSearchParams } from '@/lib/NextTypes';
@@ -93,9 +93,9 @@ const SubmissionFormSection = async () => {
           <p className='font-semibold text-blue-800'>Profile incomplete</p>
           <p className='text-blue-700'>
             Your{' '}
-            <NextLink href='/my-profile' className='underline'>
+            <Link href='/my-profile' className='underline'>
               profile
-            </NextLink>{' '}
+            </Link>{' '}
             is missing a bio or photo. These will be shown in the conference
             programme — please update them before the event.
           </p>

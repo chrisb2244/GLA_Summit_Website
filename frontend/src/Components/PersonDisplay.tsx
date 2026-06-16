@@ -2,7 +2,7 @@ import { ReactNode, ReactElement, JSX } from 'react';
 import Image, { StaticImageData } from 'next/image';
 import { mdiAccount } from '@mdi/js';
 import Icon from '@mdi/react';
-import NextLink from 'next/link';
+import Link from 'next/link';
 import type { Route } from 'next';
 import { formatTextToPs } from '@/lib/utils';
 
@@ -72,9 +72,9 @@ export const PersonDisplay: React.FC<
   );
   const title =
     typeof pageLink !== 'undefined' ? (
-      <NextLink href={pageLink} className='link'>
+      <Link href={pageLink} className='link'>
         {titleContent}
-      </NextLink>
+      </Link>
     ) : (
       titleContent
     );

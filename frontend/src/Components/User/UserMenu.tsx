@@ -8,7 +8,7 @@ import {
 } from '@mdi/js';
 import { Icon } from '@mdi/react';
 import { JSX, Suspense } from 'react';
-import NextLink from 'next/link';
+import Link from 'next/link';
 import { getAvatarPublicUrl, type User } from '@/lib/databaseFunctions';
 import type { ProfileModel } from '@/lib/databaseModels';
 import { Route } from 'next';
@@ -134,13 +134,13 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
                       return (
                         <li key={title}>
                           {typeof href !== 'undefined' ? (
-                            <NextLink
+                            <Link
                               href={href}
                               className={className}
                               onClick={() => close()}
                             >
                               {itemContent}
-                            </NextLink>
+                            </Link>
                           ) : (
                             <button
                               type='button'

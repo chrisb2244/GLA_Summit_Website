@@ -1,7 +1,7 @@
 import { Button } from '@/Components/Form/Button';
 import { SummitYear } from '@/lib/databaseModels';
 import type { Route } from 'next';
-import NextLink from 'next/link';
+import Link from 'next/link';
 
 // The subset of `summityears` shown as list-page filters (2020/2026 have no
 // published content). Kept here so the presenter-list and presentation-list
@@ -18,9 +18,9 @@ export const YearNav = ({
     <div className='flex flex-row space-x-4 py-2'>
       {displayYears.map((y) => {
         return (
-          <NextLink key={y} href={`${basePath}/${y}` as Route}>
+          <Link key={y} href={`${basePath}/${y}` as Route}>
             <Button type='button'>{y}</Button>
-          </NextLink>
+          </Link>
         );
       })}
     </div>

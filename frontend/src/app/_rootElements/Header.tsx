@@ -1,4 +1,4 @@
-import NextLink from 'next/link';
+import Link from 'next/link';
 import NextImage from 'next/image';
 import { MenuBar } from '@/Components/MenuBar/MenuBar';
 import { UserMenuButton } from '../../Components/User/UserMenuButton';
@@ -7,7 +7,7 @@ import { Suspense } from 'react';
 export const Header = () => {
   const logo = (
     <div className='col-span-full h-full md:col-span-1'>
-      <NextLink href='/' tabIndex={-1}>
+      <Link href='/' tabIndex={-1}>
         <div className='relative h-full justify-center xs:hidden md:flex'>
           <NextImage
             alt='GLA Logo'
@@ -33,7 +33,7 @@ export const Header = () => {
             style={{ pointerEvents: 'none' }}
           />
         </div>
-      </NextLink>
+      </Link>
     </div>
   );
 
