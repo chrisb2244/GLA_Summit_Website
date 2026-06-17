@@ -2,9 +2,9 @@ import { ReactNode, ReactElement, JSX } from 'react';
 import Image, { StaticImageData } from 'next/image';
 import { mdiAccount } from '@mdi/js';
 import Icon from '@mdi/react';
-import NextLink from 'next/link';
 import type { Route } from 'next';
 import { formatTextToPs } from '@/lib/utils';
+import { HoverPrefetchLink } from './HoverPrefetchLink';
 
 export interface PersonDisplayProps {
   firstName: string;
@@ -72,9 +72,9 @@ export const PersonDisplay: React.FC<
   );
   const title =
     typeof pageLink !== 'undefined' ? (
-      <NextLink href={pageLink} className='link'>
+      <HoverPrefetchLink href={pageLink} className='link'>
         {titleContent}
-      </NextLink>
+      </HoverPrefetchLink>
     ) : (
       titleContent
     );
