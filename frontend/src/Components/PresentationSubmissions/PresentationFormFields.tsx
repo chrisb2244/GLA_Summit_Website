@@ -120,6 +120,7 @@ export const PresentationFormFields = ({
           checkValidity(ev.target);
         }
       }}
+      className='border border-gray-200 bg-gray-100 p-4 shadow-lg'
     >
       <input type='hidden' name='redirectTo' value={redirectTo ?? ''} />
       <input
@@ -326,9 +327,24 @@ export const PresentationFormFields = ({
         </div>
       )}
 
-      <div className='flex flex-col space-y-1 pb-6 pt-4'>
+      <div className='flex flex-col space-y-1 pb-4 pt-4'>
         <Checkbox
-          label='I agree to the GLA Summit speaker agreement, consent to my session being recorded, and consent to my name, bio, and (if provided) photograph being published on the conference website.'
+          label={
+            <>
+              I agree to the GLA Summit{' '}
+              <a
+                href='/media/codeofconduct.pdf'
+                target='_blank'
+                rel='noopener noreferrer'
+                className='underline'
+              >
+                code of conduct
+              </a>
+              , consent to my session being recorded, and consent to my name,
+              bio, and (if provided) photograph being published on the
+              conference website.
+            </>
+          }
           name='speakerAgreement'
           defaultChecked={values.speakerAgreement}
         />
@@ -344,6 +360,20 @@ export const PresentationFormFields = ({
           </p>
         )}
       </div>
+
+      <p className='pb-4 text-sm text-gray-600 max-w-prose px-2'>
+        Before presenting, please read our{' '}
+        <a
+          href='/media/presenterguidelines.pdf'
+          target='_blank'
+          rel='noopener noreferrer'
+          className='underline'
+        >
+          presenter guidelines
+        </a>
+        . Please note that this document is currently being reviewed and may be
+        slightly out of date.
+      </p>
 
       <div className='mt-3 flex flex-col gap-2 sm:flex-row sm:justify-between'>
         {CAN_SUBMIT_DRAFT && (

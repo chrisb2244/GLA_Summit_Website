@@ -104,9 +104,7 @@ const DraftEditPage = async ({ params }: { params: Promise<Params> }) => {
           already have an account.
         </p>
 
-        <div className='border border-gray-200 bg-gray-100 p-2 shadow-lg'>
-          <PresentationFormFields defaultValues={defaultValues} />
-        </div>
+        <PresentationFormFields defaultValues={defaultValues} />
       </div>
     </div>
   );

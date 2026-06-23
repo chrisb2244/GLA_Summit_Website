@@ -37,7 +37,7 @@ export class PresentationSubmissionPage {
       'select[name="presentationType"]'
     );
     this.speakerAgreementInput = this.page.getByLabel(
-      /I agree to the GLA Summit speaker agreement/i
+      /I agree to the GLA Summit code of conduct/i
     );
     this.duplicateWarning = this.page.getByRole('alert');
   }

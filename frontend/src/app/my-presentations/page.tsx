@@ -64,21 +64,19 @@ const SubmissionFormSection = async () => {
             join this presentation. Only you, the presentation submitter, will
             be able to edit the presentation.
           </p>
-          <div className='border border-gray-200 bg-gray-100 p-2 shadow-lg'>
-            <PresentationFormFields
-              defaultValues={{
-                submitter,
-                title: '',
-                abstract: '',
-                learningPoints: '',
-                presentationType: 'full length',
-                speakerAgreement: false,
-                skipDuplicateCheck: false,
-                submitIntent: 'submit',
-                otherPresenters: []
-              }}
-            />
-          </div>
+          <PresentationFormFields
+            defaultValues={{
+              submitter,
+              title: '',
+              abstract: '',
+              learningPoints: '',
+              presentationType: 'full length',
+              speakerAgreement: false,
+              skipDuplicateCheck: false,
+              submitIntent: 'submit',
+              otherPresenters: []
+            }}
+          />
         </div>
       </div>
     )
