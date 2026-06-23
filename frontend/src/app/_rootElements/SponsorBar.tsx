@@ -1,4 +1,4 @@
-import NI_Logo from '@/media/NI-Logo.png';
+import NI_Logo from '@/media/EMR_NI_Logos.png';
 // import GCentral_Logo from '@/media/GCentral-logo-color.svg';
 // import SAS_Logo from '@/media/SAS-Logo.png';
 // import CorgiBytes_Logo from '@/media/corgibytes-logo.png';
@@ -97,7 +97,7 @@ export const SponsorBar: React.FC<React.PropsWithChildren<unknown>> = () => {
       <div className='my-2 rounded-lg border border-gray-300 px-12'>
         <Link href='https://www.ni.com'>
           <div className='flex w-fit items-center justify-center xs:flex-col-reverse md:flex-row'>
-            <NextImage src={NI_Logo} width={180} height={180} alt='NI Logo' />
+            <NextImage src={NI_Logo} width={193} height={180} alt='Emerson and NI Logo' />
             <h5 className='px-4 text-xl'>Sponsored by NI</h5>
           </div>
         </Link>
