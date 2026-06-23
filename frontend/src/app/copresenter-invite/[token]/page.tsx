@@ -33,13 +33,13 @@ const CopresenterInvitePageContent = async ({
   const payload = verifyInviteToken(token);
   if (!payload) {
     return (
-      <main className='mx-auto max-w-lg py-12 px-4'>
+      <div className='mx-auto max-w-lg py-12 px-4'>
         <h1 className='text-2xl font-bold mb-4'>Invalid or expired invitation</h1>
         <p className='text-gray-600'>
           This invitation link is no longer valid. Please contact the presentation submitter if you
           believe this is an error.
         </p>
-      </main>
+      </div>
     );
   }
 
@@ -54,13 +54,13 @@ const CopresenterInvitePageContent = async ({
 
   if (user.id !== payload.presenterId) {
     return (
-      <main className='mx-auto max-w-lg py-12 px-4'>
+      <div className='mx-auto max-w-lg py-12 px-4'>
         <h1 className='text-2xl font-bold mb-4'>Wrong account</h1>
         <p className='text-gray-600'>
           This invitation is for a different account. Please sign in with the correct account to
           respond to this invitation.
         </p>
-      </main>
+      </div>
     );
   }
 
@@ -82,12 +82,12 @@ const CopresenterInvitePageContent = async ({
 
   if (!presentation) {
     return (
-      <main className='mx-auto max-w-lg py-12 px-4'>
+      <div className='mx-auto max-w-lg py-12 px-4'>
         <h1 className='text-2xl font-bold mb-4'>Presentation not found</h1>
         <p className='text-gray-600'>
           The presentation associated with this invitation could not be found.
         </p>
-      </main>
+      </div>
     );
   }
 
@@ -95,7 +95,7 @@ const CopresenterInvitePageContent = async ({
     presenterRow?.status === 'accepted' || presenterRow?.status === 'declined';
 
   return (
-    <main className='mx-auto max-w-lg py-12 px-4'>
+    <div className='mx-auto max-w-lg py-12 px-4'>
       <h1 className='text-2xl font-bold mb-2'>Co-presenter invitation</h1>
       <p className='text-gray-600 mb-6'>You have been invited to co-present at GLA Summit.</p>
 
@@ -117,7 +117,7 @@ const CopresenterInvitePageContent = async ({
       ) : (
         <CopresenterResponseButtons token={token} />
       )}
-    </main>
+    </div>
   );
 };
 

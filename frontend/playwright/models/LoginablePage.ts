@@ -51,7 +51,10 @@ export class LoginablePage {
 
     if (type === 'register') {
       if (!(await this.registrationForm().isVisible())) {
+        // The "Join Now" link sits alongside the form (not inside it), so
+        // reach it via the form's shared parent wrapper.
         await this.loginForm()
+          .locator('..')
           .getByRole('link', { name: /Join Now/i })
           .click();
       }
@@ -61,7 +64,11 @@ export class LoginablePage {
 
     if (type === 'login') {
       if (await this.registrationForm().isVisible()) {
+        // The "Sign In" link sits alongside the form (not inside it), so
+        // reach it via the form's shared parent wrapper. Scoping to the
+        // wrapper also avoids the page-level "Sign In / Register" button.
         await this.registrationForm()
+          .locator('..')
           .getByRole('link', { name: /Sign In/i })
           .click();
       }
