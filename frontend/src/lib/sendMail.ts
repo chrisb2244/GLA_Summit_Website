@@ -14,14 +14,18 @@ if (process.env.USE_MOCK_EMAIL === 'true') {
   /* eslint-disable-next-line @typescript-eslint/no-require-imports */
   const mailer = require('nodemailer') as typeof import('nodemailer');
 
-  const testMailUrl = new URL(
-    process.env.TEST_MAIL_API_URL || 'http://127.0.0.1:54325'
+  // SMTP endpoint of the local mail catcher (Mailpit/Supabase Inbucket) that
+  // receives mock-mode mail. This is the SEND target — distinct from the HTTP
+  // API the tests read from (MAILPIT_API_URL in playwright/utils/email.ts). The
+  // default port (…325) is the SMTP port, not the API port (…324).
+  const smtpUrl = new URL(
+    process.env.MAILPIT_SMTP_URL || 'http://127.0.0.1:54325'
   );
-  const testMailPort = parseInt(testMailUrl.port, 10);
+  const smtpPort = parseInt(smtpUrl.port, 10);
 
   const nmail = mailer.createTransport({
-    host: testMailUrl.hostname,
-    port: testMailPort,
+    host: smtpUrl.hostname,
+    port: smtpPort,
     secure: false
   });
 

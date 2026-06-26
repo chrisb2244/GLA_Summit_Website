@@ -203,8 +203,10 @@ To get started with this project, follow these steps:
   NEXT_PUBLIC_SUPABASE_ANON_KEY="<anon key>"
   SECRET_SUPABASE_SERVICE_KEY="<service_role key>"
 
-  # Optional for Playwright/local email checks
-  TEST_MAIL_API_URL="http://127.0.0.1:55324"
+  # Optional for Playwright/local email checks. …324 = Mailpit HTTP API (reads
+  # mail), …325 = Mailpit SMTP port (the app sends mock-mode mail here).
+  MAILPIT_API_URL="http://127.0.0.1:55324"
+  MAILPIT_SMTP_URL="http://127.0.0.1:55325"
 
   # Additionally, set the following environment variable to remove a requirement for the email server keys
   USE_MOCK_EMAIL=true
