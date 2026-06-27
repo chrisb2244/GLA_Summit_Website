@@ -64,6 +64,26 @@
   }
 }
 
+/*
+  Tailwind v4's Preflight dropped v3's `button, [role=button] { cursor: pointer }`
+  rule, so buttons fell back to the native arrow cursor. Restore an interactive
+  cursor — the convention every mainstream design system follows for signalling
+  that a control is clickable. Disabled controls instead get `not-allowed`
+  (a deliberate improvement over v3, which showed the pointer even when
+  disabled). `:disabled` covers native <button>; `[role=button]` controls
+  (e.g. our <label role='button'> file buttons) use aria-disabled.
+*/
+@layer base {
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']) {
+    cursor: pointer;
+  }
+  button:disabled,
+  [role='button'][aria-disabled='true'] {
+    cursor: not-allowed;
+  }
+}
+
 @utility link {
   text-decoration-line: underline;
   text-decoration-thickness: 1px;
