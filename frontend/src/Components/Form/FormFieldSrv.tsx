@@ -80,14 +80,18 @@ const labelStyles = cva(labelAlways, {
 });
 
 const wrapperStyles = cva(
-  'inline-flex flex-col relative align-top mt-2 mb-5 bg-inherit overflow-x-clip',
+  'flex-col relative align-top mt-2 mb-5 bg-inherit overflow-x-clip',
   {
     variants: {
       fullWidth: {
         true: 'w-full'
       },
+      // Ensure only one of inline-flex or hidden is applied, so that
+      // CSS ordering doesn't change the behaviour of the hidden variant.
       hidden: {
-        true: 'hidden'
+        true: 'hidden',
+        false: 'inline-flex',
+        undefined: 'inline-flex'
       }
     }
   }
