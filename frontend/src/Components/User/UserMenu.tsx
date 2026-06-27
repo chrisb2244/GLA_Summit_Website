@@ -97,7 +97,7 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
     : email;
 
   return (
-    <Popover className='flex self-stretch pr-4'>
+    <Popover className='relative flex self-stretch pr-4'>
       <Popover.Button
         aria-haspopup
         aria-label='User menu'
@@ -115,7 +115,7 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
         leaveFrom='transform scale-100 opacity-100'
         leaveTo='transform scale-90 opacity-0'
       >
-        <Popover.Panel className='absolute right-0 mt-2 rounded-sm bg-white p-2 text-black/75 shadow'>
+        <Popover.Panel className='absolute right-0 top-full mt-2 rounded-sm bg-white p-2 text-black/75 shadow'>
           {({ close }) => (
             <>
               <div className='absolute top-[-6px] right-4 h-3 w-3 rotate-45 rounded-none bg-white' />
