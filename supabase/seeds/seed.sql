@@ -516,3 +516,29 @@ END $$;
 --
 
 RESET ALL;
+
+
+--
+-- Local webhook secrets (Supabase Vault)
+--
+-- Vault secrets are database state, not migrations, so `supabase db reset` wipes
+-- them. Without them the outcome / cache-revalidation triggers skip their
+-- net.http_post and the app-side follow-ups (outcome emails, cache revalidation)
+-- silently never run locally. Recreate them here so a reset "just works".
+--
+-- These are LOCAL MOCK VALUES ONLY. They must match the matching SECRET_* values
+-- in frontend/.env.local (see .env.local.sample) and must NEVER equal the
+-- staging/production/cloud-test tokens (those DBs set their own out-of-band).
+-- The URLs point at the dev server as seen from the Supabase Docker network
+-- (host.docker.internal), where `npm run dev` listens on :3000.
+--
+-- Idempotent: vault.secrets.name is unique, so drop any existing rows first.
+DELETE FROM vault.secrets
+  WHERE name IN (
+    'submission_outcome_url', 'submission_outcome_token',
+    'revalidate_url', 'revalidate_token'
+  );
+SELECT vault.create_secret('http://host.docker.internal:3000/api/submission-outcome', 'submission_outcome_url');
+SELECT vault.create_secret('local-dev-submission-outcome-secret', 'submission_outcome_token');
+SELECT vault.create_secret('http://host.docker.internal:3000/api/revalidate', 'revalidate_url');
+SELECT vault.create_secret('local-dev-revalidate-secret', 'revalidate_token');
