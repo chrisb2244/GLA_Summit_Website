@@ -172,6 +172,35 @@ export type Database = {
           },
         ]
       }
+      forced_conclusions: {
+        Row: {
+          forced_at: string
+          forced_by: string | null
+          outcome: string
+          presentation_id: string
+        }
+        Insert: {
+          forced_at?: string
+          forced_by?: string | null
+          outcome: string
+          presentation_id: string
+        }
+        Update: {
+          forced_at?: string
+          forced_by?: string | null
+          outcome?: string
+          presentation_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forced_conclusions_presentation_id_fkey"
+            columns: ["presentation_id"]
+            isOneToOne: true
+            referencedRelation: "presentation_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       log: {
         Row: {
           context: Json | null

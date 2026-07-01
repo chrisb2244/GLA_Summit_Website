@@ -6,7 +6,9 @@ import { createServerClient } from '@/lib/supabaseServer';
 import { submissionsForYear } from '@/app/configConstants';
 import { DownloadButton } from './DownloadButton';
 import { SubmissionVotingPanel } from './SubmissionVotingPanel';
+import { ForceConclusionPanel } from './ForceConclusionPanel';
 import { getUserDataForMenu } from '@/lib/supabase/userFunctions';
+import { joinNames } from '@/lib/utils';
 import { Suspense } from 'react';
 import type {
   OrganizerDirectoryEntry,
@@ -124,7 +126,9 @@ export const ReviewSubmissionsPageContent = async () => {
     { data: voteRows },
     { data: organizerRows },
     { data: acceptedRows },
-    { data: rejectedRows }
+    { data: rejectedRows },
+    { data: concluderRows },
+    { data: forcedRows }
   ] = await Promise.all([
     supabase.rpc('get_reviewable_submissions', {
       target_year: submissionsForYear
@@ -140,7 +144,14 @@ export const ReviewSubmissionsPageContent = async () => {
       .from('accepted_presentations')
       .select('id')
       .eq('year', submissionsForYear),
-    supabase.from('rejected_presentations').select('id')
+    supabase.from('rejected_presentations').select('id'),
+    supabase
+      .from('submission_concluders')
+      .select('user_id')
+      .eq('user_id', user.id),
+    supabase
+      .from('forced_conclusions')
+      .select('presentation_id, outcome, forced_by, forced_at')
   ]);
 
   const submittedPresentations = mapSubmittedPresentations(
@@ -152,6 +163,23 @@ export const ReviewSubmissionsPageContent = async () => {
   const declinedIds = new Set((rejectedRows ?? []).map((r) => r.id));
   const organizers: OrganizerDirectoryEntry[] = organizerRows ?? [];
   const votes = voteRows ?? [];
+  const canForceConclude = (concluderRows ?? []).length > 0;
+
+  // Audit info for forced conclusions, keyed by presentation, with the forcing
+  // organizer's name resolved from the directory where possible.
+  const forcedByPresentation = new Map(
+    (forcedRows ?? []).map((f) => {
+      const organizer = organizers.find((o) => o.id === f.forced_by);
+      return [
+        f.presentation_id,
+        {
+          outcome: f.outcome,
+          forcedAt: f.forced_at,
+          forcedByName: organizer ? joinNames(organizer) : 'an organizer'
+        }
+      ];
+    })
+  );
 
   const buckets = bucketSubmissions(
     submittedPresentations,
@@ -176,6 +204,8 @@ export const ReviewSubmissionsPageContent = async () => {
         vote: v.vote as OrganizerVote
       }));
 
+    const forced = forcedByPresentation.get(p.presentation_id);
+
     return (
       <div
         key={p.presentation_id}
@@ -190,6 +220,19 @@ export const ReviewSubmissionsPageContent = async () => {
             votes={presentationVotes}
             status={status}
           />
+          {status === 'under-review' && canForceConclude && (
+            <ForceConclusionPanel
+              presentationId={p.presentation_id}
+              title={p.title}
+            />
+          )}
+          {forced && (
+            <p className='mt-2 rounded-md bg-amber-50 px-2 py-1 text-xs text-amber-800 ring-1 ring-amber-200'>
+              {`Forced ${forced.outcome} by ${forced.forcedByName} on ${new Date(
+                forced.forcedAt
+              ).toLocaleString()}`}
+            </p>
+          )}
         </div>
         <DownloadButton
           lastDownloaded={lastDownloaded}
