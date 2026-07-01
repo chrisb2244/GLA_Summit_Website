@@ -8,7 +8,9 @@ import {
   REJECTED_EMAIL_SUBJECT
 } from '@/EmailTemplates/PresentationOutcomeEmail';
 
-vi.mock('@/lib/utils', () => ({
+// Keep the real module (joinNames etc.) and only stub the DB-writing logToDb.
+vi.mock('@/lib/utils', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/lib/utils')>()),
   logToDb: vi.fn()
 }));
 
@@ -19,6 +21,22 @@ vi.mock('@/lib/supabaseClient', () => ({
 vi.mock('@/lib/sendMail', () => ({
   sendMailApi: vi.fn()
 }));
+
+// The route schedules the email fan-out via after() (Next runs it once the
+// response is sent). Outside a request scope the real after() throws, so capture
+// the callbacks and drain them explicitly with flushAfter() after awaiting POST.
+const afterCallbacks: Array<() => unknown> = [];
+vi.mock('next/server', () => ({
+  after: (cb: () => unknown) => {
+    afterCallbacks.push(cb);
+  }
+}));
+const flushAfter = async () => {
+  for (const cb of afterCallbacks) {
+    await cb();
+  }
+  afterCallbacks.length = 0;
+};
 
 const SECRET = 'test-secret';
 
@@ -62,8 +80,8 @@ const mockAdminClient = (
     },
     profiles: {
       data: [
-        { id: 'p1', firstname: 'Alice' },
-        { id: 'p2', firstname: 'Bob' }
+        { id: 'p1', firstname: 'Alice', lastname: 'Adams' },
+        { id: 'p2', firstname: 'Bob', lastname: 'Brown' }
       ]
     },
     ...overrides
@@ -75,6 +93,7 @@ const mockAdminClient = (
 
 beforeEach(() => {
   vi.clearAllMocks();
+  afterCallbacks.length = 0;
   process.env.SECRET_SUBMISSION_OUTCOME_TOKEN = SECRET;
   vi.mocked(sendMailApi).mockResolvedValue({ status: 200, message: 'ok' } as never);
   mockAdminClient();
@@ -116,6 +135,10 @@ describe('POST /api/submission-outcome', () => {
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true });
 
+    // Emails are deferred until after the response.
+    expect(sendMailApi).not.toHaveBeenCalled();
+    await flushAfter();
+
     expect(sendMailApi).toHaveBeenCalledTimes(2);
     const recipients = vi
       .mocked(sendMailApi)
@@ -131,6 +154,7 @@ describe('POST /api/submission-outcome', () => {
 
   it('emails every presenter with the rejected template on a declined outcome', async () => {
     await POST(buildRequest({ presentation_id: 'pres-1', outcome: 'declined' }));
+    await flushAfter();
     expect(sendMailApi).toHaveBeenCalledTimes(2);
     for (const [arg] of vi.mocked(sendMailApi).mock.calls) {
       expect(arg.subject).toBe(REJECTED_EMAIL_SUBJECT);
@@ -140,6 +164,7 @@ describe('POST /api/submission-outcome', () => {
   it('logs a severe, non-expiring entry when an email fails to send', async () => {
     vi.mocked(sendMailApi).mockResolvedValue({ status: 500, message: 'boom' } as never);
     await POST(buildRequest({ presentation_id: 'pres-1', outcome: 'accepted' }));
+    await flushAfter();
 
     const severeCalls = vi
       .mocked(logToDb)
@@ -155,6 +180,7 @@ describe('POST /api/submission-outcome', () => {
   it('logs severe when a presenter has no email address', async () => {
     mockAdminClient({ email_lookup: { data: [{ id: 'p1', email: 'alice@example.com' }] } });
     await POST(buildRequest({ presentation_id: 'pres-1', outcome: 'accepted' }));
+    await flushAfter();
 
     expect(sendMailApi).toHaveBeenCalledTimes(1);
     const severeCalls = vi

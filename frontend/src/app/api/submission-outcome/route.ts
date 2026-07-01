@@ -1,4 +1,4 @@
-import type { NextRequest } from 'next/server';
+import { after, type NextRequest } from 'next/server';
 import { joinNames, logToDb } from '@/lib/utils';
 import { createAdminClient } from '@/lib/supabaseClient';
 import { sendMailApi } from '@/lib/sendMail';
@@ -19,10 +19,18 @@ import {
  * database trigger cannot. The durable state change happens in the database; this
  * route is a best-effort follow-up that emails every presenter the outcome.
  *
+ * The emails are dispatched via `after()`, i.e. after the response is sent, so the
+ * route acknowledges within the caller's `net.http_post` timeout regardless of how
+ * many presenters there are or how slow the mail provider is. A 200 therefore means
+ * "outcome notification accepted", not "emails delivered" — delivery is best-effort
+ * and failures are recorded via `logToDb('severe', …)` rather than surfaced here.
+ *
  * Authenticated with a shared secret (`SECRET_SUBMISSION_OUTCOME_TOKEN`) sent in
  * the `x-submission-outcome-secret` header, configured on the trigger's Vault
  * secret. Mirrors the auth shape of `/api/revalidate`. The caller is the database
- * (no user session), so lookups here use the admin client.
+ * (no user session), so lookups here use the admin client. `notifyPresenters` is
+ * intentionally module-private: it sends mail with no authorization of its own, so
+ * the secret-guarded POST must remain its only caller.
  */
 
 /** Header carrying the shared secret. Must match the trigger configuration. */
@@ -193,7 +201,9 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Record that the hook fired (observability), then email the presenters.
+  // Record that the hook fired (observability), then email the presenters after
+  // the response is sent so mail latency/volume can't push the response past the
+  // caller's net.http_post timeout.
   await logToDb(
     'info',
     'Submission outcome notified',
@@ -207,7 +217,8 @@ export async function POST(request: NextRequest) {
   );
 
   if (payload?.presentation_id && payload?.outcome) {
-    await notifyPresenters(payload.presentation_id, payload.outcome);
+    const { presentation_id, outcome } = payload;
+    after(() => notifyPresenters(presentation_id, outcome));
   }
 
   return Response.json({ ok: true });
