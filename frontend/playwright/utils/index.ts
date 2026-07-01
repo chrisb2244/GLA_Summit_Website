@@ -15,6 +15,7 @@ export { seedSharedPresentation } from './presentations';
 export { seedTicket } from './tickets';
 export {
   createAttendee,
+  createConcluder,
   createCopresenter,
   createLogViewer,
   createOrganizer,

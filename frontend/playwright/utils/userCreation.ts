@@ -21,6 +21,7 @@ export type TestRole =
   | 'presenter'
   | 'copresenter'
   | 'organizer'
+  | 'concluder'
   | 'log_viewer';
 
 export type SeededUser = {
@@ -53,6 +54,7 @@ type BaseUserOptions = {
 //
 // Manual deletes are required for:
 //  - log_viewers.user_id  → auth.users(id)   (no cascade)
+//  - submission_concluders.user_id → auth.users(id) (no cascade)
 //  - presentation_submissions.submitter_id → profiles(id) (no cascade; also
 //    cascades presenters + accepted rows for the user's own submissions)
 //  - presentation_presenters.presenter_id → profiles(id) (no cascade; covers
@@ -60,6 +62,7 @@ type BaseUserOptions = {
 const cleanupUser = async (userId: string) => {
   const admin = createSupabaseAdmin();
   await admin.from('log_viewers').delete().eq('user_id', userId);
+  await admin.from('submission_concluders').delete().eq('user_id', userId);
   await admin
     .from('presentation_presenters')
     .delete()
@@ -188,6 +191,31 @@ export const createOrganizer = async (
     throw new Error(`Failed to make organizer: ${error.message}`);
   }
   return { role: 'organizer', ...base };
+};
+
+// Create an organizer who is also on the submission_concluders allow-list, i.e.
+// permitted to force an early accept/decline on the review page.
+export const createConcluder = async (
+  options?: BaseUserOptions
+): Promise<SeededUser> => {
+  // A concluder is an organizer who is also on the submission_concluders
+  // allow-list, so build on createOrganizer and add the concluder row. Keep the
+  // concluder-flavoured lastName/emailPrefix defaults so the mailbox stays
+  // identifiable in Mailpit despite the organizer delegation.
+  const base = await createOrganizer({
+    ...options,
+    lastName: options?.lastName ?? 'concluder',
+    emailPrefix: options?.emailPrefix ?? 'pw-concluder'
+  });
+  const admin = createSupabaseAdmin();
+  const { error } = await admin
+    .from('submission_concluders')
+    .insert({ user_id: base.userId });
+  if (error) {
+    await base.cleanup();
+    throw new Error(`Failed to make concluder: ${error.message}`);
+  }
+  return { ...base, role: 'concluder' };
 };
 
 export const createLogViewer = async (
