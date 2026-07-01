@@ -1,19 +1,28 @@
 import type { NextRequest } from 'next/server';
-import { logToDb } from '@/lib/utils';
+import { joinNames, logToDb } from '@/lib/utils';
+import { createAdminClient } from '@/lib/supabaseClient';
+import { sendMailApi } from '@/lib/sendMail';
+import {
+  ACCEPTED_EMAIL_SUBJECT,
+  AcceptedPresentationEmailFn,
+  REJECTED_EMAIL_SUBJECT,
+  RejectedPresentationEmailFn
+} from '@/EmailTemplates/PresentationOutcomeEmail';
 
 /**
- * Notification hook for automated submission outcomes (accept / decline).
+ * Notification hook for submission outcomes (accept / decline).
  *
- * When organizer votes reach an accept or decline threshold, the
- * `evaluate_submission_votes` database trigger writes the outcome row
- * (accepted_presentations / rejected_presentations) and POSTs the outcome here
- * so the app can run server-side side-effects (e.g. notification emails) that a
+ * When a submission reaches an outcome — either the organizer-vote threshold or
+ * an organizer-forced early conclusion — the `apply_submission_outcome` database
+ * function writes the outcome row (accepted_presentations / rejected_presentations)
+ * and POSTs the outcome here so the app can run server-side side-effects that a
  * database trigger cannot. The durable state change happens in the database; this
- * route is a best-effort follow-up and is currently a **no-op placeholder**.
+ * route is a best-effort follow-up that emails every presenter the outcome.
  *
  * Authenticated with a shared secret (`SECRET_SUBMISSION_OUTCOME_TOKEN`) sent in
  * the `x-submission-outcome-secret` header, configured on the trigger's Vault
- * secret. Mirrors the auth shape of `/api/revalidate`.
+ * secret. Mirrors the auth shape of `/api/revalidate`. The caller is the database
+ * (no user session), so lookups here use the admin client.
  */
 
 /** Header carrying the shared secret. Must match the trigger configuration. */
@@ -23,6 +32,132 @@ const SECRET_HEADER = 'x-submission-outcome-secret';
 type OutcomePayload = {
   presentation_id: string;
   outcome: 'accepted' | 'declined';
+};
+
+/**
+ * Email every presenter (submitter + co-presenters) the outcome. Best-effort:
+ * failures are logged at high severity and never expire (a presenter may not have
+ * learned their outcome), but do not fail the request — the outcome is durable.
+ */
+const notifyPresenters = async (
+  presentationId: string,
+  outcome: 'accepted' | 'declined'
+) => {
+  const supabase = createAdminClient();
+
+  const [{ data: submission }, { data: presenterRows }] = await Promise.all([
+    supabase
+      .from('presentation_submissions')
+      .select('title')
+      .eq('id', presentationId)
+      .single(),
+    supabase
+      .from('presentation_presenters')
+      .select('presenter_id')
+      .eq('presentation_id', presentationId)
+  ]);
+
+  if (!submission) {
+    await logToDb(
+      'severe',
+      'Submission outcome email skipped: submission not found',
+      'api/submission-outcome',
+      { context: { presentationId, outcome } }
+    );
+    return;
+  }
+
+  const presenterIds = (presenterRows ?? []).map((p) => p.presenter_id);
+  if (presenterIds.length === 0) {
+    await logToDb(
+      'severe',
+      'Submission outcome email skipped: no presenters found',
+      'api/submission-outcome',
+      { context: { presentationId, outcome } }
+    );
+    return;
+  }
+
+  const [{ data: emailRows }, { data: profileRows }] = await Promise.all([
+    supabase.from('email_lookup').select('id, email').in('id', presenterIds),
+    supabase
+      .from('profiles')
+      .select('id, firstname, lastname')
+      .in('id', presenterIds)
+  ]);
+
+  const nameById = new Map(
+    (profileRows ?? []).map((p) => [p.id, joinNames(p)])
+  );
+
+  const buildEmail =
+    outcome === 'accepted'
+      ? AcceptedPresentationEmailFn
+      : RejectedPresentationEmailFn;
+  const subject =
+    outcome === 'accepted' ? ACCEPTED_EMAIL_SUBJECT : REJECTED_EMAIL_SUBJECT;
+  const { title } = submission;
+
+  // Presenters without an email_lookup row cannot be reached; surface that
+  // distinctly so it can be chased up.
+  const missing = presenterIds.filter(
+    (id) => !(emailRows ?? []).some((e) => e.id === id)
+  );
+  if (missing.length > 0) {
+    await logToDb(
+      'severe',
+      'Submission outcome email: presenters missing an email address',
+      'api/submission-outcome',
+      { context: { presentationId, outcome, missingPresenterIds: missing } }
+    );
+  }
+
+  await Promise.all(
+    (emailRows ?? []).map(async ({ id, email }) => {
+      const { body, bodyPlain } = buildEmail({
+        title,
+        recipientName: nameById.get(id) ?? ''
+      });
+      try {
+        const result = await sendMailApi({
+          to: email,
+          subject,
+          body,
+          bodyPlain
+        });
+        if (result.status !== 200) {
+          await logToDb(
+            'severe',
+            'Failed to email presenter of submission outcome',
+            'api/submission-outcome',
+            {
+              userId: id,
+              context: {
+                presentationId,
+                outcome,
+                status: result.status,
+                message: result.message
+              }
+            }
+          );
+        }
+      } catch (err) {
+        await logToDb(
+          'severe',
+          'Failed to email presenter of submission outcome',
+          'api/submission-outcome',
+          {
+            userId: id,
+            context: {
+              presentationId,
+              outcome,
+              message: err instanceof Error ? err.message : String(err)
+            }
+          }
+        );
+      }
+    })
+  );
 };
 
 export async function POST(request: NextRequest) {
@@ -42,7 +177,10 @@ export async function POST(request: NextRequest) {
 
   const provided = request.headers.get(SECRET_HEADER);
   if (!provided || provided !== expected) {
-    return Response.json({ ok: false, message: 'Unauthorized' }, { status: 401 });
+    return Response.json(
+      { ok: false, message: 'Unauthorized' },
+      { status: 401 }
+    );
   }
 
   let payload: OutcomePayload;
@@ -55,8 +193,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // No-op for now: record that the hook fired so we can observe it. Future
-  // server-side behaviour (notification emails etc.) hangs off this point.
+  // Record that the hook fired (observability), then email the presenters.
   await logToDb(
     'info',
     'Submission outcome notified',
@@ -68,6 +205,10 @@ export async function POST(request: NextRequest) {
       }
     }
   );
+
+  if (payload?.presentation_id && payload?.outcome) {
+    await notifyPresenters(payload.presentation_id, payload.outcome);
+  }
 
   return Response.json({ ok: true });
 }
