@@ -448,6 +448,18 @@ export type Database = {
           },
         ]
       }
+      submission_concluders: {
+        Row: {
+          user_id: string
+        }
+        Insert: {
+          user_id: string
+        }
+        Update: {
+          user_id?: string
+        }
+        Relationships: []
+      }
       submission_votes: {
         Row: {
           organizer_id: string
@@ -592,8 +604,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_submission_outcome: {
+        Args: { v_outcome: string; v_pid: string }
+        Returns: string
+      }
       email_has_account: { Args: { p_email: string }; Returns: boolean }
       evaluate_submission: { Args: { v_pid: string }; Returns: string }
+      force_submission_outcome: {
+        Args: { v_outcome: string; v_pid: string }
+        Returns: string
+      }
       get_all_presentations: {
         Args: never
         Returns: {
