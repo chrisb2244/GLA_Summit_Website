@@ -8,10 +8,17 @@ import sharp from 'sharp';
  * and uploads it to storage. Uses the admin client so it can be called for any
  * user's avatar without requiring the caller to be authenticated as that user.
  *
+ * If `previousFullSizeUrl` is given, also deletes the icon derived from it
+ * (best-effort -- a legacy avatar may predate icon generation and have none).
+ * That delete has to happen here, via the admin client: icons are always
+ * written by this admin client, not the owning user's session, so no
+ * user-scoped storage policy will ever let the browser client remove them.
+ *
  * Returns the storage path of the icon on success, or null on failure.
  */
 export async function generateAvatarIcon(
-  remoteFilePath: string
+  remoteFilePath: string,
+  previousFullSizeUrl?: string | null
 ): Promise<string | null> {
   const adminClient = createAdminClient();
 
@@ -38,5 +45,12 @@ export async function generateAvatarIcon(
   if (uploadError) {
     return null;
   }
+
+  if (previousFullSizeUrl != null) {
+    await adminClient.storage
+      .from('avatars')
+      .remove([fullUrlToIconUrl(previousFullSizeUrl)]);
+  }
+
   return uploadData.path;
 }
