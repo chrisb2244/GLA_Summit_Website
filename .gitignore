@@ -2,3 +2,7 @@
 .vscode/
 frontend/tsconfig.tsbuildinfo
 node_modules/*
+# visual-compare skill: run outputs + script deps (see .claude/skills/visual-compare)
+/visual-compare/
+.claude/skills/visual-compare/scripts/node_modules/
+.claude/skills/visual-compare/scripts/package-lock.json
