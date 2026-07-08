@@ -3,7 +3,7 @@
 import { Popover, Transition } from '@headlessui/react';
 import { mdiMenu } from '@mdi/js';
 import { Icon } from '@mdi/react';
-import NextLink from 'next/link';
+import Link from 'next/link';
 import { MenuElement } from './MenuBar';
 
 export const MobileMenuItems = (props: { menuElements: MenuElement[] }) => {
@@ -20,16 +20,16 @@ export const MobileMenuItems = (props: { menuElements: MenuElement[] }) => {
         leaveFrom='transform scale-100 opacity-100'
         leaveTo='transform scale-90 opacity-0'
       >
-        <Popover.Panel className='absolute -left-2 mt-2 rounded bg-white p-2 text-black text-opacity-75 shadow'>
+        <Popover.Panel className='absolute -left-2 mt-2 rounded-sm bg-white p-2 text-black/75 shadow'>
           {({ close }) => (
             <>
-              <div className='absolute -top-[6px] left-[14px] h-3 w-3 rotate-45 rounded-none bg-white shadow-none' />
+              <div className='absolute top-[-6px] left-[14px] h-3 w-3 rotate-45 rounded-none bg-white shadow-none' />
               <div className='w-max max-w-[80vw] cursor-pointer list-none'>
                 <ul>
                   {props.menuElements.map(({ title, link }) => {
                     return (
                       <li key={title}>
-                        <NextLink
+                        <Link
                           href={link}
                           prefetch={false}
                           role='menuitem'
@@ -37,7 +37,7 @@ export const MobileMenuItems = (props: { menuElements: MenuElement[] }) => {
                           className='group block px-4 py-[6px] transition-transform hover:bg-secondaryc active:scale-95 motion-reduce:transition-none motion-reduce:active:scale-100'
                         >
                           <span className='prose group-hover:text-white'>{title}</span>
-                        </NextLink>
+                        </Link>
                       </li>
                     );
                   })}

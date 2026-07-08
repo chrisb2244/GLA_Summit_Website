@@ -2,24 +2,197 @@
 
 import { createServerClient } from '@/lib/supabaseServer';
 import { joinNames, logToDb } from '@/lib/utils';
+import type { OrganizerVote } from '@/lib/databaseModels';
+import { revalidatePath } from 'next/cache';
 import JSZip from 'jszip';
+import { getUserDataForMenu } from '@/lib/supabase/userFunctions';
+
+export type CastVoteResult = { success: boolean; error?: string };
+
+/**
+ * Record (or clear) the current organizer's vote on a submission.
+ *
+ * `vote === null` clears the vote (back to "not voted"); any other value is an
+ * upsert, which is also how an organizer changes their existing vote. Voting is
+ * only permitted while the submission is still under review — once it has been
+ * accepted or declined the outcome is locked (also enforced by RLS). Acceptance
+ * and decline themselves are handled by the `submission_votes` database trigger;
+ * this action only writes the vote.
+ */
+export const castVote = async (
+  presentationId: string,
+  vote: OrganizerVote | null
+): Promise<CastVoteResult> => {
+  const userData = await getUserDataForMenu();
+  if (!userData?.user) {
+    return { success: false, error: 'You must be signed in to vote.' };
+  }
+
+  const { user, isOrganizer } = userData;
+  if (!isOrganizer) {
+    await logToDb(
+      'error',
+      'Unauthorized vote attempt',
+      'review-submissions/vote',
+      {
+        userId: user.id,
+        context: { presentationId }
+      }
+    );
+    return { success: false, error: 'Only organizers can vote.' };
+  }
+
+  // Voting is locked once an outcome exists. RLS enforces this too, but fail
+  // fast with a clear message rather than surfacing an RLS rejection.
+  const supabase = await createServerClient();
+  const [{ count: acceptedCount }, { count: rejectedCount }] =
+    await Promise.all([
+      supabase
+        .from('accepted_presentations')
+        .select('id', { head: true, count: 'exact' })
+        .eq('id', presentationId),
+      supabase
+        .from('rejected_presentations')
+        .select('id', { head: true, count: 'exact' })
+        .eq('id', presentationId)
+    ]);
+  if ((acceptedCount ?? 0) !== 0 || (rejectedCount ?? 0) !== 0) {
+    return {
+      success: false,
+      error: 'This submission is no longer under review.'
+    };
+  }
+
+  const { error } =
+    vote === null
+      ? await supabase
+          .from('submission_votes')
+          .delete()
+          .eq('presentation_id', presentationId)
+          .eq('organizer_id', user.id)
+      : await supabase.from('submission_votes').upsert({
+          presentation_id: presentationId,
+          organizer_id: user.id,
+          vote,
+          updated_at: new Date().toISOString()
+        });
+
+  if (error) {
+    await logToDb('error', 'Failed to record vote', 'review-submissions/vote', {
+      userId: user.id,
+      context: {
+        presentationId,
+        vote,
+        message: error.message,
+        code: error.code
+      }
+    });
+    return { success: false, error: 'Could not record your vote.' };
+  }
+
+  revalidatePath('/review-submissions');
+  return { success: true };
+};
+
+export type ForceOutcome = 'accepted' | 'declined';
+export type ForceConclusionResult = { success: boolean; error?: string };
+
+/**
+ * Force an early accept/decline on a submission, bypassing the vote tally.
+ *
+ * Restricted to the `submission_concluders` allow-list (checked here for a
+ * fail-fast message and again inside the `force_submission_outcome` SECURITY
+ * DEFINER function via `auth.uid()`). The RPC writes the outcome row and fires the
+ * same `/api/submission-outcome` webhook as the vote-driven path, so emails and
+ * bucketing behave identically; it also records who forced it in
+ * `forced_conclusions`.
+ */
+export const forceSubmissionOutcome = async (
+  presentationId: string,
+  outcome: ForceOutcome
+): Promise<ForceConclusionResult> => {
+  const userData = await getUserDataForMenu();
+  if (!userData?.user) {
+    return { success: false, error: 'You must be signed in.' };
+  }
+
+  const { user, isOrganizer } = userData;
+  if (!isOrganizer) {
+    await logToDb(
+      'error',
+      'Unauthorized force-conclusion attempt',
+      'review-submissions/force',
+      { userId: user.id, context: { presentationId, outcome } }
+    );
+    return { success: false, error: 'Only organizers can conclude submissions.' };
+  }
+
+  const supabase = await createServerClient();
+
+  // Fail-fast allow-list check for a clear message; the RPC re-checks server-side.
+  const { data: membership } = await supabase
+    .from('submission_concluders')
+    .select('user_id')
+    .eq('user_id', user.id);
+  if (!membership || membership.length === 0) {
+    await logToDb(
+      'error',
+      'Unauthorized force-conclusion attempt (not a concluder)',
+      'review-submissions/force',
+      { userId: user.id, context: { presentationId, outcome } }
+    );
+    return {
+      success: false,
+      error: 'You are not permitted to force a conclusion.'
+    };
+  }
+
+  const { error } = await supabase.rpc('force_submission_outcome', {
+    v_pid: presentationId,
+    v_outcome: outcome
+  });
+
+  if (error) {
+    await logToDb(
+      'error',
+      'Failed to force submission outcome',
+      'review-submissions/force',
+      {
+        userId: user.id,
+        context: {
+          presentationId,
+          outcome,
+          message: error.message,
+          code: error.code
+        }
+      }
+    );
+    const friendly = error.message.includes('already concluded')
+      ? 'This submission has already been concluded.'
+      : error.message.includes('not authorized')
+        ? 'You are not permitted to force a conclusion.'
+        : 'Could not force the outcome. Please try again.';
+    return { success: false, error: friendly };
+  }
+
+  revalidatePath('/review-submissions');
+  return { success: true };
+};
 
 export const downloadSharableSubmissionContent = async (
   presentationId: string
 ) => {
   const supabase = await createServerClient();
-  const { user } = (await supabase.auth.getUser()).data;
-  const isOrganizer = user
-    ? ((await supabase
-        .from('organizers')
-        .select('id', { head: true, count: 'exact' })
-        .eq('id', user.id)
-      ).count ?? 0) !== 0
-    : false;
+  const { user, isOrganizer } = (await getUserDataForMenu()) || {};
   if (!isOrganizer) {
-    await logToDb('error', 'Unauthorized download attempt', 'review-submissions/download', {
-      userId: user?.id
-    });
+    await logToDb(
+      'error',
+      'Unauthorized download attempt',
+      'review-submissions/download',
+      {
+        userId: user?.id
+      }
+    );
     return;
   }
 
@@ -29,10 +202,15 @@ export const downloadSharableSubmissionContent = async (
     .eq('id', presentationId)
     .single();
   if (error) {
-    await logToDb('error', 'Failed to fetch presentation content for download', 'review-submissions/download', {
-      userId: user?.id,
-      context: { presentationId, message: error.message, code: error.code }
-    });
+    await logToDb(
+      'error',
+      'Failed to fetch presentation content for download',
+      'review-submissions/download',
+      {
+        userId: user?.id,
+        context: { presentationId, message: error.message, code: error.code }
+      }
+    );
     return;
   }
 
@@ -41,10 +219,19 @@ export const downloadSharableSubmissionContent = async (
     .select('presenter_id')
     .eq('presentation_id', presentationId);
   if (presentersError) {
-    await logToDb('error', 'Failed to fetch presenters for download', 'review-submissions/download', {
-      userId: user?.id,
-      context: { presentationId, message: presentersError.message, code: presentersError.code }
-    });
+    await logToDb(
+      'error',
+      'Failed to fetch presenters for download',
+      'review-submissions/download',
+      {
+        userId: user?.id,
+        context: {
+          presentationId,
+          message: presentersError.message,
+          code: presentersError.code
+        }
+      }
+    );
     return;
   }
 
@@ -72,10 +259,19 @@ export const downloadSharableSubmissionContent = async (
       };
     });
   if (presentersError2) {
-    await logToDb('error', 'Failed to fetch presenter profiles for download', 'review-submissions/download', {
-      userId: user?.id,
-      context: { presentationId, message: presentersError2.message, code: presentersError2.code }
-    });
+    await logToDb(
+      'error',
+      'Failed to fetch presenter profiles for download',
+      'review-submissions/download',
+      {
+        userId: user?.id,
+        context: {
+          presentationId,
+          message: presentersError2.message,
+          code: presentersError2.code
+        }
+      }
+    );
     return;
   }
 
@@ -85,10 +281,19 @@ export const downloadSharableSubmissionContent = async (
     .in('id', presenterIds);
 
   if (emailsError) {
-    await logToDb('error', 'Failed to fetch presenter emails for download', 'review-submissions/download', {
-      userId: user?.id,
-      context: { presentationId, message: emailsError.message, code: emailsError.code }
-    });
+    await logToDb(
+      'error',
+      'Failed to fetch presenter emails for download',
+      'review-submissions/download',
+      {
+        userId: user?.id,
+        context: {
+          presentationId,
+          message: emailsError.message,
+          code: emailsError.code
+        }
+      }
+    );
     return;
   }
 

@@ -307,6 +307,15 @@ INSERT INTO "public"."log_viewers" ("user_id") VALUES
 
 
 --
+-- Data for Name: submission_concluders; Type: TABLE DATA; Schema: public; Owner: postgres
+-- (this user is also an organizer, below)
+--
+
+INSERT INTO "public"."submission_concluders" ("user_id") VALUES
+	('8a52cd4e-a250-4dba-b799-f38b6e34c75f');
+
+
+--
 -- Data for Name: organizers; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
@@ -421,6 +430,51 @@ INSERT INTO "public"."video_links" ("presentation_id", "url") VALUES
 
 
 --
+-- Local interactive-testing data for the current submission year (2026).
+-- Two submitted presentations (under review on /review-submissions, i.e. not in
+-- accepted_presentations / rejected_presentations) and one draft. Submitters are
+-- existing profiles defined above. Each submitter is also listed as a presenter
+-- so the review card resolves them correctly.
+--
+INSERT INTO "public"."presentation_submissions" ("id", "submitter_id", "updated_at", "title", "abstract", "is_submitted", "presentation_type", "learning_points", "year") VALUES
+	('9a40c2da-9034-4279-884d-e2f265b9a4c8', 'c87226b4-564d-4fce-b8bc-d4f806b4f927', '2026-06-01 09:00:00+00', 'Error Handling Patterns That Scale', 'A walkthrough of practical error-handling strategies for large LabVIEW applications: error clusters vs. exceptions-style channels, where to log, and how to keep error wiring from drowning out your business logic.', true, 'full length', 'Attendees will learn a handful of reusable error-handling patterns and when to apply each.', '2026'),
+	('fcb96369-858d-427b-b0cb-af8557c9a40e', '3a1dce05-2678-497f-bd30-584bb3a4c6c0', '2026-06-02 14:30:00+00', 'Profiling LabVIEW Without Guesswork', 'Stop guessing where the time goes. This short talk covers the desktop execution trace toolkit, the in-built profiler, and a few homegrown timing wrappers to find the real bottlenecks in your VIs.', true, '15 minutes', 'How to measure before optimising, using the tools already in your IDE.', '2026'),
+	('c9c31aa5-25fa-4060-a254-81c923ddc948', '06ab35dd-6fcb-49a6-a85f-0b0bf9cbcc62', '2026-06-03 11:15:00+00', 'Web UIs for LabVIEW Apps (draft)', 'A draft submission exploring how to bolt a modern web front-end onto an existing LabVIEW application without rewriting the back end.', false, 'full length', NULL, '2026');
+
+INSERT INTO "public"."presentation_presenters" ("presentation_id", "presenter_id", "status") VALUES
+	('9a40c2da-9034-4279-884d-e2f265b9a4c8', 'c87226b4-564d-4fce-b8bc-d4f806b4f927', 'accepted'),
+	('fcb96369-858d-427b-b0cb-af8557c9a40e', '3a1dce05-2678-497f-bd30-584bb3a4c6c0', 'accepted'),
+	('c9c31aa5-25fa-4060-a254-81c923ddc948', '06ab35dd-6fcb-49a6-a85f-0b0bf9cbcc62', 'accepted');
+
+
+--
+-- Accepted presentations for 2025 (the current display year), which otherwise
+-- has no seed data. All presenters reuse existing profiles defined above:
+--   * the first two are single-presenter talks (each submitter is the sole
+--     presenter);
+--   * the third is co-presented, with a second presenter distinct from the
+--     submitter.
+-- Each needs a presentation_submissions row, an accepted_presentations row (so
+-- get_all_presentations surfaces it), and presentation_presenters rows.
+--
+INSERT INTO "public"."presentation_submissions" ("id", "submitter_id", "updated_at", "title", "abstract", "is_submitted", "presentation_type", "learning_points", "year") VALUES
+	('1100d9bd-cb01-4238-aaae-4c2b03f25b43', '35f03917-dd1c-4a4d-88c4-1cd3b8996d27', '2025-04-01 08:00:00+00', 'Dependency Injection Patterns in LabVIEW', 'Loose coupling is not just an OOP buzzword. This session shows how dependency injection makes LabVIEW classes testable and swappable, with concrete before/after refactors of a hardware abstraction layer.', true, 'full length', 'How to invert dependencies so your code is easier to test and extend.', '2025'),
+	('481885b5-4665-4f64-804d-4b88f3cbdf29', '0aab4c3b-1415-4871-943a-5c377c9158e9', '2025-04-02 10:30:00+00', 'Automated Releases on a Budget', 'A pragmatic look at building a CI/CD pipeline for LabVIEW packages using free tooling, covering versioning, build steps, and publishing without an expensive toolchain.', true, '15 minutes', 'A starting point for automating your build and release process cheaply.', '2025'),
+	('a633b7ff-a5a9-4e46-a8b3-390adfb6ac7b', '4671cf60-ae64-46c0-b3a5-fc934cf1bd8a', '2025-04-03 13:45:00+00', 'Designing a Reusable Test Framework', 'Two practitioners share how they built and rolled out a reusable test framework across multiple teams, the architectural trade-offs they made, and the organisational lessons learned along the way.', true, 'full length', 'Architectural and team practices for a test framework others will actually use.', '2025');
+
+INSERT INTO "public"."accepted_presentations" ("id", "accepted_at", "scheduled_for", "year") VALUES
+	('1100d9bd-cb01-4238-aaae-4c2b03f25b43', '2025-05-01 09:00:00+00', '2025-06-23 13:00:00+00', '2025'),
+	('481885b5-4665-4f64-804d-4b88f3cbdf29', '2025-05-01 09:00:00+00', '2025-06-23 14:00:00+00', '2025'),
+	('a633b7ff-a5a9-4e46-a8b3-390adfb6ac7b', '2025-05-01 09:00:00+00', '2025-06-23 15:00:00+00', '2025');
+
+INSERT INTO "public"."presentation_presenters" ("presentation_id", "presenter_id", "status") VALUES
+	('1100d9bd-cb01-4238-aaae-4c2b03f25b43', '35f03917-dd1c-4a4d-88c4-1cd3b8996d27', 'accepted'),
+	('481885b5-4665-4f64-804d-4b88f3cbdf29', '0aab4c3b-1415-4871-943a-5c377c9158e9', 'accepted'),
+	('a633b7ff-a5a9-4e46-a8b3-390adfb6ac7b', '4671cf60-ae64-46c0-b3a5-fc934cf1bd8a', 'accepted'),
+	('a633b7ff-a5a9-4e46-a8b3-390adfb6ac7b', 'ef21a78e-9e42-47ba-9e22-1707c3ad1e43', 'accepted');
+
+
+--
 -- Data for Name: buckets; Type: TABLE DATA; Schema: storage; Owner: supabase_storage_admin
 --
 
@@ -462,3 +516,29 @@ END $$;
 --
 
 RESET ALL;
+
+
+--
+-- Local webhook secrets (Supabase Vault)
+--
+-- Vault secrets are database state, not migrations, so `supabase db reset` wipes
+-- them. Without them the outcome / cache-revalidation triggers skip their
+-- net.http_post and the app-side follow-ups (outcome emails, cache revalidation)
+-- silently never run locally. Recreate them here so a reset "just works".
+--
+-- These are LOCAL MOCK VALUES ONLY. They must match the matching SECRET_* values
+-- in frontend/.env.local (see .env.local.sample) and must NEVER equal the
+-- staging/production/cloud-test tokens (those DBs set their own out-of-band).
+-- The URLs point at the dev server as seen from the Supabase Docker network
+-- (host.docker.internal), where `npm run dev` listens on :3000.
+--
+-- Idempotent: vault.secrets.name is unique, so drop any existing rows first.
+DELETE FROM vault.secrets
+  WHERE name IN (
+    'submission_outcome_url', 'submission_outcome_token',
+    'revalidate_url', 'revalidate_token'
+  );
+SELECT vault.create_secret('http://host.docker.internal:3000/api/submission-outcome', 'submission_outcome_url');
+SELECT vault.create_secret('local-dev-submission-outcome-secret', 'submission_outcome_token');
+SELECT vault.create_secret('http://host.docker.internal:3000/api/revalidate', 'revalidate_url');
+SELECT vault.create_secret('local-dev-revalidate-secret', 'revalidate_token');

@@ -128,23 +128,23 @@ export const descriptions = {
     <>
       <h3 className='my-1 pt-0 text-sm font-normal italic'>Treasurer</h3>
       <p>
-        Michał (aka Mike) works with Embedded Control Systems Simulations. 
-        At KK-Group, he takes care of the Software and Hardwarein the Loop 
-        simulators for wind turbine control systems. Besides the technical role, 
-        he is also an engineering excellence agent coaching developers in clean 
+        Michał (aka Mike) works with Embedded Control Systems Simulations. At
+        KK-Group, he takes care of the Software and Hardwarein the Loop
+        simulators for wind turbine control systems. Besides the technical role,
+        he is also an engineering excellence agent coaching developers in clean
         architecture, code testability, and software engineering beyond coding.
       </p>
       <p>
         Mike&apos;s adventure with LabVIEW started in 2009 in academia, where he
         was developing controllers for excimer lasers and incubators of organic
-        crystals. Then, he continued with green-energy projects ever since including 
-        geothermal power with CCM-EE, embracing wind with Siemens Gamesa, and P<sub>2</sub>H
-        with Nel/Cavendish.
+        crystals. Then, he continued with green-energy projects ever since
+        including geothermal power with CCM-EE, embracing wind with Siemens
+        Gamesa, and P<sub>2</sub>H with Nel/Cavendish.
       </p>
       <p>
-        He is a CLA and LabVIEW champion. Member of ADVANCED LABVIEW USER GROUP DENMARK, and
-        presenter from the first VI week. Mike lives in Denmark, plays a hang
-        drum, and can bake the yummiest chocolate cake ever!
+        He is a CLA and LabVIEW champion. Member of ADVANCED LABVIEW USER GROUP
+        DENMARK, and presenter from the first VI week. Mike lives in Denmark,
+        plays a hang drum, and can bake the yummiest chocolate cake ever!
       </p>
     </>
   ),
@@ -213,9 +213,9 @@ export const descriptions = {
         the QControl Toolkit.
       </p>
       <p>
-        Q currently works at Choose Movement Consulting as a Senior Systems 
-        Engineer. Q also serves on the board of GCentral and is involved in
-        the LabVIEW Community.
+        Q currently works at Choose Movement Consulting as a Senior Systems
+        Engineer. Q also serves on the board of GCentral and is involved in the
+        LabVIEW Community.
       </p>
     </>
   ),
@@ -233,6 +233,33 @@ export const descriptions = {
         has also presented at the GLA Summit, showcasing expertise and
         contributing to the broader LabVIEW community. Hemant remains dedicated
         to sharing knowledge and supporting the growth of the community.
+      </p>
+    </>
+  ),
+
+  SarahZalusky: (
+    <>
+      <p>
+        Sarah is a Software Architect and Engineering Team Leader with over 15
+        years of experience building production control and automation systems
+        for regulated industries, including semiconductor manufacturing,
+        aerospace, and energy.
+      </p>
+      <p>
+        She holds a B.A. in Physics from UC Berkeley. Her career started
+        developing R&D detector systems at Lawrence Berkeley National Lab and
+        CERN, before moving into industrial automation, where she&apos;s spent the
+        last decade developing software for critical systems in 24/7
+        manufacturing and test environments.
+      </p>
+      <p>
+        As a Partner and Staff Engineer at JKI, Sarah leads some of the
+        company&apos;s most complex long-term accounts and currently product manages
+        JKI&apos;s Security Tools for LabVIEW.
+      </p>
+      <p>
+        She is a longtime member of the LabVIEW community, and was heavily
+        involved in the original founding of the GLA Summit in 2020.
       </p>
     </>
   )

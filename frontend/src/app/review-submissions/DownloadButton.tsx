@@ -43,7 +43,7 @@ export const DownloadButton = (props: DownloadButtonProps) => {
   };
 
   return (
-    <form className='flex flex-grow items-center justify-center'>
+    <form className='flex grow items-center justify-center'>
       <div className='mx-auto flex h-full w-full flex-col items-center justify-center space-y-1'>
         <button
           formAction={downloadAction2}

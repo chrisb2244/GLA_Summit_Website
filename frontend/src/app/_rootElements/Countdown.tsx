@@ -62,7 +62,7 @@ export const Countdown: React.FC<React.PropsWithChildren<CountdownProps>> = (
 
   return (
     <div
-      className={`mx-auto mb-4 flex w-[300px] flex-col items-center rounded-[12.5%/50%] bg-primaryc.light px-4 py-2`}
+      className={`mx-auto mb-4 flex w-[300px] flex-col items-center rounded-[12.5%/50%] bg-primaryc-light px-4 py-2`}
     >
       <div>
         {status === 'Upcoming'

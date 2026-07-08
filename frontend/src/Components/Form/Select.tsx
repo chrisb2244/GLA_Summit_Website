@@ -33,7 +33,9 @@ export const Select = forwardRef(
 );
 Select.displayName = 'Select';
 
-const selectStyles = cva('my-2 border border-gray-400 box-border p-2', {
+// bg-white is explicit because Tailwind v4's Preflight resets form controls to
+// a transparent background.
+const selectStyles = cva('my-2 bg-white border border-gray-400 box-border p-2', {
   variants: {
     fullWidth: {
       true: 'w-full'

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "helpers:pinGitHubActionDigests"
+  ],
+  "timezone": "Europe/London",
+  "schedule": ["before 9am on monday"],
+  "prConcurrentLimit": 5,
+  "labels": ["dependencies"],
+  "packageRules": [
+    {
+      "description": "Keep the Mailpit CI service-container digest fresh. The github-actions manager reads `services:` images in workflows; pinDigest keeps the @sha256 current even when the version tag is unchanged.",
+      "matchManagers": ["github-actions"],
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["axllent/mailpit"],
+      "groupName": "mailpit (CI mail catcher)",
+      "pinDigests": true
+    }
+  ]
+}

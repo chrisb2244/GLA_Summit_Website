@@ -1,4 +1,4 @@
-import NextLink from 'next/link';
+import Link from 'next/link';
 import NextImage from 'next/image';
 import { MenuBar } from '@/Components/MenuBar/MenuBar';
 import { UserMenuButton } from '../../Components/User/UserMenuButton';
@@ -7,7 +7,7 @@ import { Suspense } from 'react';
 export const Header = () => {
   const logo = (
     <div className='col-span-full h-full md:col-span-1'>
-      <NextLink href='/' tabIndex={-1}>
+      <Link href='/' tabIndex={-1}>
         <div className='relative h-full justify-center xs:hidden md:flex'>
           <NextImage
             alt='GLA Logo'
@@ -23,7 +23,7 @@ export const Header = () => {
             }}
           />
         </div>
-        <div className='relative h-[200px] xs:flex md:hidden'>
+        <div className='relative h-50 xs:flex md:hidden'>
           <NextImage
             alt='GLA Logo'
             src='/media/GLA-logo-mobile.svg'
@@ -33,7 +33,7 @@ export const Header = () => {
             style={{ pointerEvents: 'none' }}
           />
         </div>
-      </NextLink>
+      </Link>
     </div>
   );
 
@@ -41,10 +41,6 @@ export const Header = () => {
     <>
       <header
         className='static flex w-full flex-col bg-primaryc'
-        style={{
-          boxShadow:
-            'rgb(0 0 0 / 20%) 0px 2px 4px -1px, rgb(0 0 0 / 14%) 0px 4px 5px 0px, rgb(0 0 0 / 12%) 0px 1px 10px 0px'
-        }}
       >
         <div
           className='relative grid grid-cols-[1fr_5fr_1fr] grid-rows-1 items-center justify-center'
@@ -60,14 +56,10 @@ export const Header = () => {
           </div>
         </div>
       </header>
-      <div className='sticky left-0 top-0 z-50 mb-4 bg-primaryc text-white'>
+      <div className='sticky left-0 top-0 z-50 mb-4 bg-primaryc text-white shadow-[0px_6px_6px_0px_rgba(0,0,0,0.2)]'>
         <div
           id='menu bar'
-          className='flex min-h-[54px] w-full items-center'
-          style={{
-            boxShadow:
-              'rgb(0 0 0 / 20%) 0px 4px 6px 0px, rgb(0 0 0 / 14%) 0px 4px 5px 0px'
-          }}
+          className='flex min-h-13.5 grow items-center mx-4 md:mx-2 '
         >
           <MenuBar />
           <Suspense>

@@ -1,4 +1,4 @@
-import NextLink from 'next/link';
+import Link from 'next/link';
 import { MenuElement } from './MenuBar';
 
 // As written, this can be rendered as a Server Component
@@ -7,7 +7,7 @@ export const DesktopMenuItems = (props: { menuElements: MenuElement[] }) => {
     <>
       {props.menuElements.map(({ title, link }) => {
         return (
-          <NextLink
+          <Link
             href={link}
             role='menuitem'
             key={title}
@@ -16,7 +16,7 @@ export const DesktopMenuItems = (props: { menuElements: MenuElement[] }) => {
             <span className='prose-lg prose p-2 text-white text-center'>
               {title.toUpperCase()}
             </span>
-          </NextLink>
+          </Link>
         );
       })}
     </>

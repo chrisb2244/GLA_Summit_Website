@@ -23,14 +23,14 @@ export const ConfirmationPopup: React.FC<
         <button
           type='button'
           onClick={() => resolveFn(false)}
-          className='rounded border border-gray-300 px-4 py-1 hover:bg-gray-50'
+          className='rounded-sm border border-gray-300 px-4 py-1 hover:bg-gray-50'
         >
           Cancel
         </button>
         <button
           type='button'
           onClick={() => resolveFn(true)}
-          className='rounded bg-primaryc px-4 py-1 text-white hover:bg-primaryc.light'
+          className='rounded-sm bg-primaryc px-4 py-1 text-white hover:bg-primaryc-light'
         >
           Confirm
         </button>

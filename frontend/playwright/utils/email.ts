@@ -4,8 +4,12 @@ import {
 } from 'inbucket-js-client';
 import { ClientError, GraphQLClient } from '@testmail.app/graphql-request';
 
+// HTTP API of the local mail catcher (Mailpit/Supabase Inbucket) that the tests
+// READ delivered mail from. Distinct from the SMTP send target the app uses in
+// mock mode (MAILPIT_SMTP_URL in src/lib/sendMail.ts). The default port (…324)
+// is the API port, not the SMTP port (…325).
 const localMailApiUrl =
-  process.env.TEST_MAIL_API_URL ?? 'http://localhost:54324';
+  process.env.MAILPIT_API_URL ?? 'http://localhost:54324';
 
 // ── Backend-agnostic message shape ───────────────────────────────────────────
 //

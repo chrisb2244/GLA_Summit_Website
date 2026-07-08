@@ -42,3 +42,5 @@ frontend/cypress/screenshots
 # sensitive or dev-only files
 src/app/api/fake_login/
 src/mocks/loggedInUser.ts
+# visual-compare skill: runtime copy of the capture spec
+/playwright/visual-compare.spec.ts

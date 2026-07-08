@@ -192,10 +192,20 @@ const TicketPageContent: NextPage<PageProps> = async ({
 
   const shareElements = (
     <div className='my-auto flex flex-col items-center space-y-2 pt-2 min-[350px]:flex-row min-[350px]:space-x-4 min-[350px]:space-y-0'>
-      <a href={linkedInShareUrl} className='link' target='_blank'>
+      <a
+        href={linkedInShareUrl}
+        className='link'
+        target='_blank'
+        rel='noopener noreferrer'
+      >
         <Button>Share to LinkedIn</Button>
       </a>
-      <a href={twitterShareUrl.href} className='link' target='_blank'>
+      <a
+        href={twitterShareUrl.href}
+        className='link'
+        target='_blank'
+        rel='noopener noreferrer'
+      >
         <Button>Share to X</Button>
       </a>
     </div>

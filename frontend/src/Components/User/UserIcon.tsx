@@ -31,7 +31,7 @@ export const UserIcon = (props: UserIconProps) => {
     );
 
   const wrappedIcon = (
-    <div className='inline-flex flex-shrink-0 text-opacity-50'>{icon}</div>
+    <div className='inline-flex shrink-0'>{icon}</div>
   );
 
   if (typeof text === 'undefined') {

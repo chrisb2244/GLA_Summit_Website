@@ -40,7 +40,7 @@ describe('RegistrationForm error rendering', () => {
     vi.clearAllMocks();
   });
 
-  it('shows email validation error only after blur', async () => {
+  it('shows email validation error only after blur-sm', async () => {
     render(<RegistrationForm />);
 
     const emailInput = screen.getByRole('textbox', { name: /email/i });

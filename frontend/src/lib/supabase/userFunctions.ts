@@ -14,7 +14,14 @@ export const getUser = cache(async () => {
   return data.user;
 });
 
-export const getUserDataForMenu = async () => {
+// Wrapped in React's `cache()` for request-scoped deduplication: this is called
+// independently in several server components within a single render (the user
+// menu in the layout and the /review-submissions organizer gate), and the
+// `'use cache: private'` directive re-executes on every server render rather
+// than memoizing within one. React `cache()` adds zero-serialization intra-request
+// dedup on top of the cross-navigation/tag-based caching `'use cache: private'`
+// provides — the two compose rather than conflict.
+export const getUserDataForMenu = cache(async () => {
   'use cache: private';
   cacheLife('default');
 
@@ -43,4 +50,4 @@ export const getUserDataForMenu = async () => {
     isOrganizer: (organizerCount ?? 0) === 1,
     profile: (profile ?? null) as ProfileModel['Row'] | null
   };
-};
+});

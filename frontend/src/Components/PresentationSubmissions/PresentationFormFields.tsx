@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState, useEffect, useReducer, useState, useSyncExternalStore } from 'react';
-import NextLink from 'next/link';
+import Link from 'next/link';
 import { Button } from '../Form/Button';
 import { FormField, TextArea } from '../Form/FormFieldSrv';
 import { Person } from '../Form/PersonSrv';
@@ -150,7 +150,7 @@ export const PresentationFormFields = ({
         return (
           <div className='pb-2' key={field.id}>
             <div className='flex flex-col items-start justify-between sm:flex-row'>
-              <div className='flex w-full flex-grow'>
+              <div className='flex w-full grow'>
                 <div className='flex flex-1'>
                   <FormField
                     name={presenterPath}
@@ -166,7 +166,7 @@ export const PresentationFormFields = ({
                   />
                 </div>
               </div>
-              <div className='ml-auto flex w-1/2 text-center sm:ml-0 sm:w-auto sm:flex-grow-0 sm:p-2'>
+              <div className='ml-auto flex w-1/2 text-center sm:ml-0 sm:w-auto sm:grow-0 sm:p-2'>
                 <Button
                   type='button'
                   onClick={() =>
@@ -319,9 +319,9 @@ export const PresentationFormFields = ({
           </p>
           {isEditingDraft && state.status.type === 'success' && (
             <p className='mt-1 text-green-700'>
-              <NextLink href='/my-presentations' className='underline'>
+              <Link href='/my-presentations' className='underline'>
                 Back to my presentations
-              </NextLink>
+              </Link>
             </p>
           )}
         </div>

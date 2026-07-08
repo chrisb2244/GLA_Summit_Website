@@ -2,7 +2,7 @@ import { ReactNode, ReactElement, JSX } from 'react';
 import Image, { StaticImageData } from 'next/image';
 import { mdiAccount } from '@mdi/js';
 import Icon from '@mdi/react';
-import NextLink from 'next/link';
+import Link from 'next/link';
 import type { Route } from 'next';
 import { formatTextToPs } from '@/lib/utils';
 
@@ -72,9 +72,9 @@ export const PersonDisplay: React.FC<
   );
   const title =
     typeof pageLink !== 'undefined' ? (
-      <NextLink href={pageLink} className='link'>
+      <Link href={pageLink} className='link'>
         {titleContent}
-      </NextLink>
+      </Link>
     ) : (
       titleContent
     );
@@ -82,19 +82,19 @@ export const PersonDisplay: React.FC<
   const imgDispCName = isDefaultImage ? 'max-sm:hidden' : '';
 
   return (
-    <div className={`${props.stripContainer ? '' : 'rounded shadow-md'}`}>
+    <div className={`${props.stripContainer ? '' : 'rounded-sm shadow-md'}`}>
       <div
         className={`flex flex-col ${md_direction} my-2 content-center justify-around`}
       >
-        <div className={`my-auto flex-grow items-center`}>
-          <h3 className='my-0'>{title}</h3>
+        <div className='prose prose-h3:my-0 prose-p:mb-0 my-auto max-w-none grow items-center'>
+          <h3>{title}</h3>
           <div className='space-y-4 whitespace-pre-wrap text-justify'>
             {descriptionElem}
           </div>
         </div>
         {imageElem !== null && (
           <div
-            className={`not-prose relative w-full flex-shrink-0 align-middle md:w-[30%] ${imgDispCName} mx-4 flex flex-row justify-center`}
+            className={`not-prose relative w-full shrink-0 align-middle md:w-[30%] ${imgDispCName} mx-4 flex flex-row justify-center`}
           >
             {imageElem}
           </div>

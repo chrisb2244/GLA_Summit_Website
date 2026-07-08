@@ -9,14 +9,21 @@ import React, {
 } from 'react';
 
 const buttonStyles = cva(
-  'p-2 border bg-gray-200 border-gray-400 focus:border-secondaryc focus:border-2 text-base text-center shadow-md focus-within:outline-none',
+  'p-2 border bg-gray-200 border-gray-400 focus:border-secondaryc focus:border-2 text-base text-center shadow-md focus-within:outline-hidden',
   {
     variants: {
       fullWidth: {
         true: 'w-full'
       },
+      // Set the enabled text colour explicitly via the `foreground` token so the
+      // button never inherits ambient colour: e.g. the purple from a
+      // prose-wrapping link leaks in via Preflight's `color: inherit` on form
+      // controls. Gated through the variant so exactly one text-colour utility is
+      // ever emitted (no cascade-order tie between base and disabled).
       disabled: {
-        true: 'text-gray-400'
+        true: 'text-gray-400',
+        false: 'text-foreground',
+        undefined: 'text-foreground'
       }
     }
   }

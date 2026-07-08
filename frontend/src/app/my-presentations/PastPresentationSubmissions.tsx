@@ -4,7 +4,7 @@ import type {
   SummitYear
 } from '@/lib/databaseModels';
 import { getMyPresentations } from '@/lib/databaseFunctions';
-import NextLink from 'next/link';
+import Link from 'next/link';
 import { formatTextToPs } from '@/lib/utils';
 import { DraftPresentationCard } from './DraftPresentationCard';
 import { CopresenterStatusList } from './CopresenterStatusList';
@@ -159,12 +159,12 @@ const renderPresentationSubmission = (
     >
       <div className='flex flex-col md:flex-row'>
         <h5>
-          <NextLink
+          <Link
             className='link'
             href={`/presentations/${p.presentation_id}`}
           >
             {p.title}
-          </NextLink>
+          </Link>
         </h5>
         <span className='md:pl-2'>({p.presentation_type})</span>
         <span className='italic md:ml-auto md:mr-1'>
