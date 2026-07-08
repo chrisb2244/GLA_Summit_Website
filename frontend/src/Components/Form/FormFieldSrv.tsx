@@ -19,7 +19,10 @@ const inputFieldStyles = cva(inputAlways, {
       true: 'w-full'
     },
     readOnly: {
-      true: 'text-gray-500 bg-gray-100 before:peer-focus:bg-gray-100',
+      // text-gray-600 (not -500) on bg-gray-100 to clear the WCAG AA 4.5:1
+      // contrast ratio for the read-only/locked fields (e.g. the email field
+      // on the profile and presentation-submission forms).
+      true: 'text-gray-600 bg-gray-100 before:peer-focus:bg-gray-100',
       false: 'border-b-4 focus:border-b-secondaryc before:peer-focus:bg-white'
     },
     placeholderVisible: {
