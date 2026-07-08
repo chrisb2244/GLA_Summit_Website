@@ -10,6 +10,7 @@ import Image_AB from '@/media/AmandaBacala.webp';
 import Image_ML from '@/media/MartinLentz.jpg';
 import Image_QA from '@/media/QuentinAlldredge.webp';
 import Image_HC from '@/media/HemantChourasia.jpg';
+import Image_SZ from '@/media/SarahZalusky.jpg';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -43,16 +44,16 @@ const OurTeam = () => {
       image: Image_CB
     },
     {
-      firstName: 'Hemant',
-      lastName: 'Chourasia',
-      description: descriptions.HemantChourasia,
-      image: Image_HC
-    },
-    {
       firstName: 'Sam',
       lastName: 'Taggart',
       description: descriptions.SamTaggart,
       image: Image_ST
+    },
+    {
+      firstName: 'Sarah',
+      lastName: 'Zalusky',
+      description: descriptions.SarahZalusky,
+      image: Image_SZ
     }
   ];
 
@@ -62,6 +63,12 @@ const OurTeam = () => {
       lastName: 'Bacala',
       description: descriptions.AmandaBacala,
       image: Image_AB
+    },
+    {
+      firstName: 'Hemant',
+      lastName: 'Chourasia',
+      description: descriptions.HemantChourasia,
+      image: Image_HC
     },
     {
       firstName: 'Fabiola',
@@ -104,12 +111,6 @@ const OurTeam = () => {
       lastName: 'Wachno',
       description: descriptions.OliverWachno,
       image: Image_OW
-    },
-    {
-      firstName: 'Sarah',
-      lastName: 'Zalusky',
-      description: '',
-      image: ''
     }
   ];
 
@@ -119,7 +120,7 @@ const OurTeam = () => {
         <h2>Current Organizers</h2>
         {elemSrcs.map((p, idx) => {
           return (
-            <div className='border p-4 mt-2 shadow-xs' key={idx}>
+            <div className='mt-2 border p-4 shadow-xs' key={idx}>
               <PersonDisplay
                 {...p}
                 stripContainer
@@ -135,7 +136,7 @@ const OurTeam = () => {
           {pastOrganizers.map((p, idx) => {
             return (
               <span
-                className='whitespace-nowrap text-lg font-semibold'
+                className='text-lg font-semibold whitespace-nowrap'
                 key={idx}
               >
                 {[p.firstName, p.lastName].join(' ')}
