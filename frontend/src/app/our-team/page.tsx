@@ -120,7 +120,7 @@ const OurTeam = () => {
         <h2>Current Organizers</h2>
         {elemSrcs.map((p, idx) => {
           return (
-            <div className='border p-4 mt-2 shadow-xs' key={idx}>
+            <div className='mt-2 border p-4 shadow-xs' key={idx}>
               <PersonDisplay
                 {...p}
                 stripContainer
@@ -136,7 +136,7 @@ const OurTeam = () => {
           {pastOrganizers.map((p, idx) => {
             return (
               <span
-                className='whitespace-nowrap text-lg font-semibold'
+                className='text-lg font-semibold whitespace-nowrap'
                 key={idx}
               >
                 {[p.firstName, p.lastName].join(' ')}
