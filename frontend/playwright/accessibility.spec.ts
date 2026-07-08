@@ -191,17 +191,6 @@ test.describe('Accessibility (WCAG A/AA): authenticated pages', () => {
     );
 
     test(
-      '/my-presentations/edit/[id] has no detectable a11y violations',
-      { tag: ['@a11y'] },
-      async ({}, testInfo) =>
-        scan(
-          `/my-presentations/edit/${presenter.presentationId}`,
-          testInfo,
-          page.getByRole('heading', { name: 'Edit Draft Presentation' })
-        )
-    );
-
-    test(
       '/ticket (→ /ticket/[ticketObject]) has no detectable a11y violations',
       { tag: ['@a11y'] },
       async ({}, testInfo) => {
@@ -236,6 +225,39 @@ test.describe('Accessibility (WCAG A/AA): authenticated pages', () => {
           await expectNoViolations(violations, testInfo);
         } finally {
           await user.cleanup();
+        }
+      }
+    );
+
+    test(
+      '/my-presentations/edit/[id] has no detectable a11y violations',
+      { tag: ['@a11y'] },
+      async ({ page, makeAxeBuilder }, testInfo) => {
+        // The edit route only renders for a DRAFT (is_submitted=false), so it
+        // can't reuse the shared read-only presenter (whose talk is
+        // accepted/submitted — navigating there would 404 and leave axe
+        // scanning the loading/not-found fallback). Seed a dedicated
+        // draft-owning presenter and log in as them for this one test.
+        const draftPresenter = await createPresenter({
+          isSubmitted: false,
+          accepted: false
+        });
+        try {
+          await page.goto('/'); // render the login button before loginOnPage looks for it
+          await loginOnPage(page, draftPresenter.email);
+          await page.goto(
+            `/my-presentations/edit/${draftPresenter.presentationId}`
+          );
+          // Gate on copy unique to the resolved page — the "Edit Draft
+          // Presentation" heading also renders in loading.tsx, so it can't
+          // tell the Suspense fallback apart from the form.
+          await expect(
+            page.getByText('Edit your draft presentation below.')
+          ).toBeVisible();
+          const { violations } = await makeAxeBuilder().analyze();
+          await expectNoViolations(violations, testInfo);
+        } finally {
+          await draftPresenter.cleanup();
         }
       }
     );
