@@ -1,5 +1,10 @@
 import type { BrowserContext, Page, TestInfo } from '@playwright/test';
-import { test, configuredAxeBuilder, expectNoViolations } from './utils/axe';
+import {
+  test,
+  expect,
+  configuredAxeBuilder,
+  expectNoViolations
+} from './utils/axe';
 import {
   createCopresenter,
   createLogViewer,
@@ -199,6 +204,13 @@ test.describe('Accessibility (WCAG A/AA): authenticated pages', () => {
           await page.goto('/'); // Need to visit a page to render the login button before loginOnPage can find and click it
           await loginOnPage(page, user.email);
           await page.goto('/logs');
+          // The logs table streams in behind a Suspense fallback ("Loading
+          // logs..."), so the `load` event can fire while the DOM still shows
+          // the fallback. Wait for the LogViewer itself (its search box) to
+          // render before scanning — otherwise axe races the stream and may
+          // scan the fallback, non-deterministically missing violations in the
+          // table/filters (e.g. the source-filter select's missing name).
+          await expect(page.getByRole('searchbox')).toBeVisible();
           const { violations } = await makeAxeBuilder().analyze();
           await expectNoViolations(violations, testInfo);
         } finally {

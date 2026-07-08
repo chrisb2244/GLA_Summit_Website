@@ -93,6 +93,7 @@ export const LogViewer: React.FC<LogViewerProps> = ({
           ))}
         </div>
         <select
+          aria-label='Filter logs by source'
           value={sourceFilter}
           onChange={(e) => setSourceFilter(e.target.value)}
           className='rounded border border-gray-200 px-2 py-1 text-sm'
