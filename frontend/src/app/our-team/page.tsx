@@ -44,12 +44,6 @@ const OurTeam = () => {
       image: Image_CB
     },
     {
-      firstName: 'Hemant',
-      lastName: 'Chourasia',
-      description: descriptions.HemantChourasia,
-      image: Image_HC
-    },
-    {
       firstName: 'Sam',
       lastName: 'Taggart',
       description: descriptions.SamTaggart,
@@ -69,6 +63,12 @@ const OurTeam = () => {
       lastName: 'Bacala',
       description: descriptions.AmandaBacala,
       image: Image_AB
+    },
+    {
+      firstName: 'Hemant',
+      lastName: 'Chourasia',
+      description: descriptions.HemantChourasia,
+      image: Image_HC
     },
     {
       firstName: 'Fabiola',
