@@ -18,10 +18,8 @@ export const getPeople_Authed = async (
   if (error) {
     await logToDb('error', 'Failed to fetch people profiles', 'db/authorized', {
       userId: await client.auth
-        .getSession()
-        .then(({ data, error }) =>
-          error ? undefined : data.session?.user.id ?? undefined
-        ),
+        .getUser()
+        .then(({ data, error }) => (error ? undefined : data.user?.id)),
       context: { message: error.message, code: error.code }
     });
     throw error;

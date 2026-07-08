@@ -13,8 +13,12 @@ type ProfileImageProps = {
 };
 
 export const ProfileImage = (props: ProfileImageProps) => {
-  const { userId, avatarUrl } = props;
+  const { userId, avatarUrl: initialAvatarUrl } = props;
   const [uploading, setUploading] = useState(false);
+  // Tracks the currently-stored avatar path so a second upload in the same
+  // session deletes the avatar that upload actually replaces, not the value
+  // from the initial server render (which never updates on its own).
+  const [avatarUrl, setAvatarUrl] = useState(initialAvatarUrl);
 
   const { src: profileImageSrc, mutate } = useProfileImage(userId) || {};
 
@@ -22,10 +26,13 @@ export const ProfileImage = (props: ProfileImageProps) => {
     const extn = file.name.split('.').pop();
     const remoteName = `${userId}_${Math.random()}.${extn}`;
     setUploading(true);
-    uploadAvatar(remoteName, file, userId, avatarUrl).finally(() => {
+    try {
+      await uploadAvatar(remoteName, file, userId, avatarUrl);
+      setAvatarUrl(remoteName);
+    } finally {
       setUploading(false);
       mutate?.();
-    });
+    }
   };
 
   // 900px is md size

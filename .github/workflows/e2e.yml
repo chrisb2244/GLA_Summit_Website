@@ -39,16 +39,31 @@ jobs:
       NEXT_PUBLIC_SUPABASE_URL: ${{ vars.TEST_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.TEST_SUPABASE_ANON_KEY }}
       SECRET_SUPABASE_SERVICE_KEY: ${{ secrets.TEST_SUPABASE_SERVICE_KEY }}
+
       # Server-side secrets the exercised flows need.
       TICKET_KEY: ${{ secrets.CI_TICKET_KEY }}
       COPRESENTER_INVITE_KEY: ${{ secrets.CI_COPRESENTER_INVITE_KEY }}
+
       # Mock email: the app sends through nodemailer → the Mailpit service below
       # instead of Mailgun, and the specs read it back over Mailpit's HTTP API.
       USE_MOCK_EMAIL: 'true'
       MAILPIT_SMTP_URL: 'http://localhost:54325'
       MAILPIT_API_URL: 'http://localhost:54324'
+
+      # Shared secret for the submission-outcome webhook. Consumed by BOTH the app
+      # (authenticating POST /api/submission-outcome) and the outcome-email spec
+      # (which posts the webhook and otherwise skips). Must equal the TEST project
+      # DB's Vault `submission_outcome_token`.
+      SECRET_SUBMISSION_OUTCOME_TOKEN: ${{ secrets.CI_SUBMISSION_OUTCOME_TOKEN }}
+
       # Used only as the From address on mock-sent mail (any value is fine here).
       EMAIL_FROM_MG: ${{ vars.EMAIL_FROM_MG }}
+
+      # Concluder-test user
+      TEST_CONCLUDER_EMAIL: ${{ secrets.TEST_CONCLUDER_EMAIL }}
+      TEST_CONCLUDER_FIRST_NAME: ${{ vars.TEST_CONCLUDER_FIRST_NAME }}
+      TEST_CONCLUDER_LAST_NAME: ${{ vars.TEST_CONCLUDER_LAST_NAME }}
+      TEST_CONCLUDER_USER_ID: ${{ secrets.TEST_CONCLUDER_USER_ID }}
     # Mailpit catches every email the app sends during the run. Host 54324 maps to
     # its HTTP API (read) and 54325 to its SMTP listener (send), matching the
     # MAILPIT_API_URL / MAILPIT_SMTP_URL values above.

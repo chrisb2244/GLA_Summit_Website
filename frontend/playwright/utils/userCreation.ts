@@ -21,6 +21,7 @@ export type TestRole =
   | 'presenter'
   | 'copresenter'
   | 'organizer'
+  | 'concluder'
   | 'log_viewer';
 
 export type SeededUser = {
@@ -53,6 +54,7 @@ type BaseUserOptions = {
 //
 // Manual deletes are required for:
 //  - log_viewers.user_id  → auth.users(id)   (no cascade)
+//  - submission_concluders.user_id → auth.users(id) (no cascade)
 //  - presentation_submissions.submitter_id → profiles(id) (no cascade; also
 //    cascades presenters + accepted rows for the user's own submissions)
 //  - presentation_presenters.presenter_id → profiles(id) (no cascade; covers
@@ -60,6 +62,7 @@ type BaseUserOptions = {
 const cleanupUser = async (userId: string) => {
   const admin = createSupabaseAdmin();
   await admin.from('log_viewers').delete().eq('user_id', userId);
+  await admin.from('submission_concluders').delete().eq('user_id', userId);
   await admin
     .from('presentation_presenters')
     .delete()
@@ -188,6 +191,55 @@ export const createOrganizer = async (
     throw new Error(`Failed to make organizer: ${error.message}`);
   }
   return { role: 'organizer', ...base };
+};
+
+// The concluder allow-list (submission_concluders) is administered ONLY
+// out-of-band by the DB owner: the add_submission_concluders migration revokes
+// every write privilege from the application roles -- including service_role,
+// whose BYPASSRLS does NOT help because the block is a missing table GRANT, not
+// an RLS policy. So tests CANNOT mint a concluder at runtime; instead they reuse
+// the concluder that supabase/seeds/seed.sql already installs (an account that is
+// also an organizer, so it clears both the review-page organizer gate and the
+// force-button concluder gate).
+//
+// This account is shared and long-lived, so cleanup() is a no-op: it must survive
+// across tests, and the forced-conclusion audit data it produces is keyed to the
+// presenter's submission (forced_conclusions.presentation_id ON DELETE CASCADE,
+// forced_by ON DELETE SET NULL), so it is torn down by the presenter handle.
+const SEEDED_CONCLUDER = {
+  userId: process.env.TEST_CONCLUDER_USER_ID,
+  email: process.env.TEST_CONCLUDER_EMAIL,
+  firstName: 'Christian',
+  lastName: 'Butcher'
+} as const;
+
+export const getSeededConcluder = (): SeededUser => {
+  const userId = process.env.TEST_CONCLUDER_USER_ID;
+  const email = process.env.TEST_CONCLUDER_EMAIL;
+  const firstName = process.env.TEST_CONCLUDER_FIRST_NAME;
+  const lastName = process.env.TEST_CONCLUDER_LAST_NAME;
+
+  if (!userId) {
+    throw new Error('TEST_CONCLUDER_USER_ID is not set');
+  }
+  if (!email) {
+    throw new Error('TEST_CONCLUDER_EMAIL is not set');
+  }
+  if (!firstName) {
+    throw new Error('TEST_CONCLUDER_FIRST_NAME is not set');
+  }
+  if (!lastName) {
+    throw new Error('TEST_CONCLUDER_LAST_NAME is not set');
+  }
+
+  return {
+    role: 'concluder',
+    userId,
+    email,
+    firstName,
+    lastName,
+    cleanup: async () => {}
+  };
 };
 
 export const createLogViewer = async (

@@ -221,10 +221,14 @@ export const uploadAvatar = async (
     throw profileUpdateError;
   }
 
-  // Generate a smaller webp version of the image for the user icon.
-  await requestAvatarIconGeneration(userId, remoteFilePath);
+  // Generate a smaller webp version of the image for the user icon. The old
+  // icon (if any) is owned by no one -- it was written by the admin client,
+  // not this user's session -- so it can only be cleaned up from the same
+  // admin-authorized path that creates it, not via deleteAvatar() below.
+  await requestAvatarIconGeneration(userId, remoteFilePath, originalProfileURL);
 
-  // Delete the old avatar
+  // Delete the old full-size avatar. This one *was* uploaded by this user's
+  // own session, so it's covered by the owner-scoped storage policies.
   if (originalProfileURL != null) {
     await deleteAvatar(originalProfileURL);
   }
@@ -233,14 +237,15 @@ export const uploadAvatar = async (
 
 const requestAvatarIconGeneration = (
   userId: string,
-  remoteFilePath: string
+  remoteFilePath: string,
+  originalProfileURL?: string | null
 ) => {
   return fetch('/api/handleAvatarUpdate', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ userId, remoteFilePath })
+    body: JSON.stringify({ userId, remoteFilePath, originalProfileURL })
   });
 };
 

@@ -219,7 +219,7 @@ test.describe('Accessibility (WCAG A/AA): authenticated pages', () => {
           await loginOnPage(page, user.email);
           await page.goto('/review-submissions');
           await expect(
-            page.getByText(/list of \d+ presentations/)
+            page.getByText(/\d+ submitted presentations/)
           ).toBeVisible();
           const { violations } = await makeAxeBuilder().analyze();
           await expectNoViolations(violations, testInfo);

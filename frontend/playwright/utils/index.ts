@@ -18,6 +18,7 @@ export {
   createCopresenter,
   createLogViewer,
   createOrganizer,
-  createPresenter
+  createPresenter,
+  getSeededConcluder
 } from './userCreation';
 export type { SeededUser, TestRole } from './userCreation';

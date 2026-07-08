@@ -9,7 +9,7 @@
 -- be used in transaction blocks"). The rollback also discards the seeded row.
 
 BEGIN;
-SELECT plan(15);
+SELECT plan(14);
 
 -- A real account email/id to drive the auth.email() / email_lookup paths.
 SELECT id AS acct_id, email AS acct_email
@@ -142,17 +142,9 @@ SELECT is(
   'anon has no USAGE on ticket_sequence_2026'
 );
 
--- ---------------------------------------------------------------------------
--- check_confirmer_is_submitter pins search_path
--- ---------------------------------------------------------------------------
-SELECT ok(
-  EXISTS (
-    SELECT 1 FROM pg_proc
-    WHERE oid = 'public.check_confirmer_is_submitter'::regproc
-      AND array_to_string(proconfig, ',') LIKE '%search_path=%'
-  ),
-  'check_confirmer_is_submitter sets search_path'
-);
+-- (The 3b check_confirmer_is_submitter search_path assertion was removed: the
+-- security-advisor hygiene migration dropped that function in favour of an
+-- RLS WITH CHECK on confirmed_presentations.)
 
 SELECT * FROM finish();
 ROLLBACK;

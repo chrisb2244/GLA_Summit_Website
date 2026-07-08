@@ -14,6 +14,7 @@ type ResponseType =
 type RequestBody = {
   userId?: unknown;
   remoteFilePath?: unknown;
+  originalProfileURL?: unknown;
 };
 
 const jsonError = (error: string, status: number) => {
@@ -21,11 +22,14 @@ const jsonError = (error: string, status: number) => {
 };
 
 const parseBody = (body: RequestBody) => {
-  const { userId, remoteFilePath } = body;
+  const { userId, remoteFilePath, originalProfileURL } = body;
   if (typeof userId !== 'string' || typeof remoteFilePath !== 'string') {
     return null;
   }
-  return { userId, remoteFilePath };
+  if (originalProfileURL != null && typeof originalProfileURL !== 'string') {
+    return null;
+  }
+  return { userId, remoteFilePath, originalProfileURL: originalProfileURL ?? null };
 };
 
 export async function POST(req: Request): Promise<NextResponse<ResponseType>> {
@@ -41,13 +45,13 @@ export async function POST(req: Request): Promise<NextResponse<ResponseType>> {
   }
 
   const cookieUserId = data.user.id;
-  const { userId, remoteFilePath } = parsedBody;
+  const { userId, remoteFilePath, originalProfileURL } = parsedBody;
   if (cookieUserId !== userId) {
     return jsonError('unauthorized', 401);
   }
 
   try {
-    const iconPath = await generateAvatarIcon(remoteFilePath);
+    const iconPath = await generateAvatarIcon(remoteFilePath, originalProfileURL);
     if (iconPath == null) {
       return jsonError('Could not generate the icon image', 500);
     }

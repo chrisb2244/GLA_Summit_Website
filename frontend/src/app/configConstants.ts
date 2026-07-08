@@ -1,18 +1,26 @@
 import type { SummitYear } from '@/lib/databaseModels';
 
 export const CAN_SUBMIT_PRESENTATION: boolean = true;
+
 // When true, the submission form shows a "save as draft" checkbox.
 // Setting this independently of CAN_SUBMIT_PRESENTATION lets you allow
 // draft-saving while keeping final submissions closed (or vice-versa).
 export const CAN_SUBMIT_DRAFT: boolean = true;
+
 // Co-presenter accept/decline invite workflow. OFF = implicit acceptance (co-presenters
 // added directly, no invite emails, no accept/decline route). The route + server actions
 // are shipped but hard-gated; COPRESENTER_INVITE_KEY is intentionally left UNDEFINED while
 // off (the verify path then fails closed). To enable: set a strong COPRESENTER_INVITE_KEY
 // (openssl rand -hex 32), then flip this to true.
 export const COPRESENTER_INVITE_WORKFLOW: boolean = false;
+
 // Set to true once banner images for the current year are ready to publish.
 export const MEDIA_BANNERS_AVAILABLE: boolean = true;
+
+// Organizer voting on submitted presentations (/review-submissions). When false,
+// the vote record stays visible (read-only) but the for/abstain/against buttons
+// are hidden, so no new votes can be cast.
+export const ORGANIZER_VOTING: boolean = true;
 
 // Controls for which year the presentation-list defaults,
 // and for which year the agenda is displayed.
@@ -40,12 +48,12 @@ export const startDate = new Date(Date.UTC(2026, 7, 31, 12, 0, 0));
 // Historic summit start dates (all events run 24 hours from 12:00 UTC).
 // Sources: https://labviewwiki.org/wiki/GLA_Summit and year subpages.
 export const summitStartDates: Record<SummitYear, Date> = {
-  '2020': new Date(Date.UTC(2020, 10, 9, 12, 0, 0)),  // 9 Nov 2020
+  '2020': new Date(Date.UTC(2020, 10, 9, 12, 0, 0)), // 9 Nov 2020
   '2021': new Date(Date.UTC(2021, 10, 15, 12, 0, 0)), // 15 Nov 2021
   '2022': new Date(Date.UTC(2022, 10, 14, 12, 0, 0)), // 14 Nov 2022
-  '2024': new Date(Date.UTC(2024, 2, 25, 12, 0, 0)),  // 25 Mar 2024
-  '2025': new Date(Date.UTC(2025, 5, 23, 12, 0, 0)),  // 23 Jun 2025
-  '2026': new Date(Date.UTC(2026, 7, 31, 12, 0, 0)),  // 31 Aug 2026
+  '2024': new Date(Date.UTC(2024, 2, 25, 12, 0, 0)), // 25 Mar 2024
+  '2025': new Date(Date.UTC(2025, 5, 23, 12, 0, 0)), // 23 Jun 2025
+  '2026': new Date(Date.UTC(2026, 7, 31, 12, 0, 0)) // 31 Aug 2026
 };
 export const eventUrl =
   'https://app.events.ringcentral.com/events/gla-summit-2026/';
