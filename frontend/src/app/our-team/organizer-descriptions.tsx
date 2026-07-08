@@ -235,5 +235,32 @@ export const descriptions = {
         to sharing knowledge and supporting the growth of the community.
       </p>
     </>
+  ),
+
+  SarahZalusky: (
+    <>
+      <p>
+        Sarah is a Software Architect and Engineering Team Leader with over 15
+        years of experience building production control and automation systems
+        for regulated industries, including semiconductor manufacturing,
+        aerospace, and energy.
+      </p>
+      <p>
+        She holds a B.A. in Physics from UC Berkeley. Her career started
+        developing R&D detector systems at Lawrence Berkeley National Lab and
+        CERN, before moving into industrial automation, where she&apos;s spent
+        the last decade developing software for critical systems in 24/7
+        manufacturing and test environments.
+      </p>
+      <p>
+        As a Partner and Staff Engineer at JKI, Sarah leads some of the
+        company&apos;s most complex long-term accounts and currently product
+        manages JKI&apos;s Security Tools for LabVIEW.
+      </p>
+      <p>
+        She is a longtime member of the LabVIEW community, and was heavily
+        involved in the original founding of the GLA Summit in 2020.
+      </p>
+    </>
   )
 };

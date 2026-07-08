@@ -10,6 +10,7 @@ import Image_AB from '@/media/AmandaBacala.webp';
 import Image_ML from '@/media/MartinLentz.jpg';
 import Image_QA from '@/media/QuentinAlldredge.webp';
 import Image_HC from '@/media/HemantChourasia.jpg';
+import Image_SZ from '@/media/SarahZalusky.jpg';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -47,6 +48,12 @@ const OurTeam = () => {
       lastName: 'Taggart',
       description: descriptions.SamTaggart,
       image: Image_ST
+    },
+    {
+      firstName: 'Sarah',
+      lastName: 'Zalusky',
+      description: descriptions.SarahZalusky,
+      image: Image_SZ
     }
   ];
 
@@ -104,12 +111,6 @@ const OurTeam = () => {
       lastName: 'Wachno',
       description: descriptions.OliverWachno,
       image: Image_OW
-    },
-    {
-      firstName: 'Sarah',
-      lastName: 'Zalusky',
-      description: '',
-      image: ''
     }
   ];
 
