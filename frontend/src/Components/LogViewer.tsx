@@ -14,7 +14,7 @@ type LogViewerProps = {
 const SEVERITY_COLOURS = {
   severe: 'text-red-600 font-semibold',
   error: 'text-black',
-  info: 'text-gray-400'
+  info: 'text-gray-600'
 } as const;
 
 type SeverityFilter = 'all' | 'info' | 'error' | 'severe';
@@ -93,6 +93,7 @@ export const LogViewer: React.FC<LogViewerProps> = ({
           ))}
         </div>
         <select
+          aria-label='Filter logs by source'
           value={sourceFilter}
           onChange={(e) => setSourceFilter(e.target.value)}
           className='rounded border border-gray-200 px-2 py-1 text-sm'
@@ -109,7 +110,7 @@ export const LogViewer: React.FC<LogViewerProps> = ({
           onChange={(e) => setTextSearch(e.target.value)}
           className='rounded border border-gray-200 px-2 py-1 text-sm w-48'
         />
-        <span className='ml-auto text-xs text-gray-400'>{filtered.length} entries</span>
+        <span className='ml-auto text-xs text-gray-600'>{filtered.length} entries</span>
       </div>
       <table className='w-full table-fixed text-sm'>
         <colgroup>
@@ -144,14 +145,14 @@ export const LogViewer: React.FC<LogViewerProps> = ({
                   <td className='p-2 break-words'>
                     <span>{e.message}</span>
                     {hasContext && (
-                      <span className='ml-1 text-xs text-gray-400'>
+                      <span className='ml-1 text-xs text-gray-600'>
                         {isExpanded ? '▲' : '▼'}
                       </span>
                     )}
                   </td>
                   <td className='p-2 font-mono text-xs text-gray-500 break-all'>{e.source ?? '—'}</td>
                   <td className='p-2 text-xs text-gray-500'>{resolveUser(e.user_id)}</td>
-                  <td className='p-2 text-xs text-gray-400'>
+                  <td className='p-2 text-xs text-gray-600'>
                     <TimestampSpan
                       utcValue={e.created_at}
                       dateFormat={{ year: 'numeric', month: '2-digit', day: '2-digit' }}

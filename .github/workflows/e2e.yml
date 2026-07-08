@@ -4,9 +4,10 @@ name: E2E (test DB)
 # preview/prod URLs (those point at the production DB), so CI builds and serves
 # the app itself with TEST-project env and runs Playwright against localhost.
 #
-# Tag depth by PR target branch:
-#   → staging : @synthetic | @smoke | @regression
-#   → master  : full suite (promotion gate)
+# Email is mocked through a Mailpit service container (no external quota), so the
+# full suite — including every email-bearing spec — runs on PRs to BOTH staging
+# and master. The previous staging-only tag subset existed to cap testmail.app
+# usage and is no longer needed.
 #
 # Make the `e2e` job a required check on `staging` and `master`.
 
@@ -41,12 +42,26 @@ jobs:
       # Server-side secrets the exercised flows need.
       TICKET_KEY: ${{ secrets.CI_TICKET_KEY }}
       COPRESENTER_INVITE_KEY: ${{ secrets.CI_COPRESENTER_INVITE_KEY }}
-      # Real Mailgun so app-sent emails (submission/invite) reach testmail.app.
-      MAILGUN_SENDING_KEY: ${{ secrets.MAILGUN_SENDING_KEY }}
+      # Mock email: the app sends through nodemailer → the Mailpit service below
+      # instead of Mailgun, and the specs read it back over Mailpit's HTTP API.
+      USE_MOCK_EMAIL: 'true'
+      MAILPIT_SMTP_URL: 'http://localhost:54325'
+      MAILPIT_API_URL: 'http://localhost:54324'
+      # Used only as the From address on mock-sent mail (any value is fine here).
       EMAIL_FROM_MG: ${{ vars.EMAIL_FROM_MG }}
-      # Route test email lookups to testmail.app instead of the local inbox.
-      TESTMAIL_NAMESPACE: ${{ vars.TESTMAIL_NAMESPACE }}
-      TESTMAIL_API_KEY: ${{ secrets.TESTMAIL_API_KEY }}
+    # Mailpit catches every email the app sends during the run. Host 54324 maps to
+    # its HTTP API (read) and 54325 to its SMTP listener (send), matching the
+    # MAILPIT_API_URL / MAILPIT_SMTP_URL values above.
+    services:
+      mailpit:
+        # Pinned to an immutable digest (not a mutable tag) so a re-pushed tag or
+        # upstream account compromise can't silently change what runs in CI. The
+        # human-readable tag is informational; Docker resolves by digest. Bump via
+        # the Renovate/Dependabot config (see .github/) so patches arrive as PRs.
+        image: axllent/mailpit:v1.30.2@sha256:37a38e48e9338cd7e89dfeb487f37b02ebfcd9cb23111bed2d345e79d37d6dd6
+        ports:
+          - 54324:8025
+          - 54325:1025
     steps:
       - uses: actions/checkout@v6
 
@@ -78,6 +93,16 @@ jobs:
       - name: Install Playwright Firefox
         run: npx playwright install --with-deps firefox
 
+      - name: Wait for Mailpit
+        run: |
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:54324/api/v1/info >/dev/null 2>&1; then
+              echo "mailpit ready"; exit 0
+            fi
+            sleep 1
+          done
+          echo "::error::mailpit did not become ready"; exit 1
+
       - name: Start app and wait for ready
         run: |
           # playwright.config.ts hard-requires .env.test to exist; an empty file
@@ -93,16 +118,16 @@ jobs:
           done
           echo "::error::app did not become ready"; cat /tmp/app.log; exit 1
 
-      - name: Run Playwright (tier by target branch)
+      - name: Run Playwright (full suite)
+        # Email now runs against the local Mailpit service (no external quota), so
+        # the old staging grep — which existed to cap testmail.app usage — is gone:
+        # staging and master both run the full suite. The only remaining difference
+        # would be runner time, and these checks don't gate deployment. Re-add a
+        # `--grep` here if staging wall-time ever becomes a problem.
         # line → CI log; html → uploaded artifact (does not open a browser on CI).
         run: |
-          if [ "${{ github.base_ref }}" = "master" ]; then
-            echo "Master promotion gate → full suite"
-            npx playwright test --project firefox --reporter=line,html
-          else
-            echo "Staging gate → @synthetic|@smoke|@regression"
-            npx playwright test --project firefox --reporter=line,html --grep "@synthetic|@smoke|@regression"
-          fi
+          echo "Target ${{ github.base_ref }} → full suite"
+          npx playwright test --project firefox --reporter=line,html
 
       - name: Upload Playwright report
         if: ${{ failure() }}

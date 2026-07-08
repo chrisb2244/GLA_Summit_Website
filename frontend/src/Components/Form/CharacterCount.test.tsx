@@ -32,7 +32,7 @@ describe('CharacterCount', () => {
       <CharacterCount current={200} max={5000} min={100} />
     );
     const span = container.querySelector('span');
-    expect(span?.className).toContain('text-gray-500');
+    expect(span?.className).toContain('text-gray-600');
   });
 
   it('does not show orange when current is 0 (field untouched)', () => {

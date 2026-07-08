@@ -11,7 +11,7 @@ export const CharacterCount = ({ current, max, min }: CharacterCountProps) => {
     ? 'text-red-600'
     : underMin
     ? 'text-orange-600'
-    : 'text-gray-500';
+    : 'text-gray-600';
 
   const countLabel =
     typeof max !== 'undefined' ? `${current} / ${max}` : `${current}`;
