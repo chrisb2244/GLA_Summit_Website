@@ -15,7 +15,7 @@ export const WaitingIndicator: React.FC<WaitingIndicatorProps> = ({
   const length = Math.min(scale * width, maxLength);
 
   return (
-    <div className='relative z-[100]'>
+    <div className='relative z-100'>
       <div className='fixed inset-0 flex items-center justify-center p-4'>
         <NextImage
           src={GLA_Logo}

@@ -1,5 +1,5 @@
 import { StackedBoxes } from '@/Components/Layout/StackedBoxes';
-import NextLink from 'next/link';
+import Link from 'next/link';
 import { Button } from '@/Components/Form/Button';
 
 const Open_Source_Page = () => {
@@ -36,7 +36,7 @@ const Open_Source_Page = () => {
   return (
     <StackedBoxes>
       <h3 className='text-center'>How to make Open-Source more worthwhile?</h3>
-      <div className='prose mx-auto max-w-screen-lg'>
+      <div className='prose mx-auto max-w-(--breakpoint-lg)'>
         <p>
           One of the things that keeps the software community alive is the
           sharing and reuse of code. However, the LabVIEW community has
@@ -47,13 +47,13 @@ const Open_Source_Page = () => {
         <p>
           The benefits of open source have been widely promoted within the
           LabVIEW community - including in presentations at this summit such as{' '}
-          <NextLink href='/presentations/85079b3c-e4f3-4ebe-b676-c9af4d97ff3b'>
+          <Link href='/presentations/85079b3c-e4f3-4ebe-b676-c9af4d97ff3b'>
             G Idea Exchange: Empowering Your Open-Source LabVIEW Ideas
-          </NextLink>{' '}
+          </Link>{' '}
           and{' '}
-          <NextLink href='/presentations/4dfe14f6-6c89-427d-a259-63f976392a75'>
+          <Link href='/presentations/4dfe14f6-6c89-427d-a259-63f976392a75'>
             A real-life example of contribution to a LabVIEW open-source project
-          </NextLink>
+          </Link>
           .
         </p>
         <p>For this panel, we therefore want to discuss a different aspect:</p>

@@ -1,22 +1,131 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --breakpoint-*: initial;
+  --breakpoint-xs: 0px;
+  --breakpoint-sm: 600px;
+  --breakpoint-md: 900px;
+  --breakpoint-lg: 1200px;
+  --breakpoint-xl: 1536px;
+
+  --shadow:
+    0px 5px 5px -3px rgba(0, 0, 0, 0.1), 0px 8px 10px 1px rgba(0, 0, 0, 0.07),
+    0px 3px 14px 2px rgba(0, 0, 0, 0.06);
+
+  --color-primaryc: #5837b9;
+  --color-secondaryc: #a25bcd;
+  --color-primaryc-light: #795fc7;
+  --color-foreground: #3e4342;
+
+  --text-h1s: 6.8552rem;
+  --text-h1s--line-height: 1.167;
+  --text-h4s: 2.4291rem;
+  --text-h4s--line-height: 1.235;
+
+  --animate-wiggle: wiggle 200ms ease-in-out;
+  --animate-clickbounce: clickbounce 200ms ease-in-out;
+
+  @keyframes wiggle {
+    0%,
+    100% {
+      transform: rotate(-3deg);
+    }
+    50% {
+      transform: rotate(3deg);
+    }
+  }
+  @keyframes clickbounce {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.02);
+    }
+  }
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+/*
+  Tailwind v4's Preflight dropped v3's `button, [role=button] { cursor: pointer }`
+  rule, so buttons fell back to the native arrow cursor. Restore an interactive
+  cursor — the convention every mainstream design system follows for signalling
+  that a control is clickable. Disabled controls instead get `not-allowed`
+  (a deliberate improvement over v3, which showed the pointer even when
+  disabled). `:disabled` covers native <button>; `[role=button]` controls
+  (e.g. our <label role='button'> file buttons) use aria-disabled.
+*/
+@layer base {
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']) {
+    cursor: pointer;
+  }
+  button:disabled,
+  [role='button'][aria-disabled='true'] {
+    cursor: not-allowed;
+  }
+}
+
+@utility link {
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  cursor: pointer;
+  color: var(--color-primaryc);
+  &:hover {
+    text-decoration-thickness: 2px;
+    color: var(--color-secondaryc);
+  }
+}
+
+/* Link variant for placement on the dark (primaryc) brand background, e.g.
+   the footer, where the standard purple `link` colour would be illegible. */
+@utility link-on-dark {
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  cursor: pointer;
+  color: var(--color-white);
+  &:hover {
+    text-decoration-thickness: 2px;
+  }
+}
+
+/* Make links inside prose (user/markdown content) match the `link` utility
+   instead of the typography plugin's default neutral colour, so content links
+   are visually consistent with the rest of the site.
+
+   These rules are intentionally declared OUTSIDE @layer: the typography plugin
+   emits its `.prose` variables and `a` rules into the `utilities` layer, which
+   wins over anything in `base`. Unlayered declarations beat every layer, so
+   this is what actually makes the override take effect. */
+.prose {
+  --tw-prose-links: var(--color-primaryc);
+}
+.prose a:hover {
+  color: var(--color-secondaryc);
+  text-decoration-thickness: 2px;
+}
 
 @layer base {
   [data-nextjs-scroll-focus-boundary] {
     display: contents;
-  }
-}
-
-@layer components {
-  .link {
-    text-decoration-line: underline;
-    text-decoration-thickness: 1px;
-    cursor: pointer;
-    color: rgb(88 55 185);
-  }
-  .link:hover {
-    text-decoration-thickness: 2px;
-    color: rgb(162 91 205);
   }
 }

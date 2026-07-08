@@ -8,7 +8,7 @@ export const SignInUpButton = () => {
 
   return (
     <button
-      className='flex h-full px-2 hover:bg-secondaryc'
+      className='flex h-full items-center justify-center px-2 hover:bg-secondaryc'
       onClick={() => {
         router.push(`/auth/login${appendedRedirect}`, { scroll: false });
       }}

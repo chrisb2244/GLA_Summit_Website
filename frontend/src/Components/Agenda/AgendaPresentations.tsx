@@ -71,7 +71,7 @@ export const AgendaPresentations = (props: AgendaPresentationProps) => {
     return (
       <a href={p.link} key={p.id}>
         <div
-          className={`absolute flex items-center justify-center overflow-clip bg-secondaryc bg-clip-content p-[1px] text-center text-white ${favouriteTag}`}
+          className={`absolute flex items-center justify-center overflow-clip bg-secondaryc bg-clip-content p-px text-center text-white ${favouriteTag}`}
           style={p.style}
         >
           <span className='z-10 m-auto px-[1.5ch]'>{p.title}</span>

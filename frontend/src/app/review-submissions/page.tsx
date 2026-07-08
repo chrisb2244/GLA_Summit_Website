@@ -103,7 +103,7 @@ export const ReviewSubmissionsPageContent = async () => {
     });
 
   return (
-    <div className='mx-auto mt-4 w-full max-w-screen-lg'>
+    <div className='mx-auto mt-4 w-full max-w-(--breakpoint-lg)'>
       <p className='prose mx-auto text-center'>
         {`Here's a list of ${submittedPresentations.length} presentations!!!`}
       </p>

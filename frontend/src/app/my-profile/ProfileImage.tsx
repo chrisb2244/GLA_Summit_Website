@@ -56,7 +56,7 @@ export const ProfileImage = (props: ProfileImageProps) => {
 
   return (
     <>
-      <div className='relative flex-grow'>{avatar}</div>
+      <div className='relative grow'>{avatar}</div>
       <div className='mx-4 mt-2 flex'>
         <FileButton
           className='mx-4 mt-2'

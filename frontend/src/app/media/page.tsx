@@ -79,7 +79,7 @@ const MediaPage = () => {
                 sizes='(max-width: 600px) 100vw, 50vw'
               />
             </a>
-            <p className='prose mx-2 w-full max-w-none flex-grow'>
+            <p className='prose mx-2 w-full max-w-none grow'>
               The GLA Summit Organizers would like to thank JKI for providing us
               with the images and banners available below, along with other
               graphics support.

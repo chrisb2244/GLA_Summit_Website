@@ -115,11 +115,11 @@ const OurTeam = () => {
 
   return (
     <div className='prose flex max-w-none flex-col'>
-      <div className='flex max-w-none flex-col space-y-2'>
+      <div>
         <h2>Current Organizers</h2>
         {elemSrcs.map((p, idx) => {
           return (
-            <div className='border p-4 shadow-sm' key={idx}>
+            <div className='border p-4 mt-2 shadow-xs' key={idx}>
               <PersonDisplay
                 {...p}
                 stripContainer

@@ -1,0 +1,9 @@
+{
+  "name": "visual-compare-scripts",
+  "private": true,
+  "description": "Diff/crop dependencies for the visual-compare skill",
+  "dependencies": {
+    "pixelmatch": "^5.3.0",
+    "pngjs": "^7.0.0"
+  }
+}

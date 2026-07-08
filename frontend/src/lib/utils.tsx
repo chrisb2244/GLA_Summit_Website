@@ -207,13 +207,20 @@ export const sortPresentationsByPresenterName = (
 };
 
 export const formatTextToPs = (text: string, extraClassNames?: string) => {
-  return text.split(/\r?\n/).map((para, idx) => {
-    return (
-      <p key={`p${idx}`} className={extraClassNames}>
-        {para}
-      </p>
-    );
-  });
+  // Blank lines are dropped rather than rendered as empty <p>s: under
+  // line-clamp (display: -webkit-box) margins don't collapse, so empty
+  // paragraphs would stack extra gaps. Paragraph rhythm is controlled solely
+  // by the p margins of the surrounding prose scope.
+  return text
+    .split(/\r?\n/)
+    .filter((para) => para.trim() !== '')
+    .map((para, idx) => {
+      return (
+        <p key={`p${idx}`} className={extraClassNames}>
+          {para}
+        </p>
+      );
+    });
 };
 
 export const dateToDateArray = (d: Date): DateArray => {

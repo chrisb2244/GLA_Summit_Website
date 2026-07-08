@@ -205,15 +205,19 @@ export const createLogViewer = async (
   return { role: 'log_viewer', ...base };
 };
 
-// Create a user who is the sole presenter of one accepted presentation for the
-// given year (defaults to the current ticketYear so /ticket renders the
-// presenter view). To pin the rendered ticket number for screenshot
+// Create a user who is the sole presenter of one presentation for the given
+// year (defaults to the current ticketYear so /ticket renders the presenter
+// view). By default the presentation is submitted and accepted; pass
+// `isSubmitted: false` to seed a draft instead (e.g. to exercise the
+// /my-presentations/edit/[id] route, which only renders drafts), typically
+// alongside `accepted: false`. To pin the rendered ticket number for screenshot
 // determinism, call seedTicket(handle.userId, ...) from the test.
 export const createPresenter = async (
   options?: BaseUserOptions & {
     year?: SummitYearEnum;
     title?: string;
     accepted?: boolean;
+    isSubmitted?: boolean;
   }
 ): Promise<SeededUser> => {
   const base = await createBaseUser('presenter', options);
@@ -225,7 +229,8 @@ export const createPresenter = async (
       presenterIds: [base.userId],
       title,
       year,
-      accepted: options?.accepted ?? true
+      accepted: options?.accepted ?? true,
+      isSubmitted: options?.isSubmitted ?? true
     });
     return {
       role: 'presenter',

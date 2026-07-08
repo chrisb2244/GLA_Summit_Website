@@ -53,7 +53,8 @@ export const RegistrationForm = (props: { redirectTo?: string }) => {
 
   return (
     <div className='mx-auto flex max-w-lg flex-col py-4'>
-      <div className='prose prose-sm flex w-full flex-col items-center space-y-2 px-2 pb-4 text-center'>
+      {/* [&>p]:mt-0 prevents excessive space caused by the prose-sm p margin (16px) */}
+      <div className='prose prose-sm flex w-full flex-col items-center px-2 pb-4 text-center [&>p]:mt-0'>
         <div className='flex flex-col pb-4'>
           <span>Already registered? </span>
           {/* Must use 'replace' here to allow use of router.back() in the dialog form */}
@@ -70,7 +71,7 @@ export const RegistrationForm = (props: { redirectTo?: string }) => {
           a verification token - enter this token on the next page to complete
           your registration.
         </p>
-        {/* <div className='my-2 rounded bg-red-600 py-2 text-white'>
+        {/* <div className='my-2 rounded-sm bg-red-600 py-2 text-white'>
           <span>
             In order to attend the conference, the required registration can be
             found at{' '}

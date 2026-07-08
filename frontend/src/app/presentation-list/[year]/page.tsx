@@ -3,6 +3,7 @@ import {
   PresentationSummary,
   Presenter
 } from '@/Components/PresentationSummary';
+import { SectionHeading } from '@/Components/Typography';
 import { createAnonServerClient } from '@/lib/supabaseClient';
 import {
   sortPresentationsByPresenterName,
@@ -103,7 +104,7 @@ const PresentationsForYearPageContent = async ({
   if (presentations.length === 0) {
     return (
       <>
-        <h3 className='py-1 pt-4 text-center'>{year} Presentations</h3>
+        <SectionHeading>{year} Presentations</SectionHeading>
         <p className='py-4 text-center'>
           No presentations to show for {year} yet — check back soon.
         </p>
@@ -113,8 +114,8 @@ const PresentationsForYearPageContent = async ({
 
   return (
     <>
-      <h3 className='py-1 pt-4 text-center'>{year} Presentations</h3>
-      <div className='mx-4 flex flex-col space-y-4 pb-4'>{presentations}</div>
+      <SectionHeading>{year} Presentations</SectionHeading>
+      <div className='mx-4 flex flex-col space-y-2 pb-4'>{presentations}</div>
     </>
   );
 };

@@ -13,13 +13,13 @@ export const CenteredDialog: React.FC<PropsWithChildren<DialogProps>> = (
   const { open, onClose, dialogId, children } = props;
 
   return (
-    <Dialog as='div' className='relative z-[100]' open={open} onClose={onClose}>
+    <Dialog as='div' className='relative z-100' open={open} onClose={onClose}>
       {/* The backdrop, rendered as a fixed sibling to the panel container */}
       <div className='fixed inset-0 bg-black/30' aria-hidden='true' />
 
       {/* Full-screen container to center the panel */}
       <div className='fixed inset-0 flex items-center justify-center p-4'>
-        <Dialog.Panel className='max-w-xl rounded bg-white p-4' id={dialogId}>
+        <Dialog.Panel className='max-w-xl rounded-sm bg-white p-4' id={dialogId}>
           {children}
         </Dialog.Panel>
       </div>

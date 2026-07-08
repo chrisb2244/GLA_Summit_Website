@@ -8,7 +8,7 @@ import {
 } from '@mdi/js';
 import { Icon } from '@mdi/react';
 import { JSX, Suspense } from 'react';
-import NextLink from 'next/link';
+import Link from 'next/link';
 import { getAvatarPublicUrl, type User } from '@/lib/databaseFunctions';
 import type { ProfileModel } from '@/lib/databaseModels';
 import { Route } from 'next';
@@ -32,7 +32,7 @@ type UserMenuEntry = {
 
 const ListIcon = ({ path }: { path: string }) => {
   return (
-    <div className='inline-flex min-w-[36px] flex-shrink-0 text-black text-opacity-50 group-hover:text-white group-hover:text-opacity-100'>
+    <div className='inline-flex min-w-9 shrink-0 text-black/50 group-hover:text-white'>
       <Icon path={path} size={1} />
     </div>
   );
@@ -57,7 +57,7 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
       title: 'My Profile',
       href: '/my-profile',
       imgObj: (
-        <div className='flex min-w-[36px] flex-row align-middle'>
+        <div className='flex min-w-9 flex-row align-middle'>
           <UserIcon src={avatarSrc} size='small' />
         </div>
       )
@@ -97,8 +97,12 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
     : email;
 
   return (
-    <Popover className='pr-4'>
-      <Popover.Button aria-haspopup aria-label='User menu'>
+    <Popover className='relative flex self-stretch'>
+      <Popover.Button
+        aria-haspopup
+        aria-label='User menu'
+        className='flex h-full items-center justify-center px-3 hover:bg-secondaryc'
+      >
         <Suspense fallback={<DefaultUserIcon size='large' text={buttonText} />}>
           <UserIcon src={avatarSrc} size='large' text={buttonText} />
         </Suspense>
@@ -111,17 +115,17 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
         leaveFrom='transform scale-100 opacity-100'
         leaveTo='transform scale-90 opacity-0'
       >
-        <Popover.Panel className='absolute right-0 mt-2 rounded bg-white p-2 text-black text-opacity-75 shadow'>
+        <Popover.Panel className='absolute right-0 top-full mt-2 rounded-sm bg-white p-2 text-black/75 shadow'>
           {({ close }) => (
             <>
-              <div className='absolute -top-[6px] right-4 h-3 w-3 rotate-45 rounded-none bg-white' />
+              <div className='absolute -top-1.5 right-4 h-3 w-3 rotate-45 rounded-none bg-white' />
               <div className='relative w-max max-w-[80vw] cursor-pointer list-none'>
                 <ul>
                   {menuObjs
                     .concat(organizerMenuObjs)
                     .map(({ title, href, imgObj, clickFn }) => {
                       const className =
-                        'group flex h-8 w-full flex-row items-center px-4 py-[6px] transition-transform hover:bg-secondaryc active:scale-95 motion-reduce:transition-none motion-reduce:active:scale-100';
+                        'group flex h-8 w-full flex-row items-center px-4 py-1.5 transition-transform hover:bg-secondaryc active:scale-95 motion-reduce:transition-none motion-reduce:active:scale-100';
                       const itemContent = (
                         <span className='flex w-full flex-row items-center text-left'>
                           {imgObj}
@@ -134,13 +138,13 @@ export const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = (
                       return (
                         <li key={title}>
                           {typeof href !== 'undefined' ? (
-                            <NextLink
+                            <Link
                               href={href}
                               className={className}
                               onClick={() => close()}
                             >
                               {itemContent}
-                            </NextLink>
+                            </Link>
                           ) : (
                             <button
                               type='button'

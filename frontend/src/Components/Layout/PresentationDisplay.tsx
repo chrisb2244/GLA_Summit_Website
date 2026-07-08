@@ -76,7 +76,7 @@ export const PresentationDisplay: React.FC<
       }}
     />
   ) : (
-    <div className='flex flex-grow'>Unscheduled</div>
+    <div className='flex grow'>Unscheduled</div>
   );
 
   const downloadButton = hasSchedule ? (
@@ -130,7 +130,7 @@ export const PresentationDisplay: React.FC<
 
   // const favouriteButton = showFavouritesButton ? (
   //   <div
-  //     className='mb-2 flex w-[fit-content] cursor-pointer flex-row rounded bg-secondaryc'
+  //     className='mb-2 flex w-fit cursor-pointer flex-row rounded-sm bg-secondaryc'
   //     onClick={() => handleFavouriteClick()}
   //   >
   //     <Icon
@@ -145,7 +145,7 @@ export const PresentationDisplay: React.FC<
   // ) : null
 
   return (
-    <div className='mb-6 mt-1 border-2 shadow-sm'>
+    <div className='mb-6 mt-1 border-2 shadow-xs'>
       <div className='prose mx-auto flex w-11/12 max-w-none flex-col space-y-4'>
         <div className='flex flex-col'>
           <h2 className='mb-0 mt-4'>{presentation.title}</h2>

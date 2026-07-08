@@ -58,7 +58,7 @@ export default function RootLayout(props: {
       <body>
         <a
           href='#main-content'
-          className='sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-[100] focus:rounded focus:bg-white focus:px-4 focus:py-2 focus:text-black focus:shadow'
+          className='sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-100 focus:rounded-sm focus:bg-white focus:px-4 focus:py-2 focus:text-black focus:shadow'
         >
           Skip to main content
         </a>
@@ -69,7 +69,7 @@ export default function RootLayout(props: {
             <main
               id='main-content'
               tabIndex={-1}
-              className='mx-auto mb-8 flex w-[85%] max-w-screen-lg flex-col focus:outline-none md:w-4/5'
+              className='mx-auto mb-8 flex w-[85%] max-w-(--breakpoint-lg) flex-col focus:outline-hidden md:w-4/5'
             >
               {props.children}
               {/* {props.loginModal} */}

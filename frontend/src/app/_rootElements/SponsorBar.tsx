@@ -33,7 +33,7 @@ export const SponsorBar: React.FC<React.PropsWithChildren<unknown>> = () => {
     //   href: 'https://www.newtondynamics.net/',
     //   width: 71.75,
     //   height: 56.1,
-    //   imgWrapperCName: 'bg-[#000] p-2 rounded-md'
+    //   imgWrapperCName: 'bg-black p-2 rounded-md'
     // }
     // {
     //   title: 'GCentral',
