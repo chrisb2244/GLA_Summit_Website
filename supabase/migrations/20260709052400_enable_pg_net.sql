@@ -1,0 +1,14 @@
+-- Enable pg_net, which provides net.http_post.
+--
+-- net.http_post is called at runtime by notify_cache_revalidate
+-- (20260531000000) and apply_submission_outcome (20260608120100) to POST to the
+-- app for cache revalidation and submission-outcome notifications. The extension
+-- is bundled (and pre-enabled) in the local Supabase image, but hosted projects
+-- must enable it explicitly -- without it those functions hit
+-- 'schema "net" does not exist' and their best-effort POST is skipped.
+--
+-- Ordering is not load-bearing: the two callers only *reference* net.http_post
+-- inside plpgsql bodies, which are not resolved until the function runs, so a
+-- later CREATE EXTENSION still satisfies them. IF NOT EXISTS makes this a no-op
+-- locally (already installed into the extensions schema).
+CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions;
