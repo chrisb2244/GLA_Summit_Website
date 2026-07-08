@@ -7,10 +7,12 @@ type CharacterCountProps = {
 export const CharacterCount = ({ current, max, min }: CharacterCountProps) => {
   const overMax = typeof max !== 'undefined' && current > max;
   const underMin = typeof min !== 'undefined' && current < min && current > 0;
+  // orange-700/red-700 (not -600) so the counter clears WCAG AA contrast
+  // (4.5:1) against the form's bg-gray-100; the -600 shades sit at ~3.3/4.3:1.
   const colorClass = overMax
-    ? 'text-red-600'
+    ? 'text-red-700'
     : underMin
-    ? 'text-orange-600'
+    ? 'text-orange-700'
     : 'text-gray-600';
 
   const countLabel =
