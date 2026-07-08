@@ -207,17 +207,40 @@ export const createOrganizer = async (
 // presenter's submission (forced_conclusions.presentation_id ON DELETE CASCADE,
 // forced_by ON DELETE SET NULL), so it is torn down by the presenter handle.
 const SEEDED_CONCLUDER = {
-  userId: '8a52cd4e-a250-4dba-b799-f38b6e34c75f',
-  email: process.env.TEST_ADMIN_EMAIL ?? 'christian27@test.email',
+  userId: process.env.TEST_CONCLUDER_USER_ID,
+  email: process.env.TEST_CONCLUDER_EMAIL,
   firstName: 'Christian',
   lastName: 'Butcher'
 } as const;
 
-export const getSeededConcluder = (): SeededUser => ({
-  role: 'concluder',
-  ...SEEDED_CONCLUDER,
-  cleanup: async () => {}
-});
+export const getSeededConcluder = (): SeededUser => {
+  const userId = process.env.TEST_CONCLUDER_USER_ID;
+  const email = process.env.TEST_CONCLUDER_EMAIL;
+  const firstName = process.env.TEST_CONCLUDER_FIRST_NAME;
+  const lastName = process.env.TEST_CONCLUDER_LAST_NAME;
+
+  if (!userId) {
+    throw new Error('TEST_CONCLUDER_USER_ID is not set');
+  }
+  if (!email) {
+    throw new Error('TEST_CONCLUDER_EMAIL is not set');
+  }
+  if (!firstName) {
+    throw new Error('TEST_CONCLUDER_FIRST_NAME is not set');
+  }
+  if (!lastName) {
+    throw new Error('TEST_CONCLUDER_LAST_NAME is not set');
+  }
+
+  return {
+    role: 'concluder',
+    userId,
+    email,
+    firstName,
+    lastName,
+    cleanup: async () => {}
+  };
+};
 
 export const createLogViewer = async (
   options?: BaseUserOptions
