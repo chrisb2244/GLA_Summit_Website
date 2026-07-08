@@ -193,30 +193,31 @@ export const createOrganizer = async (
   return { role: 'organizer', ...base };
 };
 
-// Create an organizer who is also on the submission_concluders allow-list, i.e.
-// permitted to force an early accept/decline on the review page.
-export const createConcluder = async (
-  options?: BaseUserOptions
-): Promise<SeededUser> => {
-  // A concluder is an organizer who is also on the submission_concluders
-  // allow-list, so build on createOrganizer and add the concluder row. Keep the
-  // concluder-flavoured lastName/emailPrefix defaults so the mailbox stays
-  // identifiable in Mailpit despite the organizer delegation.
-  const base = await createOrganizer({
-    ...options,
-    lastName: options?.lastName ?? 'concluder',
-    emailPrefix: options?.emailPrefix ?? 'pw-concluder'
-  });
-  const admin = createSupabaseAdmin();
-  const { error } = await admin
-    .from('submission_concluders')
-    .insert({ user_id: base.userId });
-  if (error) {
-    await base.cleanup();
-    throw new Error(`Failed to make concluder: ${error.message}`);
-  }
-  return { ...base, role: 'concluder' };
-};
+// The concluder allow-list (submission_concluders) is administered ONLY
+// out-of-band by the DB owner: the add_submission_concluders migration revokes
+// every write privilege from the application roles -- including service_role,
+// whose BYPASSRLS does NOT help because the block is a missing table GRANT, not
+// an RLS policy. So tests CANNOT mint a concluder at runtime; instead they reuse
+// the concluder that supabase/seeds/seed.sql already installs (an account that is
+// also an organizer, so it clears both the review-page organizer gate and the
+// force-button concluder gate).
+//
+// This account is shared and long-lived, so cleanup() is a no-op: it must survive
+// across tests, and the forced-conclusion audit data it produces is keyed to the
+// presenter's submission (forced_conclusions.presentation_id ON DELETE CASCADE,
+// forced_by ON DELETE SET NULL), so it is torn down by the presenter handle.
+const SEEDED_CONCLUDER = {
+  userId: '8a52cd4e-a250-4dba-b799-f38b6e34c75f',
+  email: process.env.TEST_ADMIN_EMAIL ?? 'christian27@test.email',
+  firstName: 'Christian',
+  lastName: 'Butcher'
+} as const;
+
+export const getSeededConcluder = (): SeededUser => ({
+  role: 'concluder',
+  ...SEEDED_CONCLUDER,
+  cleanup: async () => {}
+});
 
 export const createLogViewer = async (
   options?: BaseUserOptions

@@ -15,10 +15,10 @@ export { seedSharedPresentation } from './presentations';
 export { seedTicket } from './tickets';
 export {
   createAttendee,
-  createConcluder,
   createCopresenter,
   createLogViewer,
   createOrganizer,
-  createPresenter
+  createPresenter,
+  getSeededConcluder
 } from './userCreation';
 export type { SeededUser, TestRole } from './userCreation';

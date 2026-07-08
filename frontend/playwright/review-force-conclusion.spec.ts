@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
 import {
-  createConcluder,
   createOrganizer,
   createPresenter,
   getEmailsWithSubject,
+  getSeededConcluder,
   loginOnPage
 } from './utils';
 import type { SeededUser } from './utils';
@@ -39,10 +39,10 @@ test.describe('force early conclusion', { tag: '@regression' }, () => {
     page
   }) => {
     const title = uniqueTitle('Concludable talk');
-    [concluder, presenter] = await Promise.all([
-      createConcluder({ emailPrefix: 'pw-concluder' }),
-      seedUnderReviewPresenter(title)
-    ]);
+    // The concluder allow-list is admin-only, so tests reuse the concluder
+    // installed by the DB seed rather than minting one (see getSeededConcluder).
+    concluder = getSeededConcluder();
+    presenter = await seedUnderReviewPresenter(title);
 
     await page.goto('/');
     await loginOnPage(page, concluder.email);
