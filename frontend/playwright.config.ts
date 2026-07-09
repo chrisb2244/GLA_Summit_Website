@@ -74,11 +74,11 @@ const config: PlaywrightTestConfig = {
    * There is no longer a shared `setup` project or saved storage state: each
    * test provisions and authenticates its own user (see playwright/utils). */
   projects: [
-    { name: 'firefox', use: { ...devices['Desktop Firefox'] } }
+    // { name: 'firefox', use: { ...devices['Desktop Firefox'] } }
     // Uncomment as required
     // { name: 'mobile chrome', use: { ...devices['Pixel 5'] } },
     // { name: 'mobile safari', use: { ...devices['iPhone 14'] } },
-    // { name: 'chromium', use: { ...devices['Desktop Chromium'] } },
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
     // { name: 'webkit', use: { ...devices['Desktop Webkit'] } }
   ]
 
