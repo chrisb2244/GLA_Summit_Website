@@ -47,7 +47,7 @@ test.describe('User Authentication Tests', () => {
     await loginablePage.fillInRegistrationForm(newUser);
     await loginablePage.submitForm();
 
-    const otp = await getInbucketVerificationCode(newUser.email, 5000);
+    const otp = await getInbucketVerificationCode(newUser.email, 15000);
     expect(otp).toBeDefined();
 
     await loginablePage.fillInVerificationForm(otp);
@@ -87,7 +87,7 @@ test.describe('User Authentication Tests', () => {
     await loginablePage.fillInLoginForm(existingUser.email);
     await loginablePage.submitForm();
 
-    const otp = await getInbucketVerificationCode(existingUser.email, 5000);
+    const otp = await getInbucketVerificationCode(existingUser.email, 15000);
     expect(otp).toBeDefined();
 
     await loginablePage.fillInVerificationForm(otp);
@@ -147,7 +147,7 @@ test.describe('User Authentication Tests', () => {
     // fixed 500ms snapshot raced delivery and counted 0. Block on the code
     // first (latency-tolerant livequery), then let any duplicate a broken
     // debounce would have sent settle, then assert exactly one arrived.
-    const otp = await getInbucketVerificationCode(user.email, 5000);
+    const otp = await getInbucketVerificationCode(user.email, 15000);
     expect(otp).toBeDefined();
 
     await page.waitForTimeout(2000);
@@ -198,7 +198,7 @@ test.describe('User Authentication Tests', () => {
     // delivery (app→Mailgun→testmail) takes seconds, so a fixed 500ms snapshot
     // races delivery and counts 0. Block on the code first (latency-tolerant
     // livequery), let any duplicate settle, then assert exactly one arrived.
-    const otp = await getInbucketVerificationCode(user.email, 5000);
+    const otp = await getInbucketVerificationCode(user.email, 15000);
     expect(otp).toBeDefined();
 
     await page.waitForTimeout(2000);

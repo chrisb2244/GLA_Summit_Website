@@ -443,7 +443,7 @@ export const getEmailsWithSubject = (
 
 export const getInbucketVerificationCode = async (
   email: string,
-  timeout: number = 3000,
+  timeout: number = 15000,
   lookbackMs: number = 3000
 ): Promise<string> => {
   // Supabase OTPs are 6 digits locally but 8 digits in production; accept either.

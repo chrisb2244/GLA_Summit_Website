@@ -20,7 +20,7 @@ export const loginOnPage = async (
     // Delay to allow the email to be sent - old emails exist for existing accounts
     .then(() => new Promise((resolve) => setTimeout(resolve, 300)));
 
-  const otp = await getInbucketVerificationCode(email, 5000, 3000);
+  const otp = await getInbucketVerificationCode(email, 15000, 3000);
   await loginablePage.fillInVerificationForm(otp);
   await loginablePage.submitForm();
 
