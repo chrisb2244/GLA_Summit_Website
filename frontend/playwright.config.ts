@@ -14,15 +14,20 @@ if (envConfig.error) {
  */
 const config: PlaywrightTestConfig = {
   testDir: './playwright',
-  /* Maximum time one test can run for. */
-  timeout: 30 * 1000,
+  /* Maximum time one test can run for. Higher on CI: parallel workers share
+   * 4 vCPUs and a remote test DB, and OTP email waits can run up to 15s. */
+  timeout: process.env.CI ? 45 * 1000 : 30 * 1000,
   expect: {
     /**
      * Maximum time expect() should wait for the condition to be met.
      * For example in `await expect(locator).toHaveText();`
      */
-    timeout: 5000
+    timeout: 10000
   },
+  // Tests are fully isolated (see below), so let workers pick up individual
+  // tests rather than whole files — otherwise the largest spec file becomes
+  // the critical path for the run.
+  fullyParallel: true,
   // Tests now provision their own users via the userCreation factories, each
   // with a uniquely generated email. Because no two tests share a mailbox or
   // seeded row, there are no inbox-count or row races between them, so both
@@ -31,8 +36,9 @@ const config: PlaywrightTestConfig = {
   forbidOnly: !!process.env.CI,
   /* Retry on CI; also retry once locally to surface genuine flakes without hiding them */
   retries: process.env.CI ? 2 : 1,
-  /* CI: serialise to avoid resource contention. Local: 6 (reduce maximum from undefined: CPU count / 2). */
-  workers: process.env.CI ? 1 : 6,
+  /* CI: 3 workers — ubuntu-latest has 4 vCPUs, which fits the Next server plus
+   * ~3 Firefox instances. Local: 6 (reduce maximum from undefined: CPU count / 2). */
+  workers: process.env.CI ? 3 : 6,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
