@@ -98,7 +98,11 @@ export class LoginablePage {
   }
 
   async fillInLoginForm(email: string) {
-    await this.loginForm().getByLabel('Email').fill(email);
+    const emailField = this.loginForm().getByLabel('Email');
+    await emailField.fill(email);
+    // Guard against the value being wiped by a form remount (e.g. a Suspense
+    // fallback→content swap) between the fill and the later submit.
+    await expect(emailField).toHaveValue(email);
   }
 
   async fillInRegistrationForm(values: {
@@ -115,6 +119,18 @@ export class LoginablePage {
     }
     if (values.email !== undefined) {
       await form.getByLabel('Email').fill(values.email);
+    }
+    // Guard against values being wiped by a form remount (e.g. a Suspense
+    // fallback→content swap) between the fills and the later submit. Checking
+    // only the last-filled field is enough: a remount empties all of them.
+    if (values.email !== undefined) {
+      await expect(form.getByLabel('Email')).toHaveValue(values.email);
+    } else if (values.lastname !== undefined) {
+      await expect(form.getByLabel('Last Name')).toHaveValue(values.lastname);
+    } else if (values.firstname !== undefined) {
+      await expect(form.getByLabel('First Name')).toHaveValue(
+        values.firstname
+      );
     }
   }
 
