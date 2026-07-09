@@ -141,6 +141,43 @@ export class LoginablePage {
       .fill(code);
   }
 
+  // Fill + submit the verification code, then resolve as soon as the outcome is
+  // known rather than blocking on a downstream success locator. Success is the
+  // server action redirecting away from /auth/validateLogin; failure is the
+  // verify form re-rendering its error alert (e.g. "Invalid verification code").
+  // Callers can react immediately — retry or fail fast — instead of waiting out
+  // a long success timeout when the code was rejected.
+  async submitVerificationCode(
+    code: string
+  ): Promise<{ ok: true } | { ok: false; message: string }> {
+    await this.fillInVerificationForm(code);
+    await this.submitForm();
+    return this.awaitVerificationOutcome();
+  }
+
+  private async awaitVerificationOutcome(
+    timeoutMs = 10000
+  ): Promise<{ ok: true } | { ok: false; message: string }> {
+    const errorAlert = this.verificationForm().getByRole('alert');
+    return Promise.race([
+      this.page
+        .waitForURL((url) => !/\/auth\/validateLogin/.test(url.pathname), {
+          timeout: timeoutMs
+        })
+        .then(() => ({ ok: true as const })),
+      errorAlert
+        .waitFor({ state: 'visible', timeout: timeoutMs })
+        .then(async () => ({
+          ok: false as const,
+          message:
+            (await errorAlert.textContent())?.trim() || 'Verification error'
+        }))
+    ]).catch(() => ({
+      ok: false as const,
+      message: 'Timed out waiting for verification outcome'
+    }));
+  }
+
   async submitForm(method?: 'enter key' | 'button click') {
     const activeForm = (await this.isVerificationForm())
       ? this.verificationForm()
