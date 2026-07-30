@@ -22,7 +22,8 @@ export type TestRole =
   | 'copresenter'
   | 'organizer'
   | 'concluder'
-  | 'log_viewer';
+  | 'log_viewer'
+  | 'presenter_admin';
 
 export type SeededUser = {
   role: TestRole;
@@ -54,6 +55,7 @@ type BaseUserOptions = {
 //
 // Manual deletes are required for:
 //  - log_viewers.user_id  → auth.users(id)   (no cascade)
+//  - presenter_admins.user_id → auth.users(id) (no cascade)
 //  - submission_concluders.user_id → auth.users(id) (no cascade)
 //  - presentation_submissions.submitter_id → profiles(id) (no cascade; also
 //    cascades presenters + accepted rows for the user's own submissions)
@@ -61,7 +63,21 @@ type BaseUserOptions = {
 //    copresenter links to OTHER users' submissions)
 export const cleanupUser = async (userId: string) => {
   const admin = createSupabaseAdmin();
+
+  const { data: profile } = await admin
+    .from('profiles')
+    .select('avatar_url')
+    .eq('id', userId)
+    .maybeSingle();
+  if (profile?.avatar_url) {
+    const fullSize = profile.avatar_url;
+    // Same derivation as fullUrlToIconUrl in src/lib/utils.
+    const icon = `${fullSize.split('.').slice(0, -1).join('.')}-icon.webp`;
+    await admin.storage.from('avatars').remove([fullSize, icon]);
+  }
+
   await admin.from('log_viewers').delete().eq('user_id', userId);
+  await admin.from('presenter_admins').delete().eq('user_id', userId);
   await admin.from('submission_concluders').delete().eq('user_id', userId);
   await admin
     .from('presentation_presenters')
@@ -72,6 +88,22 @@ export const cleanupUser = async (userId: string) => {
     .delete()
     .eq('submitter_id', userId);
   await admin.auth.admin.deleteUser(userId);
+};
+
+// Tear down a user the tests did not create through a factory — specifically the
+// presenter accounts the admin panel creates at runtime, which have no handle of
+// their own. Looks the account up by email and is a no-op if it never existed,
+// so it is safe to call unconditionally from a finally block.
+export const cleanupUserByEmail = async (email: string): Promise<void> => {
+  const admin = createSupabaseAdmin();
+  const { data } = await admin
+    .from('email_lookup')
+    .select('id')
+    .ilike('email', email)
+    .maybeSingle();
+  if (data?.id) {
+    await cleanupUser(data.id);
+  }
 };
 
 // Create an auth user with a confirmed email. The handle_new_user /
@@ -255,6 +287,37 @@ export const createLogViewer = async (
     throw new Error(`Failed to make log viewer: ${error.message}`);
   }
   return { role: 'log_viewer', ...base };
+};
+
+// Create a user on the presenter_admins allow-list, i.e. someone who may use
+// /admin/create-presenter. Pass `alsoOrganizer` when the test needs to follow the
+// resulting submission into /review-submissions, which has its own organizer gate.
+export const createPresenterAdmin = async (
+  options?: BaseUserOptions & { alsoOrganizer?: boolean }
+): Promise<SeededUser> => {
+  const base = await createBaseUser('presenter_admin', options);
+  const admin = createSupabaseAdmin();
+  const { error } = await admin
+    .from('presenter_admins')
+    .insert({ user_id: base.userId });
+  if (error) {
+    await base.cleanup();
+    throw new Error(`Failed to make presenter admin: ${error.message}`);
+  }
+
+  if (options?.alsoOrganizer) {
+    const { error: organizerError } = await admin
+      .from('organizers')
+      .insert({ id: base.userId });
+    if (organizerError) {
+      await base.cleanup();
+      throw new Error(
+        `Failed to make presenter admin an organizer: ${organizerError.message}`
+      );
+    }
+  }
+
+  return { role: 'presenter_admin', ...base };
 };
 
 // Create a user who is the sole presenter of one presentation for the given

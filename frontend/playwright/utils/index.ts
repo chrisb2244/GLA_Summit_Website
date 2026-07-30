@@ -15,11 +15,13 @@ export { seedSharedPresentation } from './presentations';
 export { seedTicket } from './tickets';
 export {
   cleanupUser,
+  cleanupUserByEmail,
   createAttendee,
   createCopresenter,
   createLogViewer,
   createOrganizer,
   createPresenter,
+  createPresenterAdmin,
   getSeededConcluder
 } from './userCreation';
 export type { SeededUser, TestRole } from './userCreation';
