@@ -103,10 +103,10 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
-          key: pw-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}
+          key: pw-cache-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}
 
-      - name: Install Playwright Firefox
-        run: npx playwright install --with-deps firefox
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
 
       - name: Wait for Mailpit
         run: |
@@ -142,7 +142,7 @@ jobs:
         # line → CI log; html → uploaded artifact (does not open a browser on CI).
         run: |
           echo "Target ${{ github.base_ref }} → full suite"
-          npx playwright test --project firefox --reporter=line,html
+          npx playwright test --project=chromium --reporter=line,html
 
       - name: Upload Playwright report
         if: ${{ failure() }}

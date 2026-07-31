@@ -98,7 +98,11 @@ export class LoginablePage {
   }
 
   async fillInLoginForm(email: string) {
-    await this.loginForm().getByLabel('Email').fill(email);
+    const emailField = this.loginForm().getByLabel('Email');
+    await emailField.fill(email);
+    // Guard against the value being wiped by a form remount (e.g. a Suspense
+    // fallback→content swap) between the fill and the later submit.
+    await expect(emailField).toHaveValue(email);
   }
 
   async fillInRegistrationForm(values: {
@@ -116,6 +120,18 @@ export class LoginablePage {
     if (values.email !== undefined) {
       await form.getByLabel('Email').fill(values.email);
     }
+    // Guard against values being wiped by a form remount (e.g. a Suspense
+    // fallback→content swap) between the fills and the later submit. Checking
+    // only the last-filled field is enough: a remount empties all of them.
+    if (values.email !== undefined) {
+      await expect(form.getByLabel('Email')).toHaveValue(values.email);
+    } else if (values.lastname !== undefined) {
+      await expect(form.getByLabel('Last Name')).toHaveValue(values.lastname);
+    } else if (values.firstname !== undefined) {
+      await expect(form.getByLabel('First Name')).toHaveValue(
+        values.firstname
+      );
+    }
   }
 
   async fillInVerificationForm(code: string) {
@@ -123,6 +139,43 @@ export class LoginablePage {
     await this.page
       .getByRole('textbox', { name: 'Verification Code' })
       .fill(code);
+  }
+
+  // Fill + submit the verification code, then resolve as soon as the outcome is
+  // known rather than blocking on a downstream success locator. Success is the
+  // server action redirecting away from /auth/validateLogin; failure is the
+  // verify form re-rendering its error alert (e.g. "Invalid verification code").
+  // Callers can react immediately — retry or fail fast — instead of waiting out
+  // a long success timeout when the code was rejected.
+  async submitVerificationCode(
+    code: string
+  ): Promise<{ ok: true } | { ok: false; message: string }> {
+    await this.fillInVerificationForm(code);
+    await this.submitForm();
+    return this.awaitVerificationOutcome();
+  }
+
+  private async awaitVerificationOutcome(
+    timeoutMs = 10000
+  ): Promise<{ ok: true } | { ok: false; message: string }> {
+    const errorAlert = this.verificationForm().getByRole('alert');
+    return Promise.race([
+      this.page
+        .waitForURL((url) => !/\/auth\/validateLogin/.test(url.pathname), {
+          timeout: timeoutMs
+        })
+        .then(() => ({ ok: true as const })),
+      errorAlert
+        .waitFor({ state: 'visible', timeout: timeoutMs })
+        .then(async () => ({
+          ok: false as const,
+          message:
+            (await errorAlert.textContent())?.trim() || 'Verification error'
+        }))
+    ]).catch(() => ({
+      ok: false as const,
+      message: 'Timed out waiting for verification outcome'
+    }));
   }
 
   async submitForm(method?: 'enter key' | 'button click') {

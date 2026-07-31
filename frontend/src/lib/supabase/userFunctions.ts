@@ -4,6 +4,20 @@ import { cacheLife, cacheTag } from 'next/cache';
 import { cacheTagForPerson } from './cacheTags';
 import type { ProfileModel } from '../databaseModels';
 
+// supabase.auth.getSession — reads the session from the request cookies with no
+// network round-trip (unlike getUser, which validates the JWT against the Auth
+// server). The returned session is client-controlled, so only use this for UX
+// short-circuits (e.g. bouncing an already-logged-in visitor off /auth/login),
+// never for authorization.
+export const getSession = cache(async () => {
+  const supabase = await createServerClient();
+  const { data, error } = await supabase.auth.getSession();
+  if (error) {
+    return null;
+  }
+  return data.session;
+});
+
 // supabase.auth.getUser
 export const getUser = cache(async () => {
   const supabase = await createServerClient();

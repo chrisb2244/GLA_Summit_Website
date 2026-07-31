@@ -25,7 +25,9 @@ const ErrorElement = (props: { state: VerificationState }) => {
   }
   return (
     <div className='pt-2 text-center text-base'>
-      <p className='text-red-500'>{message}</p>
+      <p className='text-red-500' role='alert'>
+        {message}
+      </p>
     </div>
   );
 };
