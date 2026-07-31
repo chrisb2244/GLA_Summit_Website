@@ -59,7 +59,7 @@ type BaseUserOptions = {
 //    cascades presenters + accepted rows for the user's own submissions)
 //  - presentation_presenters.presenter_id → profiles(id) (no cascade; covers
 //    copresenter links to OTHER users' submissions)
-const cleanupUser = async (userId: string) => {
+export const cleanupUser = async (userId: string) => {
   const admin = createSupabaseAdmin();
   await admin.from('log_viewers').delete().eq('user_id', userId);
   await admin.from('submission_concluders').delete().eq('user_id', userId);

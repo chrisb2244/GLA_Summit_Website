@@ -73,14 +73,33 @@ const config: PlaywrightTestConfig = {
 
   /* Configure projects for major browsers.
    *
-   * There is no longer a shared `setup` project or saved storage state: each
-   * test provisions and authenticates its own user (see playwright/utils). */
+   * `setup` mints one logged-in storageState per shared role
+   * (playwright/.auth/<role>.json) for read-only, identity-agnostic tests;
+   * `auth-teardown` deletes those users and files after the run. Identity-
+   * bound tests still provision their own user per test (see
+   * playwright/utils). Filtered runs whose tests use no shared state (e.g.
+   * --grep @synthetic) can pass --no-deps to skip the setup project entirely. */
   projects: [
-    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+    {
+      name: 'setup',
+      testMatch: /auth\.setup\.ts/,
+      teardown: 'auth-teardown',
+      use: { ...devices['Desktop Chrome'] }
+    },
+    { name: 'auth-teardown', testMatch: /auth\.teardown\.ts/ },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+      dependencies: ['setup']
+    },
     // Uncomment as required
     // { name: 'mobile chrome', use: { ...devices['Pixel 5'] } },
     // { name: 'mobile safari', use: { ...devices['iPhone 14'] } },
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+      dependencies: ['setup']
+    }
     // { name: 'webkit', use: { ...devices['Desktop Webkit'] } }
   ]
 
