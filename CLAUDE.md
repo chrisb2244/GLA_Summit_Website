@@ -25,12 +25,14 @@ npm run db:reset               # reset DB + re-seed avatar storage
 npm run dev                    # dev server (USE_MOCK_EMAIL=true)
 npm run dev_full               # dev server without mock email override
 npm run build / lint / test
-npx vitest run path/to/file    # unit tests; no --reporter flag (that's Playwright-only, below)
-npm run playwright -- --project firefox --reporter=line [--grep @smoke]
-PW_REUSE_AUTH=1 npm run playwright -- --project firefox --reporter=line
+npx vitest run path/to/file    # unit tests; --reporter=line is Playwright-only, don't pass it to vitest
+npm run playwright -- --reporter=line [--grep @smoke]   # chromium is baked into the script
+npx playwright test --project firefox --reporter=line   # Firefox-only (never add --project to the npm script: --project is additive → runs both browsers)
 ```
 
-Never use `--ui`, `show-report`, or any flag that opens a browser window with Playwright - pass `--reporter=line`.
+Never use `--ui`, `show-report`, or any flag that opens a browser window with Playwright - pass `--reporter=line`. Full Playwright conventions (shared auth setup project, `--no-deps`, CI workflows) are in `frontend/AGENTS.md`.
+
+For full-suite Playwright runs, test against a production server (`npm run build`, then `USE_MOCK_EMAIL=true npm start`) — under full-suite load the dev server's Turbopack FS cache can corrupt (all routes 500 until `.next` is deleted).
 
 ## Environment
 
@@ -73,7 +75,8 @@ Admin client (`SECRET_SUPABASE_SERVICE_KEY`) bypasses RLS — server actions/rou
 ### Misc
 
 - Error/message logging: `logToDb()` in `src/lib/utils.tsx` → `log` table via admin client
-- Auth roles: `admin`, `organizer`, `presenter`, `attendee`; Playwright session state in `playwright/.auth/*.json`
+- Auth roles: `admin`, `organizer`, `presenter`, `attendee`
+- Playwright auth: `playwright/auth.setup.ts` mints per-role storageStates into `playwright/.auth/` (gitignored, per-run, torn down after); read-only tests share them, identity-bound tests log in per test via `loginOnPage` (OTP minted through the admin API, no inbox polling). Only `user-login.spec.ts` drives the real OTP email round-trip.
 
 ## Before Next.js work
 

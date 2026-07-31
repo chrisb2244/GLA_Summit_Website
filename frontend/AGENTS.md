@@ -10,14 +10,16 @@ Before any Next.js work, find and read the relevant doc in `node_modules/next/di
 
 When running Playwright tests in this repository:
 
-- Prefer the Firefox project by default.
-- Use commands in this form: `cd frontend && npm run playwright -- --project firefox ...` (when starting from repository root), or run the same `npm run playwright -- --project firefox ...` command directly from the frontend directory.
+- The `npm run playwright` script bakes in `--project=chromium` (the default browser). Run it from the frontend directory: `npm run playwright -- --reporter=line ...`
+- Do NOT append `--project firefox` to `npm run playwright` — Playwright's `--project` flag is additive, so that runs BOTH browsers. For a Firefox-only run use `npx playwright test --project firefox --reporter=line`.
 - Run Playwright in non-interactive mode so results stay in terminal output.
 - Use a terminal reporter (for example `--reporter=line`) to prevent auto-opening HTML reports or browser pages.
 - Do not use `--ui`, `show-report`, or any command/flag that opens a browser window for test results.
-- Optional faster local iteration: `PW_REUSE_AUTH=1` skips OTP setup when `playwright/.auth/*.json` already exists.
-- Smoke subset: `CI=1 npm run playwright -- --project firefox --grep @smoke --reporter=line`
-- GitHub Actions workflow `.github/workflows/playwright.yml` is not wired for Supabase/Next and does not represent the local e2e environment.
+- Auth: a `setup` project (`playwright/auth.setup.ts`) mints one logged-in storageState per role into `playwright/.auth/` for read-only tests; it runs automatically as a dependency and its users are deleted by `auth.teardown.ts`. Identity-bound tests provision their own user per test and log in with `loginOnPage`, which mints the OTP via the admin API (no inbox polling); only `user-login.spec.ts` exercises the real OTP email round-trip.
+- Filtered runs whose tests use no shared auth state (e.g. `--grep @synthetic`) can add `--no-deps` to skip the setup project (`--grep` does not filter dependency projects).
+- Smoke subset: `CI=1 npm run playwright -- --grep @smoke --reporter=line`
+- CI e2e runs live in `.github/workflows/e2e.yml` (build + `next start` against the TEST Supabase project) and `.github/workflows/synthetic-deploy.yml` (`@synthetic` against a deployment).
+- For full-suite local runs, prefer a production server (`npm run build`, then `USE_MOCK_EMAIL=true npm start`): under full-suite load the dev server's Turbopack filesystem cache can corrupt (every route 500s with a JSON.parse error) and only recovers after deleting `.next`.
 
 When running frontend tests or scripts:
 
