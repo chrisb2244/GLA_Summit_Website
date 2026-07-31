@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { createAttendee, loginOnPage, type SeededUser } from './utils/index';
+import { authStatePath } from './utils/index';
 
 /**
  * Verifies that image requests are routed through CDN / Vercel optimisation
@@ -29,15 +29,9 @@ const SUPABASE_CDN_AVATAR =
 const ALLOWED_IMAGE_WIDTHS = new Set(['320', '640', '1080', '1920']);
 
 test.describe('UserMenu avatar — logged-in user', () => {
-  let user: SeededUser;
-
-  test.beforeEach(async () => {
-    user = await createAttendee();
-  });
-
-  test.afterEach(async () => {
-    await user?.cleanup();
-  });
+  // Read-only checks on the logged-in header; any authenticated user will do,
+  // so they run against the shared attendee session from auth.setup.ts.
+  test.use({ storageState: authStatePath('attendee') });
 
   test('page load does not trigger a Supabase storage download API call', async ({
     page
@@ -50,7 +44,6 @@ test.describe('UserMenu avatar — logged-in user', () => {
     });
 
     await page.goto('/');
-    await loginOnPage(page, user.email);
     await page.waitForLoadState('networkidle');
 
     expect(
@@ -61,7 +54,6 @@ test.describe('UserMenu avatar — logged-in user', () => {
 
   test('avatar image src is not a blob: URL', async ({ page }) => {
     await page.goto('/');
-    await loginOnPage(page, user.email);
     await page.getByTestId('user-menu-button').waitFor({ state: 'visible' });
 
     const avatarImg = page.getByTestId('user-menu-button').locator('img');

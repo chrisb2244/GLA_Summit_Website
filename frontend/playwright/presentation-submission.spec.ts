@@ -5,6 +5,7 @@ import {
   submissionsForYear
 } from '@/app/configConstants';
 import {
+  authStatePath,
   createAttendee,
   createOrganizer,
   createSupabaseAdmin,
@@ -22,28 +23,26 @@ const buildTestTitle = (prefix: string) =>
   test.describe(`logged-out tests for presentation submission ${trailing}`, () => {
     test.use({ javaScriptEnabled: jsEnabled });
 
-    let loggedInUser: SeededUser | undefined;
-    test.afterEach(async () => {
-      await loggedInUser?.cleanup();
-      loggedInUser = undefined;
-    });
-
     test('Form submission unavailable if logged out', { tag: ['@smoke', '@synthetic'] }, async ({
       page
     }) => {
       await page.goto('/submit-presentation');
       await expect(page.getByText('You need to be logged in')).toBeVisible();
     });
+  });
 
-    test('Form loads correctly after logging in', async ({ page }) => {
+  test.describe(`submission availability when logged in ${trailing}`, () => {
+    // Availability only depends on being authenticated (the logged-out case is
+    // asserted above), so this reads the page with the shared attendee session
+    // from auth.setup.ts instead of provisioning + logging in a user.
+    test.use({
+      javaScriptEnabled: jsEnabled,
+      storageState: authStatePath('attendee')
+    });
+
+    test('Form loads correctly when logged in', async ({ page }) => {
       test.fixme(!jsEnabled, 'JS disabled');
 
-      await page.goto('/submit-presentation');
-      await expect(page.getByText('You need to be logged in')).toBeVisible();
-
-      loggedInUser = await createAttendee();
-      await page.goto('/');
-      await loginOnPage(page, loggedInUser.email);
       await page.goto('/submit-presentation');
 
       if (CAN_SUBMIT_PRESENTATION) {
@@ -514,7 +513,8 @@ const buildTestTitle = (prefix: string) =>
       context
     }) => {
       // Auth comes from the describe-level beforeEach (createAttendee +
-      // loginOnPage); the removed saved-storageState path is no longer used.
+      // loginOnPage) — this test mutates its own draft data, so it must not
+      // use the shared read-only storageState.
       await page.goto('/submit-presentation');
 
       const formPage = new PresentationSubmissionPage(page);
@@ -575,8 +575,10 @@ const buildTestTitle = (prefix: string) =>
 // NOTE: these flows are fixme'd (the no-JS server-rendered path is not yet
 // functional). When re-enabling, they also need a JS-less authentication
 // strategy: loginOnPage drives the client-side login form, which cannot run
-// with javaScriptEnabled:false. The previous saved-storageState approach has
-// been removed, so a session-cookie injection helper will be required here.
+// with javaScriptEnabled:false. A per-user storageState (log the user in on a
+// throwaway JS-enabled page, save state, reopen with JS off) would work; the
+// shared read-only states from auth.setup.ts would not, since these tests
+// mutate their user's drafts.
 test.describe(`presentation submission tests handling no-js only path`, () => {
   test.use({ javaScriptEnabled: false });
   test.skip(!CAN_SUBMIT_PRESENTATION, 'Presentation submission closed');
