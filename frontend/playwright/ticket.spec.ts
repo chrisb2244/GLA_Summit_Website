@@ -5,6 +5,7 @@ import { ticketYear } from '@/app/configConstants';
 import {
   createAttendee,
   createPresenter,
+  getAccessToken,
   loginOnPage,
   seedTicket,
   type SeededUser
@@ -27,51 +28,6 @@ const openTicket = async (page: Page) => {
   const img = page.getByRole('img', { name: 'My GLA Summit Ticket' });
   await expect(img).toBeVisible({ timeout: 15000 });
   return { url: page.url(), img };
-};
-
-// Extract the Supabase JWT access token from a Playwright storage state object
-// (as returned by context.storageState()). Used to build an RLS-constrained
-// Supabase client for testing direct database access without going through the
-// browser.
-type StorageState = {
-  cookies?: Array<{ name: string; value: string }>;
-  origins?: Array<{ localStorage?: Array<{ name: string; value: string }> }>;
-};
-
-const getAccessToken = (state: StorageState): string => {
-  // @supabase/ssr stores the session in a cookie as `base64-{base64url(JSON)}`.
-  // Decode that to extract the access_token JWT.
-  const extractTokenFromSessionValue = (raw: string): string => {
-    if (raw.startsWith('base64-')) {
-      const json = Buffer.from(raw.slice('base64-'.length), 'base64').toString(
-        'utf-8'
-      );
-      return (JSON.parse(json) as { access_token: string }).access_token;
-    }
-    // Fallback: plain JSON-encoded session object.
-    try {
-      return (JSON.parse(raw) as { access_token: string }).access_token;
-    } catch {
-      return raw;
-    }
-  };
-
-  for (const cookie of state.cookies ?? []) {
-    if (cookie.name.includes('auth-token')) {
-      return extractTokenFromSessionValue(cookie.value);
-    }
-  }
-
-  for (const origin of state.origins ?? []) {
-    for (const item of origin.localStorage ?? []) {
-      if (item.name.includes('auth-token')) {
-        return (JSON.parse(item.value) as { access_token: string })
-          .access_token;
-      }
-    }
-  }
-
-  throw new Error('No Supabase auth token found in storage state');
 };
 
 // Create an authenticated Supabase client that operates under RLS (uses the
