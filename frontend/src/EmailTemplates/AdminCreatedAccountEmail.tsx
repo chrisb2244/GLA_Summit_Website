@@ -1,4 +1,4 @@
-import { escapeHtml, LogoImg, UnexpectedEmail } from './emailComponents';
+import { escapeHtml, LogoImg } from './emailComponents';
 import { submissionsForYear } from '@/app/configConstants';
 
 /**
@@ -52,8 +52,8 @@ export const AdminCreatedAccountEmailFn = (
                     <td>
                       <p style="font-size:14px;line-height:24px;margin:16px 0">Dear ${escapedName},</p>
                       <p style="font-size:14px;line-height:24px;margin:16px 0">Welcome to GLA Summit ${submissionsForYear}! ${escapedCreatedBy} has created an account for you on the GLA Summit website so that a presentation could be submitted on your behalf.</p>
-                      <p style="font-size:14px;line-height:24px;margin:16px 0">To take ownership of the account, click the button below. You will then be able to complete your profile, add a photo and a biography, and see your submission.</p>
-                      <p style="font-size:14px;line-height:24px;margin:16px 0;text-align:center"><a href="${escapedValidateUrl}" target="_blank" style="background-color:#a25bcd;color:#fff;padding:10px 20px;border-radius:4px;text-decoration:none;display:inline-block">Verify your account</a></p>
+                      <p style="font-size:14px;line-height:24px;margin:16px 0">If you would like to edit or review your profile biography or photo, or check your submission, you can use the code below to login.</p>
+                      <p style="font-size:14px;line-height:24px;margin:16px 0;text-align:center"><a href="${escapedValidateUrl}" target="_blank" style="background-color:#a25bcd;color:#fff;padding:10px 20px;border-radius:4px;text-decoration:none;display:inline-block">Login to your account</a></p>
                       <p style="font-size:14px;line-height:24px;margin:16px 0">If the button does not work, go to <a href="https://glasummit.org/auth/validateLogin" target="_blank" style="color:#a25bcd;text-decoration:underline">glasummit.org/auth/validateLogin</a> and enter the one-time passcode below:</p>
                       <table align="center" width="100%" style="background:rgba(0,0,0,.05);border-radius:4px;margin:16px auto 14px;vertical-align:middle;width:220px" border="0" cellPadding="0" cellSpacing="0" role="presentation">
                         <tbody>
@@ -64,12 +64,11 @@ export const AdminCreatedAccountEmailFn = (
                           </tr>
                         </tbody>
                       </table>
-                      <p style="font-size:14px;line-height:24px;margin:16px 0">A separate email describes the presentation that was submitted for you. If you were not expecting any of this, please contact <a href="mailto:web@glasummit.org" target="_blank" style="color:#a25bcd;text-decoration:underline">web@glasummit.org</a> and we will remove the account.</p>
+                      <p style="font-size:14px;line-height:24px;margin:16px 0">A separate email describes the presentation that was submitted for you. If this was unexpected, please contact <a href="mailto:web@glasummit.org" target="_blank" style="color:#a25bcd;text-decoration:underline">web@glasummit.org</a> and we will remove the account.</p>
                     </td>
                   </tr>
                 </tbody>
               </table>
-              ${UnexpectedEmail}
             </td>
           </tr>
         </tbody>
@@ -79,9 +78,9 @@ export const AdminCreatedAccountEmailFn = (
   `,
     bodyPlain: `Dear ${nameString},\r\n
     Welcome to GLA Summit ${submissionsForYear}! ${createdByName} has created an account for you on the GLA Summit website so that a presentation could be submitted on your behalf.\r\n
-    To take ownership of the account, visit: https://glasummit.org${validateLoginUrl}\r\n
+    To login and review your profile biography, image or presentation, visit: https://glasummit.org${validateLoginUrl}\r\n
     If that link doesn't work, go to https://glasummit.org/auth/validateLogin and enter the one-time passcode: ${otpValue}\r\n
-    A separate email describes the presentation that was submitted for you. If you were not expecting any of this, please contact web@glasummit.org and we will remove the account.\r\n
+    A separate email describes the presentation that was submitted for you. If this was unexpected, please contact web@glasummit.org and we will remove the account.\r\n
     From the GLA Summit Organizers`
   };
 };

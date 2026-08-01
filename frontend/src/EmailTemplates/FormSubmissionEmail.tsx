@@ -264,12 +264,11 @@ export const OnBehalfSubmissionEmailFn = (
                         <tr style="border-width:1px;border-style:solid;border-color:#aaa"></tr>
                         ${OtherPresenterRowsFn(otherPresenters, tdStyle)}
                       </table>
-                      <p style="font-size:14px;line-height:24px;margin:16px 0">If any of these details are wrong, or you were not expecting to present at GLA Summit ${submissionsForYear}, please contact <a href="mailto:web@glasummit.org" target="_blank" style="color:#a25bcd;text-decoration:underline">web@glasummit.org</a> and we will put it right.</p>
+                      <p style="font-size:14px;line-height:24px;margin:16px 0">If any of these details are wrong, or you were not expecting to present at GLA Summit ${submissionsForYear}, please contact <a href="mailto:web@glasummit.org" target="_blank" style="color:#a25bcd;text-decoration:underline">web@glasummit.org</a> and we will correct or remove the presentation entry.</p>
                     </td>
                   </tr>
                 </tbody>
               </table>
-              ${UnexpectedPresentationEmail}
             </td>
           </tr>
         </tbody>
@@ -281,7 +280,7 @@ export const OnBehalfSubmissionEmailFn = (
     ${submittedByName} has submitted a presentation titled "${title}" for GLA Summit ${submissionsForYear} on your behalf, and you are listed as its presenter.\r\n
     The presentation is now with the GLA Summit organizers for review, and we will email you again once a decision has been made.\r\n
     More details can be found in an HTML copy of this email - if you would like more detail in our plain-text emails, please contact web@glasummit.org\r\n
-    If any of these details are wrong, or you were not expecting to present, please contact web@glasummit.org and we will put it right.\r\n
+    If any of these details are wrong, or you were not expecting to present, please contact web@glasummit.org and we will correct or remove the presentation entry.\r\n
     From the GLA Summit Organizers`
   };
 };
