@@ -61,10 +61,14 @@ jobs:
         run: npx playwright install --with-deps firefox
 
       - name: Run @synthetic against the deployment
+        # --no-deps skips the shared-auth `setup` project: --grep does not
+        # filter dependency projects, and no @synthetic test uses the shared
+        # storageState, so running setup here would only create users in the
+        # test DB for nothing.
         run: |
           touch .env.test
           echo "Target: $baseURL"
-          npx playwright test --project firefox --reporter=line,html --grep @synthetic
+          npx playwright test --project firefox --no-deps --reporter=line,html --grep @synthetic
 
       - name: Upload Playwright report
         if: ${{ failure() }}

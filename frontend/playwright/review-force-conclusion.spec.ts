@@ -1,10 +1,8 @@
 import { test, expect } from '@playwright/test';
 import {
-  createOrganizer,
+  authStatePath,
   createPresenter,
-  getEmailsWithSubject,
-  getSeededConcluder,
-  loginOnPage
+  getEmailsWithSubject
 } from './utils';
 import type { SeededUser } from './utils';
 import { submissionsForYear } from '@/app/configConstants';
@@ -27,72 +25,78 @@ const seedUnderReviewPresenter = (title: string) =>
   });
 
 test.describe('force early conclusion', { tag: '@regression' }, () => {
-  let concluder: SeededUser;
   let presenter: SeededUser;
 
   test.afterEach(async () => {
     await presenter?.cleanup();
-    await concluder?.cleanup();
   });
 
-  test('an allow-listed organizer forces an accept and sees the audit trail', async ({
-    page
-  }) => {
-    const title = uniqueTitle('Concludable talk');
-    // The concluder allow-list is admin-only, so tests reuse the concluder
-    // installed by the DB seed rather than minting one (see getSeededConcluder).
-    concluder = getSeededConcluder();
-    presenter = await seedUnderReviewPresenter(title);
+  // The concluder allow-list is admin-only, so this uses the storageState of
+  // the seed-installed concluder (minted by auth.setup.ts, skipped when the
+  // TEST_CONCLUDER_* env vars are absent — mirror that skip here). The forced
+  // conclusion mutates only the per-test presenter's submission, which the
+  // afterEach tears down, so sharing the concluder session is pollution-free.
+  test.describe('as the seeded concluder', () => {
+    test.skip(
+      !process.env.TEST_CONCLUDER_EMAIL || !process.env.TEST_CONCLUDER_USER_ID,
+      'TEST_CONCLUDER_* env vars are not set'
+    );
+    test.use({ storageState: authStatePath('concluder') });
 
-    await page.goto('/');
-    await loginOnPage(page, concluder.email);
-    await page.goto('/review-submissions');
+    test('an allow-listed organizer forces an accept and sees the audit trail', async ({
+      page
+    }) => {
+      const title = uniqueTitle('Concludable talk');
+      presenter = await seedUnderReviewPresenter(title);
 
-    // Other under-review submissions also show force buttons, so scope to the
-    // innermost card column that contains BOTH this title and a force button.
-    // Exact name matching avoids colliding with the card's expander button.
-    const forceAccept = page.getByRole('button', {
-      name: 'Force accept',
-      exact: true
+      await page.goto('/review-submissions');
+
+      // Other under-review submissions also show force buttons, so scope to the
+      // innermost card column that contains BOTH this title and a force button.
+      // Exact name matching avoids colliding with the card's expander button.
+      const forceAccept = page.getByRole('button', {
+        name: 'Force accept',
+        exact: true
+      });
+      const card = page
+        .locator('div')
+        .filter({ hasText: title })
+        .filter({ has: forceAccept })
+        .last();
+      await card
+        .getByRole('button', { name: 'Force accept', exact: true })
+        .click();
+
+      // Confirm in the CenteredDialog (scope to the dialog to avoid the trigger).
+      const dialog = page.getByRole('dialog');
+      await expect(dialog).toContainText('irreversible');
+      await dialog
+        .getByRole('button', { name: 'Force accept', exact: true })
+        .click();
+
+      // The submission moves to Accepted and the audit line records who forced it.
+      await expect(page.getByText(/Forced accepted by/)).toBeVisible();
     });
-    const card = page
-      .locator('div')
-      .filter({ hasText: title })
-      .filter({ has: forceAccept })
-      .last();
-    await card
-      .getByRole('button', { name: 'Force accept', exact: true })
-      .click();
-
-    // Confirm in the CenteredDialog (scope to the dialog to avoid the trigger).
-    const dialog = page.getByRole('dialog');
-    await expect(dialog).toContainText('irreversible');
-    await dialog
-      .getByRole('button', { name: 'Force accept', exact: true })
-      .click();
-
-    // The submission moves to Accepted and the audit line records who forced it.
-    await expect(page.getByText(/Forced accepted by/)).toBeVisible();
   });
 
-  test('an organizer who is not a concluder sees no force buttons', async ({
-    page
-  }) => {
-    const title = uniqueTitle('Plain review talk');
-    [concluder, presenter] = await Promise.all([
-      // Named `concluder` only for shared cleanup; this one is a plain organizer.
-      createOrganizer({ emailPrefix: 'pw-plain-organizer' }),
-      seedUnderReviewPresenter(title)
-    ]);
+  // Any organizer outside the allow-list works here, so the shared organizer
+  // session (never a concluder) reads the page.
+  test.describe('as a plain organizer', () => {
+    test.use({ storageState: authStatePath('organizer') });
 
-    await page.goto('/');
-    await loginOnPage(page, concluder.email);
-    await page.goto('/review-submissions');
+    test('an organizer who is not a concluder sees no force buttons', async ({
+      page
+    }) => {
+      const title = uniqueTitle('Plain review talk');
+      presenter = await seedUnderReviewPresenter(title);
 
-    await expect(page.getByText(title)).toBeVisible();
-    await expect(
-      page.getByRole('button', { name: 'Force accept', exact: true })
-    ).toHaveCount(0);
+      await page.goto('/review-submissions');
+
+      await expect(page.getByText(title)).toBeVisible();
+      await expect(
+        page.getByRole('button', { name: 'Force accept', exact: true })
+      ).toHaveCount(0);
+    });
   });
 });
 

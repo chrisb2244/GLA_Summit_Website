@@ -14,6 +14,7 @@ export { loginOnPage } from './login';
 export { seedSharedPresentation } from './presentations';
 export { seedTicket } from './tickets';
 export {
+  cleanupUser,
   createAttendee,
   createCopresenter,
   createLogViewer,
@@ -22,3 +23,12 @@ export {
   getSeededConcluder
 } from './userCreation';
 export type { SeededUser, TestRole } from './userCreation';
+export {
+  assertSessionOutlastsRun,
+  authStatePath,
+  authStateDir,
+  authUserManifestPath,
+  getAccessToken,
+  SHARED_AUTH_ROLES
+} from './authState';
+export type { SharedAuthRole, StorageState } from './authState';
