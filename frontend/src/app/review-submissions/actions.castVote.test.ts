@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { castVote } from './actions';
 import { createServerClient } from '@/lib/supabaseServer';
-import { revalidatePath } from 'next/cache';
+import { refresh } from 'next/cache';
 
 vi.mock('@/lib/supabaseServer', () => ({
   createServerClient: vi.fn()
 }));
 vi.mock('next/cache', () => ({
-  revalidatePath: vi.fn(),
+  refresh: vi.fn(),
   // castVote reaches getUserDataForMenu, which uses these cache primitives.
   cacheLife: vi.fn(),
   cacheTag: vi.fn()
@@ -93,7 +93,7 @@ describe('castVote', () => {
     buildClient({ userId: null, organizerCount: 0 });
     const res = await castVote('pres-1', 'for');
     expect(res.success).toBe(false);
-    expect(revalidatePath).not.toHaveBeenCalled();
+    expect(refresh).not.toHaveBeenCalled();
   });
 
   it('rejects a non-organizer', async () => {
@@ -116,7 +116,7 @@ describe('castVote', () => {
     expect(upsert).not.toHaveBeenCalled();
   });
 
-  it('upserts a vote for an organizer and revalidates', async () => {
+  it('upserts a vote for an organizer and refreshes', async () => {
     const { upsert } = buildClient({ userId: 'u-1', organizerCount: 1 });
     const res = await castVote('pres-1', 'against');
     expect(res.success).toBe(true);
@@ -127,7 +127,7 @@ describe('castVote', () => {
         vote: 'against'
       })
     );
-    expect(revalidatePath).toHaveBeenCalledWith('/review-submissions');
+    expect(refresh).toHaveBeenCalled();
   });
 
   it('deletes the vote row when clearing (vote === null)', async () => {
@@ -136,7 +136,7 @@ describe('castVote', () => {
     expect(res.success).toBe(true);
     expect(del).toHaveBeenCalled();
     expect(upsert).not.toHaveBeenCalled();
-    expect(revalidatePath).toHaveBeenCalledWith('/review-submissions');
+    expect(refresh).toHaveBeenCalled();
   });
 
   it('returns failure when the mutation errors', async () => {
@@ -147,6 +147,6 @@ describe('castVote', () => {
     });
     const res = await castVote('pres-1', 'for');
     expect(res.success).toBe(false);
-    expect(revalidatePath).not.toHaveBeenCalled();
+    expect(refresh).not.toHaveBeenCalled();
   });
 });

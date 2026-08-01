@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { forceSubmissionOutcome } from './actions';
 import { createServerClient } from '@/lib/supabaseServer';
-import { revalidatePath } from 'next/cache';
+import { refresh } from 'next/cache';
 
 vi.mock('@/lib/supabaseServer', () => ({
   createServerClient: vi.fn()
 }));
 vi.mock('next/cache', () => ({
-  revalidatePath: vi.fn(),
+  refresh: vi.fn(),
   cacheLife: vi.fn(),
   cacheTag: vi.fn()
 }));
@@ -26,9 +26,12 @@ const buildClient = (opts: {
   isOrganizer?: boolean;
   isConcluder?: boolean;
   rpcError?: { message: string; code: string } | null;
+  // The RPC resolves to NULL (no error) when it concluded nothing -- see the
+  // "wrote nothing" case below.
+  rpcWroteNothing?: boolean;
 }) => {
   const rpc = vi.fn().mockResolvedValue({
-    data: opts.rpcError ? null : 'accepted',
+    data: opts.rpcError || opts.rpcWroteNothing ? null : 'accepted',
     error: opts.rpcError ?? null
   });
 
@@ -88,7 +91,7 @@ describe('forceSubmissionOutcome', () => {
     const res = await forceSubmissionOutcome('pres-1', 'accepted');
     expect(res.success).toBe(false);
     expect(rpc).not.toHaveBeenCalled();
-    expect(revalidatePath).not.toHaveBeenCalled();
+    expect(refresh).not.toHaveBeenCalled();
   });
 
   it('rejects a non-organizer', async () => {
@@ -109,10 +112,10 @@ describe('forceSubmissionOutcome', () => {
     expect(res.success).toBe(false);
     expect(res.error).toMatch(/not permitted/i);
     expect(rpc).not.toHaveBeenCalled();
-    expect(revalidatePath).not.toHaveBeenCalled();
+    expect(refresh).not.toHaveBeenCalled();
   });
 
-  it('calls the RPC and revalidates for an authorized concluder', async () => {
+  it('calls the RPC and refreshes for an authorized concluder', async () => {
     const { rpc } = buildClient({
       userId: 'u-1',
       isOrganizer: true,
@@ -124,7 +127,7 @@ describe('forceSubmissionOutcome', () => {
       v_pid: 'pres-1',
       v_outcome: 'declined'
     });
-    expect(revalidatePath).toHaveBeenCalledWith('/review-submissions');
+    expect(refresh).toHaveBeenCalled();
   });
 
   it('surfaces a friendly message when the submission is already concluded', async () => {
@@ -141,6 +144,25 @@ describe('forceSubmissionOutcome', () => {
     expect(rpc).toHaveBeenCalled();
     expect(res.success).toBe(false);
     expect(res.error).toMatch(/already been concluded/i);
-    expect(revalidatePath).not.toHaveBeenCalled();
+    expect(refresh).not.toHaveBeenCalled();
+  });
+
+  // force_submission_outcome returns NULL, without raising, when it concluded
+  // nothing -- e.g. a concurrent transaction concluded the submission between
+  // its "already concluded" guard and its INSERT ... ON CONFLICT DO NOTHING.
+  // Reporting success there would claim an outcome that was never written and
+  // has no audit row, so the action must treat it as a failure.
+  it('fails when the RPC reports it wrote nothing', async () => {
+    const { rpc } = buildClient({
+      userId: 'u-1',
+      isOrganizer: true,
+      isConcluder: true,
+      rpcWroteNothing: true
+    });
+    const res = await forceSubmissionOutcome('pres-1', 'accepted');
+    expect(rpc).toHaveBeenCalled();
+    expect(res.success).toBe(false);
+    expect(res.error).toMatch(/not applied/i);
+    expect(refresh).not.toHaveBeenCalled();
   });
 });
