@@ -238,13 +238,6 @@ export const createOrganizer = async (
 // across tests, and the forced-conclusion audit data it produces is keyed to the
 // presenter's submission (forced_conclusions.presentation_id ON DELETE CASCADE,
 // forced_by ON DELETE SET NULL), so it is torn down by the presenter handle.
-const SEEDED_CONCLUDER = {
-  userId: process.env.TEST_CONCLUDER_USER_ID,
-  email: process.env.TEST_CONCLUDER_EMAIL,
-  firstName: 'Christian',
-  lastName: 'Butcher'
-} as const;
-
 export const getSeededConcluder = (): SeededUser => {
   const userId = process.env.TEST_CONCLUDER_USER_ID;
   const email = process.env.TEST_CONCLUDER_EMAIL;
