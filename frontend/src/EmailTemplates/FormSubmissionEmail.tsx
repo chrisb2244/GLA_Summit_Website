@@ -1,19 +1,15 @@
 import { EmailProps } from '@/Components/Form/Person';
 import type { PresentationSubmissionFormData } from '@/Components/PresentationSubmissions/PresentationSubmissionFormSchema';
-import { LogoImg, UnexpectedPresentationEmail } from './emailComponents';
+import {
+  escapeHtml,
+  LogoImg,
+  UnexpectedPresentationEmail
+} from './emailComponents';
 import { PresentationType } from '@/lib/databaseModels';
 import {
   submissionsForYear,
   COPRESENTER_INVITE_WORKFLOW
 } from '@/app/configConstants';
-
-const escapeHtml = (s: string) =>
-  s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
 
 type SubmissionFormData = Omit<
   PresentationSubmissionFormData,
@@ -168,6 +164,123 @@ export const FormSubmissionEmailFn = (
     bodyPlain: `Dear ${nameString},\r\n
     Thank you for submitting a presentation titled "${title}".\r\n
     More details can be found in an HTML copy of this email - if you would like more detail in our plain-text emails, please contact web@glasummit.org\r\n
+    From the GLA Summit Organizers`
+  };
+};
+
+/**
+ * Sent to a presenter whose account was created, and whose presentation was
+ * submitted, by an organizer through the admin panel (/admin/create-presenter).
+ *
+ * Deliberately the same layout as FormSubmissionEmailFn — this is still the
+ * "your presentation was submitted" receipt — with the copy adjusted so the
+ * recipient understands they did not submit it themselves, who did, and that the
+ * details are theirs to correct. The person named in the table is the presenter
+ * (they own the submission), so the rows are labelled "Presenter", and a
+ * "Submitted by" row names the organizer who acted on their behalf.
+ */
+export const OnBehalfSubmissionEmailFn = (
+  formData: SubmissionFormData,
+  nameString: string,
+  submittedByName: string
+) => {
+  const {
+    title,
+    abstract,
+    presentationType,
+    learningPoints,
+    otherPresenters,
+    submitter: { firstName, lastName, email }
+  } = formData;
+  const presenterName = escapeHtml(`${firstName} ${lastName}`);
+  const escapedTitle = escapeHtml(title);
+  const escapedEmail = escapeHtml(email);
+  const escapedSubmittedBy = escapeHtml(submittedByName);
+
+  const typeText = PresentationTypeToString(presentationType);
+  const parsedAbstract = escapeHtml(abstract);
+  const parsedLearningPoints = escapeHtml(learningPoints);
+  const tdStyle = 'padding:8px 0px;vertical-align:middle;word-wrap:break-word';
+  const labelStyle =
+    'padding:8px 8px 8px 0;vertical-align:middle;font-size:10px;text-transform:uppercase;width:100px';
+
+  return {
+    body: `
+  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <html lang="en">
+    <head></head>
+    <div id="__react-email-preview" style="display:none;overflow:hidden;line-height:1px;opacity:0;max-height:0;max-width:0">GLA Summit - A presentation has been submitted on your behalf</div>
+
+    <body style="background-color:#fff;font-family:Roboto,sans-serif">
+      <table align="center" width="100%" role="presentation" cellSpacing="0" cellPadding="0" border="0" style="max-width:37.5em;background-color:#fff;border:1px solid #eee;border-radius:5px;box-shadow:0 5px 10px rgba(20,50,70,.2);margin-top:20px;width:360px;margin:0 auto;padding:68px 0 130px">
+        <tbody>
+          <tr style="width:100%">
+            <td>${LogoImg}
+              <h1 style="color:#444;font-size:32px;font-weight:700;text-align:center">GLA Summit ${submissionsForYear}</h1>
+              <table align="center" width="100%" role="presentation" cellSpacing="0" cellPadding="0" border="0" style="max-width:37.5em;width:324px">
+                <tbody>
+                  <tr style="width:100%">
+                    <td>
+                      ${DearPerson(nameString)}
+                      <p style="font-size:14px;line-height:24px;margin:16px 0">${escapedSubmittedBy} has submitted a presentation for GLA Summit ${submissionsForYear} on your behalf, and you are listed as its presenter.</p>
+                      <p style="font-size:14px;line-height:24px;margin:16px 0">The presentation is now with the GLA Summit organizers for review. We will email you again once a decision has been made.</p>
+                      <p style="font-size:14px;line-height:24px;margin:16px 0">The details that were submitted for you are shown below.</p>
+                      <table style="border-spacing:0px;border-collapse:collapse;color:#444;width:100%;table-layout:fixed">
+                        <tr>
+                          <td style="${labelStyle}">Type</td>
+                          <td style="${tdStyle}">${typeText}</td>
+                        </tr>
+                        <tr style="border-width:1px;border-style:solid;border-color:#aaa"></tr>
+                        <tr>
+                          <td style="${labelStyle}">Title</td>
+                          <td style="${tdStyle}">${escapedTitle}</td>
+                        </tr>
+                        <tr style="border-width:1px;border-style:solid;border-color:#ddd"></tr>
+                        <tr>
+                          <td style="${labelStyle}">Abstract</td>
+                          <td style="${tdStyle}">${parsedAbstract}</td>
+                        </tr>
+                        <tr style="border-width:1px;border-style:solid;border-color:#ddd"></tr>
+                        <tr>
+                          <td style="${labelStyle}">Learning points</td>
+                          <td style="${tdStyle}">${parsedLearningPoints}</td>
+                        </tr>
+                        <tr style="border-width:1px;border-style:solid;border-color:#aaa"></tr>
+                        <tr>
+                          <td style="${labelStyle}">Presenter Name</td>
+                          <td style="${tdStyle}">${presenterName}</td>
+                        </tr>
+                        <tr style="border-width:1px;border-style:solid;border-color:#ddd"></tr>
+                        <tr>
+                          <td style="${labelStyle}">Presenter Email</td>
+                          <td style="${tdStyle}">${escapedEmail}</td>
+                        </tr>
+                        <tr style="border-width:1px;border-style:solid;border-color:#ddd"></tr>
+                        <tr>
+                          <td style="${labelStyle}">Submitted by</td>
+                          <td style="${tdStyle}">${escapedSubmittedBy}</td>
+                        </tr>
+                        <tr style="border-width:1px;border-style:solid;border-color:#aaa"></tr>
+                        ${OtherPresenterRowsFn(otherPresenters, tdStyle)}
+                      </table>
+                      <p style="font-size:14px;line-height:24px;margin:16px 0">If any of these details are wrong, or you were not expecting to present at GLA Summit ${submissionsForYear}, please contact <a href="mailto:web@glasummit.org" target="_blank" style="color:#a25bcd;text-decoration:underline">web@glasummit.org</a> and we will correct or remove the presentation entry.</p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </body>
+  </html>
+  `,
+    bodyPlain: `Dear ${nameString},\r\n
+    ${submittedByName} has submitted a presentation titled "${title}" for GLA Summit ${submissionsForYear} on your behalf, and you are listed as its presenter.\r\n
+    The presentation is now with the GLA Summit organizers for review, and we will email you again once a decision has been made.\r\n
+    More details can be found in an HTML copy of this email - if you would like more detail in our plain-text emails, please contact web@glasummit.org\r\n
+    If any of these details are wrong, or you were not expecting to present, please contact web@glasummit.org and we will correct or remove the presentation entry.\r\n
     From the GLA Summit Organizers`
   };
 };
@@ -401,7 +514,11 @@ export const OrganizerSubmissionNotificationEmailFn = (
   title: string,
   presentationType: PresentationType,
   submitterName: string,
-  submitterEmail: string
+  submitterEmail: string,
+  // Set only for admin-panel submissions (/admin/create-presenter): names the
+  // organizer who created the presenter's account and submitted for them, so the
+  // review thread is not left guessing why a brand-new account submitted.
+  submittedOnBehalfBy?: string
 ) => {
   const escapedTitle = escapeHtml(title);
   const escapedSubmitterName = escapeHtml(submitterName);
@@ -410,6 +527,16 @@ export const OrganizerSubmissionNotificationEmailFn = (
   const tdStyle = 'padding:8px 0px;vertical-align:middle;word-wrap:break-word';
   const labelStyle =
     'padding:8px 8px 8px 0;vertical-align:middle;font-size:10px;text-transform:uppercase;width:100px';
+  const onBehalfRow = submittedOnBehalfBy
+    ? `
+                        <tr style="border-width:1px;border-style:solid;border-color:#ddd"></tr>
+                        <tr>
+                          <td style="${labelStyle}">Submitted by</td>
+                          <td style="${tdStyle}">${escapeHtml(
+                            submittedOnBehalfBy
+                          )} (on behalf of the presenter)</td>
+                        </tr>`
+    : '';
 
   return {
     body: `
@@ -449,7 +576,7 @@ export const OrganizerSubmissionNotificationEmailFn = (
                         <tr>
                           <td style="${labelStyle}">Submitter Email</td>
                           <td style="${tdStyle}">${escapedSubmitterEmail}</td>
-                        </tr>
+                        </tr>${onBehalfRow}
                       </table>
                       <p style="font-size:14px;line-height:24px;margin:16px 0">
                         <a href="https://glasummit.org/review-submissions" target="_blank" style="color:#a25bcd;text-decoration:underline">View all submissions</a>
@@ -468,7 +595,11 @@ export const OrganizerSubmissionNotificationEmailFn = (
     bodyPlain: `A new presentation has been submitted for GLA Summit ${submissionsForYear}.\r\n
     Title: "${title}"\r\n
     Type: ${typeText}\r\n
-    Submitter: ${submitterName} (${submitterEmail})\r\n
+    Submitter: ${submitterName} (${submitterEmail})\r\n${
+      submittedOnBehalfBy
+        ? `    Submitted by: ${submittedOnBehalfBy} (on behalf of the presenter)\r\n`
+        : ''
+    }
     Review submissions at: https://glasummit.org/review-submissions\r\n
     From the GLA Summit website`
   };

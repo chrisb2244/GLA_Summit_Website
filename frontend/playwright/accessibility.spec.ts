@@ -4,6 +4,7 @@ import {
   authStatePath,
   createCopresenter,
   createPresenter,
+  createPresenterAdmin,
   loginOnPage,
   type SharedAuthRole
 } from './utils';
@@ -232,6 +233,29 @@ test.describe('Accessibility (WCAG A/AA): authenticated pages', () => {
           await expectNoViolations(violations, testInfo);
         } finally {
           await draftPresenter.cleanup();
+        }
+      }
+    );
+
+    test(
+      '/admin/create-presenter has no detectable a11y violations',
+      { tag: ['@a11y'] },
+      async ({ page, makeAxeBuilder }, testInfo) => {
+        const user = await createPresenterAdmin();
+        try {
+          await page.goto('/'); // Need to visit a page to render the login button before loginOnPage can find and click it
+          await loginOnPage(page, user.email);
+          await page.goto('/admin/create-presenter');
+          // The panel streams in behind a Suspense fallback, so wait for the
+          // form's submit button before scanning — otherwise axe can race the
+          // stream and scan the fallback instead of the form.
+          await expect(
+            page.getByRole('button', { name: 'Create Presenter and Submit' })
+          ).toBeVisible();
+          const { violations } = await makeAxeBuilder().analyze();
+          await expectNoViolations(violations, testInfo);
+        } finally {
+          await user.cleanup();
         }
       }
     );
