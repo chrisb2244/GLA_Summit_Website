@@ -10,6 +10,13 @@ import { submissionsForYear } from '@/app/configConstants';
  * says who created it, why, and exactly how to take it over. The one-time
  * passcode comes from the same Supabase signup link used for new co-presenters,
  * so verifying is the recipient's first sign-in.
+ *
+ * NOTE for local testing: the verify link hard-codes https://glasummit.org, as
+ * every template in this directory does. Clicking it while testing against a
+ * local stack opens PRODUCTION, where a locally-issued passcode can never
+ * validate. Enter the code at the local /auth/validateLogin instead — and note
+ * that route redirects a signed-in visitor away, so sign out of the admin
+ * account first.
  */
 export const AdminCreatedAccountEmailFn = (
   nameString: string,

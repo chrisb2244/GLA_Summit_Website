@@ -209,6 +209,73 @@ test.describe('admin presenter creation panel', () => {
     }).toPass({ timeout: 15000 });
   });
 
+  test('the passcode in the welcome email signs the new presenter in', async ({
+    page,
+    context
+  }) => {
+    const presenterEmail = generateTestEmail('pw-presenter-otp');
+    createdPresenterEmails.push(presenterEmail);
+    const testTitle = buildTestTitle('Passcode works');
+
+    const formPage = new CreatePresenterPage(page);
+    await formPage.goto();
+    await formPage.waitForFormLoad();
+
+    await formPage.fillFormData({
+      firstName: 'Verified',
+      lastName: 'Presenter',
+      email: presenterEmail,
+      title: testTitle,
+      abstract: abstractText
+    });
+
+    const emailSentAfter = Date.now() - 5000;
+    await formPage.submitForm();
+    await formPage.waitForSuccess('Verified Presenter');
+
+    // Read the passcode out of the welcome email itself rather than trusting the
+    // action: this is the assertion that the code an admin-created presenter
+    // actually receives is one the verify form accepts. The OTP is the only
+    // 6-to-8 digit run in the body (the year is four digits), so a bare
+    // digit-run match is unambiguous here.
+    let otp: string | undefined;
+    await expect(async () => {
+      const [welcome] = await getEmailsWithSubject(
+        presenterEmail,
+        WELCOME_SUBJECT,
+        emailSentAfter
+      );
+      expect(welcome).toBeTruthy();
+      otp = welcome.body.text.match(/\b(\d{6,8})\b/)?.[1];
+      expect(otp).toBeTruthy();
+    }).toPass({ timeout: 15000 });
+
+    // Two things make this leg easy to get wrong by hand:
+    //  1. /auth/validateLogin redirects a signed-in visitor away, and the admin
+    //     who just used the panel IS signed in — so clear the session first.
+    //  2. The email's button points at https://glasummit.org (as every template
+    //     does), so a locally-issued code entered there can never validate.
+    //     Navigate to the *local* route with the same query the email carries.
+    await context.clearCookies();
+    await page.goto(
+      `/auth/validateLogin?email=${encodeURIComponent(presenterEmail)}`
+    );
+
+    await page
+      .getByRole('textbox', { name: 'Verification Code' })
+      .fill(otp as string);
+    await page.getByRole('button', { name: 'Submit', exact: true }).click();
+
+    // Signed in — and as the presenter, not the admin who created them.
+    // The menu button renders "<firstname> <lastname>" for the session's profile.
+    const userButton = page.locator('[data-testid="user-menu-button"]');
+    await userButton.waitFor({ state: 'visible', timeout: 20000 });
+    await expect(userButton).toContainText('Verified Presenter');
+    await expect(userButton).not.toContainText(
+      `${adminUser.firstName} ${adminUser.lastName}`
+    );
+  });
+
   test('stores the optional bio and profile picture on the new presenter', async ({
     page
   }) => {
