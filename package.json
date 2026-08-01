@@ -1,7 +1,7 @@
 {
   "type": "module",
   "scripts": {
-    "gen_types": "supabase gen types typescript --local > frontend/src/lib/sb_databaseModels.ts",
+    "gen_types": "supabase gen types typescript --local --schema public> frontend/src/lib/sb_databaseModels.ts",
     "db:seed:avatars": "node --env-file=frontend/.env.local --import tsx supabase/seeds/avatar-storage.ts",
     "db:seed:avatars:remote": "node --env-file=frontend/.env.test.remote --import tsx supabase/seeds/avatar-storage.ts",
     "db:reset": "supabase db reset && npm run db:seed:avatars"
