@@ -25,10 +25,24 @@ export const verifyLogin = async (data: {
   return verifyData.user !== null;
 };
 
+/**
+ * 'sent'       – an OTP email is on its way.
+ * 'no-account' – the address has no account. An ordinary user mistake (typo,
+ *                never registered, registered under a different address), so
+ *                it is recorded at 'info' rather than 'error'.
+ * 'failed'     – something on our side went wrong (link generation or mail
+ *                delivery). These are the entries worth alerting on.
+ *
+ * The caller must render the same message for the last two: telling a visitor
+ * that an address has no account turns sign-in into an account-existence
+ * oracle.
+ */
+export type SignInOutcome = 'sent' | 'no-account' | 'failed';
+
 export const signIn = async (
   email: string,
   redirectTo?: string
-): Promise<boolean> => {
+): Promise<SignInOutcome> => {
   try {
     const response = await generateSupabaseLinks({
       type: 'magiclink',
@@ -36,20 +50,37 @@ export const signIn = async (
       redirectTo
     });
 
-    const { properties, user } = response.data;
-    if (properties == null) {
+    if (response.reason === 'user-not-found') {
       await logToDb(
-        'error',
-        'No OTP properties returned during sign-in',
-        'auth/signin',
+        'info',
+        'Sign-in attempted for an address with no account',
+        'auth/signin-no-account',
         {
           context: { email },
           retainDays: 14
         }
       );
-      return false;
+      return 'no-account';
     }
 
+    if (response.reason !== null) {
+      await logToDb(
+        'error',
+        'No OTP properties returned during sign-in',
+        'auth/signin',
+        {
+          context: {
+            email,
+            error: response.error.message,
+            status: response.error.status ?? null
+          },
+          retainDays: 90
+        }
+      );
+      return 'failed';
+    }
+
+    const { properties, user } = response.data;
     const { firstName, lastName } = parseUserMetadata(user.user_metadata);
     const plainText = otpEmailText(firstName, lastName, properties.email_otp);
     const mailResult = await sendMailApi({
@@ -63,13 +94,24 @@ export const signIn = async (
       )
     });
 
-    return mailResult.status === 200;
+    if (mailResult.status !== 200) {
+      await logToDb('error', 'Sign-in OTP email was rejected', 'auth/signin', {
+        context: { email, status: mailResult.status },
+        retainDays: 90
+      });
+      return 'failed';
+    }
+
+    return 'sent';
   } catch (err) {
     await logToDb('error', 'Failed to send sign-in link', 'auth/signin', {
-      context: { message: err instanceof Error ? err.message : String(err) },
+      context: {
+        email,
+        message: err instanceof Error ? err.message : String(err)
+      },
       retainDays: 90 // Possibly indicates an issue with email delivery, but unlikely to need forever.
     });
-    return false;
+    return 'failed';
   }
 };
 

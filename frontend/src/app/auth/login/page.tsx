@@ -41,7 +41,13 @@ const LoginPageContent = async ({
     redirect(redirectTo ?? '/');
   }
 
-  return <LoginForm redirectTo={redirectTo} />;
+  // Carried over from the registration form so switching back never means
+  // retyping the address.
+  const emailParam = (await searchParams)?.email;
+  const email =
+    typeof emailParam === 'string' ? decodeURI(emailParam) : undefined;
+
+  return <LoginForm redirectTo={redirectTo} email={email} />;
 };
 
 export default LoginPage;
