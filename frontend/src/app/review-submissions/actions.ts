@@ -3,7 +3,7 @@
 import { createServerClient } from '@/lib/supabaseServer';
 import { joinNames, logToDb } from '@/lib/utils';
 import type { OrganizerVote } from '@/lib/databaseModels';
-import { revalidatePath } from 'next/cache';
+import { refresh } from 'next/cache';
 import JSZip from 'jszip';
 import { getUserDataForMenu } from '@/lib/supabase/userFunctions';
 
@@ -90,7 +90,17 @@ export const castVote = async (
     return { success: false, error: 'Could not record your vote.' };
   }
 
-  revalidatePath('/review-submissions');
+  // The review page reads its submissions/votes uncached (createServerClient in
+  // the component), so there is no cache entry to invalidate -- updateTag and
+  // revalidatePath have nothing to act on here. refresh() is the primitive that
+  // matches: ask the client router to re-render after the mutation.
+  //
+  // Caveat: this does not reliably deliver read-your-writes today. The page the
+  // action re-renders comes back stale roughly half the time (measured on the
+  // force path, and unchanged by revalidatePath or a client router.refresh()),
+  // so callers may still need a reload to see their own write. Keeping refresh()
+  // because it is the correct primitive, not because it closes that gap.
+  refresh();
   return { success: true };
 };
 
@@ -147,10 +157,13 @@ export const forceSubmissionOutcome = async (
     };
   }
 
-  const { error } = await supabase.rpc('force_submission_outcome', {
-    v_pid: presentationId,
-    v_outcome: outcome
-  });
+  const { data: written, error } = await supabase.rpc(
+    'force_submission_outcome',
+    {
+      v_pid: presentationId,
+      v_outcome: outcome
+    }
+  );
 
   if (error) {
     await logToDb(
@@ -175,7 +188,31 @@ export const forceSubmissionOutcome = async (
     return { success: false, error: friendly };
   }
 
-  revalidatePath('/review-submissions');
+  // force_submission_outcome only writes the outcome (and the forced_conclusions
+  // audit row) when apply_submission_outcome actually inserted; otherwise it
+  // returns NULL without raising. That happens when the submission was concluded
+  // by a concurrent transaction between this RPC's own "already concluded" guard
+  // and its INSERT ... ON CONFLICT DO NOTHING, or when the submission has since
+  // been deleted. Reporting success there would tell the organizer the outcome
+  // was forced while nothing was written and no audit trail exists, so treat a
+  // NULL return as a failure.
+  if (written === null) {
+    await logToDb(
+      'error',
+      'Force submission outcome wrote nothing',
+      'review-submissions/force',
+      { userId: user.id, context: { presentationId, outcome } }
+    );
+    return {
+      success: false,
+      error:
+        'The outcome was not applied — this submission may have just been concluded elsewhere. Reload the page and check its status.'
+    };
+  }
+
+  // See castVote for why this is refresh() rather than updateTag/revalidatePath,
+  // and for the caveat that the re-render it triggers is not reliably fresh.
+  refresh();
   return { success: true };
 };
 

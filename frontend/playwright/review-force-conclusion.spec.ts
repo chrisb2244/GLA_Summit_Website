@@ -74,8 +74,44 @@ test.describe('force early conclusion', { tag: '@regression' }, () => {
         .getByRole('button', { name: 'Force accept', exact: true })
         .click();
 
-      // The submission moves to Accepted and the audit line records who forced it.
-      await expect(page.getByText(/Forced accepted by/)).toBeVisible();
+      // The panel only unmounts when the action reports success, and stays up
+      // with the reason when it does not. Asserting that first splits the two
+      // failure modes that otherwise both surface as "audit line never appeared":
+      // a rejected/no-op write leaves the panel up with its error, whereas a page
+      // that never picked up the write closes it and shows nothing new.
+      //
+      // Anchor on the panel heading, not `dialog`: CenteredDialog's root carries
+      // role="dialog" but is `relative` with only `fixed` children, so it has an
+      // empty box and Playwright reports it hidden even while the dialog is on
+      // screen -- expect(dialog).toBeHidden() would pass unconditionally.
+      await expect(
+        page.getByRole('heading', { name: 'Force accept this submission?' })
+      ).toBeHidden();
+
+      // Scope the audit line to THIS submission's card. A page-wide
+      // getByText(/Forced accepted by/) also matches the audit line of any other
+      // forced submission on the page -- including long-lived ones on seeded
+      // presentations that no test tears down -- so it passes even when this
+      // force wrote nothing. Requiring the audit text and this title's heading
+      // inside the same element ties the assertion to the submission under test;
+      // .last() picks the innermost such element (the card column) rather than
+      // the page wrapper, which contains every card.
+      //
+      // Reload before asserting: the write is durable by the time the action
+      // returns, but the page it re-renders in response is not reliably fresh.
+      // Measured locally at ~50% stale over 10 runs, unchanged by revalidatePath,
+      // refresh() or a client-side router.refresh() -- so the immediate update is
+      // a framework-level read-your-writes gap, not something this spec can wait
+      // out (toBeVisible only re-queries the DOM; nothing re-renders it). Assert
+      // the durable outcome here and track the refresh gap separately.
+      await page.reload();
+
+      const forcedCard = page
+        .locator('div')
+        .filter({ has: page.getByRole('heading', { name: title, exact: true }) })
+        .filter({ hasText: /Forced accepted by/ })
+        .last();
+      await expect(forcedCard).toBeVisible();
     });
   });
 
