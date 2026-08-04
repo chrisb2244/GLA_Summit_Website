@@ -6,13 +6,14 @@ import {
   LoginState,
   signInFromFormWithRedirect
 } from '@/Components/SigninRegistration/SignInUpActions';
+import { buildAuthFormUrl } from '@/Components/SigninRegistration/formState';
 import { useFormValidation } from '@/Components/Utilities/useFormValidation';
 import { useTouchedFieldErrors } from '@/Components/Utilities/useTouchedFieldErrors';
 import Link from 'next/link';
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 
-const FormError = (props: { message?: string }) => {
+const FormError = (props: { message?: string; registerPath: string }) => {
   const { pending } = useFormStatus();
 
   if (pending || props.message === undefined) {
@@ -20,20 +21,25 @@ const FormError = (props: { message?: string }) => {
   }
 
   return (
-    <p className='pt-2 text-center text-base text-red-700' role='alert'>
-      {props.message}
-    </p>
+    <div className='pt-2 text-center text-base text-red-700' role='alert'>
+      <p>{props.message}</p>
+      {/* The error is the moment a visitor discovers they may be in the wrong
+          place, so the route out is offered here rather than only at the top of
+          the page. */}
+      <p className='pt-1'>
+        <Link className='link' href={props.registerPath} replace scroll={false}>
+          Create an account
+        </Link>
+      </p>
+    </div>
   );
 };
 
-export const LoginForm = (props: { redirectTo?: string }) => {
-  const registerPath = props.redirectTo
-    ? `/auth/register?redirectTo=${props.redirectTo}`
-    : '/auth/register';
+export const LoginForm = (props: { redirectTo?: string; email?: string }) => {
   const initialState: LoginState = {
     errors: undefined,
     data: {
-      email: '',
+      email: props.email ?? '',
       redirectTo: props.redirectTo
     }
   };
@@ -45,6 +51,13 @@ export const LoginForm = (props: { redirectTo?: string }) => {
   const { getFieldError, onBlurFor } = useTouchedFieldErrors<'email'>({
     validationMessages,
     fieldErrors: state.errors
+  });
+  // Mirrors the (uncontrolled) email input so the links across to registration
+  // can carry whatever has been typed so far.
+  const [typedEmail, setTypedEmail] = useState(state.data.email);
+  const registerPath = buildAuthFormUrl('/auth/register', {
+    email: typedEmail.trim(),
+    redirectTo: props.redirectTo
   });
 
   return (
@@ -74,6 +87,9 @@ export const LoginForm = (props: { redirectTo?: string }) => {
         action={formAction}
         onChange={(ev) => {
           if (ev.target instanceof HTMLInputElement) {
+            if (ev.target.name === 'email') {
+              setTypedEmail(ev.target.value);
+            }
             checkValidity(ev.target);
           }
         }}
@@ -104,7 +120,7 @@ export const LoginForm = (props: { redirectTo?: string }) => {
           staticText='Log In'
           pendingText='Logging In...'
         />
-        <FormError message={state.errors?.form} />
+        <FormError message={state.errors?.form} registerPath={registerPath} />
       </form>
       {/* </div> */}
     </div>

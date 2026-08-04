@@ -29,16 +29,23 @@ export type GenerateLinkBody =
       redirectTo?: string;
     };
 
+// `reason` lets callers separate the ordinary "that address has no account"
+// case (a user mistake) from an actual GoTrue/API failure, which otherwise look
+// identical from the outside — both just yield null properties.
+export type GenerateLinkFailureReason = 'user-not-found' | 'api-error';
+
 export type GenerateLinkReturn =
   | {
       data: { user: User; properties: GenerateLinkProperties };
       linkType: LinkType;
       error: null;
+      reason: null;
     }
   | {
       data: { user: null; properties: null };
       linkType: null;
       error: ApiError | AuthError;
+      reason: GenerateLinkFailureReason;
     };
 
 export type LinkType = 'signup' | 'magiclink' | 'invite' | 'recovery';
@@ -90,7 +97,8 @@ export const generateSupabaseLinks = async (
         return {
           data: { user: null, properties: null },
           linkType: null,
-          error: { message: 'User not found', status: 401 }
+          error: { message: 'User not found', status: 401 },
+          reason: 'user-not-found'
         };
       }
       fnPromise = createAdminClient().auth.admin.generateLink({
@@ -140,7 +148,7 @@ const handleApiResponse = (
   const { data, error } = value;
   // console.log({data, error})
   if (error) {
-    return { data, linkType: null, error };
+    return { data, linkType: null, error, reason: 'api-error' };
   }
-  return { data, linkType: type, error };
+  return { data, linkType: type, error, reason: null };
 };

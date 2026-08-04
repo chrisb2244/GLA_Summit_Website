@@ -34,6 +34,40 @@ describe('RegistrationSchema email normalisation', () => {
   });
 });
 
+describe('RegistrationForm cross-links', () => {
+  afterEach(() => {
+    cleanup();
+    vi.clearAllMocks();
+  });
+
+  it('prefills an email carried over from the sign-in form', () => {
+    render(<RegistrationForm email='carried@example.com' />);
+
+    expect(screen.getByRole('textbox', { name: /email/i })).toHaveProperty(
+      'value',
+      'carried@example.com'
+    );
+  });
+
+  it('carries the typed email back to the sign-in form', async () => {
+    render(<RegistrationForm />);
+
+    const signInLink = screen.getByRole('link', { name: /Sign In/i });
+    expect(signInLink.getAttribute('href')).toBe('/auth/login');
+
+    await userEvent.type(
+      screen.getByRole('textbox', { name: /email/i }),
+      'typed@example.com'
+    );
+
+    await waitFor(() => {
+      expect(signInLink.getAttribute('href')).toBe(
+        '/auth/login?email=typed%40example.com'
+      );
+    });
+  });
+});
+
 describe('RegistrationForm error rendering', () => {
   afterEach(() => {
     cleanup();
