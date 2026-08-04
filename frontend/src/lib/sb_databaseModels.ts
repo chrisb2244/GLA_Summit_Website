@@ -637,7 +637,7 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: undefined
       }
-      email_has_account: { Args: { p_email: string }; Returns: boolean }
+      current_user_emails: { Args: never; Returns: string[] }
       evaluate_submission: { Args: { v_pid: string }; Returns: string }
       force_submission_outcome: {
         Args: { v_outcome: string; v_pid: string }
@@ -720,6 +720,13 @@ export type Database = {
       }
       is_organizer: { Args: never; Returns: boolean }
       purge_synthetic_test_users: { Args: never; Returns: number }
+      resolve_account_email: {
+        Args: { p_email: string }
+        Returns: {
+          primary_email: string
+          user_id: string
+        }[]
+      }
     }
     Enums: {
       log_type: "info" | "error" | "severe"
