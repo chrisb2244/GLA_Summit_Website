@@ -47,8 +47,8 @@
     "@testmail.app/graphql-request": "^1.8.4",
     "@types/node": "^22.0.0",
     "@types/nodemailer": "^6.4.4",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
     "@typescript-eslint/eslint-plugin": "^8.11.0",
     "@typescript-eslint/parser": "^8.11.0",
     "@vitejs/plugin-react": "^6.0.2",
@@ -67,8 +67,6 @@
     "prettier-plugin-tailwindcss": "^0.8.0",
     "tailwindcss": "^4.3.0",
     "ts-node": "^10.9.1",
-    "types-react": "^19.0.0-rc.1",
-    "types-react-dom": "^19.0.0-rc.1",
     "typescript": "^5.3.3",
     "vitest": "^4.1.7"
   }
