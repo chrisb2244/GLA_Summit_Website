@@ -2,7 +2,7 @@ import { Header } from './_rootElements/Header';
 import { Footer } from './_rootElements/Footer';
 import { roboto } from './font-workaround';
 import type { Metadata } from 'next';
-import { SpeedInsightsWrapper } from './_rootElements/SpeedInsightsWrapper';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import {
   buildOpenGraph,
   ogImageUrl,
@@ -77,7 +77,7 @@ export default function RootLayout(props: {
           </div>
           <Footer />
         </div>
-        <SpeedInsightsWrapper />
+        <SpeedInsights />
       </body>
     </html>
   );
