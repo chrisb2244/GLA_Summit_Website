@@ -25,7 +25,7 @@ export const ORGANIZER_VOTING: boolean = true;
 // Controls for which year the presentation-list defaults,
 // and for which year the agenda is displayed.
 // This should be updated once presentations are accepted for a given year.
-export const currentDisplayYear: SummitYear = '2025';
+export const currentDisplayYear: SummitYear = '2026';
 
 // The year for which presentation submissions are currently open.
 // Also controls the subjects in registration and login emails.
