@@ -11,7 +11,7 @@
     "@supabase/supabase-js": "^2.104.1",
     "@vercel/speed-insights": "^2.0.0",
     "class-variance-authority": "^0.7.0",
-    "clsx": "^1.2.1",
+    "clsx": "^2.1.1",
     "form-data": "^4.0.0",
     "ics": "^2.41.0",
     "jszip": "^3.10.1",
