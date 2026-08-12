@@ -78,8 +78,7 @@ const PresentationsForYearPageContent = async ({
         speakerNames: p.all_presenters_names,
         presentationId: p.presentation_id,
         presentationType: p.presentation_type,
-        // Mask the schedule for 2025 for now
-        scheduledFor: p.year === '2025' ? null : p.scheduled_for
+        scheduledFor: p.scheduled_for
       };
       return presentation;
     })
