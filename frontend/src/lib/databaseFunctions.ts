@@ -1,4 +1,4 @@
-import { generateAvatarIcon } from '@/actions/generateAvatarIcon';
+import { commitAvatarUpdate } from '@/actions/updateAvatar';
 import {
   PostgrestError,
   User as SB_User,
@@ -11,7 +11,7 @@ import {
   createAdminClient,
   createAnonServerClient
 } from './supabaseClient';
-import { defaultTimezoneInfo, fullUrlToIconUrl, logToDb } from './utils';
+import { defaultTimezoneInfo, logToDb } from './utils';
 import type { NewUserInformation } from './sessionTypes';
 
 export type User = SB_User;
@@ -198,9 +198,7 @@ export const getProfileInfo = async (user: User, client: Client = supabase) => {
 
 export const uploadAvatar = async (
   remoteFilePath: string,
-  localFile: File,
-  userId: string,
-  originalProfileURL: string | null
+  localFile: File
 ) => {
   // Upload a new file to storage
   const { error } = await supabase.storage
@@ -211,89 +209,17 @@ export const uploadAvatar = async (
     });
   if (error) throw error;
 
-  // Set that file as the profile avatar
-  const { error: profileUpdateError } = await supabase
-    .from('profiles')
-    .update({ avatar_url: remoteFilePath })
-    .match({ id: userId });
-  if (profileUpdateError) {
-    deleteAvatar(remoteFilePath);
-    throw profileUpdateError;
-  }
-
-  // Generate a smaller webp version of the image for the user icon. The old
-  // icon (if any) is owned by no one -- it was written by the admin client,
-  // not this user's session -- so it can only be cleaned up from the same
-  // admin-authorized path that creates it, not via deleteAvatar() below.
-  await requestAvatarIconGeneration(userId, remoteFilePath, originalProfileURL);
-
-  // Delete the old full-size avatar. This one *was* uploaded by this user's
-  // own session, so it's covered by the owner-scoped storage policies.
-  if (originalProfileURL != null) {
-    await deleteAvatar(originalProfileURL);
+  // Icon generation, updating the profiles table, deleting the files
+  // this replaces, and expiring the profile cache tag happen server-side.
+  // A client-side write to profiles.avatar_url is invisible to the Next.js
+  // cache.
+  const result = await commitAvatarUpdate(remoteFilePath);
+  if (!result.success) {
+    // Don't leave a rejected upload orphaned in the bucket.
+    await deleteAvatar(remoteFilePath).catch(() => undefined);
+    throw new Error(result.error);
   }
   return true;
-};
-
-const requestAvatarIconGeneration = (
-  userId: string,
-  remoteFilePath: string,
-  originalProfileURL?: string | null
-) => {
-  return fetch('/api/handleAvatarUpdate', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ userId, remoteFilePath, originalProfileURL })
-  });
-};
-
-const downloadAvatarFromStorage = async (
-  client: SupabaseClient,
-  remotePath: string
-) => {
-  const { data, error } = await client.storage
-    .from('avatars')
-    .download(remotePath);
-  if (error) return error;
-  return data;
-};
-
-export const downloadIconAvatarAndGenerateIfNeeded = async (
-  fullSizeImageUrl: string,
-  client: SupabaseClient,
-  userId?: string
-) => {
-  const iconUrl = fullUrlToIconUrl(fullSizeImageUrl);
-  const iconData = await downloadAvatarFromStorage(client, iconUrl);
-  if (!(iconData instanceof Error)) {
-    return iconData;
-  }
-
-  // Icon not found — generate it now (blocking) so we always return the
-  // smaller icon and avoid serving the full-size image unnecessarily.
-  let generatedIconUrl: string | null = null;
-  if (typeof window !== 'undefined' && typeof userId === 'string') {
-    // Client context: generate via the authenticated API route.
-    generatedIconUrl = await requestAvatarIconGeneration(
-      userId,
-      fullSizeImageUrl
-    )
-      .then((res) => res.json())
-      .then((body) => (typeof body.iconUrl === 'string' ? body.iconUrl : null))
-      .catch(() => null);
-  } else if (typeof window === 'undefined') {
-    // Server context: call the server action directly, tied to request lifetime.
-    generatedIconUrl = await generateAvatarIcon(fullSizeImageUrl).catch(
-      () => null
-    );
-  }
-
-  if (generatedIconUrl == null) {
-    return null;
-  }
-  return downloadAvatarFromStorage(client, generatedIconUrl);
 };
 
 export const downloadAvatar = async (userId: string) => {

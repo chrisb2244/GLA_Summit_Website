@@ -77,9 +77,7 @@ const ProfilePage_ImageWrapper = async () => {
   if (user === null) {
     return null;
   }
-  const avatar_url =
-    (await getProfileData(user.id).then((data) => data?.avatar_url)) ?? null;
-  return <ProfileImage userId={user.id} avatarUrl={avatar_url} />;
+  return <ProfileImage userId={user.id} />;
 };
 
 export default ProfilePage;

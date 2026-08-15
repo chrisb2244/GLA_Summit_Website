@@ -3,7 +3,7 @@
 import { ProfileModel } from '@/lib/databaseModels';
 import { cacheTagForPerson } from '@/lib/supabase/cacheTags';
 import { createServerActionClient } from '@/lib/supabaseServer';
-import { revalidatePath, revalidateTag } from 'next/cache';
+import { revalidatePath, updateTag } from 'next/cache';
 
 type ProfileData = ProfileModel['Row'];
 type ProfileDataUpdate = ProfileModel['Update'];
@@ -76,7 +76,10 @@ export const updateProfileAction = async (
 
   // Per-person tag only: invalidates exactly the cached entries that contain
   // this person (presenter pages, presentation speaker lists, our-team, etc).
-  revalidateTag(cacheTagForPerson(id), 'max');
+  // Use `updateTag` rather than `revalidateTag(..., 'max')` to allow the user
+  // to immediately see the fresh data instead of serving the stale entry one
+  // more time.
+  updateTag(cacheTagForPerson(id));
   revalidatePath('/my-profile');
   return {
     errors: undefined,

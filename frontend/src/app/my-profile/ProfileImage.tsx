@@ -9,35 +9,39 @@ import { mdiAccountBox } from '@mdi/js';
 
 type ProfileImageProps = {
   userId: string;
-  avatarUrl: string | null;
 };
 
 export const ProfileImage = (props: ProfileImageProps) => {
-  const { userId, avatarUrl: initialAvatarUrl } = props;
+  const { userId } = props;
   const [uploading, setUploading] = useState(false);
-  // Tracks the currently-stored avatar path so a second upload in the same
-  // session deletes the avatar that upload actually replaces, not the value
-  // from the initial server render (which never updates on its own).
-  const [avatarUrl, setAvatarUrl] = useState(initialAvatarUrl);
+  const [error, setError] = useState<string | null>(null);
 
-  const { src: profileImageSrc, mutate } = useProfileImage(userId) || {};
+  const { src: profileImageSrc, mutate } = useProfileImage(userId);
 
   const imageUploadFn = async (file: File) => {
     const extn = file.name.split('.').pop();
     const remoteName = `${userId}_${Math.random()}.${extn}`;
     setUploading(true);
+    setError(null);
     try {
-      await uploadAvatar(remoteName, file, userId, avatarUrl);
-      setAvatarUrl(remoteName);
+      // Cleanup of the old image is managed server-side,
+      // so this call doesn't need to provide the old path
+      await uploadAvatar(remoteName, file);
+    } catch (e) {
+      setError(
+        e instanceof Error ? e.message : 'Could not upload that image.'
+      );
     } finally {
       setUploading(false);
-      mutate?.();
+      // Re-download the stored avatar: on success this is the new image, on
+      // failure it restores the one that is still in place.
+      mutate();
     }
   };
 
   // 900px is md size
   const avatar =
-    typeof profileImageSrc !== 'undefined' ? (
+    profileImageSrc !== null ? (
       <NextImage
         src={profileImageSrc}
         alt='Profile image'
@@ -75,6 +79,11 @@ export const ProfileImage = (props: ProfileImageProps) => {
           {uploading ? 'Uploading' : 'Change Image'}
         </FileButton>
       </div>
+      {error !== null && (
+        <p className='mx-4 mt-2 text-sm text-red-700' role='alert'>
+          {error}
+        </p>
+      )}
     </>
   );
 };
