@@ -166,6 +166,43 @@ test.describe('User Authentication Tests', () => {
     await expect(userButton).toBeVisible();
   });
 
+  test('Sign-in with an unregistered address offers registration', async ({
+    page
+  }) => {
+    // No user is created for this address: this is the failure that fills the
+    // logs, and the response must not reveal that the account is missing.
+    const email = generateTestEmail('unregistered');
+
+    await page.goto('/auth/login?redirectTo=/ticket');
+    const loginForm = page.getByRole('form', { name: 'Login Form' });
+    await loginForm.getByLabel('Email').fill(email);
+    await page.getByRole('button', { name: /log in/i }).click();
+
+    const formError = loginForm.getByRole('alert');
+    await expect(formError).toContainText(/couldn't send a login code/i);
+    await expect(page).toHaveURL(/\/auth\/login/);
+
+    // The typed address (and redirectTo) survive the switch to registration.
+    await formError.getByRole('link', { name: /Create an account/i }).click();
+    await expect(
+      page.getByRole('form', { name: 'Registration Form' }).getByLabel('Email')
+    ).toHaveValue(email);
+    await expect(page).toHaveURL(/redirectTo=%2Fticket/);
+
+    // Recorded as 'info' under its own source, so 'error' rows stay meaningful.
+    const { data } = await supabaseAdmin
+      .from('log')
+      .select('severity,context')
+      .eq('source', 'auth/signin-no-account')
+      .order('created_at', { ascending: false })
+      .limit(10);
+
+    const row = data?.find(
+      (entry) => (entry.context as { email?: string } | null)?.email === email
+    );
+    expect(row?.severity).toBe('info');
+  });
+
   test('Repeated clicking only sends one email - login', async ({ page }) => {
     // Setup a user for login tests
     const user = generateUser('FastClicking', 'User');

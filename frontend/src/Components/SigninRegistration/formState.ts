@@ -83,6 +83,35 @@ export const registrationStateFromFormData = (formData: FormData): RegistrationS
   }
 });
 
+// Shown for every unsuccessful sign-in, whether the address is unregistered or
+// the send genuinely failed — see the comment in SignInUpActions. It names the
+// two things a visitor can act on rather than telling them to "try again",
+// which only produced repeat submissions of the same wrong address.
+export const SIGN_IN_FAILED_MESSAGE =
+  "We couldn't send a login code to that address. Check it for typos, or " +
+  'register if you have not used this site before.';
+
+/**
+ * Links between the sign-in and registration forms carry the address already
+ * typed (and any redirectTo), so switching forms never means retyping — a
+ * retype is where the second typo comes from.
+ */
+export const buildAuthFormUrl = (
+  path: '/auth/login' | '/auth/register',
+  options?: { email?: string; redirectTo?: string }
+): string => {
+  const params = new URLSearchParams();
+  if (options?.email) {
+    params.append('email', options.email);
+  }
+  if (options?.redirectTo) {
+    params.append('redirectTo', options.redirectTo);
+  }
+
+  const query = params.toString();
+  return query.length > 0 ? `${path}?${query}` : path;
+};
+
 export const buildValidateLoginUrl = (email: string, redirectTo?: string): string => {
   const params = new URLSearchParams({ email });
   if (redirectTo) {

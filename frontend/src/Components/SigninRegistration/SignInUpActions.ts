@@ -11,6 +11,7 @@ import {
   loginStateFromFormData,
   RegistrationSchema,
   registrationStateFromFormData,
+  SIGN_IN_FAILED_MESSAGE,
   verificationRequestFromFormData
 } from './formState';
 import { blockIfEmailIsDisallowed, blockIfProfileIsFlagged } from './validation';
@@ -68,13 +69,17 @@ export const signInFromFormWithRedirect = async (
   const { email, redirectTo } = validatedFields.data;
   blockIfEmailIsDisallowed(email);
 
-  const signInSuccessful = await signIn(email, redirectTo);
-  
-  if (signInSuccessful) {
+  const outcome = await signIn(email, redirectTo);
+
+  if (outcome === 'sent') {
     const redirectUrl = buildValidateLoginUrl(email, redirectTo);
     redirect(redirectUrl, RedirectType.push);
   }
 
+  // 'no-account' and 'failed' deliberately share a message: a distinct one for
+  // the former would let anyone test whether an address is registered here.
+  // The form pairs this with a link to registration, which covers the (far more
+  // common) case without disclosing anything.
   return {
     data:
       previousState.data.email === submittedState.data.email &&
@@ -82,7 +87,7 @@ export const signInFromFormWithRedirect = async (
         ? previousState.data
         : submittedState.data,
     errors: {
-      form: 'Could not send a login code. Please try again.'
+      form: SIGN_IN_FAILED_MESSAGE
     }
   };
 };

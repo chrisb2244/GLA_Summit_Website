@@ -6,10 +6,11 @@ import {
   registerFromFormWithRedirect,
   RegistrationState
 } from '@/Components/SigninRegistration/SignInUpActions';
+import { buildAuthFormUrl } from '@/Components/SigninRegistration/formState';
 import { useFormValidation } from '@/Components/Utilities/useFormValidation';
 import { useTouchedFieldErrors } from '@/Components/Utilities/useTouchedFieldErrors';
 import Link from 'next/link';
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 
 const FormError = (props: { message?: string }) => {
@@ -26,16 +27,16 @@ const FormError = (props: { message?: string }) => {
   );
 };
 
-export const RegistrationForm = (props: { redirectTo?: string }) => {
-  const loginPath = props.redirectTo
-    ? `/auth/login?redirectTo=${props.redirectTo}`
-    : '/auth/login';
+export const RegistrationForm = (props: {
+  redirectTo?: string;
+  email?: string;
+}) => {
   const initialState: RegistrationState = {
     errors: undefined,
     data: {
       firstName: '',
       lastName: '',
-      email: '',
+      email: props.email ?? '',
       redirectTo: props.redirectTo
     }
   };
@@ -50,6 +51,13 @@ export const RegistrationForm = (props: { redirectTo?: string }) => {
       fieldErrors: state.errors
     }
   );
+  // Mirrors the (uncontrolled) email input so the link back to sign-in can
+  // carry whatever has been typed so far.
+  const [typedEmail, setTypedEmail] = useState(state.data.email);
+  const loginPath = buildAuthFormUrl('/auth/login', {
+    email: typedEmail.trim(),
+    redirectTo: props.redirectTo
+  });
 
   return (
     <div className='mx-auto flex max-w-lg flex-col py-4'>
@@ -96,6 +104,9 @@ export const RegistrationForm = (props: { redirectTo?: string }) => {
         action={formAction}
         onChange={(ev) => {
           if (ev.target instanceof HTMLInputElement) {
+            if (ev.target.name === 'email') {
+              setTypedEmail(ev.target.value);
+            }
             checkValidity(ev.target);
           }
         }}
