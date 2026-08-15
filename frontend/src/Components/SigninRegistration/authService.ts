@@ -1,3 +1,4 @@
+import 'server-only';
 import { randomBytes } from 'crypto';
 
 import type { UserMetadata } from '@supabase/supabase-js';
@@ -8,6 +9,7 @@ import { generateSupabaseLinks } from '@/lib/generateSupabaseLinks';
 import { sendMailApi } from '@/lib/sendMail';
 import { createServerActionClient } from '@/lib/supabaseServer';
 import { logToDb } from '@/lib/utils';
+import { after } from 'next/server';
 
 import type { PersonProps } from '../Form/Person';
 
@@ -16,13 +18,41 @@ export const verifyLogin = async (data: {
   verificationCode: string;
 }): Promise<boolean> => {
   const supabase = await createServerActionClient();
-  const { data: verifyData } = await supabase.auth.verifyOtp({
+  const { data: verifyData, error } = await supabase.auth.verifyOtp({
     email: data.email,
     token: data.verificationCode,
     type: 'email'
   });
 
-  return verifyData.user !== null;
+  if (verifyData.user !== null) {
+    return true;
+  }
+
+  // A wrong or expired code is an ordinary user mistake
+  //  Anything else may require attention
+  const status = error?.status ?? null;
+  const code = error?.code ?? null;
+  const isUserMistake =
+    status === 403 && (code === 'otp_expired' || code === 'otp_disabled');
+
+  after(() => {
+    logToDb(
+      isUserMistake ? 'info' : 'error',
+      'OTP verification rejected',
+      'auth/verify',
+      {
+        context: {
+          email: data.email,
+          status,
+          code,
+          message: error?.message ?? 'no user and no error returned'
+        },
+        retainDays: isUserMistake ? 7 : 30
+      }
+    );
+  });
+
+  return false;
 };
 
 /**
