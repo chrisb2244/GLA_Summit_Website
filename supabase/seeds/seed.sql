@@ -307,6 +307,15 @@ INSERT INTO "public"."log_viewers" ("user_id") VALUES
 
 
 --
+-- Data for Name: presenter_admins; Type: TABLE DATA; Schema: public; Owner: postgres
+-- (allow-list for /admin/create-presenter; same user as the log viewer above)
+--
+
+INSERT INTO "public"."presenter_admins" ("user_id") VALUES
+	('8a52cd4e-a250-4dba-b799-f38b6e34c75f');
+
+
+--
 -- Data for Name: submission_concluders; Type: TABLE DATA; Schema: public; Owner: postgres
 -- (this user is also an organizer, below)
 --

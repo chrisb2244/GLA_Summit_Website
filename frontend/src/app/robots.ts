@@ -6,6 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: '*',
       allow: '/',
       disallow: [
+        '/admin',
         '/api/ics/',
         '/my-presentations',
         '/my-profile',

@@ -77,6 +77,7 @@ Admin client (`SECRET_SUPABASE_SERVICE_KEY`) bypasses RLS — server actions/rou
 - Error/message logging: `logToDb()` in `src/lib/utils.tsx` → `log` table via admin client
 - Auth roles: `admin`, `organizer`, `presenter`, `attendee`
 - Playwright auth: `playwright/auth.setup.ts` mints per-role storageStates into `playwright/.auth/` (gitignored, per-run, torn down after); read-only tests share them, identity-bound tests log in per test via `loginOnPage` (OTP minted through the admin API, no inbox polling). Only `user-login.spec.ts` drives the real OTP email round-trip.
+- Privileged pages are gated by single-column allow-list tables read under RLS (`user_id = auth.uid()`): `log_viewers` → `/logs`, `presenter_admins` → `/admin/create-presenter`, `submission_concluders` → force-conclude on `/review-submissions`
 
 ## Before Next.js work
 
