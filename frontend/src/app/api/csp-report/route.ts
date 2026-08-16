@@ -129,9 +129,14 @@ const fromCamelCase = (r: Record<string, unknown>): NormalisedReport => ({
  */
 export const isReportable = (r: NormalisedReport): boolean => {
   const haystack = `${r.blockedUri ?? ''} ${r.sourceFile ?? ''}`;
-  // The `\b` / `\s` anchors keep `about:`/`data:` from
-  // matching those substrings inside a real URL.
-  return !/\b(?:chrome|moz|safari(?:-web)?)-extension:|(?:^|\s)(?:about|data):/i.test(
+  // Match the extension scheme whether it carries an authority
+  // (`chrome-extension://hash/...`) or arrives as the bare scheme that some
+  // Chromium reports anonymise it to (`chrome-extension`, no colon). The
+  // `(?=[:\s]|$)` lookahead accepts the colon, a token break, or end-of-string
+  // while still rejecting a substring match inside a real URL path such as
+  // `/chrome-extension-guide`. The `\b` / `\s` anchors likewise keep
+  // `about:`/`data:` from matching those substrings inside a real URL.
+  return !/\b(?:chrome|moz|safari(?:-web)?)-extension(?=[:\s]|$)|(?:^|\s)(?:about|data):/i.test(
     haystack
   );
 };

@@ -28,14 +28,17 @@ const supabaseImageHost = (():
 //    would remove the script 'unsafe-inline' but forces per-request dynamic
 //    rendering, which fights this app's cacheComponents/ISR caching — revisit
 //    if the Report-Only trial shows the policy is otherwise clean.
-//  - img *.supabase.co + data: avatars/storage and data-URI images.
+//  - img *.supabase.co + data: + blob: avatars/storage, data-URI images, and
+//    the blob: object URLs the profile page makes for the avatar preview
+//    (URL.createObjectURL in lib/profileImage.ts). i.ytimg.com covers YouTube
+//    poster thumbnails surfaced alongside the youtube-nocookie embed.
 //  - font-src 'self': next/font self-hosts Roboto at build time (no gstatic).
 //  - frame-src youtube-nocookie: the YouTubeFrame embed.
 const contentSecurityPolicy = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: https://*.supabase.co",
+  "img-src 'self' data: blob: https://*.supabase.co https://i.ytimg.com",
   "font-src 'self'",
   "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://va.vercel-scripts.com",
   'frame-src https://www.youtube-nocookie.com',
