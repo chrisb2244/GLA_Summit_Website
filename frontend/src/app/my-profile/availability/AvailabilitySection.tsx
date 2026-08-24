@@ -1,0 +1,41 @@
+import { submissionsForYear } from '@/app/configConstants';
+import { AvailabilityGrid, type LockedSlot } from './AvailabilityGrid';
+import {
+  listAvailability,
+  listScheduledSessions,
+  storedDisplayTimeZone
+} from './availabilityService';
+import { buildSlots, lockedSlots } from './slots';
+
+/**
+ * Availability is collected for the summit submissions are currently open for —
+ * that is the event still to be scheduled, and the one the answer is useful for.
+ */
+const availabilityYear = submissionsForYear;
+
+export const AvailabilitySection = async ({ userId }: { userId: string }) => {
+  const slots = buildSlots(availabilityYear);
+
+  const [selected, scheduled, storedTimeZone] = await Promise.all([
+    listAvailability(userId, availabilityYear),
+    listScheduledSessions(userId, availabilityYear),
+    storedDisplayTimeZone(userId)
+  ]);
+
+  const locked: LockedSlot[] = [...lockedSlots(slots, scheduled)].map(
+    ([slotStart, sessions]) => ({
+      slotStart,
+      titles: sessions.map((session) => session.title)
+    })
+  );
+
+  return (
+    <AvailabilityGrid
+      year={availabilityYear}
+      slots={slots}
+      initialSelected={selected}
+      locked={locked}
+      storedTimeZone={storedTimeZone}
+    />
+  );
+};

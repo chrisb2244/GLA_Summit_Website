@@ -3,6 +3,7 @@ import React, { Suspense, PropsWithChildren, cache } from 'react';
 import { ProfileImage } from './ProfileImage';
 import { ProfileForm } from './ProfileForm';
 import { getUser } from '@/lib/supabase/userFunctions';
+import { AvailabilitySection } from './availability/AvailabilitySection';
 
 const Wrapper: React.FC<PropsWithChildren> = (props) => {
   return <div className='mb-4 flex flex-col'>{props.children}</div>;
@@ -65,10 +66,15 @@ const ProfilePage_FormWrapper = async () => {
   }
 
   return (
-    <ProfileForm
-      profile={profileData}
-      email={user.email ?? 'Email Not Found'}
-    />
+    <>
+      <ProfileForm
+        profile={profileData}
+        email={user.email ?? 'Email Not Found'}
+      />
+      <Suspense>
+        <AvailabilitySection userId={user.id} />
+      </Suspense>
+    </>
   );
 };
 
