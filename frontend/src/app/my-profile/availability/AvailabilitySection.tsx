@@ -1,6 +1,7 @@
 import { submissionsForYear } from '@/app/configConstants';
 import { AvailabilityGrid, type LockedSlot } from './AvailabilityGrid';
 import {
+  hasSubmissionForYear,
   listAvailability,
   listScheduledSessions,
   storedDisplayTimeZone
@@ -14,6 +15,13 @@ import { buildSlots, lockedSlots } from './slots';
 const availabilityYear = submissionsForYear;
 
 export const AvailabilitySection = async ({ userId }: { userId: string }) => {
+  // Only people with a presentation in the running are asked. An attendee has
+  // no use for the question, and an empty answer from one would be noise in the
+  // organizers' view of who is actually available.
+  if (!(await hasSubmissionForYear(userId, availabilityYear))) {
+    return null;
+  }
+
   const slots = buildSlots(availabilityYear);
 
   const [selected, scheduled, storedTimeZone] = await Promise.all([

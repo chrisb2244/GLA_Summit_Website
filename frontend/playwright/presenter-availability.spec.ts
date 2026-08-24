@@ -1,5 +1,10 @@
 import { test, expect, type Page } from '@playwright/test';
-import { createPresenter, createSupabaseAdmin, loginOnPage } from './utils';
+import {
+  createAttendee,
+  createPresenter,
+  createSupabaseAdmin,
+  loginOnPage
+} from './utils';
 import { submissionsForYear } from '@/app/configConstants';
 
 // The summit is a 24-hour block from 12:00 UTC, so the grid's hours are fixed
@@ -121,6 +126,54 @@ test.describe('presenter availability', () => {
         .delete()
         .eq('user_id', presenter.userId);
       await presenter.cleanup();
+    }
+  });
+
+  test('is not offered to someone with nothing submitted', async ({ page }) => {
+    const attendee = await createAttendee();
+    try {
+      await page.goto('/');
+      await loginOnPage(page, attendee.email);
+      await page.goto('/my-profile');
+
+      // The profile itself still renders; only the availability question is gone.
+      await expect(page.getByLabel('First Name')).toBeVisible();
+      await expect(
+        page.getByRole('heading', { name: 'When can you present?' })
+      ).toHaveCount(0);
+      await expect(page.locator('[data-slot-index]')).toHaveCount(0);
+    } finally {
+      await attendee.cleanup();
+    }
+  });
+
+  test('is offered as soon as a draft is saved, before any acceptance', async ({
+    page
+  }) => {
+    // Acceptance is the point of asking early, so it must not be the gate: a
+    // draft is enough, and savePresentation links the presenter either way.
+    const drafter = await createPresenter({
+      year: submissionsForYear,
+      title: 'Half-written Talk',
+      accepted: false,
+      isSubmitted: false
+    });
+    try {
+      await page.goto('/');
+      await loginOnPage(page, drafter.email);
+      await page.goto('/my-profile');
+
+      await expect(
+        page.getByRole('heading', { name: 'When can you present?' })
+      ).toBeVisible();
+      await expect(page.locator('[data-slot-index]')).toHaveCount(24);
+
+      // Nothing is scheduled, so no hour is locked and none start offered.
+      await expect(
+        page.locator('[data-slot-index] input[type="checkbox"]:checked')
+      ).toHaveCount(0);
+    } finally {
+      await drafter.cleanup();
     }
   });
 });

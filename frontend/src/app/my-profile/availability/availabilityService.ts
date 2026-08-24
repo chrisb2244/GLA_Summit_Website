@@ -83,6 +83,42 @@ export const listScheduledSessions = async (
 };
 
 /**
+ * Whether this account has a presentation in the running for a year, and so has
+ * any reason to be asked when it can present.
+ *
+ * Acceptance is deliberately not required — the answer is most useful *before*
+ * the schedule is built, and waiting for acceptance would collect it exactly
+ * when it is too late to act on. A saved draft counts too: `savePresentation`
+ * writes the presenter rows whether or not the submission is final, so a draft
+ * is already a link here, and someone part-way through submitting is someone
+ * worth asking.
+ *
+ * Co-presenters count for the same reason a submitter does — they have to be
+ * there for the session. A *declined* invite does not.
+ */
+export const hasSubmissionForYear = async (
+  userId: string,
+  year: SummitYear
+): Promise<boolean> => {
+  const supabase = await createServerClient();
+  const { data, error } = await supabase
+    .from('presentation_presenters')
+    .select('presentation_id, presentation_submissions!inner(year)')
+    .eq('presenter_id', userId)
+    .eq('presentation_submissions.year', year)
+    .neq('status', 'declined')
+    .limit(1);
+
+  if (error) {
+    // Fail closed: showing the control to someone with nothing submitted is a
+    // worse outcome than hiding it from someone who has, since the second is
+    // visible to them and recoverable on the next load.
+    return false;
+  }
+  return data.length > 0;
+};
+
+/**
  * The zone to render slot times in, by the agreed precedence: the account's
  * stored preference first, then whatever the browser reports, then UTC.
  *

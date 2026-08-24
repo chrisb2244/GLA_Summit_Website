@@ -4,7 +4,11 @@ import { createServerActionClient } from '@/lib/supabaseServer';
 import { getUser } from '@/lib/supabase/userFunctions';
 import { isSummitYear } from '@/lib/databaseModels';
 import { revalidatePath } from 'next/cache';
-import { listAvailability, listScheduledSessions } from './availabilityService';
+import {
+  hasSubmissionForYear,
+  listAvailability,
+  listScheduledSessions
+} from './availabilityService';
 import { buildSlots, lockedSlots } from './slots';
 
 export type AvailabilityActionState = {
@@ -39,6 +43,18 @@ export const saveAvailabilityAction = async (
   if (typeof year !== 'string' || !isSummitYear(year)) {
     return {
       error: 'That summit year is not one we run.',
+      success: false,
+      slots: previousState.slots
+    };
+  }
+
+  // The control is only rendered for people with a presentation in the running,
+  // but RLS lets any signed-in account write its own rows, so the gate is
+  // repeated here rather than left to the absence of a form.
+  if (!(await hasSubmissionForYear(user.id, year))) {
+    return {
+      error:
+        'Availability is only collected from people with a presentation submitted for this summit.',
       success: false,
       slots: previousState.slots
     };
