@@ -368,6 +368,35 @@ export type Database = {
         }
         Relationships: []
       }
+      presenter_availability: {
+        Row: {
+          set_at: string
+          slot_start: string
+          user_id: string
+          year: Database["public"]["Enums"]["summit_year"]
+        }
+        Insert: {
+          set_at?: string
+          slot_start: string
+          user_id: string
+          year: Database["public"]["Enums"]["summit_year"]
+        }
+        Update: {
+          set_at?: string
+          slot_start?: string
+          user_id?: string
+          year?: Database["public"]["Enums"]["summit_year"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "presenter_availability_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
