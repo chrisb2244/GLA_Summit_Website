@@ -21,8 +21,9 @@ export const checkForExistingUser = async (
   email: string
 ): Promise<{ userId: string | null }> => {
   return createAdminClient()
-    .from('email_lookup')
-    .select()
+    .from('account_emails')
+    .select('user_id')
+    .eq('is_primary', true)
     .eq('email', email)
     .maybeSingle()
     .then(({ data, error }) => {
@@ -34,7 +35,7 @@ export const checkForExistingUser = async (
       }
       if (data) {
         return {
-          userId: data.id as string
+          userId: data.user_id
         };
       }
       return { userId: null };

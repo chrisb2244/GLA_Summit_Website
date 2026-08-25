@@ -201,9 +201,10 @@ const notifySubmitter = async (
     { data: copresenterEmailRow }
   ] = await Promise.all([
     supabaseAdmin
-      .from('email_lookup')
+      .from('account_emails')
       .select('email')
-      .eq('id', presentation.submitter_id)
+      .eq('is_primary', true)
+      .eq('user_id', presentation.submitter_id)
       .single(),
     supabaseAdmin
       .from('profiles')
@@ -211,9 +212,10 @@ const notifySubmitter = async (
       .eq('id', copresenterId)
       .single(),
     supabaseAdmin
-      .from('email_lookup')
+      .from('account_emails')
       .select('email')
-      .eq('id', copresenterId)
+      .eq('is_primary', true)
+      .eq('user_id', copresenterId)
       .single()
   ]);
 

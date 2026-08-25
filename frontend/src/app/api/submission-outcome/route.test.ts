@@ -72,10 +72,10 @@ const mockAdminClient = (
     presentation_presenters: {
       data: [{ presenter_id: 'p1' }, { presenter_id: 'p2' }]
     },
-    email_lookup: {
+    account_emails: {
       data: [
-        { id: 'p1', email: 'alice@example.com' },
-        { id: 'p2', email: 'bob@example.com' }
+        { user_id: 'p1', email: 'alice@example.com' },
+        { user_id: 'p2', email: 'bob@example.com' }
       ]
     },
     profiles: {
@@ -178,7 +178,9 @@ describe('POST /api/submission-outcome', () => {
   });
 
   it('logs severe when a presenter has no email address', async () => {
-    mockAdminClient({ email_lookup: { data: [{ id: 'p1', email: 'alice@example.com' }] } });
+    mockAdminClient({
+      account_emails: { data: [{ user_id: 'p1', email: 'alice@example.com' }] }
+    });
     await POST(buildRequest({ presentation_id: 'pres-1', outcome: 'accepted' }));
     await flushAfter();
 

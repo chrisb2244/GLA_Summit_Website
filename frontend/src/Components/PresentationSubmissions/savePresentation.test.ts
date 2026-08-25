@@ -59,7 +59,7 @@ const mockServerClient = () => {
 type AdminOpts = {
   existingRows?: Array<{ presenter_id: string; status: string; declined_count: number }>;
   prunedRows?: Array<{ presenter_id: string }>;
-  prunedEmails?: Array<{ id: string; email: string }>;
+  prunedEmails?: Array<{ user_id: string; email: string }>;
 };
 
 const mockAdminClient = (opts: AdminOpts = {}) => {
@@ -83,15 +83,20 @@ const mockAdminClient = (opts: AdminOpts = {}) => {
     }))
   };
 
-  const emailLookupFrom = {
+  const accountEmailsFrom = {
     select: vi.fn(() => ({
-      in: vi.fn().mockResolvedValue({ data: opts.prunedEmails ?? [], error: null })
+      eq: vi.fn(() => ({
+        in: vi.fn().mockResolvedValue({
+          data: opts.prunedEmails ?? [],
+          error: null
+        })
+      }))
     }))
   };
 
   const from = vi.fn((table: string) => {
     if (table === 'presentation_presenters') return presentersFrom;
-    if (table === 'email_lookup') return emailLookupFrom;
+    if (table === 'account_emails') return accountEmailsFrom;
     return { select: vi.fn().mockReturnThis(), eq: vi.fn().mockReturnThis() };
   });
 
@@ -178,7 +183,7 @@ describe('savePresentation — presenter categorisation (workflow ON)', () => {
     const { presentersFrom } = mockAdminClient({
       existingRows: [{ presenter_id: 'cp-keep', status: 'pending', declined_count: 0 }],
       prunedRows: [{ presenter_id: 'cp-removed' }],
-      prunedEmails: [{ id: 'cp-removed', email: 'removed@example.com' }]
+      prunedEmails: [{ user_id: 'cp-removed', email: 'removed@example.com' }]
     });
 
     const result = await savePresentation({

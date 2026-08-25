@@ -110,12 +110,12 @@ test.describe('admin presenter creation panel', () => {
 
     // The presenter account exists, with the name the admin entered.
     const { data: lookup } = await adminSB
-      .from('email_lookup')
-      .select('id')
-      .ilike('email', presenterEmail)
+      .from('account_emails')
+      .select('user_id')
+      .eq('email', presenterEmail)
       .single();
-    expect(lookup?.id).toBeTruthy();
-    const newPresenterId = lookup!.id;
+    expect(lookup?.user_id).toBeTruthy();
+    const newPresenterId = lookup!.user_id;
     expect(newPresenterId).not.toEqual(adminUser.userId);
 
     const { data: profile } = await adminSB
@@ -303,15 +303,15 @@ test.describe('admin presenter creation panel', () => {
 
     const adminSB = createSupabaseAdmin();
     const { data: lookup } = await adminSB
-      .from('email_lookup')
-      .select('id')
-      .ilike('email', presenterEmail)
+      .from('account_emails')
+      .select('user_id')
+      .eq('email', presenterEmail)
       .single();
 
     const { data: profile } = await adminSB
       .from('profiles')
       .select('bio, avatar_url')
-      .eq('id', lookup!.id)
+      .eq('id', lookup!.user_id)
       .single();
 
     expect(profile?.bio).toEqual(bio);

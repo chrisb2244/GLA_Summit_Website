@@ -23,11 +23,11 @@ export type ResolveCopresentersResult =
  * Supabase auth accounts for those that do not. Returns the resolved lists or
  * an error if the email-lookup query itself fails.
  *
- * Email matching is case-insensitive. If generateLink fails because a user is
- * already registered but wasn't found by the initial lookup (e.g. casing
- * mismatch between what was typed and what email_lookup stores), a secondary
- * lookup recovers them as an existing presenter rather than silently dropping
- * them.
+ * Email matching is case-insensitive, and matches any address on an account,
+ * not just its primary one. If generateLink fails because a user is already
+ * registered but wasn't found by the initial lookup (e.g. an account with no
+ * account_emails row at all), a secondary lookup recovers them as an existing
+ * presenter rather than silently dropping them.
  *
  * New account creation failures (other than already-registered) are logged but
  * do not cause an error return — the function succeeds with the subset that was
@@ -42,7 +42,11 @@ export async function resolveCopresenters(
 ): Promise<ResolveCopresentersResult> {
   // Normalize to lowercase so the lookup is case-insensitive on the input side.
   const normalizedEmails = otherPresenters.map((e) => e.toLowerCase());
-  let existingPresenters: ExistingPresenter[] = [];
+  const existingPresenters: ExistingPresenter[] = [];
+  // Every typed address that resolved to an account, including the second and
+  // subsequent addresses of an account already matched. Only addresses missing
+  // from this set need an account creating.
+  const matchedAddresses = new Set<string>();
 
   // Invite tokens are only minted when the accept/decline workflow is enabled.
   // While off, co-presenters are implicitly accepted, so there is no invite link
@@ -53,12 +57,18 @@ export async function resolveCopresenters(
       : undefined;
 
   if (normalizedEmails.length > 0) {
-    // Use ilike per email so the lookup is case-insensitive even if email_lookup
-    // stores addresses with original casing.
+    // account_emails stores addresses normalised (enforced by a CHECK), so the
+    // lowercased input above matches exactly. Every address is considered, not
+    // just the primary one: a co-presenter invited at an address they have
+    // added to their account must resolve to that account. Restricting to
+    // primaries would send them down the create-an-account path below, where
+    // GoTrue creates an auth.users row it does not recognise as a duplicate and
+    // the store_email trigger then aborts it on the unique index over
+    // account_emails.email.
     const { data, error: lookupError } = await supabaseAdmin
-      .from('email_lookup')
-      .select('id, email')
-      .or(normalizedEmails.map((e) => `email.ilike.${e}`).join(','));
+      .from('account_emails')
+      .select('user_id, email')
+      .in('email', normalizedEmails);
 
     if (lookupError) {
       await logToDb('error', 'Co-presenter email lookup failed', 'submission/copresenter', {
@@ -78,15 +88,36 @@ export async function resolveCopresenters(
       };
     }
 
-    existingPresenters = (data ?? []).map((p) => ({
-      ...p,
-      inviteUrl: buildInviteUrl(p.id)
-    }));
+    // One entry per account, not per address: an account can hold several
+    // addresses, so a submitter who lists both a co-presenter's primary and one
+    // of their aliases would otherwise produce two entries for the same person
+    // and a duplicate insert into presentation_presenters. Walking
+    // normalizedEmails rather than the result rows makes the winner the address
+    // the submitter listed first, which is where the invite is then sent.
+    const userIdByAddress = new Map(
+      (data ?? []).map((row) => [row.email, row.user_id])
+    );
+    const seenUsers = new Set<string>();
+    for (const email of normalizedEmails) {
+      const userId = userIdByAddress.get(email);
+      if (userId === undefined) {
+        continue;
+      }
+      matchedAddresses.add(email);
+      if (seenUsers.has(userId)) {
+        continue;
+      }
+      seenUsers.add(userId);
+      existingPresenters.push({
+        id: userId,
+        email,
+        inviteUrl: buildInviteUrl(userId)
+      });
+    }
   }
 
-  const foundEmailsNormalized = existingPresenters.map(({ email }) => email.toLowerCase());
   const newPresenterEmails = normalizedEmails.filter(
-    (email) => !foundEmailsNormalized.includes(email)
+    (email) => !matchedAddresses.has(email)
   );
 
   type CreationResult =
@@ -105,21 +136,21 @@ export async function resolveCopresenters(
           options: { data: { firstname: '', lastname: '' } }
         });
       if (creationError) {
-        // User is in auth.users but not in email_lookup (missing trigger row or
-        // casing mismatch that slipped past ilike). Recover via secondary lookup
-        // rather than silently dropping the presenter.
+        // User is in auth.users but was not found above (e.g. no account_emails
+        // row at all). Recover via secondary lookup rather than silently
+        // dropping the presenter.
         if (creationError.message?.toLowerCase().includes('already registered')) {
           const { data: existing } = await supabaseAdmin
-            .from('email_lookup')
-            .select('id, email')
+            .from('account_emails')
+            .select('user_id, email')
             .ilike('email', email)
             .single();
           if (existing) {
             return {
               outcome: 'already_exists' as const,
-              id: existing.id,
+              id: existing.user_id,
               email: existing.email,
-              inviteUrl: buildInviteUrl(existing.id)
+              inviteUrl: buildInviteUrl(existing.user_id)
             };
           }
         }

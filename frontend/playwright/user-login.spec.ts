@@ -20,16 +20,16 @@ test.describe('User Authentication Tests', () => {
   test.afterAll(async () => {
     for (const email of emailsToDelete) {
       const { data, error } = await supabaseAdmin
-        .from('email_lookup')
-        .select('id')
+        .from('account_emails')
+        .select('user_id')
         .eq('email', email)
-        .single();
+        .maybeSingle();
 
-      if (error || !data?.id) {
+      if (error || data?.user_id == null) {
         continue;
       }
 
-      await supabaseAdmin.auth.admin.deleteUser(data.id);
+      await supabaseAdmin.auth.admin.deleteUser(data.user_id);
     }
   });
 

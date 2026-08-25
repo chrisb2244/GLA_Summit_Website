@@ -71,8 +71,14 @@ describe('savePresentation — presenter categorisation (workflow OFF)', () => {
             select: vi.fn().mockResolvedValue({ data: [], error: null })
           }))
         };
-      if (table === 'email_lookup')
-        return { select: vi.fn(() => ({ in: vi.fn().mockResolvedValue({ data: [], error: null }) })) };
+      if (table === 'account_emails')
+        return {
+          select: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              in: vi.fn().mockResolvedValue({ data: [], error: null })
+            }))
+          }))
+        };
       return { select: vi.fn().mockReturnThis(), eq: vi.fn().mockReturnThis() };
     });
     vi.mocked(createAdminClient).mockReturnValue({ from } as unknown as ReturnType<

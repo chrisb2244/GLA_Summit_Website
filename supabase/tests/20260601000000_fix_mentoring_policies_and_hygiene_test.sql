@@ -11,9 +11,10 @@
 BEGIN;
 SELECT plan(14);
 
--- A real account email/id to drive the auth.email() / email_lookup paths.
-SELECT id AS acct_id, email AS acct_email
-FROM public.email_lookup
+-- A real account email/id to drive the auth.email() / account_emails paths.
+SELECT user_id AS acct_id, email AS acct_email
+FROM public.account_emails
+ WHERE is_primary
 ORDER BY email
 LIMIT 1 \gset
 SELECT set_config('test.acct_email', :'acct_email', true);

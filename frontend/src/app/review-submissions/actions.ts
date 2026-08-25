@@ -313,9 +313,10 @@ export const downloadSharableSubmissionContent = async (
   }
 
   const { data: presenterEmails, error: emailsError } = await supabase
-    .from('email_lookup')
-    .select('*')
-    .in('id', presenterIds);
+    .from('account_emails')
+    .select('user_id, email')
+    .eq('is_primary', true)
+    .in('user_id', presenterIds);
 
   if (emailsError) {
     await logToDb(
@@ -335,7 +336,7 @@ export const downloadSharableSubmissionContent = async (
   }
 
   const orderedEmails = presenters.map(({ id }) => {
-    const email = presenterEmails.find((email) => email.id === id);
+    const email = presenterEmails.find((email) => email.user_id === id);
     return email ? email.email : '';
   });
 

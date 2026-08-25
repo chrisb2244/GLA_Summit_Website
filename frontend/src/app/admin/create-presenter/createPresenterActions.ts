@@ -229,9 +229,13 @@ const findExistingUserId = async (
   email: string,
   supabaseAdmin: ReturnType<typeof createAdminClient>
 ): Promise<string | null | 'lookup-failed'> => {
+  // Check for any address on the account, not just its primary.
+  // Otherwise, an attempt will be made to create a new user, which will fail
+  // when inserting the email into account_emails by trigger.
+  // That would be misreported as a failure rather than an existing account.
   const { data, error } = await supabaseAdmin
-    .from('email_lookup')
-    .select('id')
+    .from('account_emails')
+    .select('user_id')
     .ilike('email', email)
     .maybeSingle();
 
@@ -241,7 +245,7 @@ const findExistingUserId = async (
     });
     return 'lookup-failed';
   }
-  return data?.id ?? null;
+  return data?.user_id ?? null;
 };
 
 type AccountCreationResult =
@@ -252,7 +256,7 @@ type AccountCreationResult =
  * Creates the auth user via a signup link, mirroring how new co-presenter
  * accounts are made. The generated link yields the one-time passcode the welcome
  * email needs, and the firstname/lastname metadata drives the handle_new_user
- * trigger that seeds public.profiles and public.email_lookup.
+ * trigger that seeds public.profiles and public.account_emails.
  */
 const createPresenterAccount = async (
   data: CreatePresenterFormData,
@@ -277,7 +281,7 @@ const createPresenterAccount = async (
         status: error?.status
       }
     });
-    // The email_lookup pre-check missed an account that auth.users does have —
+    // The account_emails pre-check missed an account that auth.users does have —
     // e.g. a row the store_email trigger never wrote. Report it as the existing
     // account it is rather than as an unexplained failure. Supabase has worded
     // this both as "User already registered" and "…has already been registered",
@@ -285,7 +289,10 @@ const createPresenterAccount = async (
     const alreadyRegistered = /already\s+(been\s+)?registered/i.test(
       error?.message ?? ''
     );
-    return { success: false, reason: alreadyRegistered ? 'already-registered' : 'failed' };
+    return {
+      success: false,
+      reason: alreadyRegistered ? 'already-registered' : 'failed'
+    };
   }
 
   return {
@@ -377,8 +384,7 @@ const applyProfileDetails = async (
 };
 
 type SubmissionResult =
-  | { success: true; presentationId: string }
-  | { success: false };
+  { success: true; presentationId: string } | { success: false };
 
 const insertSubmissionForPresenter = async (
   presenterId: string,
@@ -509,9 +515,10 @@ const sendCreationEmails = async (options: {
   const organizerIds = (organizerRows ?? []).map((o) => o.id);
   if (organizerIds.length > 0) {
     const { data: organizerEmailRows } = await supabaseAdmin
-      .from('email_lookup')
-      .select('id, email')
-      .in('id', organizerIds);
+      .from('account_emails')
+      .select('email')
+      .eq('is_primary', true)
+      .in('user_id', organizerIds);
 
     for (const { email } of organizerEmailRows ?? []) {
       emailTasks.push(
