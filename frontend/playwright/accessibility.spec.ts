@@ -167,7 +167,9 @@ test.describe('Accessibility (WCAG A/AA): authenticated pages', () => {
   describeSharedRoleRoutes('presenter', [
     {
       route: '/my-profile',
-      ready: (p) => p.getByRole('textbox', { name: 'Email' })
+      // exact: the page also carries a "New email address" field, which a
+      // substring match would resolve to as well.
+      ready: (p) => p.getByRole('textbox', { name: 'Email', exact: true })
     },
     {
       route: '/my-presentations',
