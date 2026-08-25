@@ -7,6 +7,8 @@ import { RegistrationEmailFn } from '@/EmailTemplates/RegistrationEmail';
 import { SignInEmailFn } from '@/EmailTemplates/SignInEmail';
 import { generateSupabaseLinks } from '@/lib/generateSupabaseLinks';
 import { sendMailApi } from '@/lib/sendMail';
+import type { ResolvedAccount } from '@/lib/databaseFunctions';
+import { resolveAccountEmail } from '@/lib/databaseFunctions';
 import { createServerActionClient } from '@/lib/supabaseServer';
 import { logToDb } from '@/lib/utils';
 import { after } from 'next/server';
@@ -17,9 +19,61 @@ export const verifyLogin = async (data: {
   email: string;
   verificationCode: string;
 }): Promise<boolean> => {
+  // Use to record failures 'after' (preventing blocking the response).
+  const recordRejection = (
+    level: 'info' | 'error',
+    context: { status: number | null; code: string | null; message: string },
+    retainDays: number
+  ) => {
+    after(() => {
+      logToDb(level, 'OTP verification rejected', 'auth/verify', {
+        context: { email: data.email, ...context },
+        retainDays
+      });
+    });
+  };
+
+  // The code was minted against the account's primary address (see
+  // generateSupabaseLinks) even when it was mailed to an alias, so verify it
+  // against the same address rather than the one on the form.
+  let account: ResolvedAccount | null;
+  try {
+    account = await resolveAccountEmail(data.email);
+  } catch (err) {
+    // resolveAccountEmail rethrows rpc errors - catch to prevent an
+    // unhandled throw surfacing to the browser as a server-action error
+    // rather than the rejected code this function is contracted to return.
+    recordRejection(
+      'error',
+      {
+        status: null,
+        code: 'lookup_failed',
+        message: err instanceof Error ? err.message : String(err)
+      },
+      30
+    );
+    return false;
+  }
+
+  if (account == null) {
+    // No account holds this address, so there was never a code to match. 
+    // Possibly a typo, or an address that was never registered —
+    // but could be a malicious attempt to enumerate accounts.
+    recordRejection(
+      'info',
+      {
+        status: null,
+        code: 'no_account',
+        message: 'No account holds the address the code was submitted for'
+      },
+      14
+    );
+    return false;
+  }
+
   const supabase = await createServerActionClient();
   const { data: verifyData, error } = await supabase.auth.verifyOtp({
-    email: data.email,
+    email: account.primaryEmail,
     token: data.verificationCode,
     type: 'email'
   });
@@ -35,22 +89,15 @@ export const verifyLogin = async (data: {
   const isUserMistake =
     status === 403 && (code === 'otp_expired' || code === 'otp_disabled');
 
-  after(() => {
-    logToDb(
-      isUserMistake ? 'info' : 'error',
-      'OTP verification rejected',
-      'auth/verify',
-      {
-        context: {
-          email: data.email,
-          status,
-          code,
-          message: error?.message ?? 'no user and no error returned'
-        },
-        retainDays: isUserMistake ? 7 : 30
-      }
-    );
-  });
+  recordRejection(
+    isUserMistake ? 'info' : 'error',
+    {
+      status,
+      code,
+      message: error?.message ?? 'no user and no error returned'
+    },
+    isUserMistake ? 7 : 30
+  );
 
   return false;
 };

@@ -9,7 +9,7 @@ import type {
 import type { ApiError } from './sessionTypes';
 import {
   adminUpdateExistingProfile,
-  checkForExistingUser
+  resolveAccountEmail
 } from './databaseFunctions';
 import { logToDb } from './utils';
 
@@ -58,26 +58,30 @@ export const generateSupabaseLinks = async (
   // password might also be signup only (README.md in github.com/supabase/gotrue)
   // data looks to have the same format as the 'data' object accepted by signUp.
   const { type, email, redirectTo } = bodyData;
-  const { userId: existingId } = await checkForExistingUser(email);
+  // Use the primary email for auth, but later email the given address.
+  const existing = await resolveAccountEmail(email);
   let fnPromise = null;
 
   switch (type) {
     case 'signup': {
       const { data, password } = bodyData.signUpData;
-      if (existingId != null) {
+      if (existing != null) {
         // This is an error... but want to try migrate, see issue #30.
+        // Registering with an address that is an alias of an existing account
+        // must take this path too: GoTrue would create a new user if attempted
+        // but the index on account_emails would abort the insert.
         await logToDb(
           'info',
           'Attempted to create an existing user — migrating to existing account',
           'auth/signup',
-          { userId: existingId }
+          { userId: existing.userId }
         );
         if (typeof data !== 'undefined') {
-          adminUpdateExistingProfile(existingId, data);
+          adminUpdateExistingProfile(existing.userId, data);
         }
         fnPromise = createAdminClient().auth.admin.generateLink({
           type: 'magiclink',
-          email,
+          email: existing.primaryEmail, // Use the primary, not the provided email
           options: { redirectTo }
         });
       } else {
@@ -93,7 +97,7 @@ export const generateSupabaseLinks = async (
     }
     case 'magiclink': {
       // Workaround the inability to pass shouldCreateUser: false
-      if (!existingId) {
+      if (existing == null) {
         return {
           data: { user: null, properties: null },
           linkType: null,
@@ -103,7 +107,7 @@ export const generateSupabaseLinks = async (
       }
       fnPromise = createAdminClient().auth.admin.generateLink({
         type: 'magiclink',
-        email,
+        email: existing.primaryEmail, // Use the primary, not the provided email
         options: { redirectTo }
       });
       break;
