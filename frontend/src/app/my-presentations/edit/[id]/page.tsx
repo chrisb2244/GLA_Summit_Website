@@ -7,6 +7,7 @@ import { notFound, redirect } from 'next/navigation';
 import { logToDb } from '@/lib/utils';
 import { PresentationFormFields } from '@/Components/PresentationSubmissions/PresentationFormFields';
 import { PresentationSubmissionFormData } from '@/Components/PresentationSubmissions/PresentationSubmissionFormSchema';
+import { CAN_SUBMIT_DRAFT, CAN_SUBMIT_PRESENTATION } from '@/app/configConstants';
 
 export const metadata: Metadata = {
   robots: { index: false }
@@ -19,6 +20,19 @@ const DraftEditPage = async ({ params }: { params: Promise<Params> }) => {
   const user = await getUser();
   if (!user) {
     redirect('/login');
+  }
+
+  // With both routes closed there is no action this form could still perform,
+  // so don't render one whose buttons the server action would reject. While
+  // only CAN_SUBMIT_PRESENTATION is off the page stays usable for draft edits;
+  // the form drops its "Submit Presentation" button in that case.
+  if (!CAN_SUBMIT_PRESENTATION && !CAN_SUBMIT_DRAFT) {
+    return (
+      <div className='prose mx-auto flex max-w-none flex-col'>
+        <h2>Edit Draft Presentation</h2>
+        <p>The presentation submission process is closed.</p>
+      </div>
+    );
   }
 
   const supabase = await createServerClient();

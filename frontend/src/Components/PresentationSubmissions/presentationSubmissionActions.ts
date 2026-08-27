@@ -12,7 +12,9 @@ import {
 import { createAdminClient } from '@/lib/supabaseClient';
 import {
   DRAFT_DELETE_CLIENT_ERROR,
+  DRAFTS_CLOSED_CLIENT_ERROR,
   PRESENTATION_SAVE_CLIENT_ERROR,
+  SUBMISSIONS_CLOSED_CLIENT_ERROR,
   DeleteReturnType,
   SubmitReturnType
 } from '@/actions/presentationActionTypes';
@@ -41,6 +43,8 @@ import {
 import { createServerActionClient } from '@/lib/supabaseServer';
 import {
   submissionsForYear,
+  CAN_SUBMIT_DRAFT,
+  CAN_SUBMIT_PRESENTATION,
   COPRESENTER_INVITE_WORKFLOW
 } from '@/app/configConstants';
 import z from 'zod/v4';
@@ -63,6 +67,31 @@ export const submitPresentationAction = async (
 
   // First parse the form data with the basic parser to handle type coercion and defaults
   const parsedData = PresentationFormParser.parse(raw);
+
+  // Authoritative closure check, before any validation or DB work.
+  // The form hides the corresponding buttons, but this action is a POST endpoint
+  // in its own right, so the flags have to be enforced here too — otherwise a
+  // replayed request can still create a submission, or promote an existing draft
+  // to one, after submissions have closed. The parser defaults a missing
+  // submitIntent to 'submit', so an intent-less request fails closed.
+  const closureError =
+    parsedData.submitIntent === 'submit'
+      ? CAN_SUBMIT_PRESENTATION
+        ? null
+        : SUBMISSIONS_CLOSED_CLIENT_ERROR
+      : CAN_SUBMIT_DRAFT
+        ? null
+        : DRAFTS_CLOSED_CLIENT_ERROR;
+
+  if (closureError !== null) {
+    return {
+      ...previousState,
+      data: parsedData,
+      duplicateWarning: undefined,
+      errors: { errors: [closureError] },
+      status: { type: 'error', message: closureError }
+    };
+  }
 
   // Then validate the parsed data with the full schema which includes business logic refinements
   const validationResult = PresentationSubmissionFormSchema.safeParse(raw);

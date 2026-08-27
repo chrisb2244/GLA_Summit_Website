@@ -6,6 +6,10 @@ export const DRAFT_DELETE_CLIENT_ERROR =
   'Unable to delete the draft right now. Please try again.';
 export const DRAFT_UPDATE_CLIENT_ERROR =
   'Unable to update the draft right now. Please try again.';
+export const SUBMISSIONS_CLOSED_CLIENT_ERROR =
+  'The presentation submission process is closed.';
+export const DRAFTS_CLOSED_CLIENT_ERROR =
+  'Draft saving is closed. Your changes have not been saved.';
 
 export type SubmitReturnType =
   | { success: true }

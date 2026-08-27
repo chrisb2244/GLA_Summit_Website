@@ -9,6 +9,7 @@ import {
   type SharedAuthRole
 } from './utils';
 import {
+  CAN_SUBMIT_PRESENTATION,
   COPRESENTER_INVITE_WORKFLOW,
   currentDisplayYear
 } from '@/app/configConstants';
@@ -172,8 +173,15 @@ test.describe('Accessibility (WCAG A/AA): authenticated pages', () => {
       ready: (p) => p.getByRole('textbox', { name: 'Email', exact: true })
     },
     {
+      // The page swaps the submission form for a closed notice when
+      // CAN_SUBMIT_PRESENTATION is off. Both render inside the same Suspense
+      // boundary, so either is a valid "streamed content arrived" gate — pick
+      // whichever the current config actually produces so the scan still runs.
       route: '/my-presentations',
-      ready: (p) => p.getByRole('heading', { name: 'Submit a new Presentation' })
+      ready: (p) =>
+        CAN_SUBMIT_PRESENTATION
+          ? p.getByRole('heading', { name: 'Submit a new Presentation' })
+          : p.getByText('The presentation submission process is closed.')
     },
     {
       route: '/ticket',

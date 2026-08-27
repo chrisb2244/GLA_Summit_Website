@@ -37,6 +37,14 @@ vi.mock('./presentationSubmissionActions', () => ({
   submitPresentationAction: vi.fn()
 }));
 
+// Pin both flags open so these tests describe the form itself rather than the
+// deployed submission window. The closed configurations are covered by
+// PresentationFormFields.closed.test.tsx.
+vi.mock('@/app/configConstants', () => ({
+  CAN_SUBMIT_PRESENTATION: true,
+  CAN_SUBMIT_DRAFT: true
+}));
+
 const defaultValues: PresentationSubmissionFormData = {
   submitter: {
     firstName: 'Alice',
