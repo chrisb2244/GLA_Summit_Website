@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { PresentationSubmissionPage } from './models/PresentationSubmissionPage';
 import { createAttendee, createSupabaseAdmin, loginOnPage } from './utils';
 import type { SeededUser } from './utils';
+import { CAN_SUBMIT_PRESENTATION } from '@/app/configConstants';
 
 const buildTitle = () =>
   `Draft RLS regression ${Date.now()} ${Math.random()
@@ -9,6 +10,11 @@ const buildTitle = () =>
     .slice(2, 8)}`;
 
 test.describe('draft save regression', { tag: '@regression' }, () => {
+  // Creating the draft needs the new-submission form, which /my-presentations
+  // only renders while CAN_SUBMIT_PRESENTATION is on — there is no other UI
+  // route to a brand-new draft.
+  test.skip(!CAN_SUBMIT_PRESENTATION, 'Presentation submission closed');
+
   let user: SeededUser;
 
   test.beforeEach(async ({ page }) => {

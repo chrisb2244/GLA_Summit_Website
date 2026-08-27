@@ -1,4 +1,9 @@
 import { test, expect } from '@playwright/test';
+import { CAN_SUBMIT_PRESENTATION } from '@/app/configConstants';
+
+const homepageBaseline = CAN_SUBMIT_PRESENTATION
+  ? 'homepage.png'
+  : 'homepage-submissions-closed.png';
 
 test.describe('Homepage tests', () => {
   test('GLA homepage has title with GLA Summit', { tag: ['@smoke', '@synthetic'] }, async ({ page }) => {
@@ -28,7 +33,7 @@ test.describe('Homepage tests', () => {
       // Ensure the hero/sponsor content has painted before capturing.
       await expect(page).toHaveTitle(/GLA Summit/);
       await expect(page.locator('text=Sponsored by NI')).toBeVisible();
-      await expect(page).toHaveScreenshot('homepage.png', {
+      await expect(page).toHaveScreenshot(homepageBaseline, {
         fullPage: true,
         maxDiffPixelRatio: 0.02
       });
