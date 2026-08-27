@@ -85,10 +85,10 @@ const createFakeAdminClient = (overrides: ClientOverrides = {}) => {
   const writes: RecordedWrite[] = [];
   const defaults: ClientOverrides = {
     // No existing account for the email.
-    'email_lookup.select.ilike': { data: null, error: null },
+    'account_emails.select.ilike': { data: null, error: null },
     // Organizer directory lookup.
-    'email_lookup.select': {
-      data: [{ id: 'organizer-1', email: 'organizer@example.com' }],
+    'account_emails.select': {
+      data: [{ user_id: 'organizer-1', email: 'organizer@example.com' }],
       error: null
     },
     'organizers.select': { data: [{ id: 'organizer-1' }], error: null },
@@ -284,8 +284,8 @@ describe('createPresenterAndSubmission', () => {
   it('refuses when an account already exists for the email', async () => {
     asAdmin();
     const fake = createFakeAdminClient({
-      'email_lookup.select.ilike': {
-        data: { id: 'existing-user' },
+      'account_emails.select.ilike': {
+        data: { user_id: 'existing-user' },
         error: null
       }
     });

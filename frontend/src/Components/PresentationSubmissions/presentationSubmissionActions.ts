@@ -262,10 +262,11 @@ const handlePresentationSubmission = async (
     const { data: organizerRows } = await supabaseAdmin.from('organizers').select('id');
     const organizerIds = (organizerRows ?? []).map((o) => o.id);
     const { data: organizerEmailRows } = await supabaseAdmin
-      .from('email_lookup')
-      .select('id, email')
-      .in('id', organizerIds);
-    for (const { id, email } of organizerEmailRows ?? []) {
+      .from('account_emails')
+      .select('user_id, email')
+      .eq('is_primary', true)
+      .in('user_id', organizerIds);
+    for (const { user_id: id, email } of organizerEmailRows ?? []) {
       emailTasks.push(
         sendMailApi({
           to: email,

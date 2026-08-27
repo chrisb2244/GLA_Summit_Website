@@ -398,10 +398,11 @@ const prunePresentationPresenters = async (
   }
 
   const prunedIds = data.map(({ presenter_id }) => presenter_id);
-  const { data: prunedPresenters, error: lookupError } = await supabaseAdmin
-    .from('email_lookup')
-    .select('id, email')
-    .in('id', prunedIds);
+  const { data: prunedEmailRows, error: lookupError } = await supabaseAdmin
+    .from('account_emails')
+    .select('user_id, email')
+    .eq('is_primary', true)
+    .in('user_id', prunedIds);
 
   if (lookupError) {
     // Log the error but still return success because the
@@ -413,7 +414,10 @@ const prunePresentationPresenters = async (
 
   return {
     success: true,
-    prunedPresenters: prunedPresenters || []
+    prunedPresenters: (prunedEmailRows ?? []).map(({ user_id, email }) => ({
+      id: user_id,
+      email
+    }))
   };
 };
 

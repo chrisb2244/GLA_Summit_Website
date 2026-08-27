@@ -227,10 +227,13 @@ INSERT INTO "public"."container_groups" ("container_id", "presentation_id") VALU
 
 
 --
--- Data for Name: email_lookup; Type: TABLE DATA; Schema: public; Owner: postgres
+-- Data for Name: account_emails; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+-- These rows were dumped as public.email_lookup, the single-address table that
+-- public.account_emails replaced (see 20260805120000_add_account_emails.sql).
 --
 
-INSERT INTO "public"."email_lookup" ("id", "email") VALUES
+INSERT INTO "public"."account_emails" ("user_id", "email") VALUES
 	('06ab35dd-6fcb-49a6-a85f-0b0bf9cbcc62', 'jason34@test.email'),
 	('0aab4c3b-1415-4871-943a-5c377c9158e9', 'felipe23@test.email'),
 	('0eae4c37-4af5-4b92-ae90-615facddad49', 'derrick32@test.email'),
@@ -266,6 +269,14 @@ INSERT INTO "public"."email_lookup" ("id", "email") VALUES
   ('9f3bf5d5-f663-4997-bf5e-a3c868292987', 'maciej6@test.email'),
   ('e1f51a05-8854-444e-915d-b65d66994d05', 'patrik7@test.email'),
   ('ea1961e7-800e-4ba5-a4b8-bcfcf83b93e1', 'enrique8@test.email');
+
+-- Scoped to the rows just inserted, which are the only ones with no
+-- verified_at: real insertions only appear in this table when verified.
+-- A bare "WHERE NOT is_primary" would instead promote every alias in 
+-- the database, which each account's one-primary constraint would then reject.
+UPDATE "public"."account_emails"
+  SET "is_primary" = true, "verified_at" = "now"()
+  WHERE "verified_at" IS NULL;
 
 
 

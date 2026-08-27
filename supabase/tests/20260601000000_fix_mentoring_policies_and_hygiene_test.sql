@@ -9,11 +9,12 @@
 -- be used in transaction blocks"). The rollback also discards the seeded row.
 
 BEGIN;
-SELECT plan(14);
+SELECT plan(12);
 
--- A real account email/id to drive the auth.email() / email_lookup paths.
-SELECT id AS acct_id, email AS acct_email
-FROM public.email_lookup
+-- A real account email/id to drive the auth.email() / account_emails paths.
+SELECT user_id AS acct_id, email AS acct_email
+FROM public.account_emails
+ WHERE is_primary
 ORDER BY email
 LIMIT 1 \gset
 SELECT set_config('test.acct_email', :'acct_email', true);
@@ -27,25 +28,14 @@ VALUES ('foreign@example.invalid', 'Not', 'You', 'mentor');
 
 -- ---------------------------------------------------------------------------
 -- email_has_account helper
+--
+-- Superseded: 20260805130000 withdrew the anon mentoring signup this helper
+-- served, and dropped the helper with it. Asserted here so this file describes
+-- the schema as it now stands rather than as it stood in June.
 -- ---------------------------------------------------------------------------
-SELECT has_function(
+SELECT hasnt_function(
   'public', 'email_has_account', ARRAY['text'],
-  'email_has_account(text) exists'
-);
-SELECT is(
-  (SELECT prosecdef FROM pg_proc WHERE oid = 'public.email_has_account(text)'::regprocedure),
-  true,
-  'email_has_account is SECURITY DEFINER'
-);
-SELECT is(
-  public.email_has_account(current_setting('test.acct_email')),
-  true,
-  'email_has_account returns true for a known account email'
-);
-SELECT is(
-  public.email_has_account('definitely-not-real@example.invalid'),
-  false,
-  'email_has_account returns false for an unknown email'
+  'email_has_account has been dropped'
 );
 
 -- ---------------------------------------------------------------------------
@@ -54,11 +44,10 @@ SELECT is(
 SELECT policies_are(
   'public', 'mentoring',
   ARRAY[
-    'Register an email with no existing account',
     'Logged in users can register their own email',
     'Users can read their own status'
   ],
-  'mentoring has exactly the three corrected policies'
+  'mentoring has exactly the two policies left after 20260805130000'
 );
 
 -- ---------------------------------------------------------------------------
@@ -67,17 +56,27 @@ SELECT policies_are(
 SET LOCAL ROLE anon;
 SELECT set_config('request.jwt.claims', '', true);
 
-SELECT lives_ok(
+-- Registering used to be open to anon, gated on whether the address already
+-- had an account — which is what made it an oracle. Now it is closed outright,
+-- so no answer about any address leaks either way.
+SELECT throws_ok(
   $$INSERT INTO public.mentoring (email, firstname, lastname, entry_type)
     VALUES ('brand-new@example.invalid', 'New', 'Person', 'mentee')$$,
-  'anon CAN register an email with no existing account'
+  '42501',
+  NULL,
+  'anon cannot register an address with no account'
 );
 SELECT throws_ok(
   $$INSERT INTO public.mentoring (email, firstname, lastname, entry_type)
     VALUES (current_setting('test.acct_email'), 'Imp', 'Oster', 'mentee')$$,
   '42501',
   NULL,
-  'anon CANNOT register an email that already has an account'
+  'anon cannot register an address that has one either — same error, no signal'
+);
+SELECT is(
+  has_table_privilege('anon', 'public.mentoring', 'INSERT'),
+  false,
+  'and the INSERT privilege itself is withdrawn from anon'
 );
 RESET ROLE;
 

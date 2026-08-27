@@ -38,6 +38,38 @@ export type Database = {
           },
         ]
       }
+      account_emails: {
+        Row: {
+          added_at: string
+          email: string
+          is_primary: boolean
+          user_id: string
+          verified_at: string | null
+        }
+        Insert: {
+          added_at?: string
+          email: string
+          is_primary?: boolean
+          user_id: string
+          verified_at?: string | null
+        }
+        Update: {
+          added_at?: string
+          email?: string
+          is_primary?: boolean
+          user_id?: string
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_emails_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agenda_favourites: {
         Row: {
           presentation_id: string
@@ -124,24 +156,42 @@ export type Database = {
           },
         ]
       }
-      email_lookup: {
+      email_verifications: {
         Row: {
+          attempts: number
+          code_hash: string
+          consumed_at: string | null
+          created_at: string
           email: string
+          expires_at: string
           id: string
+          user_id: string
         }
         Insert: {
+          attempts?: number
+          code_hash: string
+          consumed_at?: string | null
+          created_at?: string
           email: string
-          id: string
+          expires_at: string
+          id?: string
+          user_id: string
         }
         Update: {
+          attempts?: number
+          code_hash?: string
+          consumed_at?: string | null
+          created_at?: string
           email?: string
+          expires_at?: string
           id?: string
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "email_lookup_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
+            foreignKeyName: "email_verifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -624,7 +674,11 @@ export type Database = {
         Args: { v_outcome: string; v_pid: string }
         Returns: string
       }
-      email_has_account: { Args: { p_email: string }; Returns: boolean }
+      assert_account_has_one_primary: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
+      current_user_emails: { Args: never; Returns: string[] }
       evaluate_submission: { Args: { v_pid: string }; Returns: string }
       force_submission_outcome: {
         Args: { v_outcome: string; v_pid: string }
@@ -707,6 +761,13 @@ export type Database = {
       }
       is_organizer: { Args: never; Returns: boolean }
       purge_synthetic_test_users: { Args: never; Returns: number }
+      resolve_account_email: {
+        Args: { p_email: string }
+        Returns: {
+          primary_email: string
+          user_id: string
+        }[]
+      }
     }
     Enums: {
       log_type: "info" | "error" | "severe"

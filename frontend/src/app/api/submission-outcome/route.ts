@@ -87,7 +87,11 @@ const notifyPresenters = async (
   }
 
   const [{ data: emailRows }, { data: profileRows }] = await Promise.all([
-    supabase.from('email_lookup').select('id, email').in('id', presenterIds),
+    supabase
+      .from('account_emails')
+      .select('user_id, email')
+      .eq('is_primary', true)
+      .in('user_id', presenterIds),
     supabase
       .from('profiles')
       .select('id, firstname, lastname')
@@ -106,10 +110,10 @@ const notifyPresenters = async (
     outcome === 'accepted' ? ACCEPTED_EMAIL_SUBJECT : REJECTED_EMAIL_SUBJECT;
   const { title } = submission;
 
-  // Presenters without an email_lookup row cannot be reached; surface that
+  // Presenters without a primary address cannot be reached; surface that
   // distinctly so it can be chased up.
   const missing = presenterIds.filter(
-    (id) => !(emailRows ?? []).some((e) => e.id === id)
+    (id) => !(emailRows ?? []).some((e) => e.user_id === id)
   );
   if (missing.length > 0) {
     await logToDb(
@@ -121,10 +125,10 @@ const notifyPresenters = async (
   }
 
   await Promise.all(
-    (emailRows ?? []).map(async ({ id, email }) => {
+    (emailRows ?? []).map(async ({ user_id, email }) => {
       const { body, bodyPlain } = buildEmail({
         title,
-        recipientName: nameById.get(id) ?? ''
+        recipientName: nameById.get(user_id) ?? ''
       });
       try {
         const result = await sendMailApi({
@@ -139,7 +143,7 @@ const notifyPresenters = async (
             'Failed to email presenter of submission outcome',
             'api/submission-outcome',
             {
-              userId: id,
+              userId: user_id,
               context: {
                 presentationId,
                 outcome,
@@ -155,7 +159,7 @@ const notifyPresenters = async (
           'Failed to email presenter of submission outcome',
           'api/submission-outcome',
           {
-            userId: id,
+            userId: user_id,
             context: {
               presentationId,
               outcome,

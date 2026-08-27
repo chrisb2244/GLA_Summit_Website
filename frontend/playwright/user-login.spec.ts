@@ -20,16 +20,16 @@ test.describe('User Authentication Tests', () => {
   test.afterAll(async () => {
     for (const email of emailsToDelete) {
       const { data, error } = await supabaseAdmin
-        .from('email_lookup')
-        .select('id')
+        .from('account_emails')
+        .select('user_id')
         .eq('email', email)
-        .single();
+        .maybeSingle();
 
-      if (error || !data?.id) {
+      if (error || data?.user_id == null) {
         continue;
       }
 
-      await supabaseAdmin.auth.admin.deleteUser(data.id);
+      await supabaseAdmin.auth.admin.deleteUser(data.user_id);
     }
   });
 
@@ -100,6 +100,111 @@ test.describe('User Authentication Tests', () => {
     await userButton.waitFor({ state: 'visible', timeout: 10000 });
 
     await expect(userButton).toBeVisible();
+  });
+
+  test('User can login with a second address on their account', async ({
+    page
+  }) => {
+    const user = generateUser('Aliased', 'User');
+    const aliasEmail = generateTestEmail('alias');
+    emailsToDelete.push(user.email);
+
+    const { data: created } = await supabaseAdmin.auth.admin.createUser({
+      email: user.email,
+      password: 'password',
+      user_metadata: {
+        firstname: user.firstname,
+        lastname: user.lastname
+      }
+    });
+    expect(created.user).not.toBeNull();
+
+    // Stands in for the "add an address" flow:
+    // a verified, non-primary address on an existing account.
+    const { error: aliasError } = await supabaseAdmin
+      .from('account_emails')
+      .insert({
+        user_id: created.user!.id,
+        email: aliasEmail,
+        verified_at: new Date().toISOString()
+      });
+    expect(aliasError).toBeNull();
+
+    await page.goto('/');
+    const loginablePage = new LoginablePage(page);
+
+    await loginablePage.openLoginOrRegisterForm('login');
+    await loginablePage.fillInLoginForm(aliasEmail);
+    await loginablePage.submitForm();
+
+    // The OTP is minted against the primary address but must arrive at the one
+    // that was typed.
+    const otp = await getInbucketVerificationCode(aliasEmail, 15000);
+    expect(otp).toBeDefined();
+    expect(await countEmailsInInbox(user.email)).toBe(0);
+
+    await loginablePage.fillInVerificationForm(otp);
+    await loginablePage.submitForm();
+
+    const userButton = page.locator('role=button', {
+      hasText: /Aliased User/
+    });
+    await userButton.waitFor({ state: 'visible', timeout: 10000 });
+    await expect(userButton).toBeVisible();
+  });
+
+  test('Registering with an address already on an account signs into it', async ({
+    page
+  }) => {
+    const user = generateUser('Rejoining', 'User');
+    const aliasEmail = generateTestEmail('rejoin-alias');
+    emailsToDelete.push(user.email);
+
+    const { data: created } = await supabaseAdmin.auth.admin.createUser({
+      email: user.email,
+      password: 'password',
+      user_metadata: {
+        firstname: user.firstname,
+        lastname: user.lastname
+      }
+    });
+    expect(created.user).not.toBeNull();
+    await supabaseAdmin.from('account_emails').insert({
+      user_id: created.user!.id,
+      email: aliasEmail,
+      verified_at: new Date().toISOString()
+    });
+
+    // GoTrue does not know the alias, so without resolving it first this would
+    // create a second account and the account_emails unique index would abort
+    // the trigger insert. It must migrate to the existing account instead.
+    await page.goto('/');
+    const loginablePage = new LoginablePage(page);
+    await loginablePage.openLoginOrRegisterForm('register');
+    await loginablePage.fillInRegistrationForm({
+      firstname: 'Rejoining',
+      lastname: 'User',
+      email: aliasEmail
+    });
+    await loginablePage.submitForm();
+
+    const otp = await getInbucketVerificationCode(aliasEmail, 15000);
+    expect(otp).toBeDefined();
+
+    await loginablePage.fillInVerificationForm(otp);
+    await loginablePage.submitForm();
+
+    await expect(
+      page.locator('role=button', { hasText: /Rejoining User/ })
+    ).toBeVisible({ timeout: 10000 });
+
+    // Still one account, still one primary address.
+    const { data: addresses } = await supabaseAdmin
+      .from('account_emails')
+      .select('email, is_primary')
+      .eq('user_id', created.user!.id);
+    expect(addresses).toHaveLength(2);
+    expect(addresses?.filter((a) => a.is_primary)).toHaveLength(1);
   });
 
   test('Email entry gains focus when navigating to login form', async ({

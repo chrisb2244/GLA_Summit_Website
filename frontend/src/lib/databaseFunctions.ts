@@ -17,14 +17,21 @@ import type { NewUserInformation } from './sessionTypes';
 export type User = SB_User;
 type Client = SupabaseClient<Database>;
 
-export const checkForExistingUser = async (
+export type ResolvedAccount = {
+  userId: string;
+  primaryEmail: string;
+};
+
+/**
+ * Find the account that owns an address. Returns null when the address belongs
+ * to no account, or when it has been added to one but not yet verified (an
+ * unverified address must never be a way in).
+ */
+export const resolveAccountEmail = async (
   email: string
-): Promise<{ userId: string | null }> => {
+): Promise<ResolvedAccount | null> => {
   return createAdminClient()
-    .from('email_lookup')
-    .select()
-    .eq('email', email)
-    .maybeSingle()
+    .rpc('resolve_account_email', { p_email: email })
     .then(({ data, error }) => {
       if (error) {
         logToDb('error', 'Email lookup query failed', 'db/email-lookup', {
@@ -32,12 +39,11 @@ export const checkForExistingUser = async (
         });
         throw error;
       }
-      if (data) {
-        return {
-          userId: data.id as string
-        };
+      const [row] = data ?? [];
+      if (!row) {
+        return null;
       }
-      return { userId: null };
+      return { userId: row.user_id, primaryEmail: row.primary_email };
     });
 };
 

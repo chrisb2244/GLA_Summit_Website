@@ -17,6 +17,7 @@ vi.mock('@/EmailTemplates/FormSubmissionEmail', () => ({
 }));
 vi.mock('next/cache', () => ({ revalidateTag: vi.fn() }));
 
+import { sendMailApi } from '@/lib/sendMail';
 import { createAdminClient } from '@/lib/supabaseClient';
 import { createServerActionClient } from '@/lib/supabaseServer';
 import { revalidateTag } from 'next/cache';
@@ -111,7 +112,7 @@ const makeAdminMock = (opts: AdminOptions = {}) => {
           error: null
         })
       };
-    if (table === 'email_lookup')
+    if (table === 'account_emails')
       return {
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
@@ -185,6 +186,20 @@ describe('respondToInvite', () => {
     expect(updateBuilder).toBeDefined();
     expect(updateBuilder!.update).toHaveBeenCalledWith({ status: 'declined', declined_count: 1 });
     expect(updateBuilder!.eq).toHaveBeenCalledWith('status', 'pending');
+  });
+
+  it('emails the submitter when an invite is accepted', async () => {
+    // Guards the mock as much as the code: when this suite's admin-client stub
+    // stopped matching the table notifySubmitter reads, the notification path
+    // silently stopped being exercised and every test still passed.
+    mockAuth(PRESENTER_ID);
+    makeAdminMock({ status: 'pending', declined_count: 0 });
+
+    await respondToInvite(makeToken(), 'accept');
+
+    expect(vi.mocked(sendMailApi)).toHaveBeenCalledWith(
+      expect.objectContaining({ to: 'test@example.com' })
+    );
   });
 
   it('revalidates the accepted-presenter caches after a successful response', async () => {

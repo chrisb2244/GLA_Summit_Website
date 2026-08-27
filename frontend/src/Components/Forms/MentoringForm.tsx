@@ -5,7 +5,8 @@ import { Person, type PersonProps } from '@/Components/Form/Person';
 import { Button } from '../Form/Button';
 
 type FormProps = {
-  defaultEntry?: PersonProps;
+  // No longer allow anonymous usage - the user must be signed in.
+  account: PersonProps;
   registered?: RegistrationType | null;
   registrationFn: (data: RegistrationData) => void;
 };
@@ -21,7 +22,7 @@ export type RegistrationData = {
 };
 
 export const MentoringForm: React.FC<React.PropsWithChildren<FormProps>> = ({
-  defaultEntry,
+  account,
   registered,
   registrationFn
 }) => {
@@ -33,13 +34,11 @@ export const MentoringForm: React.FC<React.PropsWithChildren<FormProps>> = ({
   } = useForm<FormData>({ mode: 'onTouched' });
 
   useEffect(() => {
-    if (typeof defaultEntry !== 'undefined') {
-      setValue('person', defaultEntry, {
-        shouldTouch: true,
-        shouldDirty: true
-      });
-    }
-  }, [defaultEntry, setValue]);
+    setValue('person', account, {
+      shouldTouch: true,
+      shouldDirty: true
+    });
+  }, [account, setValue]);
 
   const entryTypes = [
     {
@@ -58,7 +57,7 @@ export const MentoringForm: React.FC<React.PropsWithChildren<FormProps>> = ({
     }
   ] as const;
 
-  const [tabIndex, /* setTabIndex */] = useState(0);
+  const [tabIndex /* setTabIndex */] = useState(0);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   const confirmationResponse = (
@@ -107,8 +106,8 @@ export const MentoringForm: React.FC<React.PropsWithChildren<FormProps>> = ({
                 register={register}
                 path={'person'}
                 errors={errors.person}
-                defaultValue={defaultEntry}
-                locked={typeof defaultEntry !== 'undefined'}
+                defaultValue={account}
+                locked
               />
               <Button type='submit' fullWidth>
                 Submit

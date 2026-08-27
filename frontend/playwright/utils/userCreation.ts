@@ -49,7 +49,7 @@ type BaseUserOptions = {
 };
 
 // Delete every row that references this user without an ON DELETE CASCADE back
-// to auth.users, then delete the user. Cascading rows (profiles, email_lookup,
+// to auth.users, then delete the user. Cascading rows (profiles, account_emails,
 // organizers, tickets, and presentation_presenters/accepted_presentations that
 // hang off the user's own submissions) are removed automatically.
 //
@@ -97,17 +97,17 @@ export const cleanupUser = async (userId: string) => {
 export const cleanupUserByEmail = async (email: string): Promise<void> => {
   const admin = createSupabaseAdmin();
   const { data } = await admin
-    .from('email_lookup')
-    .select('id')
+    .from('account_emails')
+    .select('user_id')
     .ilike('email', email)
     .maybeSingle();
-  if (data?.id) {
-    await cleanupUser(data.id);
+  if (data?.user_id) {
+    await cleanupUser(data.user_id);
   }
 };
 
 // Create an auth user with a confirmed email. The handle_new_user /
-// store_email triggers seed public.profiles and public.email_lookup from the
+// store_email triggers seed public.profiles and public.account_emails from the
 // firstname/lastname metadata, so an attendee identity needs nothing further.
 const createBaseUser = async (
   role: TestRole,

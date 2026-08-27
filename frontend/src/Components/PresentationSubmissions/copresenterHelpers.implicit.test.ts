@@ -36,11 +36,12 @@ const PRESENTATION_ID = 'pres-001';
 const SUBMITTER_ID = 'sub-001';
 
 const makeAdmin = (
-  initialQueryData: Array<{ id: string; email: string }> = []
+  initialQueryData: Array<{ user_id: string; email: string }> = []
 ) => {
   const emailLookupBuilder = {
     select: vi.fn().mockReturnThis(),
-    or: vi.fn().mockResolvedValue({ data: initialQueryData, error: null }),
+    eq: vi.fn().mockReturnThis(),
+    in: vi.fn().mockResolvedValue({ data: initialQueryData, error: null }),
     ilike: vi.fn().mockReturnThis(),
     single: vi.fn().mockResolvedValue({ data: null, error: null })
   };
@@ -61,7 +62,7 @@ describe('resolveCopresenters with the invite workflow disabled', () => {
   });
 
   it('does not attach an inviteUrl to existing presenters', async () => {
-    const { mockAdmin } = makeAdmin([{ id: 'user-1', email: 'alice@example.com' }]);
+    const { mockAdmin } = makeAdmin([{ user_id: 'user-1', email: 'alice@example.com' }]);
 
     const result = await resolveCopresenters(
       ['alice@example.com'],
@@ -77,7 +78,7 @@ describe('resolveCopresenters with the invite workflow disabled', () => {
   });
 
   it('does not mint invite tokens', async () => {
-    const { mockAdmin } = makeAdmin([{ id: 'user-1', email: 'alice@example.com' }]);
+    const { mockAdmin } = makeAdmin([{ user_id: 'user-1', email: 'alice@example.com' }]);
 
     await resolveCopresenters(
       ['alice@example.com', 'new@example.com'],

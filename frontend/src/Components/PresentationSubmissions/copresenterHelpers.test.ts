@@ -34,9 +34,9 @@ const PRESENTATION_ID = 'pres-001';
 const SUBMITTER_ID = 'sub-001';
 
 type MakeAdminOptions = {
-  initialQueryData?: Array<{ id: string; email: string }>;
+  initialQueryData?: Array<{ user_id: string; email: string }>;
   initialQueryError?: object | null;
-  secondaryQueryData?: { id: string; email: string } | null;
+  secondaryQueryData?: { user_id: string; email: string } | null;
   generateLinkData?: { user: { id: string }; properties: { email_otp: string } } | null;
   generateLinkError?: { message: string; status: number } | null;
 };
@@ -44,7 +44,8 @@ type MakeAdminOptions = {
 const makeAdmin = (opts: MakeAdminOptions = {}) => {
   const emailLookupBuilder = {
     select: vi.fn().mockReturnThis(),
-    or: vi.fn().mockResolvedValue({
+    eq: vi.fn().mockReturnThis(),
+    in: vi.fn().mockResolvedValue({
       data: opts.initialQueryData ?? [],
       error: opts.initialQueryError ?? null
     }),
@@ -82,9 +83,9 @@ describe('resolveCopresenters', () => {
     expect(result).toEqual({ success: true, existingPresenters: [], newPresenters: [] });
   });
 
-  it('normalises input emails to lowercase before issuing the ilike query', async () => {
+  it('normalises input emails to lowercase before querying', async () => {
     const { mockAdmin, emailLookupBuilder } = makeAdmin({
-      initialQueryData: [{ id: 'user-1', email: 'alice@example.com' }]
+      initialQueryData: [{ user_id: 'user-1', email: 'alice@example.com' }]
     });
 
     await resolveCopresenters(
@@ -95,13 +96,41 @@ describe('resolveCopresenters', () => {
       PRESENTATION_ID
     );
 
-    expect(emailLookupBuilder.or).toHaveBeenCalledWith('email.ilike.alice@example.com');
+    // Deliberately unfiltered by is_primary: a co-presenter invited at an
+    // address they added to their own account has to resolve to that account.
+    expect(emailLookupBuilder.eq).not.toHaveBeenCalledWith('is_primary', true);
+    expect(emailLookupBuilder.in).toHaveBeenCalledWith('email', [
+      'alice@example.com'
+    ]);
+  });
+
+  it('yields one presenter per account when several of its addresses are listed', async () => {
+    const { mockAdmin } = makeAdmin({
+      initialQueryData: [
+        { user_id: 'user-1', email: 'alias@example.com' },
+        { user_id: 'user-1', email: 'primary@example.com' }
+      ]
+    });
+
+    const result = await resolveCopresenters(
+      ['primary@example.com', 'alias@example.com'],
+      mockAdmin,
+      'test',
+      SUBMITTER_ID,
+      PRESENTATION_ID
+    );
+
+    expect(result).toMatchObject({
+      success: true,
+      // First listed wins, and neither address falls through to account creation.
+      existingPresenters: [{ id: 'user-1', email: 'primary@example.com' }],
+      newPresenters: []
+    });
   });
 
   it('treats a user returned by the initial query as an existing presenter', async () => {
     const { mockAdmin } = makeAdmin({
-      // Simulates email_lookup storing mixed-case email while input is lowercase
-      initialQueryData: [{ id: 'user-1', email: 'Jason34@test.email' }]
+      initialQueryData: [{ user_id: 'user-1', email: 'jason34@test.email' }]
     });
 
     const result = await resolveCopresenters(
@@ -121,7 +150,7 @@ describe('resolveCopresenters', () => {
 
   it('does not attempt account creation for emails found by the initial query', async () => {
     const { mockAdmin, generateLinkMock } = makeAdmin({
-      initialQueryData: [{ id: 'user-1', email: 'alice@example.com' }]
+      initialQueryData: [{ user_id: 'user-1', email: 'alice@example.com' }]
     });
 
     await resolveCopresenters(
@@ -135,7 +164,7 @@ describe('resolveCopresenters', () => {
     expect(generateLinkMock).not.toHaveBeenCalled();
   });
 
-  it('creates a new account when email is not in email_lookup', async () => {
+  it('creates a new account when email matches no account address', async () => {
     const { mockAdmin } = makeAdmin({ initialQueryData: [] });
 
     const result = await resolveCopresenters(
@@ -158,7 +187,7 @@ describe('resolveCopresenters', () => {
       initialQueryData: [],
       generateLinkError: { message: 'User already registered', status: 422 },
       generateLinkData: null,
-      secondaryQueryData: { id: 'user-existing', email: 'alice@example.com' }
+      secondaryQueryData: { user_id: 'user-existing', email: 'alice@example.com' }
     });
 
     const result = await resolveCopresenters(
@@ -178,7 +207,7 @@ describe('resolveCopresenters', () => {
 
   it('attaches an inviteUrl to each resolved existing presenter', async () => {
     const { mockAdmin } = makeAdmin({
-      initialQueryData: [{ id: 'user-1', email: 'alice@example.com' }]
+      initialQueryData: [{ user_id: 'user-1', email: 'alice@example.com' }]
     });
 
     const result = await resolveCopresenters(
@@ -198,7 +227,7 @@ describe('resolveCopresenters', () => {
 
   it('mixes existing and new presenters in the same call', async () => {
     const { mockAdmin } = makeAdmin({
-      initialQueryData: [{ id: 'existing-id', email: 'existing@example.com' }]
+      initialQueryData: [{ user_id: 'existing-id', email: 'existing@example.com' }]
     });
 
     const result = await resolveCopresenters(

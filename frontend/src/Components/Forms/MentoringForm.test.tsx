@@ -8,7 +8,7 @@ import {
 } from './MentoringForm';
 import type { PersonProps } from '@/Components/Form/Person';
 
-const existingPerson: PersonProps = {
+const accountHolder: PersonProps = {
   firstName: 'Test',
   lastName: 'User',
   email: 'test.user@test.com'
@@ -28,19 +28,21 @@ describe('MentoringForm', () => {
     screen.getByRole('textbox', { name }) as HTMLInputElement;
 
   const renderForm = (
-    person: PersonProps | undefined,
+    person: PersonProps,
     registered: RegistrationType | null
   ) =>
     render(
       <MentoringForm
         registrationFn={submitFn}
-        defaultEntry={person}
+        account={person}
         registered={registered}
       />
     );
 
-  it('renders a prefilled, locked Person form when a default entry is supplied', () => {
-    renderForm(existingPerson, null);
+  // There is no free-entry mode: a registration names the signed-in account
+  // holder, and the database only accepts an address belonging to the caller.
+  it('renders the account holder as a prefilled, locked Person form', () => {
+    renderForm(accountHolder, null);
     const textboxes = screen.getAllByRole('textbox') as HTMLInputElement[];
     expect(textboxes).toHaveLength(3);
     expect(getInput('First Name').value).toBe('Test');
@@ -52,7 +54,7 @@ describe('MentoringForm', () => {
   });
 
   it('shows a message and no form when a mentor registration already exists', () => {
-    renderForm(existingPerson, 'mentor');
+    renderForm(accountHolder, 'mentor');
     expect(screen.queryAllByRole('textbox')).toHaveLength(0);
     expect(
       screen.getByText(/Thank you.*registered.*to be a mentor/)
@@ -60,38 +62,25 @@ describe('MentoringForm', () => {
   });
 
   it('shows a message and no form when a mentee registration already exists', () => {
-    renderForm(existingPerson, 'mentee');
+    renderForm(accountHolder, 'mentee');
     expect(screen.queryAllByRole('textbox')).toHaveLength(0);
-    expect(screen.getByText(/Thank you.*received your registration/)).toBeDefined();
+    expect(
+      screen.getByText(/Thank you.*received your registration/)
+    ).toBeDefined();
   });
 
   it('registers an existing user as a mentor and shows the confirmation', async () => {
-    renderForm(existingPerson, null);
+    renderForm(accountHolder, null);
     await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
     await waitFor(() => {
       expect(submitFn).toHaveBeenCalledWith({
-        person: existingPerson,
+        person: accountHolder,
         type: 'mentor'
       });
     });
     expect(
       await screen.findByText(/Thank you for offering to be a mentor/)
     ).toBeDefined();
-  });
-
-  it('blocks submission and flags the field when a required value is missing', async () => {
-    renderForm(undefined, null);
-    await userEvent.type(getInput('First Name'), existingPerson.firstName);
-    await userEvent.type(getInput('Email'), existingPerson.email);
-    // Last Name deliberately left empty.
-
-    const lastNameInput = getInput('Last Name');
-    await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
-
-    await waitFor(() => {
-      expect(lastNameInput.getAttribute('aria-invalid')).toBe('true');
-    });
-    expect(submitFn).not.toHaveBeenCalled();
   });
 });

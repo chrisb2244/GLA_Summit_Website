@@ -2,6 +2,8 @@ import { createServerClient } from '@/lib/supabaseServer';
 import React, { Suspense, PropsWithChildren, cache } from 'react';
 import { ProfileImage } from './ProfileImage';
 import { ProfileForm } from './ProfileForm';
+import { EmailAddresses } from './EmailAddresses';
+import { listAccountAddresses } from './emailAddressService';
 import { getUser } from '@/lib/supabase/userFunctions';
 
 const Wrapper: React.FC<PropsWithChildren> = (props) => {
@@ -54,7 +56,10 @@ const ProfilePage_FormWrapper = async () => {
     );
   }
 
-  const profileData = await getProfileData(user.id);
+  const [profileData, addresses] = await Promise.all([
+    getProfileData(user.id),
+    listAccountAddresses(user.id)
+  ]);
 
   if (profileData === null) {
     return (
@@ -65,10 +70,13 @@ const ProfilePage_FormWrapper = async () => {
   }
 
   return (
-    <ProfileForm
-      profile={profileData}
-      email={user.email ?? 'Email Not Found'}
-    />
+    <>
+      <ProfileForm
+        profile={profileData}
+        email={user.email ?? 'Email Not Found'}
+      />
+      <EmailAddresses addresses={addresses} />
+    </>
   );
 };
 
