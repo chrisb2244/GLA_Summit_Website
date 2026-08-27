@@ -30,9 +30,10 @@ test.describe('Homepage tests', () => {
     { tag: '@regression' },
     async ({ page }) => {
       await page.goto('/');
-      // Ensure the hero/sponsor content has painted before capturing.
+      // Ensure the hero/sponsor content along with the login button have painted before capturing.
       await expect(page).toHaveTitle(/GLA Summit/);
       await expect(page.locator('text=Sponsored by NI')).toBeVisible();
+      await expect(page.locator('#user')).toBeVisible();
       await expect(page).toHaveScreenshot(homepageBaseline, {
         fullPage: true,
         maxDiffPixelRatio: 0.02
