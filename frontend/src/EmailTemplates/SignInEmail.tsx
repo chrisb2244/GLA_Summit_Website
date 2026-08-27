@@ -1,4 +1,4 @@
-import { LogoImg, UnexpectedEmail } from './emailComponents';
+import { escapeHtml, LogoImg, UnexpectedEmail } from './emailComponents';
 import { submissionsForYear } from '@/app/configConstants';
 
 export const SignInEmailFn = (
@@ -23,7 +23,9 @@ export const SignInEmailFn = (
                 <tbody>
                   <tr style="width:100%">
                     <td>
-                      <p style="font-size:14px;line-height:24px;margin:16px 0">Dear ${nameString},</p>
+                      <p style="font-size:14px;line-height:24px;margin:16px 0">Dear ${escapeHtml(
+                        nameString
+                      )},</p>
                       <p style="font-size:14px;line-height:24px;margin:16px 0">Your one-time passcode token is:</p>
                       <table align="center" width="100%" style="background:rgba(0,0,0,.05);border-radius:4px;margin:16px auto 14px;vertical-align:middle;width:220px" border="0" cellPadding="0" cellSpacing="0" role="presentation">
                         <tbody>
