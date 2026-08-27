@@ -14,7 +14,7 @@ import {
 import { submitPresentationAction } from './presentationSubmissionActions';
 import { useFormValidation } from '../Utilities/useFormValidation';
 import { useTouchedFieldErrors } from '../Utilities/useTouchedFieldErrors';
-import { CAN_SUBMIT_DRAFT } from '@/app/configConstants';
+import { CAN_SUBMIT_DRAFT, CAN_SUBMIT_PRESENTATION } from '@/app/configConstants';
 import { Checkbox } from '../Form/Checkbox';
 import { SubmitButton } from '../Form/SubmitButton';
 
@@ -377,7 +377,9 @@ export const PresentationFormFields = ({
 
       <div className='mt-3 flex flex-col gap-2 sm:flex-row sm:justify-between'>
         {CAN_SUBMIT_DRAFT && (
-          <div className='w-full sm:w-2/5'>
+          <div
+            className={CAN_SUBMIT_PRESENTATION ? 'w-full sm:w-2/5' : 'w-full'}
+          >
             <Button
               type='submit'
               name='submitIntent'
@@ -389,18 +391,20 @@ export const PresentationFormFields = ({
           </div>
         )}
 
-        <div className={CAN_SUBMIT_DRAFT ? 'w-full sm:w-3/5' : 'w-full'}>
-          <SubmitButton
-            name='submitIntent'
-            value='submit'
-            staticText={
-              state.duplicateWarning ? 'Submit Anyway' : 'Submit Presentation'
-            }
-            pendingText={
-              state.duplicateWarning ? 'Submitting anyway...' : 'Submitting...'
-            }
-          />
-        </div>
+        {CAN_SUBMIT_PRESENTATION && (
+          <div className={CAN_SUBMIT_DRAFT ? 'w-full sm:w-3/5' : 'w-full'}>
+            <SubmitButton
+              name='submitIntent'
+              value='submit'
+              staticText={
+                state.duplicateWarning ? 'Submit Anyway' : 'Submit Presentation'
+              }
+              pendingText={
+                state.duplicateWarning ? 'Submitting anyway...' : 'Submitting...'
+              }
+            />
+          </div>
+        )}
       </div>
     </form>
   );

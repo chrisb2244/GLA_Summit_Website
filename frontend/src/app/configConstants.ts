@@ -1,6 +1,6 @@
 import type { SummitYear } from '@/lib/databaseModels';
 
-export const CAN_SUBMIT_PRESENTATION: boolean = true;
+export const CAN_SUBMIT_PRESENTATION: boolean = false;
 
 // When true, the submission form shows a "save as draft" checkbox.
 // Setting this independently of CAN_SUBMIT_PRESENTATION lets you allow

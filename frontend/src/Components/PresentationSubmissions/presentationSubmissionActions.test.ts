@@ -5,6 +5,8 @@ vi.mock('server-only', () => ({}));
 
 vi.mock('@/app/configConstants', () => ({
   submissionsForYear: '2026',
+  CAN_SUBMIT_PRESENTATION: true,
+  CAN_SUBMIT_DRAFT: true,
   COPRESENTER_INVITE_WORKFLOW: false
 }));
 
