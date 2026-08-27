@@ -51,7 +51,7 @@ export const AddressVerificationEmailFn = (
   shell(
     'Confirm your email address',
     `                      <p style="font-size:14px;line-height:24px;margin:16px 0">Dear ${escapeHtml(emailAddress)},</p>
-                      <p style="font-size:14px;line-height:24px;margin:16px 0">Someone asked to add this address to a GLA Summit account, so that it can be used to sign in. Your confirmation code is:</p>
+                      <p style="font-size:14px;line-height:24px;margin:16px 0">Someone asked to add this address to an existing GLA Summit account, so that it can be used to sign in. Your confirmation code is:</p>
                       <table align="center" width="100%" style="background:rgba(0,0,0,.05);border-radius:4px;margin:16px auto 14px;vertical-align:middle;width:220px" border="0" cellPadding="0" cellSpacing="0" role="presentation">
                         <tbody>
                           <tr>
@@ -61,7 +61,7 @@ export const AddressVerificationEmailFn = (
                           </tr>
                         </tbody>
                       </table>
-                      <p style="font-size:14px;line-height:24px;margin:16px 0">The code expires in 15 minutes. If you did not request this, no action is needed — the address will not be added.</p>`
+                      <p style="font-size:14px;line-height:24px;margin:16px 0">The code expires in 15 minutes. If you did not request this, no action is needed — your address will not be added.</p>`
   );
 
 export const addressVerificationEmailText = (
@@ -70,9 +70,9 @@ export const addressVerificationEmailText = (
 ) =>
   [
     `Dear ${emailAddress},\r\n`,
-    'Someone asked to add this address to a GLA Summit account so it can be used to sign in.\r\n',
+    'Someone asked to add this address to an existing GLA Summit account, so that it can be used to sign in.\r\n',
     `Your confirmation code is ${otpValue}\r\n`,
-    'The code expires in 15 minutes. If you did not request this, no action is needed - the address will not be added.\r\n',
+    'The code expires in 15 minutes. If you did not request this, no action is needed - your address will not be added.\r\n',
     'GLA Summit Organizers'
   ].join('\r\n');
 
