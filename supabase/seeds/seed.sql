@@ -486,6 +486,64 @@ INSERT INTO "public"."presentation_presenters" ("presentation_id", "presenter_id
 
 
 --
+-- Accepted, scheduled presentations for 2026. The three 2026 rows above stay
+-- unaccepted as /review-submissions fixtures.
+--
+-- Times are relative to configConstants.startDate (2026-08-31 12:00 UTC), and
+-- the set is chosen to exercise the layout rather than to look realistic:
+--
+--   * 12:05, 15 min      overlaps the "Welcome" entry from agendaExtras.ts,
+--                        so a database row and a static one share a cluster;
+--   * 16:00 x2, 60 min   two genuinely parallel talks, which alongside the
+--                        16:00 NI Expert Bar entry makes a three-lane cluster;
+--   * 17:00, full length followed by a 15-minute talk at 17:45 -- the clamping
+--                        case: 'full length' asks for 60 minutes and gets 45;
+--   * 09-01 08:00        a full-length talk beside a two-member container, so
+--                        the container path is exercised somewhere.
+--
+INSERT INTO "public"."presentation_submissions" ("id", "submitter_id", "updated_at", "title", "abstract", "is_submitted", "presentation_type", "learning_points", "year") VALUES
+	('b1f0a4c2-6d38-4a51-9f2e-3c7d05a91b64', '35f03917-dd1c-4a4d-88c4-1cd3b8996d27', '2026-05-01 08:00:00+00', 'Regex Field Notes', 'A quick tour of the regular expressions that come up again and again in LabVIEW string handling, and the handful of syntax rules that unlock most of them.', true, '15 minutes', 'Enough regex syntax to stop reaching for string subsets.', '2026'),
+	('c2a19d73-4e60-4b88-8a11-9d5e7f3c206a', '0aab4c3b-1415-4871-943a-5c377c9158e9', '2026-05-01 08:10:00+00', 'Tracing Without Guesswork', 'Execution traces answer questions the profiler cannot. This session walks through reading a trace log end to end, and the views that make a messaging-heavy application legible.', true, 'full length', 'How to read an execution trace instead of guessing at timing.', '2026'),
+	('d3b28e84-5f71-4c99-9b22-ae6f804d317b', '4671cf60-ae64-46c0-b3a5-fc934cf1bd8a', '2026-05-01 08:20:00+00', 'Parallel Track A', 'One of two talks scheduled against each other, so the agenda has a real clash to lay out.', true, 'full length', 'Nothing in particular; this is a scheduling fixture.', '2026'),
+	('e4c39f95-6082-4daa-8c33-bf70915e428c', 'ef21a78e-9e42-47ba-9e22-1707c3ad1e43', '2026-05-01 08:30:00+00', 'Parallel Track B', 'The other half of the clash, so the two share a cluster and split the available width.', true, 'full length', 'Nothing in particular; this is a scheduling fixture.', '2026'),
+	('f5d40a06-7193-4ebb-9d44-c081a26f539d', 'c87226b4-564d-4fce-b8bc-d4f806b4f927', '2026-05-01 08:40:00+00', 'Errors That Explain Themselves', 'Error clusters carry a code and little else. This session covers adding the context that makes a failure diagnosable without attaching a debugger.', true, 'full length', 'How to make an error message worth reading.', '2026'),
+	('06e51b17-82a4-4fcc-8e55-d192b3706a4e', '0eae4c37-4af5-4b92-ae90-615facddad49', '2026-05-01 08:50:00+00', 'Fifteen Minutes on Unit Tests', 'A short talk immediately after a full-length one, in the slot a 45-minute talk would run into if the agenda drew every talk as a full hour.', true, '15 minutes', 'A starting point for testing VIs in isolation.', '2026'),
+	('17f62c28-93b5-4a0d-9f66-e2a3c481755f', 'f3142ed8-c853-43e5-8383-c32ab5b964aa', '2026-05-01 09:00:00+00', 'Lightning: Icon Tricks', 'First member of the seeded session container.', true, '15 minutes', NULL, '2026'),
+	('28a73d39-a4c6-4b1e-8a77-f3b4d5926860', '9556bc08-b216-4263-b97e-cdcbce35ac16', '2026-05-01 09:10:00+00', 'Lightning: Query Plans', 'Second member of the seeded session container.', true, '15 minutes', NULL, '2026'),
+	('39b84e4a-b5d7-4c2f-9b88-04c5e6a37971', '22d95e65-8f2d-4735-87e8-005afc8c3323', '2026-05-01 09:20:00+00', 'A Long Talk Beside the Lightning Round', 'Runs against the container, so the container claims one column and stacks its members inside it.', true, 'full length', 'Nothing in particular; this is a scheduling fixture.', '2026'),
+	-- The container itself. Not accepted, because not a presentation!
+	('4ac95f5b-c6e8-4d30-9a99-15d6f7b48a82', '22d95e65-8f2d-4735-87e8-005afc8c3323', '2026-05-01 09:30:00+00', 'Lightning Round', 'Two short talks run back to back in one hour.', true, 'session-container', NULL, '2026');
+
+INSERT INTO "public"."accepted_presentations" ("id", "accepted_at", "scheduled_for", "year") VALUES
+	('b1f0a4c2-6d38-4a51-9f2e-3c7d05a91b64', '2026-06-01 09:00:00+00', '2026-08-31 12:05:00+00', '2026'),
+	('c2a19d73-4e60-4b88-8a11-9d5e7f3c206a', '2026-06-01 09:00:00+00', '2026-08-31 13:00:00+00', '2026'),
+	('d3b28e84-5f71-4c99-9b22-ae6f804d317b', '2026-06-01 09:00:00+00', '2026-08-31 16:00:00+00', '2026'),
+	('e4c39f95-6082-4daa-8c33-bf70915e428c', '2026-06-01 09:00:00+00', '2026-08-31 16:00:00+00', '2026'),
+	('f5d40a06-7193-4ebb-9d44-c081a26f539d', '2026-06-01 09:00:00+00', '2026-08-31 17:00:00+00', '2026'),
+	('06e51b17-82a4-4fcc-8e55-d192b3706a4e', '2026-06-01 09:00:00+00', '2026-08-31 17:45:00+00', '2026'),
+	('17f62c28-93b5-4a0d-9f66-e2a3c481755f', '2026-06-01 09:00:00+00', '2026-09-01 08:00:00+00', '2026'),
+	('28a73d39-a4c6-4b1e-8a77-f3b4d5926860', '2026-06-01 09:00:00+00', '2026-09-01 08:15:00+00', '2026'),
+	('39b84e4a-b5d7-4c2f-9b88-04c5e6a37971', '2026-06-01 09:00:00+00', '2026-09-01 08:00:00+00', '2026');
+
+INSERT INTO "public"."container_groups" ("container_id", "presentation_id") VALUES
+	('4ac95f5b-c6e8-4d30-9a99-15d6f7b48a82', '17f62c28-93b5-4a0d-9f66-e2a3c481755f'),
+	('4ac95f5b-c6e8-4d30-9a99-15d6f7b48a82', '28a73d39-a4c6-4b1e-8a77-f3b4d5926860');
+
+-- get_all_presentations INNER JOINs presentation_presenters -> profiles, so a
+-- presentation without a row here never reaches the agenda at all.
+INSERT INTO "public"."presentation_presenters" ("presentation_id", "presenter_id", "status") VALUES
+	('b1f0a4c2-6d38-4a51-9f2e-3c7d05a91b64', '35f03917-dd1c-4a4d-88c4-1cd3b8996d27', 'accepted'),
+	('c2a19d73-4e60-4b88-8a11-9d5e7f3c206a', '0aab4c3b-1415-4871-943a-5c377c9158e9', 'accepted'),
+	('d3b28e84-5f71-4c99-9b22-ae6f804d317b', '4671cf60-ae64-46c0-b3a5-fc934cf1bd8a', 'accepted'),
+	('e4c39f95-6082-4daa-8c33-bf70915e428c', 'ef21a78e-9e42-47ba-9e22-1707c3ad1e43', 'accepted'),
+	('f5d40a06-7193-4ebb-9d44-c081a26f539d', 'c87226b4-564d-4fce-b8bc-d4f806b4f927', 'accepted'),
+	('06e51b17-82a4-4fcc-8e55-d192b3706a4e', '0eae4c37-4af5-4b92-ae90-615facddad49', 'accepted'),
+	('17f62c28-93b5-4a0d-9f66-e2a3c481755f', 'f3142ed8-c853-43e5-8383-c32ab5b964aa', 'accepted'),
+	('28a73d39-a4c6-4b1e-8a77-f3b4d5926860', '9556bc08-b216-4263-b97e-cdcbce35ac16', 'accepted'),
+	('39b84e4a-b5d7-4c2f-9b88-04c5e6a37971', '22d95e65-8f2d-4735-87e8-005afc8c3323', 'accepted');
+
+
+--
 -- Data for Name: buckets; Type: TABLE DATA; Schema: storage; Owner: supabase_storage_admin
 --
 
