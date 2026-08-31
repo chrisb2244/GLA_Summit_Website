@@ -217,15 +217,6 @@ INSERT INTO "public"."agenda_favourites" ("user_id", "presentation_id", "updated
 INSERT INTO "public"."confirmed_presentations" ("id", "created_at") VALUES
 	('56f56493-1ea9-49ef-b819-016cdf2f660f', '2024-03-20 02:11:33.953063+00');
 
-
---
--- Data for Name: container_groups; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-INSERT INTO "public"."container_groups" ("container_id", "presentation_id") VALUES
-	('7c681885-09c7-41fa-88f9-673bcb000984', '19bee03e-11bc-4685-97ec-b5839a4147ae');
-
-
 --
 -- Data for Name: account_emails; Type: TABLE DATA; Schema: public; Owner: postgres
 --
