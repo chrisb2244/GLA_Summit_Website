@@ -19,6 +19,10 @@
   --color-primaryc-light: #795fc7;
   --color-foreground: #3e4342;
 
+  /* Height of the sticky menu bar in Header.tsx. Anything else that has to
+     stick below it (the agenda's day header) offsets by this. */
+  --menu-bar-height: 3.375rem;
+
   --text-h1s: 6.8552rem;
   --text-h1s--line-height: 1.167;
   --text-h4s: 2.4291rem;
