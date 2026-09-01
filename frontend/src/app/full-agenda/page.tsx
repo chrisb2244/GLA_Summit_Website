@@ -1,12 +1,26 @@
+import type { Metadata } from 'next';
 import { FullAgenda } from './FullAgenda';
 import type { ScheduledAgendaEntry } from '@/Components/Agenda/Agenda';
 import type { ContainerHint } from '@/Components/Agenda/AgendaCalculations';
 import { currentDisplayYear } from '@/app/configConstants';
+import { agendaExtras } from '@/app/agendaExtras';
 import { createAnonServerClient } from '@/lib/supabaseClient';
 import { Suspense } from 'react';
 import { cacheLife, cacheTag } from 'next/cache';
 import { CACHE_TAGS } from '@/lib/supabase/cacheTags';
+import { buildOpenGraph } from '@/app/sharedMetadata';
 import type { PresentationModel as AgendaEntry } from '@/lib/databaseModels';
+
+// The root layout's title template appends "| GLA Summit".
+export const metadata: Metadata = {
+  title: `${currentDisplayYear} Agenda`,
+  description: `The GLA Summit ${currentDisplayYear} schedule, shown in your local timezone.`,
+  alternates: { canonical: '/full-agenda' },
+  openGraph: buildOpenGraph({
+    title: `GLA Summit ${currentDisplayYear} Agenda`,
+    url: '/full-agenda'
+  })
+};
 
 const getAgendaAndHints = async () => {
   'use cache';
@@ -73,6 +87,7 @@ const getAgendaAndHints = async () => {
 
 const SvrFullAgenda = async () => {
   const agendaAndHints = await getAgendaAndHints();
+  const extras = agendaExtras[currentDisplayYear];
 
   return (
     <>
@@ -81,15 +96,19 @@ const SvrFullAgenda = async () => {
           Times shown in this agenda are in your local timezone, and reflect the{' '}
           {currentDisplayYear} agenda.
         </p>
-        <div className='max-sm:block sm:hidden'>
-          <p>We recommend that you use this page on a wider screen.</p>
-        </div>
+        {extras.length > 0 && (
+          <p>
+            Outlined entries are part of the schedule but have no separate
+            session pages.
+          </p>
+        )}
       </div>
-      <div className={`mb-[5vh] px-4 `}>
+      <div className='mb-[5vh] px-4'>
         <Suspense fallback={<p>Loading agenda...</p>}>
           <FullAgenda
             fullAgenda={agendaAndHints.fullAgenda}
             containerHints={agendaAndHints.containerHints ?? []}
+            extras={extras}
           />
         </Suspense>
       </div>
