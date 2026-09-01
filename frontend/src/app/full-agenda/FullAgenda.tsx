@@ -1,147 +1,90 @@
 'use client';
-import { useEffect, useReducer, useState } from 'react';
-import { Agenda, ScheduledAgendaEntry } from '@/Components/Agenda/Agenda';
-import type { Database } from '@/lib/sb_databaseModels';
-import type {
-  RealtimePostgresChangesPayload,
-  User
-} from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabaseClient';
-import { ContainerHint } from '@/Components/Agenda/AgendaCalculations';
-import { startDate } from '../configConstants';
 
-type DB_SubscriptionEvent = RealtimePostgresChangesPayload<
-  Database['public']['Tables']['agenda_favourites']['Row']
->;
-type SubscriptionEvent =
-  | DB_SubscriptionEvent
-  | { eventType: 'INITIALIZE'; data: string[] };
+import { useMemo } from 'react';
+import { Agenda, type ScheduledAgendaEntry } from '@/Components/Agenda/Agenda';
+import { AgendaList } from '@/Components/Agenda/AgendaList';
+import { buildAgendaSlots } from '@/Components/Agenda/agendaSlots';
+import type { ContainerHint } from '@/Components/Agenda/AgendaCalculations';
+import type { AgendaExtra } from '@/app/agendaExtras';
+import { useFavouriteIds } from './useFavouriteIds';
+import { startDate } from '../configConstants';
+import { useViewType } from './useViewType';
+
+const SHOW_FAVOURITES = false;
+
+const toggleClasses = (active: boolean) =>
+  `border-2 border-primaryc px-3 py-1 text-sm ${
+    active ? 'bg-primaryc text-white' : 'bg-white text-primaryc'
+  }`;
 
 export const FullAgenda = (props: {
   fullAgenda: ScheduledAgendaEntry[];
   containerHints: ContainerHint[];
+  extras: AgendaExtra[];
 }) => {
-  const [user, setUser] = useState<User>();
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data, error }) => {
-      if (!error) {
-        setUser(data.user);
-      }
-    });
-  }, []);
+  const { fullAgenda, containerHints, extras } = props;
 
-  const { fullAgenda, containerHints } = props;
-
-  const [hoursToShow, setHoursToShow] = useState(() => {
-    if (typeof window === 'undefined') {
-      return 4.5;
-    }
-    return window.matchMedia('(min-width: 768px)').matches ? 6 : 3;
-  });
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    const mq = window.matchMedia('(min-width: 768px)');
-    const onChange = (e: MediaQueryListEvent) => {
-      setHoursToShow(e.matches ? 6 : 3);
-    };
-
-    mq.addEventListener('change', onChange);
-    return () => {
-      mq.removeEventListener('change', onChange);
-    };
-  }, []);
-
-  const favouriteReducer = (
-    cachedFavourites: string[],
-    payload: SubscriptionEvent
-  ) => {
-    switch (payload.eventType) {
-      case 'INITIALIZE':
-        return payload.data;
-      case 'INSERT':
-        return cachedFavourites.concat(payload.new.presentation_id);
-      case 'UPDATE':
-        // probably doesn't happen?
-        return cachedFavourites;
-      case 'DELETE':
-        return cachedFavourites.filter(
-          (f) => f !== payload.old.presentation_id
-        );
-    }
-  };
-
-  const [userFavIds, setUserFavs] = useReducer(favouriteReducer, []);
-
-  useEffect(() => {
-    // If not signed in, should return empty array
-    if (typeof user === 'undefined') {
-      return;
-    }
-    try {
-      supabase
-        .from('agenda_favourites')
-        .select('presentation_id')
-        .then(({ data, error }) => {
-          if (error) throw error;
-          return data.map((r) => r.presentation_id);
-        })
-        .then((favourites) => {
-          setUserFavs({ eventType: 'INITIALIZE', data: favourites });
-        });
-    } catch {
-      return;
-    }
-  }, [user]);
-
-  useEffect(() => {
-    // Don't subscribe to changes if user is not signed in
-    if (!user) {
-      return;
-    }
-    
-    const subscription = supabase
-      .channel('public:agenda_favourites')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'agenda_favourites'
-        },
-        (payload: DB_SubscriptionEvent) => {
-          setUserFavs(payload);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [user]);
-
-  const showFavourites = false;
-  const favouriteIds = showFavourites ? userFavIds : undefined;
-
-  const unableToRenderElem = (
-    <p>Unable to load this year&apos;s agenda. Please try again later.</p>
+  const slots = useMemo(
+    () => buildAgendaSlots(fullAgenda, extras),
+    [fullAgenda, extras]
   );
 
-  if (fullAgenda === null) {
-    return unableToRenderElem;
+  const favouriteIds = useFavouriteIds(SHOW_FAVOURITES);
+
+  const { shownView, setChosenView, visibility } = useViewType();
+
+  // `#presentations` is the readiness hook for playwright/accessibility.spec.ts,
+  // so it has to live on content inside the page's Suspense boundary: on the
+  // wrapper outside it, it resolved before the agenda had streamed in.
+  if (slots.length === 0) {
+    return (
+      <div id='presentations'>
+        <p>
+          This year&apos;s agenda has not been published yet. Please check back
+          soon.
+        </p>
+      </div>
+    );
   }
 
   return (
-    <Agenda
-      agendaEntries={fullAgenda}
-      hoursToShow={hoursToShow}
-      startDate={startDate}
-      durationInHours={24}
-      favourites={favouriteIds}
-      containerHints={containerHints}
-    />
+    <div id='presentations'>
+      <div className='mb-2 flex items-center gap-2'>
+        <span className='sr-only' id='agenda-view-label'>
+          Agenda view
+        </span>
+        <div role='group' aria-labelledby='agenda-view-label' className='flex'>
+          <button
+            type='button'
+            className={toggleClasses(shownView === 'timeline')}
+            aria-pressed={shownView === 'timeline'}
+            onClick={() => setChosenView('timeline')}
+          >
+            Timeline
+          </button>
+          <button
+            type='button'
+            className={toggleClasses(shownView === 'list')}
+            aria-pressed={shownView === 'list'}
+            onClick={() => setChosenView('list')}
+          >
+            List
+          </button>
+        </div>
+      </div>
+
+      <div className={visibility('timeline')}>
+        <Agenda
+          slots={slots}
+          startDate={startDate}
+          durationInHours={24}
+          favourites={favouriteIds}
+          containerHints={containerHints}
+        />
+      </div>
+      <div className={visibility('list')}>
+        <AgendaList slots={slots} favourites={favouriteIds} />
+      </div>
+    </div>
   );
 };

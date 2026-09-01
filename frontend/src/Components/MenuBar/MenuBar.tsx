@@ -16,7 +16,12 @@ export type MenuElement = {
 export const MenuBar = () => {
   const menuElements: MenuElement[] = [
     { title: 'Home', link: '/', showOnMobile: true, showOnDesktop: true },
-    // { title: 'Agenda', link: '/full-agenda', showOnMobile: true, showOnDesktop: true },
+    {
+      title: 'Agenda',
+      link: '/full-agenda',
+      showOnMobile: true,
+      showOnDesktop: true
+    },
     ...(CAN_SUBMIT_PRESENTATION
       ? [
           {

@@ -129,6 +129,11 @@ const config: NextConfig = {
   async redirects() {
     return [
       {
+        source: '/agenda',
+        destination: '/full-agenda',
+        permanent: true
+      },
+      {
         source: '/presentations',
         destination: '/presentation-list',
         permanent: true

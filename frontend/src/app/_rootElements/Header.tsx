@@ -59,7 +59,7 @@ export const Header = () => {
       <div className='sticky left-0 top-0 z-50 mb-4 bg-primaryc text-white shadow-[0px_6px_6px_0px_rgba(0,0,0,0.2)]'>
         <div
           id='menu bar'
-          className='flex min-h-13.5 grow items-center mx-4 md:mx-2 '
+          className='flex min-h-(--menu-bar-height) grow items-center mx-4 md:mx-2 '
         >
           <MenuBar />
           <Suspense>
