@@ -4,8 +4,10 @@ import { currentDisplayYear } from './src/app/configConstants';
 // Allow the Supabase Storage host that THIS build talks to (prod or the test
 // project), derived from NEXT_PUBLIC_SUPABASE_URL, so the image optimizer never
 // 400s on avatars after switching projects. 127.0.0.1 is already covered below.
-const supabaseImageHost = (():
-  | { protocol: 'http' | 'https'; hostname: string }[] => {
+const supabaseImageHost = ((): {
+  protocol: 'http' | 'https';
+  hostname: string;
+}[] => {
   try {
     const { hostname, protocol } = new URL(
       process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
@@ -85,6 +87,7 @@ const securityHeaders = [
 const config: NextConfig = {
   reactStrictMode: true,
   cacheComponents: true,
+  partialPrefetching: true,
   cacheLife: {
     // Public content (presentations, presenters, agenda) is invalidated
     // on-demand: edits through the site call cacheTag/revalidateTag, and
@@ -95,8 +98,8 @@ const config: NextConfig = {
     // so they are lengthened to cut DB load.
     publicContent: {
       stale: 3600, // 1 hour (client)
-      revalidate: 3600*24, // 24 hours (background server refresh)
-      expire: 3600*24*30 // 30 days (hard cap before a blocking refresh)
+      revalidate: 3600 * 24, // 24 hours (background server refresh)
+      expire: 3600 * 24 * 30 // 30 days (hard cap before a blocking refresh)
     }
   },
   turbopack: {

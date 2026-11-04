@@ -7,11 +7,11 @@
     "db:reset": "supabase db reset && npm run db:seed:avatars"
   },
   "devDependencies": {
-    "@supabase/supabase-js": "^2.106.0",
-    "@types/node": "^25.9.0",
-    "sharp": "^0.35.3",
-    "supabase": "^2.113.0",
-    "tsx": "^4.20.6",
-    "typescript": "^5.8.3"
+    "@supabase/supabase-js": "^2.118.0",
+    "@types/node": "^25.9.9",
+    "sharp": "^0.35.5",
+    "supabase": "^2.122.1",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3"
   }
 }
