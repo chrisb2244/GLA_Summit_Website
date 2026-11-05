@@ -32,6 +32,18 @@ describe('RegistrationSchema email normalisation', () => {
       expect(result.data.email).toBe('user@example.com');
     }
   });
+
+  it('accepts an email with a single trailing space (mobile autofill)', () => {
+    const result = RegistrationSchema.safeParse({
+      firstName: 'Alice',
+      lastName: 'Smith',
+      email: 'user@example.com '
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.email).toBe('user@example.com');
+    }
+  });
 });
 
 describe('RegistrationForm cross-links', () => {

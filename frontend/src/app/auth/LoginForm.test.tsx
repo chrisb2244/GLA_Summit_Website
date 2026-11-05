@@ -27,6 +27,14 @@ describe('LoginSchema email normalisation', () => {
       expect(result.data.email).toBe('user@example.com');
     }
   });
+
+  it('accepts an email with a single trailing space (mobile autofill)', () => {
+    const result = LoginSchema.safeParse({ email: 'user@example.com ' });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.email).toBe('user@example.com');
+    }
+  });
 });
 
 describe('buildAuthFormUrl', () => {

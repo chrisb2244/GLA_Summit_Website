@@ -2,8 +2,8 @@
 import 'server-only';
 
 import { revalidatePath } from 'next/cache';
-import { z } from 'zod';
 
+import { EmailInputSchema as EmailSchema } from '@/lib/emailInputSchema';
 import { getUser } from '@/lib/supabase/userFunctions';
 
 import {
@@ -12,13 +12,6 @@ import {
   removeAddress,
   requestAddressAddition
 } from './emailAddressService';
-
-const EmailSchema = z
-  .string()
-  .trim()
-  .min(1, 'Required')
-  .email("This email doesn't match the expected pattern")
-  .transform((s) => s.toLowerCase());
 
 export type AddressFormState = {
   step: 'add' | 'confirm';
