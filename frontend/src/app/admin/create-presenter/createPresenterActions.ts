@@ -3,7 +3,7 @@ import 'server-only'; // Poison the module for client code.
 
 import { randomBytes } from 'crypto';
 import { revalidatePath } from 'next/cache';
-import z from 'zod/v4';
+import z from 'zod';
 
 import { generateAvatarIcon } from '@/actions/generateAvatarIcon';
 import { submissionsForYear } from '@/app/configConstants';
