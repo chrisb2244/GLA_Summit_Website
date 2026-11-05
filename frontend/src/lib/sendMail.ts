@@ -1,3 +1,4 @@
+import 'server-only';
 import type { MessagesSendResult } from 'mailgun.js';
 
 export type EmailContent = {
@@ -8,11 +9,12 @@ export type EmailContent = {
   from?: string;
 };
 
-let sendMailApi: (emailContent: EmailContent) => Promise<MessagesSendResult>;
+type SendMailFn = (emailContent: EmailContent) => Promise<MessagesSendResult>;
 
-if (process.env.USE_MOCK_EMAIL === 'true') {
-  /* eslint-disable-next-line @typescript-eslint/no-require-imports */
-  const mailer = require('nodemailer') as typeof import('nodemailer');
+// Mock mode: deliver locally over SMTP. nodemailer is a devDependency,
+// and the dynamic import keeps it out of the production server's module graph.
+const createMockSender = async (): Promise<SendMailFn> => {
+  const { createTransport } = await import('nodemailer');
 
   // SMTP endpoint of the local mail catcher (Mailpit/Supabase Inbucket) that
   // receives mock-mode mail. This is the SEND target — distinct from the HTTP
@@ -23,13 +25,13 @@ if (process.env.USE_MOCK_EMAIL === 'true') {
   );
   const smtpPort = parseInt(smtpUrl.port, 10);
 
-  const nmail = mailer.createTransport({
+  const nmail = createTransport({
     host: smtpUrl.hostname,
     port: smtpPort,
     secure: false
   });
 
-  sendMailApi = async (emailContent: EmailContent) => {
+  return async (emailContent) => {
     const { to, subject, body, bodyPlain } = emailContent;
     const from = emailContent.from ?? process.env.EMAIL_FROM_MG;
     const sentMessageInfo = await nmail.sendMail({
@@ -45,11 +47,18 @@ if (process.env.USE_MOCK_EMAIL === 'true') {
       message: sentMessageInfo.response
     };
   };
-} else {
-  /* eslint-disable-next-line @typescript-eslint/no-require-imports */
-  const Mailgun = require('mailgun.js') as typeof import('mailgun.js').default;
-  /* eslint-disable-next-line @typescript-eslint/no-require-imports */
-  const FormDataPackage = require('form-data') as typeof import('form-data');
+};
+
+const createMailgunSender = async (): Promise<SendMailFn> => {
+  const [mailgunModule, { default: FormDataPackage }] = await Promise.all([
+    import('mailgun.js'),
+    import('form-data')
+  ]);
+  // mailgun.js is CommonJS (module.exports = Mailgun), so under node16 module
+  // resolution `.default` is typed as the whole module. The class re-exposes
+  // itself as a static `default`, which resolves to the class under every
+  // interop (Node, Turbopack) and is typed correctly.
+  const Mailgun = mailgunModule.default.default;
 
   const MG_API_KEY = process.env.MAILGUN_SENDING_KEY as string;
 
@@ -60,7 +69,7 @@ if (process.env.USE_MOCK_EMAIL === 'true') {
     url: 'https://api.mailgun.net'
   });
 
-  sendMailApi = async (emailContent: EmailContent) => {
+  return async (emailContent) => {
     const { to, subject, body, bodyPlain } = emailContent;
     const from = emailContent.from ?? process.env.EMAIL_FROM_MG;
 
@@ -72,9 +81,6 @@ if (process.env.USE_MOCK_EMAIL === 'true') {
         html: body,
         from
       })
-      .then((msg) => {
-        return msg;
-      })
       .catch((err) => {
         const response: MessagesSendResult = {
           status: 500,
@@ -84,6 +90,24 @@ if (process.env.USE_MOCK_EMAIL === 'true') {
         return response;
       });
   };
-}
+};
 
-export { sendMailApi };
+// Built on first send and reused.
+let sender: Promise<SendMailFn> | undefined;
+
+const getSender = (): Promise<SendMailFn> => {
+  sender ??= (
+    process.env.USE_MOCK_EMAIL === 'true'
+      ? createMockSender()
+      : createMailgunSender()
+  ).catch((err: unknown) => {
+    sender = undefined;
+    throw err;
+  });
+  return sender;
+};
+
+export const sendMailApi: SendMailFn = async (emailContent) => {
+  const send = await getSender();
+  return send(emailContent);
+};
