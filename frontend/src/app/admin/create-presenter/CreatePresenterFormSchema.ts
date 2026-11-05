@@ -1,4 +1,4 @@
-import * as z from 'zod/v4';
+import z from 'zod';
 import { $ZodErrorTree } from 'zod/v4/core';
 import { SubmittablePresentationTypeSchema } from '@/Components/PresentationSubmissions/PresentationSubmissionFormSchema';
 

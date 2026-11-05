@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { EmailInputSchema } from '@/lib/emailInputSchema';
+
 import type { PersonProps } from '../Form/Person';
 
 export type VerificationState =
@@ -36,24 +38,14 @@ export type RegistrationState = {
 };
 
 export const LoginSchema = z.object({
-  email: z
-    .string()
-    .trim()
-    .min(1, 'Required')
-    .email("This email doesn't match the expected pattern")
-    .transform((s) => s.toLowerCase()),
+  email: EmailInputSchema,
   redirectTo: z.string().optional()
 });
 
 export const RegistrationSchema = z.object({
   firstName: z.string().trim().min(1, 'Required').max(80),
   lastName: z.string().trim().min(1, 'Required').max(100),
-  email: z
-    .string()
-    .trim()
-    .min(1, 'Required')
-    .email("This email doesn't match the expected pattern")
-    .transform((s) => s.toLowerCase()),
+  email: EmailInputSchema,
   redirectTo: z.string().optional()
 });
 

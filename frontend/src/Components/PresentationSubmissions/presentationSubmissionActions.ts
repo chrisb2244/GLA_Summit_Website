@@ -47,7 +47,7 @@ import {
   CAN_SUBMIT_PRESENTATION,
   COPRESENTER_INVITE_WORKFLOW
 } from '@/app/configConstants';
-import z from 'zod/v4';
+import z from 'zod';
 
 /**
  * Server action that handles presentation form submission.

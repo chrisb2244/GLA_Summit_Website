@@ -1,4 +1,4 @@
-import * as z from 'zod/v4';
+import * as z from 'zod';
 import { $ZodErrorTree } from 'zod/v4/core';
 
 export const SubmitIntentSchema = z.enum(['saveDraft', 'submit']);
