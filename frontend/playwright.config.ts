@@ -47,6 +47,9 @@ const config: PlaywrightTestConfig = {
   use: {
     /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
     actionTimeout: 0,
+    /* Pin the browser timezone so client-rendered times (e.g. TimestampSpan)
+     * match CI (UTC) regardless of the local machine's zone. */
+    timezoneId: 'UTC',
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL:
       process.env.VERCEL_URL || process.env.baseURL || 'http://localhost:3000',
