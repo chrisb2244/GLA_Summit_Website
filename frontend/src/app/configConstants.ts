@@ -5,7 +5,7 @@ export const CAN_SUBMIT_PRESENTATION: boolean = false;
 // When true, the submission form shows a "save as draft" checkbox.
 // Setting this independently of CAN_SUBMIT_PRESENTATION lets you allow
 // draft-saving while keeping final submissions closed (or vice-versa).
-export const CAN_SUBMIT_DRAFT: boolean = true;
+export const CAN_SUBMIT_DRAFT: boolean = false;
 
 // Co-presenter accept/decline invite workflow. OFF = implicit acceptance (co-presenters
 // added directly, no invite emails, no accept/decline route). The route + server actions
@@ -20,7 +20,7 @@ export const MEDIA_BANNERS_AVAILABLE: boolean = true;
 // Organizer voting on submitted presentations (/review-submissions). When false,
 // the vote record stays visible (read-only) but the for/abstain/against buttons
 // are hidden, so no new votes can be cast.
-export const ORGANIZER_VOTING: boolean = true;
+export const ORGANIZER_VOTING: boolean = false;
 
 // Controls for which year the presentation-list defaults,
 // and for which year the agenda is displayed.
