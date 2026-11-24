@@ -51,7 +51,7 @@ export const Header = () => {
             <h1 className={`text-h1s font-light`}>GLA Summit</h1>
             <h4 className={`text-h4s font-normal`}>
               {/* 23-24 June 2025, 12:00 UTC */}
-              31 Aug 2026 12:00 UTC for 24 hours
+              31 Aug - 1 Sep 2026
             </h4>
           </div>
         </div>

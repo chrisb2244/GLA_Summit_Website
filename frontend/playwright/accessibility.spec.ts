@@ -9,6 +9,7 @@ import {
   type SharedAuthRole
 } from './utils';
 import {
+  CAN_SUBMIT_DRAFT,
   CAN_SUBMIT_PRESENTATION,
   COPRESENTER_INVITE_WORKFLOW,
   currentDisplayYear
@@ -235,9 +236,12 @@ test.describe('Accessibility (WCAG A/AA): authenticated pages', () => {
           );
           // Gate on copy unique to the resolved page — the "Edit Draft
           // Presentation" heading also renders in loading.tsx, so it can't
-          // tell the Suspense fallback apart from the form.
+          // tell the Suspense fallback apart from the form. With both
+          // submission flags off the page renders a closed notice instead.
           await expect(
-            page.getByText('Edit your draft presentation below.')
+            CAN_SUBMIT_PRESENTATION || CAN_SUBMIT_DRAFT
+              ? page.getByText('Edit your draft presentation below.')
+              : page.getByText('The presentation submission process is closed.')
           ).toBeVisible();
           const { violations } = await makeAxeBuilder().analyze();
           await expectNoViolations(violations, testInfo);

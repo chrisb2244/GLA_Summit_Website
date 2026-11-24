@@ -3,6 +3,7 @@ import {
   SubmittedPresentationReviewCard
 } from './SubmittedPresentationReviewCard';
 import { createServerClient } from '@/lib/supabaseServer';
+import { connection } from 'next/server';
 import { submissionsForYear } from '@/app/configConstants';
 import { DownloadButton } from './DownloadButton';
 import { SubmissionVotingPanel } from './SubmissionVotingPanel';
@@ -118,6 +119,9 @@ export const ReviewSubmissionsPageContent = async () => {
     );
   }
   const { user } = userData;
+  // Request-time only: the session-bound client's queries run auth-js's
+  // Date.now() expiry check, which Next forbids mid-prerender (see getUser).
+  await connection();
   const supabase = await createServerClient();
 
   const [
