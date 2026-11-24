@@ -1,6 +1,7 @@
 import { createServerClient } from '../supabaseServer';
 import { cache } from 'react';
 import { cacheLife, cacheTag } from 'next/cache';
+import { connection } from 'next/server';
 import { cacheTagForPerson } from './cacheTags';
 import type { ProfileModel } from '../databaseModels';
 
@@ -10,6 +11,8 @@ import type { ProfileModel } from '../databaseModels';
 // short-circuits (e.g. bouncing an already-logged-in visitor off /auth/login),
 // never for authorization.
 export const getSession = cache(async () => {
+  // See getUser: auth-js reads Date.now() while loading the session.
+  await connection();
   const supabase = await createServerClient();
   const { data, error } = await supabase.auth.getSession();
   if (error) {
@@ -18,14 +21,29 @@ export const getSession = cache(async () => {
   return data.session;
 });
 
-// supabase.auth.getUser
-export const getUser = cache(async () => {
+// supabase.auth.getUser, with no scope guard. auth-js compares the session's
+// expiry with Date.now() before validating the JWT, which Next forbids during a
+// prerender — so call this only from a scope where that's allowed: below
+// connection() (getUser) or inside 'use cache: private' (getUserDataForMenu).
+const loadUser = async () => {
   const supabase = await createServerClient();
   const { data, error } = await supabase.auth.getUser();
   if (error) {
     return null;
   }
   return data.user;
+};
+
+// Request-time only. Under partialPrefetching a route whose shell reads
+// cookies/params is prerendered per request, with cookies resolved, so without
+// connection() loadUser's Date.now() is reached mid-prerender and Next logs
+// "encountered the unstable value `Date.now()` while prerendering" on every
+// authenticated route. This is the authorization check, so it stays uncached.
+// Not callable inside 'use cache' / 'use cache: private' (connection() is
+// prohibited there) — use loadUser via getUserDataForMenu instead.
+export const getUser = cache(async () => {
+  await connection();
+  return loadUser();
 });
 
 // Wrapped in React's `cache()` for request-scoped deduplication: this is called
@@ -39,7 +57,9 @@ export const getUserDataForMenu = cache(async () => {
   'use cache: private';
   cacheLife('default');
 
-  const user = await getUser();
+  // loadUser, not getUser: connection() is prohibited in this scope, and the
+  // private cache already permits auth-js's Date.now().
+  const user = await loadUser();
   if (!user) {
     return null;
   }

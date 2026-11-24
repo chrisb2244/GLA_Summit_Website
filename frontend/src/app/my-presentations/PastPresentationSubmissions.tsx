@@ -1,4 +1,5 @@
 import { createServerClient } from '@/lib/supabaseServer';
+import { connection } from 'next/server';
 import type {
   MyPresentationSubmissionType,
   SummitYear
@@ -10,6 +11,9 @@ import { DraftPresentationCard } from './DraftPresentationCard';
 import { CopresenterStatusList } from './CopresenterStatusList';
 
 export const PastPresentationSubmissions = async () => {
+  // Request-time only: the session-bound client's queries run auth-js's
+  // Date.now() expiry check, which Next forbids mid-prerender (see getUser).
+  await connection();
   const supabase = await createServerClient();
 
   const myPresentations = await getMyPresentations(supabase);

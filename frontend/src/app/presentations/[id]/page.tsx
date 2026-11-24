@@ -4,6 +4,7 @@ import {
 } from '@/Components/Layout/PresentationDisplay';
 import { getPresentationIds } from '@/lib/databaseFunctions';
 import { createServerClient } from '@/lib/supabaseServer';
+import { connection } from 'next/server';
 import { calculateSchedule } from '@/lib/utils';
 import type { Metadata, NextPage } from 'next';
 import { notFound } from 'next/navigation';
@@ -104,6 +105,9 @@ const PresentationsForYearPageContent = async (props: PageProps) => {
     }
   } catch (err) {
     // Not returned by getPublicPresentations.
+    // Request-time only: the session-bound client's queries run auth-js's
+    // Date.now() expiry check, which Next forbids mid-prerender (see getUser).
+    await connection();
     const supabaseLoggedIn = await createServerClient();
     const { data, error } = await supabaseLoggedIn
       .rpc('get_my_submissions')
