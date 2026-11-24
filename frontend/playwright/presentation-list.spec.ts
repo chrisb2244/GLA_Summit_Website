@@ -11,6 +11,14 @@ test.describe('Presentation-list tests', () => {
     { tag: '@regression' },
     async ({ page }) => {
       await page.goto('/presentation-list/2024');
+      // Capture the post-hydration (viewer-local) timestamps, not whichever
+      // phase happens to be on screen. The viewer zone is pinned to UTC in
+      // playwright.config.ts; timezone behaviour itself is covered by
+      // timestamps.spec.ts, so the baseline doesn't need to tolerate it.
+      await expect(page.locator('[data-zone]').first()).toHaveAttribute(
+        'data-zone',
+        'local'
+      );
       await expect(page).toHaveScreenshot('presentation-list.png', {
         fullPage: true,
         maxDiffPixelRatio: 0.02
